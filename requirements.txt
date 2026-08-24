@@ -1,0 +1,11 @@
+numpy
+pandas
+gymnasium
+torch
+torch-geometric
+stable-baselines3
+fastapi
+uvicorn
+prometheus-client
+python-dotenv
+pytest
