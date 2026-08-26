@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:8000"
+    environment:
+      - ORDERS_URL=http://orders:8000
+    depends_on:
+      - orders
+
+  orders:
+    build: ./orders
+    ports:
+      - "8001:8000"
+    environment:
+      - INVENTORY_URL=http://inventory:8000
+    depends_on:
+      - inventory
+
+  inventory:
+    build: ./inventory
+    ports:
+      - "8002:8000"
+    environment:
+      - PAYMENTS_URL=http://payments:8000
+    depends_on:
+      - payments
+
+  payments:
+    build: ./payments
+    ports:
+      - "8003:8000"
