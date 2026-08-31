@@ -11,6 +11,16 @@ from flexascale.data.preprocessing import (
     merge_service_states,
 )
 
+from flexascale.data.schema import (
+    ServiceState,
+    StateSource,
+)
+
+
+VALIDATION_SAMPLE_SIZE = 500
+"""Number of rows sampled for schema validation after the pipeline runs."""
+
+
 
 RESOURCE_FILE = Path(
     "data/raw/alibaba/v2021/MSResource_0.csv"
@@ -425,6 +435,48 @@ def main():
     print(
         f"Saved to: {OUTPUT_FILE}"
     )
+
+    # Schema validation — spot-check sampled rows against ServiceState.
+    # Fails loudly here rather than silently producing invalid observations.
+    print()
+    print("Validating output against ServiceState schema...")
+    _validate_output(state)
+    print("  OK: Schema validation passed.")
+
+
+def _validate_output(df: pd.DataFrame) -> None:
+    """
+    Spot-check a random sample of the final dataset against ``ServiceState``.
+
+    Raises ``ValueError`` via ``ServiceState.validate()`` if any sampled
+    row violates the shared schema contract.
+
+    Args:
+        df: The fully merged output DataFrame from ``main()``.
+    """
+    sample = df.sample(
+        n=min(VALIDATION_SAMPLE_SIZE, len(df)),
+        random_state=42,
+    )
+
+    errors: list[str] = []
+
+    for idx, row in sample.iterrows():
+        try:
+            ServiceState.from_dataframe_row(
+                row,
+                source=StateSource.ALIBABA,
+            )
+        except (ValueError, KeyError) as exc:
+            errors.append(f"  Row {idx}: {exc}")
+
+    if errors:
+        error_summary = "\n".join(errors[:10])
+        raise ValueError(
+            f"Schema validation failed on "
+            f"{len(errors)} / {len(sample)} sampled rows:\n"
+            + error_summary
+        )
 
 
 if __name__ == "__main__":
