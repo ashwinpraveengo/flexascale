@@ -50,3 +50,23 @@ locust -f locustfile.py --host=http://localhost:8000
 ```bash
 kubectl apply -f k8s/
 ```
+
+## Phase 2: RL Core (PPO Integration)
+
+The Stable-Baselines3 PPO integration is complete, setting up the foundation for the RL agent. Since the actual environment and feature extractor are still under development, we implemented a decoupled architecture using mock components.
+
+### Implementation Details
+- **[mock_env.py](file:///home/ghanasyam/Desktop/S7/flexascale2/flexascale/src/flexascale/simulator/mock_env.py)**: A placeholder `gymnasium.Env` that simulates cluster data. It emits synthetic observations matching the `ServiceState` schema (a flat vector of size `num_services * 5`).
+- **[mock_extractor.py](file:///home/ghanasyam/Desktop/S7/flexascale2/flexascale/src/flexascale/rl/mock_extractor.py)**: A dummy PyTorch MLP extending SB3's `BaseFeaturesExtractor`. This acts as a drop-in replacement for the pending GNN dependency encoder.
+- **[ppo_agent.py](file:///home/ghanasyam/Desktop/S7/flexascale2/flexascale/src/flexascale/rl/ppo_agent.py)**: The `PPOAgentManager` encapsulates the model setup, injecting the custom feature extractor via `policy_kwargs`. It also configures essential callbacks for checkpointing and evaluation.
+- **[train.py](file:///home/ghanasyam/Desktop/S7/flexascale2/flexascale/src/flexascale/rl/train.py)**: The entrypoint script that initializes the mock environment and triggers the training loop with TensorBoard logging.
+
+### How to Run the Training Loop
+To verify the PPO training pipeline locally (after installing the dependencies):
+```bash
+PYTHONPATH=src python3 src/flexascale/rl/train.py --timesteps 5000
+```
+You can monitor the training metrics using TensorBoard:
+```bash
+tensorboard --logdir=./logs/tb/
+```
