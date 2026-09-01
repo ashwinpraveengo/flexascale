@@ -6,6 +6,6 @@ torch-geometric
 stable-baselines3
 fastapi
 uvicorn
-prometheus-client
+prometheus-api-client
 python-dotenv
 pytest
