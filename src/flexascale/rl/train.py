@@ -1,11 +1,11 @@
 import argparse
 from stable_baselines3.common.monitor import Monitor
 
-from flexascale.simulator.mock_env import MockClusterEnv
+from flexascale.simulator.flexascale_env import FlexaScaleEnv
 from flexascale.rl.ppo_agent import PPOAgentManager
 from flexascale.rl.gnn_encoder import GNNExtractor
 from flexascale.rl.mock_extractor import MockExtractor
-
+from flexascale.config.env_config import EnvConfig
 
 def main():
     parser = argparse.ArgumentParser(description="Train PPO Agent on FlexaScale Env")
@@ -29,8 +29,9 @@ def main():
     parser.add_argument("--features-dim", type=int, default=64, help="Extracted features dimension")
     args = parser.parse_args()
 
-    print(f"Initializing Mock Environment with {args.num_services} services...")
-    env = Monitor(MockClusterEnv(num_services=args.num_services))
+    print(f"Initializing FlexaScale Environment...")
+    config = EnvConfig()
+    env = Monitor(FlexaScaleEnv(config=config))
 
     if args.extractor == "gnn":
         extractor_class = GNNExtractor
