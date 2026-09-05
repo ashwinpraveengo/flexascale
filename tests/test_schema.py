@@ -294,3 +294,65 @@ class TestRepr:
 
     def test_repr_contains_source(self, valid_state):
         assert "alibaba" in repr(valid_state)
+
+
+# ---------------------------------------------------------------------------
+# Extended Schema Categories & Derived Calculations
+# ---------------------------------------------------------------------------
+
+class TestExtendedSchema:
+
+    def test_derived_calculations_default(self, valid_state):
+        # Time
+        assert valid_state.submit_time == float(valid_state.timestamp)
+        assert valid_state.completion_time == pytest.approx(valid_state.latency_ms)
+        assert valid_state.wait_time == 0.0
+        # CPU/Mem ratio
+        expected_ratio = valid_state.cpu_utilization / valid_state.memory_utilization
+        assert valid_state.cpu_memory_ratio == pytest.approx(expected_ratio)
+        # Reliability
+        assert valid_state.error_rate == 0.0
+        assert valid_state.success_rate == 1.0
+        assert valid_state.acceptance_ratio == 1.0
+
+    def test_derived_calculations_with_raw_requests(self, valid_kwargs):
+        valid_kwargs["successful_requests"] = 95.0
+        valid_kwargs["failed_requests"] = 5.0
+        state = ServiceState(**valid_kwargs)
+        assert state.error_rate == pytest.approx(0.05)
+        assert state.success_rate == pytest.approx(0.95)
+        assert state.acceptance_ratio == pytest.approx(0.95)
+
+    def test_derived_time_calculations(self, valid_kwargs):
+        valid_kwargs["submit_time"] = 100.0
+        valid_kwargs["start_time"] = 105.0
+        valid_kwargs["finish_time"] = 130.0
+        state = ServiceState(**valid_kwargs)
+        assert state.wait_time == pytest.approx(5.0)
+        assert state.completion_time == pytest.approx(30.0)
+        assert state.makespan == pytest.approx(30.0)
+
+    def test_hardware_fields(self, valid_kwargs):
+        valid_kwargs["cpu_capacity"] = 4.0
+        valid_kwargs["gpu_count"] = 1
+        valid_kwargs["gpu_utilization"] = 85.0
+        valid_kwargs["gpu_memory"] = 16000.0
+        state = ServiceState(**valid_kwargs)
+        assert state.cpu_capacity == 4.0
+        assert state.gpu_count == 1
+        assert state.gpu_utilization == 85.0
+        assert state.gpu_memory == 16000.0
+
+    def test_to_dict(self, valid_state):
+        d = valid_state.to_dict()
+        assert d["service_id"] == "orders"
+        assert d["cpu_memory_ratio"] is not None
+        assert "completion_time" in d
+        assert "error_rate" in d
+        assert "gpu_count" in d
+
+    def test_field_categories_defined(self):
+        assert len(ServiceState.RAW_FIELDS) > 0
+        assert len(ServiceState.NORMALIZED_FIELDS) == VECTOR_DIM
+        assert len(ServiceState.DERIVED_FIELDS) > 0
+

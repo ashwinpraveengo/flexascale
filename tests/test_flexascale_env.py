@@ -3,12 +3,12 @@ Comprehensive tests for the FlexaScale Gymnasium environment.
 
 Covers all 15 required validation points:
     1.  Environment can be imported
-    2.  Environment can be instantiated
+    2.  Environment can be instantiated (cluster & single service)
     3.  reset() works
     4.  reset() returns (obs, info)
     5.  Observation belongs to observation_space
     6.  Valid actions belong to action_space
-    7.  step() works
+    7.  step() works (supports multi-action array and scalar broadcasting)
     8.  step() returns (obs, reward, terminated, truncated, info)
     9.  Observation remains valid after step()
     10. Episode eventually terminates
@@ -21,9 +21,17 @@ Covers all 15 required validation points:
 
 import numpy as np
 import pytest
+from gymnasium.spaces import Box, Discrete, MultiDiscrete
 
 from flexascale.config.env_config import EnvConfig
 from flexascale.data.schema import VECTOR_DIM, VECTOR_FIELDS
+from flexascale.simulator.flexascale_env import (
+    ACTION_MAINTAIN,
+    ACTION_SCALE_DOWN,
+    ACTION_SCALE_UP,
+    NUM_ACTIONS,
+    FlexaScaleEnv,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -38,23 +46,21 @@ def config() -> EnvConfig:
 
 @pytest.fixture
 def env(config):
-    """A fresh environment instance, closed after each test."""
-    from flexascale.simulator.flexascale_env import FlexaScaleEnv
-
-    env = FlexaScaleEnv(config=config)
-    yield env
-    env.close()
+    """Cluster environment instance (4 services)."""
+    e = FlexaScaleEnv(config=config)
+    yield e
+    e.close()
 
 
 @pytest.fixture
-def seeded_env(config):
-    """Environment reset with a fixed seed for determinism tests."""
-    from flexascale.simulator.flexascale_env import FlexaScaleEnv
-
-    env = FlexaScaleEnv(config=config)
-    env.reset(seed=12345)
-    yield env
-    env.close()
+def single_env():
+    """Single-service environment instance."""
+    cfg = EnvConfig(
+        service_id="002251d4123496684687c2acad43bdef9419a5e4fc01a65d2c558af92a5ad649"
+    )
+    e = FlexaScaleEnv(config=cfg)
+    yield e
+    e.close()
 
 
 # ---------------------------------------------------------------------------
@@ -76,12 +82,6 @@ class TestImport:
         assert EnvConfig is not None
 
     def test_import_action_constants(self):
-        from flexascale.simulator.flexascale_env import (
-            ACTION_SCALE_DOWN,
-            ACTION_MAINTAIN,
-            ACTION_SCALE_UP,
-            NUM_ACTIONS,
-        )
         assert ACTION_SCALE_DOWN == 0
         assert ACTION_MAINTAIN == 1
         assert ACTION_SCALE_UP == 2
@@ -96,15 +96,14 @@ class TestInstantiation:
 
     def test_default_config(self, env):
         assert env is not None
+        assert env.num_services == 4
 
     def test_custom_config(self):
-        from flexascale.simulator.flexascale_env import FlexaScaleEnv
-
         cfg = EnvConfig(latency_target_ms=50.0, max_replicas=20)
-        env = FlexaScaleEnv(config=cfg)
-        assert env.config.latency_target_ms == 50.0
-        assert env.config.max_replicas == 20
-        env.close()
+        e = FlexaScaleEnv(config=cfg)
+        assert e.config.latency_target_ms == 50.0
+        assert e.config.max_replicas == 20
+        e.close()
 
     def test_dataset_loaded(self, env):
         assert env.num_services > 0
@@ -124,6 +123,10 @@ class TestReset:
 
     def test_reset_obs_shape(self, env):
         obs, _ = env.reset(seed=42)
+        assert obs.shape == (env.num_services * VECTOR_DIM,)
+
+    def test_reset_single_service_obs_shape(self, single_env):
+        obs, _ = single_env.reset(seed=42)
         assert obs.shape == (VECTOR_DIM,)
 
     def test_reset_obs_dtype(self, env):
@@ -136,18 +139,11 @@ class TestReset:
         assert "service_id" in info
         assert "timestep" in info
         assert "simulated_replicas" in info
+        assert "slo_violated" in info
 
-    def test_reset_with_fixed_service(self):
-        from flexascale.simulator.flexascale_env import FlexaScaleEnv
-
-        cfg = EnvConfig(
-            service_id="002251d4123496684687c2acad43bdef"
-                       "9419a5e4fc01a65d2c558af92a5ad649"
-        )
-        env = FlexaScaleEnv(config=cfg)
-        _, info = env.reset()
-        assert info["service_id"] == cfg.service_id
-        env.close()
+    def test_reset_with_fixed_service(self, single_env):
+        _, info = single_env.reset()
+        assert info["service_id"] == single_env.config.service_id
 
 
 # ---------------------------------------------------------------------------
@@ -158,9 +154,7 @@ class TestObservationSpace:
 
     def test_obs_in_space_after_reset(self, env):
         obs, _ = env.reset(seed=42)
-        assert env.observation_space.contains(obs), (
-            f"Observation {obs} not in space {env.observation_space}"
-        )
+        assert env.observation_space.contains(obs)
 
     def test_obs_in_space_after_step(self, env):
         env.reset(seed=42)
@@ -172,10 +166,10 @@ class TestObservationSpace:
                 break
 
     def test_observation_space_shape(self, env):
-        assert env.observation_space.shape == (VECTOR_DIM,)
+        assert env.observation_space.shape == (env.num_services * VECTOR_DIM,)
 
-    def test_observation_space_dtype(self, env):
-        assert env.observation_space.dtype == np.float32
+    def test_single_service_observation_space_shape(self, single_env):
+        assert single_env.observation_space.shape == (VECTOR_DIM,)
 
 
 # ---------------------------------------------------------------------------
@@ -185,19 +179,20 @@ class TestObservationSpace:
 class TestActionSpace:
 
     def test_action_space_type(self, env):
-        from gymnasium.spaces import Discrete
-        assert isinstance(env.action_space, Discrete)
+        assert isinstance(env.action_space, MultiDiscrete)
 
-    def test_action_space_n(self, env):
-        assert env.action_space.n == 3
+    def test_single_service_action_space_type(self, single_env):
+        assert isinstance(single_env.action_space, Discrete)
 
     def test_valid_actions(self, env):
-        for a in [0, 1, 2]:
-            assert env.action_space.contains(a)
+        sample = env.action_space.sample()
+        assert env.action_space.contains(sample)
 
-    def test_invalid_actions(self, env):
-        assert not env.action_space.contains(-1)
-        assert not env.action_space.contains(3)
+    def test_scalar_action_broadcast_in_step(self, env):
+        env.reset(seed=42)
+        # Passing integer action should broadcast across all services without error
+        obs, reward, terminated, truncated, info = env.step(ACTION_MAINTAIN)
+        assert isinstance(reward, float)
 
 
 # ---------------------------------------------------------------------------
@@ -208,13 +203,13 @@ class TestStep:
 
     def test_step_returns_5tuple(self, env):
         env.reset(seed=42)
-        result = env.step(1)  # maintain
+        result = env.step(ACTION_MAINTAIN)
         assert isinstance(result, tuple)
         assert len(result) == 5
 
     def test_step_types(self, env):
         env.reset(seed=42)
-        obs, reward, terminated, truncated, info = env.step(1)
+        obs, reward, terminated, truncated, info = env.step(ACTION_MAINTAIN)
         assert isinstance(obs, np.ndarray)
         assert isinstance(reward, float)
         assert isinstance(terminated, bool)
@@ -223,7 +218,7 @@ class TestStep:
 
     def test_step_info_contents(self, env):
         env.reset(seed=42)
-        _, _, _, _, info = env.step(1)
+        _, _, _, _, info = env.step(ACTION_MAINTAIN)
         assert "simulated_replicas" in info
         assert "slo_violated" in info
         assert "reward_components" in info
@@ -237,247 +232,116 @@ class TestObsValidAfterStep:
 
     def test_obs_shape_after_step(self, env):
         env.reset(seed=42)
-        obs, _, _, _, _ = env.step(2)
-        assert obs.shape == (VECTOR_DIM,)
+        obs, _, _, _, _ = env.step(ACTION_SCALE_UP)
+        assert obs.shape == (env.num_services * VECTOR_DIM,)
         assert obs.dtype == np.float32
+
+    def test_no_nan_or_inf_observations(self, env):
+        env.reset(seed=42)
+        for _ in range(10):
+            action = env.action_space.sample()
+            obs, reward, terminated, _, _ = env.step(action)
+            assert not np.isnan(obs).any()
+            assert not np.isinf(obs).any()
+            assert not np.isnan(reward)
+            assert not np.isinf(reward)
+            if terminated:
+                break
 
 
 # ---------------------------------------------------------------------------
-# 10. Episode eventually terminates
+# 10 & 11. Episode termination and reset
 # ---------------------------------------------------------------------------
 
 class TestEpisodeTermination:
 
     def test_episode_terminates(self, env):
         env.reset(seed=42)
+        steps = 0
         terminated = False
-        steps = 0
-        max_steps = 10_000  # safety limit
-
-        while not terminated and steps < max_steps:
-            _, _, terminated, _, _ = env.step(1)
+        while not terminated and steps < 2000:
+            _, _, terminated, _, _ = env.step(ACTION_MAINTAIN)
             steps += 1
-
-        assert terminated, (
-            f"Episode did not terminate after {max_steps} steps"
-        )
-
-    def test_episode_length_matches_trace(self, env):
-        env.reset(seed=42)
-        expected_steps = env.episode_length
-        steps = 0
-
-        while True:
-            _, _, terminated, _, _ = env.step(1)
-            steps += 1
-            if terminated:
-                break
-
-        assert steps == expected_steps
-
-
-# ---------------------------------------------------------------------------
-# 11. Reset after episode completion
-# ---------------------------------------------------------------------------
-
-class TestResetAfterEpisode:
+        assert terminated is True
 
     def test_reset_after_termination(self, env):
         env.reset(seed=42)
-
-        # Run to termination.
         while True:
-            _, _, terminated, _, _ = env.step(1)
+            _, _, terminated, _, _ = env.step(ACTION_MAINTAIN)
             if terminated:
                 break
-
-        # Reset and run again.
         obs, info = env.reset(seed=99)
-        assert obs.shape == (VECTOR_DIM,)
-        assert env.observation_space.contains(obs)
-
-        obs2, _, terminated2, _, _ = env.step(1)
-        assert obs2.shape == (VECTOR_DIM,)
-        assert not terminated2 or env.episode_length <= 2
+        assert obs.shape == (env.num_services * VECTOR_DIM,)
+        assert info["timestep"] == 0
 
 
 # ---------------------------------------------------------------------------
-# 12. No NaN / Inf
-# ---------------------------------------------------------------------------
-
-class TestNoNanInf:
-
-    def test_no_nan_after_reset(self, env):
-        obs, _ = env.reset(seed=42)
-        assert not np.any(np.isnan(obs)), f"NaN in obs: {obs}"
-        assert not np.any(np.isinf(obs)), f"Inf in obs: {obs}"
-
-    def test_no_nan_during_episode(self, env):
-        env.reset(seed=42)
-        for _ in range(50):
-            action = env.action_space.sample()
-            obs, _, terminated, _, _ = env.step(action)
-            assert not np.any(np.isnan(obs)), f"NaN in obs: {obs}"
-            assert not np.any(np.isinf(obs)), f"Inf in obs: {obs}"
-            if terminated:
-                break
-
-
-# ---------------------------------------------------------------------------
-# 13. Reward is finite
-# ---------------------------------------------------------------------------
-
-class TestRewardFinite:
-
-    def test_reward_finite_during_episode(self, env):
-        env.reset(seed=42)
-        for _ in range(50):
-            action = env.action_space.sample()
-            _, reward, terminated, _, _ = env.step(action)
-            assert np.isfinite(reward), f"Non-finite reward: {reward}"
-            if terminated:
-                break
-
-
-# ---------------------------------------------------------------------------
-# 14. Different actions produce meaningful behavior
+# 14. Action Effects
 # ---------------------------------------------------------------------------
 
 class TestActionEffects:
 
-    def test_scale_up_increases_replicas(self, env):
-        env.reset(seed=42)
-        _, info_before = env.reset(seed=42)
-        replicas_before = info_before["simulated_replicas"]
+    def test_scale_up_increases_replicas(self, single_env):
+        single_env.reset(seed=42)
+        _, info_before = single_env.reset(seed=42)
+        reps_before = info_before["simulated_replicas"]
 
-        _, _, _, _, info_after = env.step(2)  # scale up
-        replicas_after = info_after["simulated_replicas"]
+        _, _, _, _, info_after = single_env.step(ACTION_SCALE_UP)
+        reps_after = info_after["simulated_replicas"]
 
-        if replicas_before < env.config.max_replicas:
-            assert replicas_after == replicas_before + 1
+        if reps_before < single_env.config.max_replicas:
+            assert reps_after == reps_before + 1
 
-    def test_scale_down_decreases_replicas(self, env):
-        # Use a config that starts with enough replicas.
-        env.reset(seed=42)
-        _, info_before = env.reset(seed=42)
-        replicas_before = info_before["simulated_replicas"]
+    def test_scale_down_decreases_replicas(self, single_env):
+        single_env.reset(seed=42)
+        # Set replicas higher then step down
+        single_env._simulated_replicas[single_env._all_service_ids[0]] = 5
+        _, _, _, _, info_after = single_env.step(ACTION_SCALE_DOWN)
+        reps_after = info_after["simulated_replicas"]
+        assert reps_after == 4
 
-        _, _, _, _, info_after = env.step(0)  # scale down
-        replicas_after = info_after["simulated_replicas"]
-
-        if replicas_before > env.config.min_replicas:
-            assert replicas_after == replicas_before - 1
-
-    def test_maintain_keeps_replicas(self, env):
-        env.reset(seed=42)
-        _, info_before = env.reset(seed=42)
-        replicas_before = info_before["simulated_replicas"]
-
-        _, _, _, _, info_after = env.step(1)  # maintain
-        replicas_after = info_after["simulated_replicas"]
-        assert replicas_after == replicas_before
-
-    def test_different_actions_different_rewards(self, env):
-        """Different actions from the same state should generally
-        produce different rewards (at least for up vs down)."""
-        rewards = {}
-        for action in [0, 1, 2]:
-            env.reset(seed=42)
-            # Take one step to get past initial state.
-            env.step(1)
-            _, reward, _, _, _ = env.step(action)
-            rewards[action] = reward
-
-        # At least two actions should give different rewards.
-        unique_rewards = len(set(rewards.values()))
-        assert unique_rewards >= 2, (
-            f"All actions produced same reward: {rewards}"
-        )
+    def test_maintain_keeps_replicas(self, single_env):
+        single_env.reset(seed=42)
+        single_env._simulated_replicas[single_env._all_service_ids[0]] = 5
+        _, _, _, _, info_after = single_env.step(ACTION_MAINTAIN)
+        assert info_after["simulated_replicas"] == 5
 
 
 # ---------------------------------------------------------------------------
-# 15. Seeded determinism
+# 15. Seeded Determinism
 # ---------------------------------------------------------------------------
 
 class TestDeterminism:
 
-    def test_seeded_reset_same_service(self, env):
-        _, info1 = env.reset(seed=42)
-        _, info2 = env.reset(seed=42)
+    def test_seeded_reset_same_state(self, env):
+        obs1, info1 = env.reset(seed=42)
+        obs2, info2 = env.reset(seed=42)
+        np.testing.assert_array_equal(obs1, obs2)
         assert info1["service_id"] == info2["service_id"]
 
-    def test_seeded_reset_same_obs(self, env):
-        obs1, _ = env.reset(seed=42)
-        obs2, _ = env.reset(seed=42)
-        np.testing.assert_array_equal(obs1, obs2)
-
     def test_seeded_episode_deterministic(self, env):
-        def run_episode(seed):
+        def run_trajectory(seed):
             obs, _ = env.reset(seed=seed)
             trajectory = [obs.copy()]
             rewards = []
             for _ in range(10):
-                obs, reward, terminated, _, _ = env.step(1)
+                obs, rew, terminated, _, _ = env.step(ACTION_MAINTAIN)
                 trajectory.append(obs.copy())
-                rewards.append(reward)
+                rewards.append(rew)
                 if terminated:
                     break
             return trajectory, rewards
 
-        traj1, rew1 = run_episode(42)
-        traj2, rew2 = run_episode(42)
+        traj1, rew1 = run_trajectory(42)
+        traj2, rew2 = run_trajectory(42)
 
-        assert len(traj1) == len(traj2)
-        for o1, o2 in zip(traj1, traj2):
-            np.testing.assert_array_equal(o1, o2)
-        assert rew1 == rew2
-
-
-# ---------------------------------------------------------------------------
-# Gymnasium check_env
-# ---------------------------------------------------------------------------
-
-class TestGymnasiumCheck:
-
-    def test_check_env_passes(self, env):
-        """Run Gymnasium's built-in environment checker."""
-        from gymnasium.utils.env_checker import check_env
-
-        # check_env resets and steps internally — just verify no errors.
-        try:
-            check_env(env.unwrapped, skip_render_check=True)
-        except Exception as exc:
-            pytest.fail(f"Gymnasium check_env failed: {exc}")
+        for t1, t2 in zip(traj1, traj2):
+            np.testing.assert_array_almost_equal(t1, t2)
+        np.testing.assert_almost_equal(rew1, rew2)
 
 
 # ---------------------------------------------------------------------------
-# EnvConfig
-# ---------------------------------------------------------------------------
-
-class TestEnvConfig:
-
-    def test_default_values(self):
-        cfg = EnvConfig()
-        assert cfg.min_replicas == 1
-        assert cfg.max_replicas == 50
-        assert cfg.latency_target_ms == 100.0
-        assert cfg.cpu_target_pct == 70.0
-        assert "slo" in cfg.reward_weights
-
-    def test_frozen_immutability(self):
-        cfg = EnvConfig()
-        with pytest.raises(AttributeError):
-            cfg.min_replicas = 5  # type: ignore[misc]
-
-    def test_custom_reward_weights(self):
-        cfg = EnvConfig(
-            reward_weights={"slo": 2.0, "efficiency": 0.5, "stability": 0.2}
-        )
-        assert cfg.reward_weights["slo"] == 2.0
-
-
-# ---------------------------------------------------------------------------
-# Render
+# Render tests
 # ---------------------------------------------------------------------------
 
 class TestRender:

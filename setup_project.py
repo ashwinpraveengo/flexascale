@@ -1,6 +1,9 @@
 import os
 
-base_dir = "/home/ghanasyam/Desktop/S7/flexascale/app"
+
+from pathlib import Path
+
+base_dir = str(Path(__file__).resolve().parent)
 
 services = ["frontend", "orders", "inventory", "payments"]
 

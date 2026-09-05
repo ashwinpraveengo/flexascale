@@ -2,17 +2,17 @@
 """
 Sanity-check script for the FlexaScale RL simulation environment.
 
-Runs a simple heuristic baseline policy and prints per-step diagnostics
-so the team can verify that the simulator behaves sensibly:
+Runs a heuristic baseline autoscaling policy across the simulated cluster
+and prints per-step diagnostics to verify that the simulator behaves sensibly:
 
-    - Scale up   when CPU exceeds the target
+    - Scale up   when CPU exceeds target
     - Scale down when CPU drops below half the target
     - Otherwise  maintain
 
 Usage::
 
     python scripts/run_sanity_simulation.py
-    python scripts/run_sanity_simulation.py --episodes 5 --seed 42
+    python scripts/run_sanity_simulation.py --episodes 3 --seed 42
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+import numpy as np
 
 # Ensure the src/ directory is importable when running from the repo root.
 _src = Path(__file__).resolve().parent.parent / "src"
@@ -27,6 +28,7 @@ if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
 from flexascale.config.env_config import EnvConfig
+from flexascale.data.schema import VECTOR_DIM
 from flexascale.simulator.flexascale_env import (
     ACTION_MAINTAIN,
     ACTION_SCALE_DOWN,
@@ -36,21 +38,20 @@ from flexascale.simulator.flexascale_env import (
 
 
 def heuristic_policy(
-    obs,
+    obs: np.ndarray,
     cpu_target: float = 70.0,
 ) -> int:
     """
-    Simple rule-based scaling policy.
+    Simple rule-based scaling policy for a single service observation.
 
     Args:
-        obs:        Current observation vector (VECTOR_FIELDS layout).
+        obs: Current per-service observation vector (VECTOR_FIELDS layout).
         cpu_target: CPU utilisation target (percentage).
 
     Returns:
         Action integer: 0 (scale down), 1 (maintain), 2 (scale up).
     """
     cpu = float(obs[0])
-
     if cpu > cpu_target:
         return ACTION_SCALE_UP
     elif cpu < cpu_target / 2.0:
@@ -73,39 +74,40 @@ def run_episode(
 ) -> dict:
     """Run one full episode and print step-by-step diagnostics."""
     obs, info = env.reset(seed=seed)
-    service = info["service_id"][:16]
+    num_services = env.num_services
 
-    print(f"\n{'=' * 78}")
+    print(f"\n{'=' * 82}")
     print(
         f"Episode {episode_num}  |  "
-        f"service={service}...  |  "
+        f"services={num_services}  |  "
         f"trace_steps={env.episode_length}"
     )
-    print(f"{'=' * 78}")
+    print(f"{'=' * 82}")
     print(
-        f"{'step':>4s}  {'action':>6s}  {'replicas':>8s}  "
-        f"{'cpu%':>7s}  {'mem%':>7s}  "
-        f"{'rps':>8s}  {'latency':>8s}  "
+        f"{'step':>4s}  {'actions':>10s}  {'avg_reps':>9s}  "
+        f"{'avg_cpu%':>9s}  {'avg_mem%':>9s}  "
+        f"{'tot_rps':>9s}  {'avg_lat':>8s}  "
         f"{'reward':>7s}  {'SLO':>5s}"
     )
-    print("-" * 78)
+    print("-" * 82)
 
     total_reward = 0.0
     slo_violations = 0
     steps = 0
 
-    # Print initial state.
-    print(
-        f"{'init':>4s}  {'    -':>6s}  {info['simulated_replicas']:>8d}  "
-        f"{obs[0]:>7.2f}  {obs[1]:>7.2f}  "
-        f"{obs[3]:>8.1f}  {obs[4]:>8.1f}  "
-        f"{'    -':>7s}  {'  -':>5s}"
-    )
-
     terminated = False
-    while not terminated:
-        action = heuristic_policy(obs, env.config.cpu_target_pct)
-        obs, reward, terminated, truncated, info = env.step(action)
+    truncated = False
+
+    while not (terminated or truncated):
+        # Apply heuristic policy to each service
+        actions = []
+        obs_flat = obs.flatten()
+        for i in range(num_services):
+            s_obs = obs_flat[i * VECTOR_DIM : (i + 1) * VECTOR_DIM]
+            a = heuristic_policy(s_obs, env.config.cpu_target_pct)
+            actions.append(a)
+
+        obs, reward, terminated, truncated, info = env.step(np.array(actions, dtype=np.int64))
         steps += 1
         total_reward += reward
 
@@ -113,22 +115,29 @@ def run_episode(
         if info.get("slo_violated"):
             slo_violations += 1
 
-        print(
-            f"{steps:>4d}  {_ACTION_NAMES[action]:>6s}  "
-            f"{info['simulated_replicas']:>8d}  "
-            f"{obs[0]:>7.2f}  {obs[1]:>7.2f}  "
-            f"{obs[3]:>8.1f}  {obs[4]:>8.1f}  "
-            f"{reward:>+7.3f}  {slo_flag:>5s}"
-        )
+        # Aggregate metrics across services for step logging
+        obs_reshaped = obs.reshape(num_services, VECTOR_DIM)
+        avg_cpu = float(np.mean(obs_reshaped[:, 0]))
+        avg_mem = float(np.mean(obs_reshaped[:, 1]))
+        avg_reps = float(np.mean(obs_reshaped[:, 2]))
+        tot_rps = float(np.sum(obs_reshaped[:, 3]))
+        avg_lat = float(np.mean(obs_reshaped[:, 4]))
 
-        if terminated or truncated:
-            break
+        act_str = "".join([_ACTION_NAMES[a][0] for a in actions])  # e.g. "KKUK"
 
-    # Episode summary.
+        if steps <= 15 or steps % 50 == 0 or terminated:
+            print(
+                f"{steps:>4d}  {act_str:>10s}  "
+                f"{avg_reps:>9.1f}  "
+                f"{avg_cpu:>9.2f}  {avg_mem:>9.2f}  "
+                f"{tot_rps:>9.1f}  {avg_lat:>8.1f}  "
+                f"{reward:>+7.3f}  {slo_flag:>5s}"
+            )
+
     violation_rate = (
         slo_violations / steps * 100.0 if steps > 0 else 0.0
     )
-    print("-" * 78)
+    print("-" * 82)
     print(
         f"Summary: {steps} steps  |  "
         f"total_reward={total_reward:+.3f}  |  "
@@ -162,8 +171,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    print("FlexaScale RL Environment — Sanity Simulation")
-    print("=" * 50)
+    print("FlexaScale RL Environment — Cluster Sanity Simulation")
+    print("=" * 55)
 
     config = EnvConfig()
     env = FlexaScaleEnv(config=config)
@@ -181,10 +190,9 @@ def main() -> None:
         summary = run_episode(env, seed=seed, episode_num=ep)
         summaries.append(summary)
 
-    # Overall summary.
-    print(f"\n{'=' * 78}")
-    print("OVERALL SUMMARY")
-    print(f"{'=' * 78}")
+    print(f"\n{'=' * 82}")
+    print("OVERALL CLUSTER SIMULATION SUMMARY")
+    print(f"{'=' * 82}")
     for i, s in enumerate(summaries, 1):
         print(
             f"  Episode {i}: "
@@ -194,7 +202,7 @@ def main() -> None:
         )
 
     env.close()
-    print("\nDone.")
+    print("\nSanity simulation complete.")
 
 
 if __name__ == "__main__":

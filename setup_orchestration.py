@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 
-base_dir = "/home/ghanasyam/Desktop/S7/flexascale/app"
+
+base_dir = str(Path(__file__).resolve().parent)
 
 # 1. docker-compose.yml
 docker_compose = """version: '3.8'
