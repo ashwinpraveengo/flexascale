@@ -317,18 +317,26 @@ kubectl rollout restart deployment monitoring-grafana -n flexascale-monitoring
 
 ---
 
-## H. Alibaba Trace Processing Pipeline
+## H. Alibaba Trace Processing Pipeline & Dataset Splits
 
-Process raw Alibaba cluster traces (`MSResource` and `MSRTQps`) into the unified service state dataset:
+Process raw Alibaba cluster traces (`MSResource` and `MSRTQps`) into the unified service state dataset and generate Train / Validation / Test partitions:
 
 ```bash
-# Run dataset builder pipeline
+# 1. Run dataset builder pipeline (generates full dataset and 70/15/15 splits)
 python3 src/flexascale/data/build_dataset.py
+
+# 2. (Optional) Re-split with custom ratios or methods via standalone CLI
+python3 scripts/split_dataset.py --method temporal --train-ratio 0.70 --val-ratio 0.15 --test-ratio 0.15
 ```
 
-Output:
-- Saves merged, validated dataset to `data/processed/alibaba_service_state.csv` (~5.4 MB).
-- Validates 500 sampled rows against the `ServiceState` schema.
+Output files in `data/processed/`:
+- `alibaba_service_state.csv`: Full unified dataset (36,355 rows, 30 timestamps, 1,213 services, ~5.4 MB).
+- `alibaba_service_state_train.csv`: Training split (25,446 rows, 21 timestamps, 70.0%).
+- `alibaba_service_state_val.csv`: Validation split (4,847 rows, 4 timestamps, 13.3%).
+- `alibaba_service_state_test.csv`: Testing split (6,062 rows, 5 timestamps, 16.7%).
+
+> [!NOTE]
+> Splitting uses **temporal chronological partitioning** across timestamps. This prevents future lookahead leakage into training data, strictly preserving the causality needed for reinforcement learning auto-scaling.
 
 ---
 
@@ -410,16 +418,22 @@ Validates:
 
 ## L. PPO Reinforcement Learning Agent
 
-Train the PPO actor-critic agent integrated with the GNN dependency feature extractor:
+Train the PPO actor-critic agent integrated with the GNN dependency feature extractor on the **training split** while continuously evaluating and checkpointing `best_model` against the **validation split**:
 
 ```bash
-# Train PPO agent with GNN encoder for 5,000 steps
-python3 src/flexascale/rl/train.py --timesteps 5000 --extractor gnn --conv-type gcn --hidden-dim 64
+# Train PPO agent with GNN encoder on training split with validation checkpointing
+python3 src/flexascale/rl/train.py \
+  --timesteps 5000 \
+  --split train \
+  --eval-split val \
+  --extractor gnn \
+  --conv-type gcn \
+  --hidden-dim 64
 ```
 
 Output:
 - Checkpoints saved in `models/checkpoints/`
-- Best evaluation model saved in `models/best_model/`
+- Best evaluation model (evaluated on validation split) saved in `models/best_model/`
 - Final trained model saved to `models/ppo_flexascale_final.zip`
 - Tensorboard telemetry written to `logs/tb/`
 
@@ -427,10 +441,11 @@ Output:
 
 ## M. Training Loop & Baseline Comparison
 
-Evaluate the trained PPO agent with confidence-proxy safety fallback against the standard Kubernetes HPA heuristic baseline:
+Evaluate the trained PPO agent with confidence-proxy safety fallback against the standard Kubernetes HPA heuristic baseline on the **unseen test split**:
 
 ```bash
-python3 scripts/evaluate_baseline_vs_rl.py --episodes 5 --threshold 0.8
+# Evaluate baseline vs RL on the held-out test split
+python3 scripts/evaluate_baseline_vs_rl.py --split test --episodes 5 --threshold 0.8
 ```
 
 Expected output comparison table:
@@ -617,10 +632,10 @@ Execute these working PromQL expressions directly in the Prometheus Web UI ([htt
 
 ### 4. Baseline (HPA Heuristic) vs RL (PPO + Confidence Proxy) Evaluation
 
-Compare the standard Kubernetes HPA heuristic against the PPO + GNN agent over simulation episodes:
+Compare the standard Kubernetes HPA heuristic against the PPO + GNN agent on the test split:
 
 ```bash
-python3 scripts/evaluate_baseline_vs_rl.py --episodes 3 --threshold 0.8
+python3 scripts/evaluate_baseline_vs_rl.py --split test --episodes 3 --threshold 0.8
 ```
 
 **Expected PPT Output (Comparison Table)**:
@@ -630,15 +645,42 @@ EVALUATION COMPARISON: BASELINE (HPA Heuristic) vs RL (PPO + Confidence Proxy)
 ================================================================================
 Metric                    | Baseline (Heuristic)      | RL + Proxy               
 --------------------------------------------------------------------------------
-Avg Total Reward          | 11.123                    | 11.123                   
+Avg Total Reward          | 1.193                     | 1.193                    
 SLO Violation Rate        | 100.00%                   | 100.00%                  
-Avg Fallbacks (per ep)    | N/A                       | 120.0                    
+Avg Fallbacks (per ep)    | N/A                       | 20.0                     
 ================================================================================
 ```
 
 ---
 
-### 5. Phase 4 Safety Controller Verification Demo (7 Scenarios)
+### 5. Dataset Splits & Statistics (Dataset Architecture Slide)
+
+Display the chronological train / val / test breakdown and schema validation stats for review presentation slides:
+
+```bash
+# Display dataset split stats and verification
+python3 scripts/split_dataset.py --method temporal
+```
+
+**Expected PPT Output (Dataset Split Table)**:
+```text
+================================================================================
+FLEXASCALE ALIBABA TRACE DATASET SPLIT SUMMARY (TEMPORAL LEAK-FREE)
+================================================================================
+Split       | Timestamps | Range (ms)              | Records   | % of Dataset | Services
+-----------------------------------------------------------------------------------------
+Train (70%) | 21         | 0 -> 1,200,000          | 25,446    | 70.0%        | 1,213
+Val (15%)   | 4          | 1,260,000 -> 1,440,000  | 4,847     | 13.3%        | 1,213
+Test (15%)  | 5          | 1,500,000 -> 1,740,000  | 6,062     | 16.7%        | 1,213
+-----------------------------------------------------------------------------------------
+Total       | 30         | 0 -> 1,740,000          | 36,355    | 100.0%       | 1,213
+Schema      | 25 ServiceState fields verified across all subsets (Pass)
+================================================================================
+```
+
+---
+
+### 6. Phase 4 Safety Controller Verification Demo (7 Scenarios)
 
 Demonstrate mutual exclusion locking, HPA conflict-free freezing, hysteresis, cooldown anti-thrashing, and crash recovery:
 

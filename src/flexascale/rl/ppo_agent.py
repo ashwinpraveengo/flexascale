@@ -85,6 +85,7 @@ class PPOAgentManager:
         total_timesteps: int = 10000,
         save_dir: str = "./models/",
         progress_bar: bool = False,
+        eval_env: gym.Env | None = None,
     ):
         os.makedirs(save_dir, exist_ok=True)
 
@@ -96,9 +97,9 @@ class PPOAgentManager:
             name_prefix="ppo_flexascale",
         )
 
-        eval_env = self.env
+        evaluation_environment = eval_env if eval_env is not None else self.env
         eval_callback = EvalCallback(
-            eval_env,
+            evaluation_environment,
             best_model_save_path=os.path.join(save_dir, "best_model"),
             log_path=os.path.join(save_dir, "eval_logs"),
             eval_freq=eval_freq,

@@ -69,11 +69,14 @@ def run_episode(env, model, seed=42, use_rl=False, confidence_threshold=0.8):
 def main():
     parser = argparse.ArgumentParser(description="Evaluate RL with Confidence Proxy vs Baseline")
     parser.add_argument("--model-path", type=str, default="models/ppo_flexascale_final.zip", help="Path to trained PPO model")
+    parser.add_argument("--dataset-path", type=str, default="data/processed/alibaba_service_state.csv", help="Path to processed dataset CSV")
+    parser.add_argument("--split", type=str, default="test", choices=["all", "train", "val", "test"], help="Dataset split to evaluate on (default: test)")
     parser.add_argument("--episodes", type=int, default=3, help="Number of episodes to run")
     parser.add_argument("--threshold", type=float, default=0.8, help="Confidence threshold for RL agent")
     args = parser.parse_args()
 
-    config = EnvConfig()
+    print(f"Initializing FlexaScale Evaluation Environment on split '{args.split}'...")
+    config = EnvConfig(dataset_path=args.dataset_path, split=args.split)
     env = FlexaScaleEnv(config=config)
     env.config = config # Attach config for the heuristic policy target
     

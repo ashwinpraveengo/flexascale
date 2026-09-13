@@ -12,6 +12,26 @@ def main():
     parser.add_argument("--timesteps", type=int, default=5000, help="Total timesteps to train")
     parser.add_argument("--num-services", type=int, default=4, help="Number of simulated services")
     parser.add_argument(
+        "--dataset-path",
+        type=str,
+        default="data/processed/alibaba_service_state.csv",
+        help="Path to processed dataset CSV",
+    )
+    parser.add_argument(
+        "--split",
+        type=str,
+        default="train",
+        choices=["all", "train", "val", "test"],
+        help="Dataset split for training (default: train)",
+    )
+    parser.add_argument(
+        "--eval-split",
+        type=str,
+        default="val",
+        choices=["none", "all", "train", "val", "test"],
+        help="Dataset split for validation evaluation (default: val)",
+    )
+    parser.add_argument(
         "--extractor",
         type=str,
         default="gnn",
@@ -29,9 +49,15 @@ def main():
     parser.add_argument("--features-dim", type=int, default=64, help="Extracted features dimension")
     args = parser.parse_args()
 
-    print(f"Initializing FlexaScale Environment...")
-    config = EnvConfig()
-    env = Monitor(FlexaScaleEnv(config=config))
+    print(f"Initializing FlexaScale Training Environment on split '{args.split}'...")
+    train_config = EnvConfig(dataset_path=args.dataset_path, split=args.split)
+    env = Monitor(FlexaScaleEnv(config=train_config))
+
+    eval_env = None
+    if args.eval_split != "none":
+        print(f"Initializing FlexaScale Validation Environment on split '{args.eval_split}'...")
+        eval_config = EnvConfig(dataset_path=args.dataset_path, split=args.eval_split)
+        eval_env = Monitor(FlexaScaleEnv(config=eval_config))
 
     if args.extractor == "gnn":
         extractor_class = GNNExtractor
@@ -55,7 +81,11 @@ def main():
     )
 
     print(f"Starting training for {args.timesteps} timesteps...")
-    agent_manager.train(total_timesteps=args.timesteps, save_dir="./models/")
+    agent_manager.train(
+        total_timesteps=args.timesteps,
+        save_dir="./models/",
+        eval_env=eval_env,
+    )
 
     print("Training complete.")
 

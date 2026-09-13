@@ -18,6 +18,7 @@ import pandas as pd
 from gymnasium import spaces
 
 from flexascale.config.env_config import EnvConfig
+from flexascale.data.preprocessing import split_service_state_dataset
 from flexascale.data.schema import VECTOR_DIM, VECTOR_FIELDS
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,28 @@ class FlexaScaleEnv(gym.Env):
         super().__init__()
         self.config = config or EnvConfig()
         self._df = self._load_dataset(self.config.dataset_path)
+
+        # Apply dataset partition / split if requested
+        if self.config.split in ("train", "val", "test"):
+            dataset_stem = Path(self.config.dataset_path).stem
+            if not dataset_stem.endswith(f"_{self.config.split}"):
+                train_df, val_df, test_df = split_service_state_dataset(
+                    self._df,
+                    train_ratio=self.config.train_ratio,
+                    val_ratio=self.config.val_ratio,
+                    test_ratio=self.config.test_ratio,
+                    method=self.config.split_method,
+                )
+                split_map = {
+                    "train": train_df,
+                    "val": val_df,
+                    "test": test_df,
+                }
+                self._df = split_map[self.config.split]
+        elif self.config.split != "all":
+            raise ValueError(
+                f"Unknown split '{self.config.split}'. Choose from 'all', 'train', 'val', 'test'."
+            )
 
         self._all_timestamps: np.ndarray = np.sort(self._df["timestamp"].unique())
 

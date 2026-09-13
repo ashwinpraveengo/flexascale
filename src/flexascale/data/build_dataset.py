@@ -10,6 +10,7 @@ from flexascale.data.alibaba import (
 from flexascale.data.preprocessing import (
     enrich_service_state_schema,
     merge_service_states,
+    split_service_state_dataset,
 )
 
 from flexascale.data.schema import (
@@ -33,6 +34,18 @@ RTQPS_FILE = Path(
 
 OUTPUT_FILE = Path(
     "data/processed/alibaba_service_state.csv"
+)
+
+OUTPUT_TRAIN_FILE = Path(
+    "data/processed/alibaba_service_state_train.csv"
+)
+
+OUTPUT_VAL_FILE = Path(
+    "data/processed/alibaba_service_state_val.csv"
+)
+
+OUTPUT_TEST_FILE = Path(
+    "data/processed/alibaba_service_state_test.csv"
 )
 
 
@@ -443,6 +456,32 @@ def main():
     print("Validating output against ServiceState schema...")
     _validate_output(state)
     print("  OK: Schema validation passed.")
+
+    # Split dataset into train, validation, and test subsets
+    print()
+    print("Splitting dataset into train / validation / test sets (70/15/15)...")
+    train_df, val_df, test_df = split_service_state_dataset(
+        state,
+        train_ratio=0.70,
+        val_ratio=0.15,
+        test_ratio=0.15,
+        method="temporal",
+    )
+
+    train_df.to_csv(OUTPUT_TRAIN_FILE, index=False)
+    val_df.to_csv(OUTPUT_VAL_FILE, index=False)
+    test_df.to_csv(OUTPUT_TEST_FILE, index=False)
+
+    print(f"  Train set:      {len(train_df):,} rows, {train_df['timestamp'].nunique()} timestamps -> {OUTPUT_TRAIN_FILE}")
+    print(f"  Validation set: {len(val_df):,} rows, {val_df['timestamp'].nunique()} timestamps -> {OUTPUT_VAL_FILE}")
+    print(f"  Test set:       {len(test_df):,} rows, {test_df['timestamp'].nunique()} timestamps -> {OUTPUT_TEST_FILE}")
+
+    print()
+    print("Validating split subsets against ServiceState schema...")
+    _validate_output(train_df)
+    _validate_output(val_df)
+    _validate_output(test_df)
+    print("  OK: All split subsets passed schema validation.")
 
 
 def _validate_output(df: pd.DataFrame) -> None:

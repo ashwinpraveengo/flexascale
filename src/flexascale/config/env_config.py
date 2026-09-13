@@ -33,6 +33,29 @@ class EnvConfig:
     )
     """Path to the processed Alibaba trace CSV produced by Phase 1."""
 
+    split: str = "all"
+    """
+    Dataset partition to simulate:
+    - 'all': use entire dataset without partition filtering.
+    - 'train': use training split (first 70% timestamps by default).
+    - 'val': use validation split (middle 15% timestamps by default).
+    - 'test': use testing split (final 15% timestamps by default).
+    """
+
+    split_method: str = "temporal"
+    """
+    Splitting methodology if dynamic slicing is used ('temporal', 'random', 'service').
+    """
+
+    train_ratio: float = 0.70
+    """Proportion of data for the training split."""
+
+    val_ratio: float = 0.15
+    """Proportion of data for the validation split."""
+
+    test_ratio: float = 0.15
+    """Proportion of data for the test split."""
+
     service_id: str | None = None
     """
     Specific service to simulate.

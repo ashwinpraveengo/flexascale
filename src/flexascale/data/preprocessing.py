@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 
@@ -275,4 +276,101 @@ def merge_service_states(
     ).reset_index(drop=True)
 
     return merged
+
+
+def split_service_state_dataset(
+    df: pd.DataFrame,
+    train_ratio: float = 0.70,
+    val_ratio: float = 0.15,
+    test_ratio: float = 0.15,
+    method: str = "temporal",
+    random_state: int = 42,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Split the ServiceState dataset into Train, Validation, and Test subsets.
+
+    Parameters:
+    -----------
+    df : pd.DataFrame
+        Dataset DataFrame with 'timestamp' and 'service_id' columns.
+    train_ratio : float
+        Proportion of data for training (default: 0.70).
+    val_ratio : float
+        Proportion of data for validation (default: 0.15).
+    test_ratio : float
+        Proportion of data for testing (default: 0.15).
+    method : str
+        Splitting methodology:
+        - "temporal": Chronological split across unique timestamps (strictly prevents
+          future data leakage into the training set). Best for RL and time-series auto-scaling.
+        - "random": Uniform random row-level split (for standard ML tabular baselines).
+        - "service": Split by unique service IDs (tests cross-service policy generalization).
+    random_state : int
+        Seed used when method is "random" or "service".
+
+    Returns:
+    --------
+    tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        (train_df, val_df, test_df)
+    """
+    if not np.isclose(train_ratio + val_ratio + test_ratio, 1.0):
+        raise ValueError(
+            f"Split ratios must sum to 1.0, got train={train_ratio}, val={val_ratio}, test={test_ratio} "
+            f"(sum={train_ratio + val_ratio + test_ratio})"
+        )
+    if train_ratio <= 0.0 or val_ratio < 0.0 or test_ratio < 0.0:
+        raise ValueError("Ratios must be non-negative and train_ratio must be > 0.")
+
+    if method == "temporal":
+        unique_ts = np.sort(df["timestamp"].unique())
+        n_ts = len(unique_ts)
+        n_train = max(1, int(round(n_ts * train_ratio)))
+        n_val = max(1, int(round(n_ts * val_ratio))) if val_ratio > 0 else 0
+
+        # Boundary correction to ensure all timestamps are allocated without overflow
+        if n_train + n_val > n_ts:
+            n_val = max(0, n_ts - n_train)
+
+        train_ts = unique_ts[:n_train]
+        val_ts = unique_ts[n_train : n_train + n_val]
+        test_ts = unique_ts[n_train + n_val :]
+
+        train_df = df[df["timestamp"].isin(train_ts)].copy()
+        val_df = df[df["timestamp"].isin(val_ts)].copy()
+        test_df = df[df["timestamp"].isin(test_ts)].copy()
+
+    elif method == "random":
+        shuffled = df.sample(frac=1.0, random_state=random_state).copy()
+        n = len(shuffled)
+        n_train = int(round(n * train_ratio))
+        n_val = int(round(n * val_ratio))
+        train_df = shuffled.iloc[:n_train].copy()
+        val_df = shuffled.iloc[n_train : n_train + n_val].copy()
+        test_df = shuffled.iloc[n_train + n_val :].copy()
+
+    elif method == "service":
+        services = np.array(sorted(df["service_id"].unique()))
+        rng = np.random.default_rng(random_state)
+        rng.shuffle(services)
+        n_s = len(services)
+        n_train = max(1, int(round(n_s * train_ratio)))
+        n_val = max(1, int(round(n_s * val_ratio))) if val_ratio > 0 else 0
+        train_s = set(services[:n_train])
+        val_s = set(services[n_train : n_train + n_val])
+        test_s = set(services[n_train + n_val :])
+
+        train_df = df[df["service_id"].isin(train_s)].copy()
+        val_df = df[df["service_id"].isin(val_s)].copy()
+        test_df = df[df["service_id"].isin(test_s)].copy()
+
+    else:
+        raise ValueError(
+            f"Unknown split method '{method}'. Choose from 'temporal', 'random', 'service'."
+        )
+
+    return (
+        train_df.reset_index(drop=True),
+        val_df.reset_index(drop=True),
+        test_df.reset_index(drop=True),
+    )
 
