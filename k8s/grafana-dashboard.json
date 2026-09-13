@@ -60,8 +60,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "avg by (app) (rate(container_cpu_usage_seconds_total{namespace=\"flexascale-apps\", container!=\"\"}[1m])) * 100",
-          "legendFormat": "{{app}} CPU %",
+          "expr": "avg by (container) (rate(container_cpu_usage_seconds_total{namespace=\"flexascale-apps\", container=~\"frontend|orders|inventory|payments\"}[1m])) * 100",
+          "legendFormat": "{{container}} CPU %",
           "range": true,
           "refId": "A"
         }
@@ -104,8 +104,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "avg by (app) (container_memory_working_set_bytes{namespace=\"flexascale-apps\", container!=\"\"} / container_spec_memory_limit_bytes{namespace=\"flexascale-apps\", container!=\"\"}) * 100",
-          "legendFormat": "{{app}} Mem %",
+          "expr": "(sum by (container) (container_memory_working_set_bytes{namespace=\"flexascale-apps\", container=~\"frontend|orders|inventory|payments\"}) / sum by (container) (kube_pod_container_resource_limits{namespace=\"flexascale-apps\", resource=\"memory\"})) * 100",
+          "legendFormat": "{{container}} Mem %",
           "range": true,
           "refId": "A"
         }
@@ -190,7 +190,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "avg by (app) (rate(http_request_duration_seconds_sum{namespace=\"flexascale-apps\"}[1m]) / rate(http_request_duration_seconds_count{namespace=\"flexascale-apps\"}[1m])) * 1000",
+          "expr": "(sum by (app) (rate(http_request_duration_seconds_sum{namespace=\"flexascale-apps\"}[1m])) / sum by (app) (rate(http_request_duration_seconds_count{namespace=\"flexascale-apps\"}[1m]))) * 1000",
           "legendFormat": "{{app}} Latency (ms)",
           "range": true,
           "refId": "A"
@@ -234,7 +234,7 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "(sum by (app) (rate(http_requests_total{namespace=\"flexascale-apps\", status=~\"5..\"}[1m])) / sum by (app) (rate(http_requests_total{namespace=\"flexascale-apps\"}[1m]))) * 100",
+          "expr": "((sum by (app) (rate(http_requests_total{namespace=\"flexascale-apps\", status=~\"5..\"}[1m])) or (0 * sum by (app) (rate(http_requests_total{namespace=\"flexascale-apps\"}[1m])))) / sum by (app) (rate(http_requests_total{namespace=\"flexascale-apps\"}[1m]))) * 100",
           "legendFormat": "{{app}} Error %",
           "range": true,
           "refId": "A"
@@ -277,8 +277,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "count by (app) (kube_pod_status_phase{namespace=\"flexascale-apps\", phase=\"Running\"} == 1)",
-          "legendFormat": "{{app}} Replicas",
+          "expr": "sum by (deployment) (kube_deployment_status_replicas_ready{namespace=\"flexascale-apps\"})",
+          "legendFormat": "{{deployment}} Replicas",
           "range": true,
           "refId": "A"
         }

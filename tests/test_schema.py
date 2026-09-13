@@ -356,3 +356,42 @@ class TestExtendedSchema:
         assert len(ServiceState.NORMALIZED_FIELDS) == VECTOR_DIM
         assert len(ServiceState.DERIVED_FIELDS) > 0
 
+    def test_enrich_service_state_schema(self, valid_kwargs):
+        from flexascale.data.preprocessing import enrich_service_state_schema
+        raw_record = {
+            "timestamp": valid_kwargs["timestamp"],
+            "service_id": valid_kwargs["service_id"],
+            "cpu_utilization": valid_kwargs["cpu_utilization"],
+            "memory_utilization": valid_kwargs["memory_utilization"],
+            "replica_count": valid_kwargs["replica_count"],
+            "request_rate": valid_kwargs["request_rate"],
+            "latency_ms": valid_kwargs["latency_ms"],
+        }
+        df = pd.DataFrame([raw_record])
+        enriched = enrich_service_state_schema(df)
+        
+        # Verify all 5 categories are present
+        assert "source" in enriched.columns
+        assert enriched.iloc[0]["source"] == "alibaba"
+        assert "submit_time" in enriched.columns
+        assert "start_time" in enriched.columns
+        assert "finish_time" in enriched.columns
+        assert "completion_time" in enriched.columns
+        assert "wait_time" in enriched.columns
+        assert "makespan" in enriched.columns
+        assert "cpu_memory_ratio" in enriched.columns
+        assert "cpu_capacity" in enriched.columns
+        assert "gpu_count" in enriched.columns
+        assert "jct" in enriched.columns
+        assert "acceptance_ratio" in enriched.columns
+        assert "successful_requests" in enriched.columns
+        assert "failed_requests" in enriched.columns
+        assert "error_rate" in enriched.columns
+        assert "success_rate" in enriched.columns
+
+        # Verify roundtrip with ServiceState.from_dataframe_row
+        row = enriched.iloc[0]
+        state = ServiceState.from_dataframe_row(row, source=StateSource.ALIBABA)
+        assert state.service_id == "orders"
+        assert state.cpu_memory_ratio == pytest.approx(valid_kwargs["cpu_utilization"] / valid_kwargs["memory_utilization"])
+

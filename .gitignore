@@ -169,4 +169,6 @@ cython_debug/
 .Trashes
 ehthumbs.db
 Thumbs.db
-data/
+
+# Alibaba raw trace files (~7.6GB) are excluded from git
+data/raw/

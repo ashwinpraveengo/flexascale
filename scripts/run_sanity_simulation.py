@@ -40,30 +40,41 @@ from flexascale.simulator.flexascale_env import (
 def heuristic_policy(
     obs: np.ndarray,
     cpu_target: float = 70.0,
+    latency_target: float = 100.0,
 ) -> int:
     """
-    Simple rule-based scaling policy for a single service observation.
+    SLO-aware rule-based scaling policy for a single service observation.
+
+    Scaling rules:
+        - Scale UP   when latency exceeds target OR CPU exceeds target
+        - Scale DOWN when CPU is below half target AND latency is safely low (<70% of target)
+        - Otherwise  MAINTAIN
 
     Args:
         obs: Current per-service observation vector (VECTOR_FIELDS layout).
         cpu_target: CPU utilisation target (percentage).
+        latency_target: Latency SLO threshold in milliseconds.
 
     Returns:
         Action integer: 0 (scale down), 1 (maintain), 2 (scale up).
     """
     cpu = float(obs[0])
-    if cpu > cpu_target:
+    latency = float(obs[4])
+
+    if latency > latency_target:
         return ACTION_SCALE_UP
-    elif cpu < cpu_target / 2.0:
+    elif cpu > cpu_target:
+        return ACTION_SCALE_UP
+    elif cpu < (cpu_target / 2.0) and latency < (latency_target * 0.7):
         return ACTION_SCALE_DOWN
     else:
         return ACTION_MAINTAIN
 
 
 _ACTION_NAMES = {
-    ACTION_SCALE_DOWN: "DOWN",
-    ACTION_MAINTAIN: "KEEP",
-    ACTION_SCALE_UP: "  UP",
+    ACTION_SCALE_DOWN: "D",
+    ACTION_MAINTAIN: "K",
+    ACTION_SCALE_UP: "U",
 }
 
 
@@ -76,20 +87,20 @@ def run_episode(
     obs, info = env.reset(seed=seed)
     num_services = env.num_services
 
-    print(f"\n{'=' * 82}")
+    print(f"\n{'=' * 92}")
     print(
         f"Episode {episode_num}  |  "
         f"services={num_services}  |  "
         f"trace_steps={env.episode_length}"
     )
-    print(f"{'=' * 82}")
+    print(f"{'=' * 92}")
     print(
         f"{'step':>4s}  {'actions':>10s}  {'avg_reps':>9s}  "
         f"{'avg_cpu%':>9s}  {'avg_mem%':>9s}  "
-        f"{'tot_rps':>9s}  {'avg_lat':>8s}  "
+        f"{'tot_rps':>9s}  {'avg_lat':>8s}  {'max_lat':>8s}  "
         f"{'reward':>7s}  {'SLO':>5s}"
     )
-    print("-" * 82)
+    print("-" * 92)
 
     total_reward = 0.0
     slo_violations = 0
@@ -99,12 +110,16 @@ def run_episode(
     truncated = False
 
     while not (terminated or truncated):
-        # Apply heuristic policy to each service
+        # Apply SLO-aware heuristic policy to each service
         actions = []
         obs_flat = obs.flatten()
         for i in range(num_services):
             s_obs = obs_flat[i * VECTOR_DIM : (i + 1) * VECTOR_DIM]
-            a = heuristic_policy(s_obs, env.config.cpu_target_pct)
+            a = heuristic_policy(
+                s_obs,
+                cpu_target=env.config.cpu_target_pct,
+                latency_target=env.config.latency_target_ms,
+            )
             actions.append(a)
 
         obs, reward, terminated, truncated, info = env.step(np.array(actions, dtype=np.int64))
@@ -122,22 +137,23 @@ def run_episode(
         avg_reps = float(np.mean(obs_reshaped[:, 2]))
         tot_rps = float(np.sum(obs_reshaped[:, 3]))
         avg_lat = float(np.mean(obs_reshaped[:, 4]))
+        max_lat = float(np.max(obs_reshaped[:, 4]))
 
-        act_str = "".join([_ACTION_NAMES[a][0] for a in actions])  # e.g. "KKUK"
+        act_str = "".join([_ACTION_NAMES[a][0] for a in actions])  # e.g. "DDDU"
 
         if steps <= 15 or steps % 50 == 0 or terminated:
             print(
                 f"{steps:>4d}  {act_str:>10s}  "
                 f"{avg_reps:>9.1f}  "
                 f"{avg_cpu:>9.2f}  {avg_mem:>9.2f}  "
-                f"{tot_rps:>9.1f}  {avg_lat:>8.1f}  "
+                f"{tot_rps:>9.1f}  {avg_lat:>8.1f}  {max_lat:>8.1f}  "
                 f"{reward:>+7.3f}  {slo_flag:>5s}"
             )
 
     violation_rate = (
         slo_violations / steps * 100.0 if steps > 0 else 0.0
     )
-    print("-" * 82)
+    print("-" * 92)
     print(
         f"Summary: {steps} steps  |  "
         f"total_reward={total_reward:+.3f}  |  "
@@ -169,12 +185,34 @@ def main() -> None:
         default=42,
         help="Base random seed (default: 42)",
     )
+    parser.add_argument(
+        "--slo-target",
+        type=float,
+        default=100.0,
+        help="Latency SLO target in ms (default: 100.0)",
+    )
+    parser.add_argument(
+        "--cpu-target",
+        type=float,
+        default=70.0,
+        help="Target CPU utilization percentage (default: 70.0)",
+    )
+    parser.add_argument(
+        "--service-id",
+        type=str,
+        default=None,
+        help="Specific service ID to simulate (single service mode)",
+    )
     args = parser.parse_args()
 
     print("FlexaScale RL Environment — Cluster Sanity Simulation")
     print("=" * 55)
 
-    config = EnvConfig()
+    config = EnvConfig(
+        latency_target_ms=args.slo_target,
+        cpu_target_pct=args.cpu_target,
+        service_id=args.service_id,
+    )
     env = FlexaScaleEnv(config=config)
 
     print(f"Dataset:     {config.dataset_path}")
@@ -183,6 +221,8 @@ def main() -> None:
     print(f"SLO target:  {config.latency_target_ms} ms")
     print(f"CPU target:  {config.cpu_target_pct}%")
     print(f"Replicas:    [{config.min_replicas}, {config.max_replicas}]")
+    if config.service_id:
+        print(f"Service ID:  {config.service_id}")
 
     summaries = []
     for ep in range(1, args.episodes + 1):
@@ -190,9 +230,9 @@ def main() -> None:
         summary = run_episode(env, seed=seed, episode_num=ep)
         summaries.append(summary)
 
-    print(f"\n{'=' * 82}")
+    print(f"\n{'=' * 92}")
     print("OVERALL CLUSTER SIMULATION SUMMARY")
-    print(f"{'=' * 82}")
+    print(f"{'=' * 92}")
     for i, s in enumerate(summaries, 1):
         print(
             f"  Episode {i}: "

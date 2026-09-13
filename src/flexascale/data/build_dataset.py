@@ -8,6 +8,7 @@ from flexascale.data.alibaba import (
 )
 
 from flexascale.data.preprocessing import (
+    enrich_service_state_schema,
     merge_service_states,
 )
 
