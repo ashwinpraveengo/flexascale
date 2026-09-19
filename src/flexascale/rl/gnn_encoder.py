@@ -206,6 +206,13 @@ class GNNDependencyEncoder(nn.Module):
             nn.Linear(hidden_dim, out_dim),
         )
 
+        # 4. Node-level action policy head for arbitrary N microservices
+        self.node_policy_head = nn.Sequential(
+            nn.Linear(hidden_dim * 2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 3),  # 3 discrete actions: 0=Scale Down, 1=Maintain, 2=Scale Up
+        )
+
     def forward(
         self,
         x: torch.Tensor,
@@ -214,23 +221,7 @@ class GNNDependencyEncoder(nn.Module):
         batch_size: int,
     ) -> torch.Tensor:
         """
-        Forward pass.
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Batched node features of shape ``(batch_size * num_nodes, in_channels)``.
-        edge_index : torch.Tensor
-            Batched edge index of shape ``(2, num_batched_edges)``.
-        batch_idx : torch.Tensor
-            Graph assignment vector of shape ``(batch_size * num_nodes,)``.
-        batch_size : int
-            Number of graphs in this batch.
-
-        Returns
-        -------
-        torch.Tensor
-            Latent representation of shape ``(batch_size, out_dim)``.
+        Forward pass. Graph-size invariant: handles any number of microservice nodes.
         """
         # Project node features
         h = F.relu(self.input_proj(x))
@@ -247,14 +238,60 @@ class GNNDependencyEncoder(nn.Module):
         # Global graph pooling
         global_repr = global_mean_pool(h, batch_idx)  # (batch_size, hidden_dim)
 
-        # Per-service node representations
-        node_repr = h.view(batch_size, self.num_nodes * self.hidden_dim)
+        # Per-service node representations (size-invariant adaptive handling)
+        total_nodes = h.shape[0]
+        actual_nodes_per_graph = max(1, total_nodes // batch_size)
+        if actual_nodes_per_graph == self.num_nodes:
+            node_repr = h.view(batch_size, self.num_nodes * self.hidden_dim)
+        elif actual_nodes_per_graph < self.num_nodes:
+            padded_h = torch.zeros(
+                batch_size, self.num_nodes, self.hidden_dim, device=h.device, dtype=h.dtype
+            )
+            reshaped_h = h.view(batch_size, actual_nodes_per_graph, self.hidden_dim)
+            padded_h[:, :actual_nodes_per_graph, :] = reshaped_h
+            node_repr = padded_h.view(batch_size, self.num_nodes * self.hidden_dim)
+        else:
+            reshaped_h = h.view(batch_size, actual_nodes_per_graph, self.hidden_dim)
+            node_repr = reshaped_h[:, :self.num_nodes, :].contiguous().view(batch_size, self.num_nodes * self.hidden_dim)
 
         # Concatenate global cluster context with individual service representations
         combined = torch.cat([global_repr, node_repr], dim=-1)
 
         # Final projection to output latent dimension
         return self.head(combined)
+
+    def predict_node_actions(
+        self,
+        x: torch.Tensor,
+        edge_index: torch.Tensor,
+        batch_idx: Optional[torch.Tensor] = None,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Application-agnostic node-level scaling policy evaluation.
+        Computes actions and confidence scores for any number of microservice nodes.
+
+        Returns:
+            actions: (N,) tensor of action ints {0, 1, 2}
+            confidences: (N,) tensor of float confidence scores in [0.0, 1.0]
+        """
+        if batch_idx is None:
+            batch_idx = torch.zeros(x.shape[0], dtype=torch.long, device=x.device)
+
+        h = F.relu(self.input_proj(x))
+        for i, conv in enumerate(self.convs):
+            h_new = conv(h, edge_index)
+            if self.norms is not None:
+                h_new = self.norms[i](h_new)
+            h = F.relu(h_new)
+
+        global_repr = global_mean_pool(h, batch_idx)  # (B, hidden_dim)
+        global_expanded = global_repr[batch_idx]  # (N, hidden_dim)
+        node_context = torch.cat([h, global_expanded], dim=-1)
+
+        logits = self.node_policy_head(node_context)  # (N, 3)
+        probs = F.softmax(logits, dim=-1)
+        confidences, actions = torch.max(probs, dim=-1)
+        return actions, confidences
 
 
 # ---------------------------------------------------------------------------
@@ -337,16 +374,21 @@ class GNNExtractor(BaseFeaturesExtractor):
         device = observations.device
         expected_dim = self.num_nodes * self.node_features_dim
 
-        # If observation is single-service (e.g. VECTOR_DIM), repeat/pad for full graph
+        # If observation is single-service or different service count, adapt dynamically
         if observations.shape[1] != expected_dim:
             if observations.shape[1] == self.node_features_dim:
                 # Expand single service observation to all nodes for compatibility
                 observations = observations.repeat(1, self.num_nodes)
-            else:
-                raise ValueError(
-                    f"Observation dimension {observations.shape[1]} does not match "
-                    f"expected {expected_dim} ({self.num_nodes} nodes * {self.node_features_dim} features)."
+            elif observations.shape[1] < expected_dim:
+                pad = torch.zeros(
+                    batch_size,
+                    expected_dim - observations.shape[1],
+                    device=device,
+                    dtype=observations.dtype,
                 )
+                observations = torch.cat([observations, pad], dim=-1)
+            else:
+                observations = observations[:, :expected_dim]
 
         # Reshape to disjoint graph node tensor: (B * num_nodes, node_features_dim)
         x = observations.view(batch_size * self.num_nodes, self.node_features_dim)

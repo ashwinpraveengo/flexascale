@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flexascale-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: flexascale
+data:
+  PROMETHEUS_URL: {{ .Values.prometheus.url | quote }}
+  PROMETHEUS_TIMEOUT: {{ .Values.prometheus.timeoutSeconds | quote }}
+  CONFIDENCE_THRESHOLD: {{ .Values.operator.threshold | quote }}
+  DEACTIVATION_THRESHOLD: {{ .Values.operator.deactivationThreshold | quote }}
+  COOLDOWN_SECONDS: {{ .Values.operator.cooldownSeconds | quote }}
+  TARGET_CPU_UTILIZATION: {{ .Values.autoscaling.targetCpuUtilization | quote }}
+  SLO_LATENCY_TARGET_MS: {{ .Values.autoscaling.sloLatencyTargetMs | quote }}
+  TARGET_NAMESPACE: {{ .Values.targetNamespace | quote }}
+  AUTO_DISCOVERY_ENABLED: {{ .Values.discovery.enabled | quote }}
+  DISCOVERY_LABEL_SELECTOR: {{ .Values.discovery.labelSelector | quote }}
+  DISCOVERY_SERVICES: {{ join "," .Values.discovery.services | quote }}
+

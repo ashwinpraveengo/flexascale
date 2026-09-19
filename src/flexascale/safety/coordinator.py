@@ -302,10 +302,15 @@ class SafetyCoordinator:
             reason=reason,
         )
 
-    def fallback_all_to_hpa(self, reason: str = "cluster_shutdown") -> None:
+    def fallback_all_to_hpa(
+        self,
+        reason: str = "cluster_shutdown",
+        services: Sequence[str] | None = None,
+    ) -> None:
         """Emergency or teardown helper: ensures all services are under active HPA control."""
         logger.info("[SAFETY] Falling back all services to HPA (reason: %s)...", reason)
-        for sid in self.config.service_names:
+        target_services = list(services) if services is not None else list(self.config.service_names)
+        for sid in target_services:
             self._execute_hpa_fallback(
                 service_id=sid,
                 confidence=None,

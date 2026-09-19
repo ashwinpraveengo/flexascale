@@ -1,0 +1,54 @@
+{{- if .Values.api.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flexascale-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: flexascale
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: flexascale
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: flexascale
+        app.kubernetes.io/component: api
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          command:
+            - python3
+            - scripts/run_api.py
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "{{ .Values.api.service.port }}"
+            - --live
+          ports:
+            - containerPort: {{ .Values.api.service.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: flexascale-config
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+{{- end }}

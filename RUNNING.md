@@ -74,9 +74,14 @@ This guide provides the complete, authoritative run instructions to set up, depl
 12. [L. PPO Reinforcement Learning Agent](#l-ppo-reinforcement-learning-agent)
 13. [M. Training Loop, Evaluation & Baseline Comparison](#m-training-loop--baseline-comparison)
 14. [N. Phase 4 — Safety & Execution Layer (HPA Fallback + Mutual-Exclusion Lock)](#n-phase-4--safety--execution-layer-hpa-fallback--mutual-exclusion-lock)
-15. [Output Commands (Review PPT & Defense)](#output-commands)
-16. [Run Everything Verification Flow](#-run-everything-verification-flow)
-17. [Verification Checklist](#-verification-checklist)
+15. [O. Phase 3 — Live State Aggregator & Graph Inference](#o-phase-3--live-state-aggregator--graph-inference)
+16. [P. Phase 4 — Kubernetes Operator (Autonomous Control Loop)](#p-phase-4--kubernetes-operator-autonomous-control-loop)
+17. [Q. Phase 5 — Dashboard & REST API Backend](#q-phase-5--dashboard--rest-api-backend)
+18. [R. Phase 6 — Integration, Locust Scenarios & Benchmarking](#r-phase-6--integration-locust-scenarios--benchmarking)
+19. [S. Phase 6 — Helm Packaging & Cluster Deployment](#s-phase-6--helm-packaging--cluster-deployment)
+20. [Output Commands (Review PPT & Defense)](#output-commands)
+21. [Run Everything Verification Flow](#-run-everything-verification-flow)
+22. [Verification Checklist](#-verification-checklist)
 
 ---
 
@@ -117,11 +122,11 @@ python3 --version
 # Verify editable installation and package import
 python3 -c "import flexascale; print('FlexaScale version:', flexascale.__name__)"
 
-# Run full pytest test suite (101 tests across all modules)
+# Run full pytest test suite (138 tests across all modules)
 pytest -v
 ```
 
-Expected output: All 101 test cases across `test_package.py`, `test_schema.py`, `test_flexascale_env.py`, `test_gnn_encoder.py`, and `test_safety.py` pass with `0` failures.
+Expected output: All 138 test cases across all 10 test modules (`test_package.py`, `test_schema.py`, `test_dataset_split.py`, `test_flexascale_env.py`, `test_gnn_encoder.py`, `test_safety.py`, `test_graph_inference.py`, `test_live_builder.py`, `test_operator.py`, `test_api.py`, `test_discovery.py`, `test_agnostic_operator.py`) pass with `0` failures and `0` warnings.
 
 ---
 
@@ -532,12 +537,260 @@ Verify the live ConfigMap used for cross-process mutual-exclusion locking:
 kubectl get configmap -n flexascale-apps flexascale-safety-lock -o yaml
 ```
 
-### 6. Emergency Cluster Fallback to HPA
-
-To immediately release all scaling locks and return all services to native HPA control:
-
 ```bash
 python3 -c "from flexascale.safety import SafetyCoordinator; c = SafetyCoordinator(live=True); c.fallback_all_to_hpa('manual_reset')"
+```
+
+---
+
+## O. Phase 3 — Live State Aggregator & Graph Inference
+
+Phase 3 bridges live Prometheus telemetry into the exact mathematical observation schema and dynamically discovers caller-callee microservice dependencies using Exponential Moving Average (EMA) decay:
+
+$$W_{u,v}^{(t)} = \alpha \cdot \text{traffic}_{u,v}^{(t)} + (1 - \alpha) \cdot W_{u,v}^{(t-1)}$$
+
+### 1. Run Dedicated Phase 3 Unit Tests
+
+```bash
+pytest tests/test_graph_inference.py tests/test_live_builder.py -v
+```
+
+Validates:
+- Real-time online EMA edge weighting, passive decay, and pruning of inactive dependencies.
+- Conversion to PyTorch Geometric `edge_index` (`(2, E)`) tensor and `ServiceDependencyGraph`.
+- Transformation of Prometheus metrics into the concatenated 20-dimensional `(num_services * 5,)` observation vector.
+
+### 2. Live State Aggregator CLI Verification
+
+```bash
+python3 -c "from flexascale.state import LiveStateBuilder; b = LiveStateBuilder(mock=True); s = b.build(); print('Observation Shape:', s.observation_vector.shape); print('Services:', list(s.service_states.keys()))"
+```
+
+Expected output:
+```text
+Observation Shape: (20,)
+Services: ['frontend', 'orders', 'inventory', 'payments']
+```
+
+---
+
+## P. Phase 4 — Kubernetes Operator (Autonomous Control Loop)
+
+The FlexaScale Operator is the autonomous scaling daemon that continuously queries live telemetry, updates the dependency graph, estimates RL action probabilities, and executes scaling decisions through the mutual-exclusion safety layer.
+
+### 1. Run Dedicated Operator Unit Tests
+
+```bash
+pytest tests/test_operator.py -v
+```
+
+### 2. Run Operator Demo Simulation
+
+Execute a 3-step demonstration of autonomous operator scaling, confidence evaluation, and fail-safe shutdown:
+
+```bash
+python3 scripts/run_operator.py --demo
+```
+
+**Sample Output (High-Confidence RL Autonomous Scaling)**:
+```text
+================================================================================
+FLEXASCALE AUTONOMOUS OPERATOR
+Mode: MOCK / DEMO
+Confidence Threshold: 0.70
+Hysteresis Floor:     0.60
+Poll Interval:        5.0s
+================================================================================
+
+[*] Running 3 autonomous operator control steps in demo mode...
+
+--- Step 1: Normal Traffic ---
+Service      | Mode   | Conf   | Target | Action  | Lock  | HPA Frozen | Reason
+--------------------------------------------------------------------------------
+frontend     | HPA    | 0.57   | 2      | None    | False | False      | low_confidence
+orders       | RL     | 0.92   | 3      | +2      | True  | True       | high_confidence_rl_scaling
+inventory    | HPA    | 0.47   | 2      | None    | False | False      | low_confidence
+payments     | RL     | 0.70   | 2      | +1      | True  | True       | high_confidence_rl_scaling
+
+--- Step 2: Traffic & CPU Surge on Frontend ---
+[LOCK] Renewed RL scaling lease for 'orders' (expires in 60.0s)
+[HPA] Freezing HPA conflicts for 'orders' to target replicas (min=3, max=3)
+[RL] Applying scale action to 'orders': 3 replicas
+Service      | Mode   | Conf   | Target | Action  | Lock  | HPA Frozen | Reason
+--------------------------------------------------------------------------------
+frontend     | HPA    | 0.57   | 2      | None    | False | False      | low_confidence
+orders       | RL     | 0.93   | 3      | +2      | True  | True       | high_confidence_rl_scaling
+inventory    | HPA    | 0.47   | 2      | None    | False | False      | low_confidence
+payments     | RL     | 0.71   | 2      | +1      | True  | True       | high_confidence_rl_scaling
+```
+
+### 3. Launch Autonomous Operator Daemon (Live or Mock)
+
+```bash
+# In-memory mock mode:
+python3 scripts/run_operator.py --interval 5.0 --threshold 0.70
+
+# Live Minikube cluster mode:
+python3 scripts/run_operator.py --live --interval 5.0 --threshold 0.70
+```
+
+---
+
+## Q. Phase 5 — Dashboard & REST API Backend
+
+Phase 5 provides a high-performance FastAPI telemetry backend coupled with a modern dark-mode, glassmorphic real-time React web dashboard.
+
+### 1. Run Dedicated REST API Unit Tests
+
+```bash
+pytest tests/test_api.py -v
+```
+
+### 2. Launch FastAPI Server & Live Dashboard
+
+```bash
+# Start server on port 8080 (Mock mode)
+python3 scripts/run_api.py --port 8080
+
+# Start server connected to live Minikube cluster & Prometheus:
+python3 scripts/run_api.py --live --port 8080
+```
+
+- **Live Dashboard Web UI**: [http://localhost:8080](http://localhost:8080)
+- **Interactive OpenAPI Docs**: [http://localhost:8080/docs](http://localhost:8080/docs)
+
+### 3. Key REST API Endpoints
+
+```bash
+# Check cluster status and controller ownership modes:
+curl -s http://localhost:8080/api/status | jq .
+
+# Retrieve real-time microservice metrics & SLO compliance:
+curl -s http://localhost:8080/api/metrics | jq .
+
+# Retrieve inferred dependency call-graph with EMA weights:
+curl -s http://localhost:8080/api/graph | jq .
+
+# Inspect recent scaling decisions audit log:
+curl -s http://localhost:8080/api/decisions | jq .
+
+# Dynamically adjust SLO and safety parameters:
+curl -X POST http://localhost:8080/api/config \
+  -H "Content-Type: application/json" \
+  -d '{"slo_latency_target_ms": 120.0, "confidence_threshold": 0.75}'
+
+# Trigger emergency cluster-wide fallback to native HPA:
+curl -X POST http://localhost:8080/api/fallback
+```
+
+---
+
+## R. Phase 6 — Integration, Locust Scenarios & Benchmarking
+
+### 1. Run Full End-to-End Closed-Loop Controller
+
+Execute the integrated closed-loop pipeline uniting traffic generation, live state building, GNN + PPO policy inference, safety locking, and scaling execution:
+
+```bash
+# Automated 5-step closed-loop demonstration:
+python3 scripts/run_closed_loop.py --demo
+
+# Continuous live cluster execution:
+python3 scripts/run_closed_loop.py --live --interval 5.0 --threshold 0.70
+```
+
+### 2. Execute Locust Multi-Scenario Load Generation
+
+Generate traffic profiles matching realistic e-commerce traffic waves:
+
+```bash
+# 1. Lunch Spike (high checkout rush):
+python3 scripts/run_locust_scenarios.py --scenario lunch_spike --duration 30
+
+# 2. Quiet Night (low off-peak background traffic):
+python3 scripts/run_locust_scenarios.py --scenario quiet_night --duration 20
+
+# 3. Burst (sudden step spike testing autoscaler reaction lag):
+python3 scripts/run_locust_scenarios.py --scenario burst --users 50 --duration 25
+
+# 4. Run all scenarios in mock benchmark mode:
+python3 scripts/run_locust_scenarios.py --scenario all --mock
+```
+
+### 3. FlexaScale vs. Standard Kubernetes HPA Benchmark
+
+Execute controlled comparative benchmarks between native Kubernetes HPA (reactive CPU threshold) and FlexaScale RL + GNN + Safety Fallback:
+
+```bash
+python3 scripts/run_hpa_vs_rl_benchmark.py --episodes 3 --split test --threshold 0.70
+```
+
+Outputs:
+- Terminal ASCII comparison table (Mean/P95/P99 latency, SLO violation rate, average replicas, oscillations).
+- Formatted Markdown report: `reports/benchmark_report.md`
+- Raw telemetry JSON summary: `reports/benchmark_summary.json`
+
+---
+
+## S. Application-Agnostic Helm Packaging & Cluster Deployment
+
+FlexaScale is packaged as a fully application-agnostic, reusable Kubernetes add-on. It can be installed into any Kubernetes cluster (EKS, GKE, AKS, Minikube, kind) to autoscale **any containerized microservice application without requiring any changes to the application's source code or Docker images**.
+
+### 1. Key Application-Agnostic Features
+- **Automatic Workload Discovery**: Dynamically identifies scalable Deployments in the target namespace via the Kubernetes API or Prometheus, filtering out system components.
+- **Zero-Code Prometheus Telemetry**: Collects CPU, memory, and replica metrics from standard Kubernetes infrastructure (cAdvisor and kube-state-metrics). Falls back to container network I/O if application-level HTTP endpoints are uninstrumented.
+- **Dynamic Dependency Call Graph**: Infers caller-callee request flows from Prometheus traffic with online Exponential Moving Average (EMA) decay.
+- **Graph-Size Invariant GNN + PPO Engine**: Automatically adapts to any number of microservices ($N \ge 1$) using node-level scaling policy evaluation.
+- **Conflict-Free Safety Coordinator**: Enforces mutual exclusion, clamping HPA min=max during high-confidence RL ownership and safely restoring dynamic HPA bounds on low confidence, crash, or shutdown.
+
+### 2. Lint and Verify Helm Chart
+
+```bash
+# Validate chart syntax and guidelines
+helm lint helm/flexascale
+
+# Render and inspect Kubernetes manifests with custom target namespace and label selector
+helm template flexascale helm/flexascale \
+  --set targetNamespace=production \
+  --set discovery.labelSelector="app.kubernetes.io/part-of=ecommerce"
+```
+
+### 3. Install FlexaScale on Any Kubernetes Cluster
+
+```bash
+# Option A: Monitor and autoscale all deployments in a custom namespace (e.g. 'ecommerce')
+helm upgrade --install flexascale helm/flexascale \
+  --namespace flexascale-system --create-namespace \
+  --set targetNamespace=ecommerce \
+  --set operator.threshold=0.70 \
+  --set autoscaling.sloLatencyTargetMs=100.0
+
+# Option B: Monitor specific deployments filtered by label selector
+helm upgrade --install flexascale helm/flexascale \
+  --namespace flexascale-system --create-namespace \
+  --set targetNamespace=my-app \
+  --set discovery.labelSelector="flexascale.io/managed=true"
+
+# Option C: Deploy to local Minikube cluster
+helm upgrade --install flexascale helm/flexascale \
+  --namespace flexascale-apps \
+  --set targetNamespace=flexascale-apps
+
+# Verify deployed FlexaScale operator and dashboard pods
+kubectl get pods -n flexascale-system -l app.kubernetes.io/name=flexascale
+kubectl get svc -n flexascale-system -l app.kubernetes.io/name=flexascale
+```
+
+### 4. Test Operator with Custom Microservices (Zero-Code Demo)
+
+To verify that FlexaScale operates on a completely different set of microservices without demo assumptions:
+
+```bash
+# Run 3-step autonomous operator demo on arbitrary services (auth-api, cart-service, catalog-db):
+python3 scripts/run_operator.py --demo --custom-app
+
+# Run 5-step closed-loop simulation on arbitrary custom workloads:
+python3 scripts/run_closed_loop.py --demo --custom-app
 ```
 
 ---
@@ -834,7 +1087,7 @@ pytest -q
 
 **Expected PPT Output**:
 ```text
-101 passed, 191 warnings in 5.05s
+138 passed in 14.03s
 ```
 
 ---
@@ -857,32 +1110,42 @@ Execute this sequence from a fresh terminal to verify all system components end-
 cd ~/flexascale
 source .venv/bin/activate
 
-# 2. Run full pytest test suite (101 tests across all modules)
+# 2. Run full pytest test suite (138 tests across all 10 test modules)
 pytest -v
 
-# 3. Run dedicated Phase 4 safety tests
-pytest tests/test_safety.py -v
-
-# 4. Validate dual SIM/LIVE schema contract match
+# 3. Validate dual SIM/LIVE schema contract match
 python3 scripts/validate_schema.py
 
-# 5. Run sanity cluster simulation (offline Alibaba trace)
+# 4. Run sanity cluster simulation (offline Alibaba trace)
 python3 scripts/run_sanity_simulation.py --episodes 2
 
-# 6. Apply native Kubernetes HPAs
-kubectl apply -f k8s/hpa.yaml
-
-# 7. Run Phase 4 Safety & HPA fallback verification demo against Minikube
+# 5. Run Phase 4 Safety & HPA fallback verification demo against Minikube
 python3 scripts/run_safety_controller.py --live --demo
 
-# 8. Inspect cluster safety lock ConfigMap
-kubectl get configmap -n flexascale-apps flexascale-safety-lock -o yaml
+# 6. Run Autonomous Kubernetes Operator demo (standard demo fleet)
+python3 scripts/run_operator.py --demo
 
-# 9. Train PPO agent with GNN encoder
-python3 src/flexascale/rl/train.py --timesteps 2000 --extractor gnn
+# 7. Run Autonomous Operator on arbitrary custom application (zero-code demo)
+python3 scripts/run_operator.py --demo --custom-app
 
-# 10. Evaluate baseline vs RL with confidence proxy
-python3 scripts/evaluate_baseline_vs_rl.py --episodes 2
+# 8. Launch FastAPI Server & React Dashboard (Port 8080)
+python3 scripts/run_api.py --port 8080 &
+
+# 9. Run Locust multi-scenario load testing (lunch_spike, quiet_night, burst)
+python3 scripts/run_locust_scenarios.py --scenario all --mock
+
+# 10. Execute FlexaScale vs. Standard HPA benchmark comparison
+python3 scripts/run_hpa_vs_rl_benchmark.py --episodes 3
+
+# 11. Run Full Closed-Loop Controller demonstration (standard demo fleet)
+python3 scripts/run_closed_loop.py --demo
+
+# 12. Run Full Closed-Loop Controller on custom microservices (zero-code demo)
+python3 scripts/run_closed_loop.py --demo --custom-app
+
+# 13. Validate Reusable Helm Chart packaging
+helm lint helm/flexascale
+helm template flexascale helm/flexascale --set targetNamespace=production
 ```
 
 ### Terminal 2 (Prometheus Port-Forward)
@@ -895,13 +1158,20 @@ kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n flexascale-mon
 kubectl port-forward svc/monitoring-grafana -n flexascale-monitoring 3000:80
 ```
 
+### Terminal 4 (FlexaScale Live Dashboard & API)
+```bash
+# Dashboard UI: http://localhost:8080
+# OpenAPI Docs: http://localhost:8080/docs
+python3 scripts/run_api.py --live --port 8080
+```
+
 ---
 
 ## ✅ Verification Checklist
 
 - [x] Python virtual environment configured (`.venv`)
 - [x] Dependencies installed and `flexascale` editable package verified
-- [x] All 101 pytest tests pass with 0 failures across all 5 test suites
+- [x] All 138 pytest tests pass with 0 failures across all 10 test suites
 - [x] Minikube cluster and namespaces (`flexascale-apps`, `flexascale-monitoring`) operational
 - [x] Helm repositories added (`prometheus-community`, `grafana`, `bitnami`)
 - [x] Microservice container images built (`frontend`, `orders`, `inventory`, `payments`)
@@ -920,3 +1190,15 @@ kubectl port-forward svc/monitoring-grafana -n flexascale-monitoring 3000:80
 - [x] Conflict-free HPA freezing (`min=N, max=N`) during RL ownership verified live
 - [x] Automatic fail-safe fallback to dynamic HPA on low confidence, invalid inputs, or crash/lease expiry
 - [x] Hysteresis and cooldown logic verified to prevent controller thrashing
+- [x] **Phase 3**: Dynamic dependency graph inference with online EMA decay implemented and tested (`test_graph_inference.py`)
+- [x] **Phase 3**: Live state builder with multi-service observation schema project implemented and tested (`test_live_builder.py`)
+- [x] **Phase 4**: Autonomous Kubernetes operator control loop implemented and tested (`test_operator.py`, `run_operator.py`)
+- [x] **Phase 5**: High-performance FastAPI backend with `/api/status`, `/api/metrics`, `/api/history`, `/api/decisions`, `/api/graph`, `/api/config`, `/api/fallback` (`test_api.py`)
+- [x] **Phase 5**: Modern dark-mode React glassmorphic web dashboard with live SVG telemetry charts, call graph, and SLO tuning panel (`http://localhost:8080`)
+- [x] **Phase 6**: Full closed-loop end-to-end autonomous controller wired (`run_closed_loop.py`)
+- [x] **Phase 6**: Realistic Locust load scenarios implemented: `lunch_spike`, `quiet_night`, `burst` (`run_locust_scenarios.py`)
+- [x] **Phase 6**: FlexaScale vs Standard Kubernetes HPA benchmark runner with automated report generation (`reports/benchmark_report.md`, `reports/benchmark_summary.json`)
+- [x] **Application-Agnostic Core**: Dynamic workload discovery (`ServiceDiscovery`) via Kubernetes API and Prometheus (`test_discovery.py`)
+- [x] **Application-Agnostic GNN**: Size-invariant node-level scaling policy evaluation on arbitrary service counts ($N \ge 1$) (`test_agnostic_operator.py`)
+- [x] **Application-Agnostic Telemetry**: Zero-code cAdvisor and kube-state-metrics Prometheus extraction with container network I/O fallback
+- [x] **Reusable Production Helm Chart**: Package installable via `helm install` into any Kubernetes cluster, configurable via `values.yaml` (`helm lint helm/flexascale`)

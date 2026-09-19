@@ -203,6 +203,13 @@ def main() -> None:
         default=None,
         help="Specific service ID to simulate (single service mode)",
     )
+    parser.add_argument(
+        "--split",
+        type=str,
+        default="all",
+        choices=["all", "train", "val", "test"],
+        help="Dataset split to simulate (default: all)",
+    )
     args = parser.parse_args()
 
     print("FlexaScale RL Environment — Cluster Sanity Simulation")
@@ -212,6 +219,7 @@ def main() -> None:
         latency_target_ms=args.slo_target,
         cpu_target_pct=args.cpu_target,
         service_id=args.service_id,
+        split=args.split,
     )
     env = FlexaScaleEnv(config=config)
 

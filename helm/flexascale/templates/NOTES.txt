@@ -1,0 +1,24 @@
+Thank you for installing FlexaScale!
+
+Your autonomous RL auto-scaler, Kubernetes operator, and live dashboard are now deployed.
+
+1. Get the application URL by running these commands:
+{{- if contains "NodePort" .Values.api.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services flexascale-api)
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo "FlexaScale Dashboard URL: http://$NODE_IP:$NODE_PORT"
+{{- else if contains "LoadBalancer" .Values.api.service.type }}
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+  kubectl get svc --namespace {{ .Release.Namespace }} -w flexascale-api
+{{- else if contains "ClusterIP" .Values.api.service.type }}
+  echo "Port-forwarding FlexaScale API & Dashboard:"
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/flexascale-api 8080:8080 &
+  echo "Access the live web dashboard at: http://localhost:8080"
+  echo "Access the interactive OpenAPI docs at: http://localhost:8080/docs"
+{{- end }}
+
+2. Inspect the autonomous RL operator logs:
+  kubectl --namespace {{ .Release.Namespace }} logs -f deployment/flexascale-operator
+
+3. Inspect scaling mutual-exclusion lock state:
+  kubectl --namespace {{ .Values.targetNamespace }} get configmap flexascale-safety-lock -o yaml

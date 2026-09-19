@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlexaScale — Autonomous RL Kubernetes Autoscaler</title>
+  <meta name="description" content="FlexaScale real-time telemetry dashboard, PPO RL scaling decisions, GNN dependency graph, and SLO safety controller.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="background-glows">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="navbar">
+      <div class="brand-section">
+        <div class="logo-badge">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">FlexaScale</h1>
+          <p class="brand-subtitle">Autonomous RL Kubernetes Autoscaler • GNN & PPO Controller</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="status-pill healthy" id="cluster-status-pill">
+          <span class="pulse-dot"></span>
+          <span id="cluster-status-text">CLUSTER HEALTHY</span>
+        </div>
+
+        <div class="status-pill mode-pill" id="global-mode-pill">
+          <span class="mode-icon">⚡</span>
+          <span id="global-mode-text">CLOSED-LOOP RL</span>
+        </div>
+
+        <button class="btn btn-secondary" id="btn-trigger-step" title="Run one autonomous operator evaluation step">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Step Loop
+        </button>
+
+        <button class="btn btn-danger" id="btn-emergency-fallback" title="Emergency release of all scaling locks to native HPA">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          Emergency Fallback
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="dashboard-grid">
+
+      <!-- Section 1: Microservices Telemetry Cards -->
+      <section class="section-container">
+        <div class="section-header">
+          <h2 class="section-title">Microservice Cluster Fleet</h2>
+          <span class="refresh-indicator">Auto-refreshing: 2s</span>
+        </div>
+        <div class="services-grid" id="services-grid">
+          <!-- Dynamically populated cards -->
+          <div class="service-card skeleton"></div>
+          <div class="service-card skeleton"></div>
+          <div class="service-card skeleton"></div>
+          <div class="service-card skeleton"></div>
+        </div>
+      </section>
+
+      <!-- Section 2: Live Dependency Call Graph -->
+      <section class="section-container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Inferred Dependency Call-Graph</h2>
+            <p class="section-desc">Dynamic topology inference with Exponential Moving Average (EMA) traffic decay</p>
+          </div>
+          <div class="graph-legend">
+            <span class="legend-item"><span class="legend-dot rl-dot"></span> RL Governed</span>
+            <span class="legend-item"><span class="legend-dot hpa-dot"></span> HPA Fallback</span>
+          </div>
+        </div>
+        <div class="graph-card">
+          <div class="graph-flow" id="graph-flow">
+            <!-- Dynamically rendered nodes and animated edges -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Live Time-Series Charts Grid -->
+      <section class="section-container">
+        <div class="section-header">
+          <h2 class="section-title">Real-Time Cluster Telemetry</h2>
+          <div class="time-range-badge">Live Window (Last 60s)</div>
+        </div>
+        <div class="charts-grid">
+          <!-- Chart 1: Latency vs SLO -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Response Latency vs. SLO Target</h3>
+                <p class="chart-subtitle">Max bottleneck service latency (ms)</p>
+              </div>
+              <span class="metric-value-highlight" id="live-latency-val">-- ms</span>
+            </div>
+            <div class="chart-wrapper">
+              <svg class="line-chart" id="chart-latency" viewBox="0 0 500 180"></svg>
+            </div>
+          </div>
+
+          <!-- Chart 2: CPU Utilization vs Target -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Cluster CPU Utilization</h3>
+                <p class="chart-subtitle">Average CPU utilization vs 70% Target</p>
+              </div>
+              <span class="metric-value-highlight" id="live-cpu-val">-- %</span>
+            </div>
+            <div class="chart-wrapper">
+              <svg class="line-chart" id="chart-cpu" viewBox="0 0 500 180"></svg>
+            </div>
+          </div>
+
+          <!-- Chart 3: Aggregate Throughput (RPS) -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Request Rate Throughput</h3>
+                <p class="chart-subtitle">Total incoming cluster requests / second</p>
+              </div>
+              <span class="metric-value-highlight" id="live-rps-val">-- rps</span>
+            </div>
+            <div class="chart-wrapper">
+              <svg class="line-chart" id="chart-rps" viewBox="0 0 500 180"></svg>
+            </div>
+          </div>
+
+          <!-- Chart 4: Total Pod Replicas -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Active Running Pod Replicas</h3>
+                <p class="chart-subtitle">Total provisioned replicas across all services</p>
+              </div>
+              <span class="metric-value-highlight" id="live-reps-val">-- pods</span>
+            </div>
+            <div class="chart-wrapper">
+              <svg class="line-chart" id="chart-replicas" viewBox="0 0 500 180"></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Split Grid (Decisions Log + SLO Tuning Panel) -->
+      <div class="split-row">
+        <!-- Scaling Decisions Audit Log -->
+        <section class="section-container half-width">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Scaling Decisions Audit Feed</h2>
+              <p class="section-desc">Safety coordinator decisions, confidence scores, and actions</p>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="decisions-table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Mode</th>
+                  <th>Confidence</th>
+                  <th>Replicas</th>
+                  <th>Action</th>
+                  <th>Lock</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody id="decisions-tbody">
+                <tr><td colspan="7" class="loading-cell">Awaiting telemetry stream...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SLO & Safety Configuration Panel -->
+        <section class="section-container half-width">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">SLO & Safety Parameters</h2>
+              <p class="section-desc">Tune autoscaling boundaries and confidence thresholds dynamically</p>
+            </div>
+          </div>
+          <div class="config-card">
+            <form id="config-form" class="config-form">
+              <div class="control-group">
+                <div class="control-header">
+                  <label for="cfg-slo-latency">SLO Latency Target</label>
+                  <span class="slider-val" id="val-cfg-slo-latency">100 ms</span>
+                </div>
+                <input type="range" id="cfg-slo-latency" min="20" max="500" step="5" value="100">
+                <span class="control-help">Maximum acceptable response latency before triggering SLO breach penalty</span>
+              </div>
+
+              <div class="control-group">
+                <div class="control-header">
+                  <label for="cfg-target-cpu">Target CPU Utilization</label>
+                  <span class="slider-val" id="val-cfg-target-cpu">70 %</span>
+                </div>
+                <input type="range" id="cfg-target-cpu" min="30" max="90" step="5" value="70">
+                <span class="control-help">Kubernetes HPA baseline threshold and RL reward midpoint</span>
+              </div>
+
+              <div class="control-group">
+                <div class="control-header">
+                  <label for="cfg-confidence">RL Activation Confidence Threshold</label>
+                  <span class="slider-val" id="val-cfg-confidence">0.70</span>
+                </div>
+                <input type="range" id="cfg-confidence" min="0.50" max="0.95" step="0.01" value="0.70">
+                <span class="control-help">Minimum policy probability required to acquire cluster scaling lock</span>
+              </div>
+
+              <div class="control-group">
+                <div class="control-header">
+                  <label for="cfg-hysteresis">Hysteresis Deactivation Floor</label>
+                  <span class="slider-val" id="val-cfg-hysteresis">0.60</span>
+                </div>
+                <input type="range" id="cfg-hysteresis" min="0.40" max="0.85" step="0.01" value="0.60">
+                <span class="control-help">Floor below which RL ownership is revoked back to native HPA</span>
+              </div>
+
+              <div class="control-group">
+                <div class="control-header">
+                  <label for="cfg-cooldown">Cooldown Anti-Thrash Period</label>
+                  <span class="slider-val" id="val-cfg-cooldown">15 s</span>
+                </div>
+                <input type="range" id="cfg-cooldown" min="5" max="60" step="1" value="15">
+                <span class="control-help">Mandatory wait period after HPA fallback before RL can reacquire lock</span>
+              </div>
+
+              <button type="submit" class="btn btn-primary" id="btn-save-config">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Apply Configuration
+              </button>
+            </form>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>FlexaScale Autonomous Reinforcement Learning Autoscaler • PyTorch Geometric GNN + Stable-Baselines3 PPO</p>
+      <div class="footer-links">
+        <a href="/docs" target="_blank" class="footer-link">Interactive OpenAPI Docs (/docs)</a>
+        <a href="/api/status" target="_blank" class="footer-link">Live Telemetry JSON (/api/status)</a>
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

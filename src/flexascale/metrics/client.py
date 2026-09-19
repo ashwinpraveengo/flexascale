@@ -130,6 +130,15 @@ class MetricsClient:
         )
         req_rate = self._safe_query_value(req_query, default=0.0)
 
+        # Zero-code fallback: if application does not expose http_requests_total,
+        # estimate traffic from cAdvisor container network bytes (~1 KB / req)
+        if req_rate <= 0.0:
+            net_query = (
+                f'sum(rate(container_network_receive_bytes_total{{namespace="{namespace}", '
+                f'pod=~"^{service_id}.*"}}[{window}])) / 1024.0'
+            )
+            req_rate = max(0.0, self._safe_query_value(net_query, default=0.0))
+
         # 5. Success / Error Request Rates
         succ_query = (
             f'sum(rate(http_requests_total{{namespace="{namespace}", '
@@ -152,6 +161,13 @@ class MetricsClient:
         )
         latency = self._safe_query_value(lat_query, default=0.0)
 
+        # Zero-code latency fallback: estimate queuing latency if uninstrumented
+        if latency <= 0.0 and cpu_util > 0.0:
+            # Baseline processing time ~15ms with non-linear saturation knee above 70% CPU
+            base_lat = 15.0
+            knee = max(0.0, (cpu_util - 70.0) / 10.0)
+            latency = base_lat + (knee ** 2) * 20.0
+
         data: Dict[str, Any] = {
             "timestamp": current_ts,
             "service_id": service_id,
@@ -166,3 +182,63 @@ class MetricsClient:
         }
 
         return ServiceState.from_dict(data, source=StateSource.LIVE)
+
+    def query_inter_service_traffic(
+        self,
+        namespace: str = "default",
+    ) -> List[tuple[str, str, float]]:
+        """
+        Discovers caller -> callee traffic flow rates between microservices.
+        Checks service-mesh (Istio/Envoy) or HTTP client metrics in Prometheus.
+        """
+        window = f"{self.sampling_interval_seconds * 3}s"
+        flows: List[tuple[str, str, float]] = []
+
+        # 1. Istio / Envoy service mesh metrics
+        istio_query = (
+            f'sum by (source_workload, destination_workload) ('
+            f'rate(istio_requests_total{{source_workload_namespace="{namespace}"}}[{window}]))'
+        )
+        try:
+            r = requests.get(
+                f"{self.url}/api/v1/query",
+                params={"query": istio_query},
+                timeout=self.timeout_seconds,
+            )
+            if r.status_code == 200:
+                results = r.json().get("data", {}).get("result", [])
+                for item in results:
+                    metric = item.get("metric", {})
+                    src = metric.get("source_workload")
+                    dst = metric.get("destination_workload")
+                    val = float(item.get("value", [0, 0])[1])
+                    if src and dst and src != dst and val > 0:
+                        flows.append((src, dst, val))
+        except Exception:
+            pass
+
+        # 2. HTTP client requests with client/server labels
+        if not flows:
+            client_query = (
+                f'sum by (client, server) (rate(http_requests_total{{namespace="{namespace}"}}[{window}]))'
+            )
+            try:
+                r = requests.get(
+                    f"{self.url}/api/v1/query",
+                    params={"query": client_query},
+                    timeout=self.timeout_seconds,
+                )
+                if r.status_code == 200:
+                    results = r.json().get("data", {}).get("result", [])
+                    for item in results:
+                        metric = item.get("metric", {})
+                        src = metric.get("client")
+                        dst = metric.get("server")
+                        val = float(item.get("value", [0, 0])[1])
+                        if src and dst and src != dst and val > 0:
+                            flows.append((src, dst, val))
+            except Exception:
+                pass
+
+        return flows
+

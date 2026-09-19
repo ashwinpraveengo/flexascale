@@ -67,6 +67,12 @@ class SafetyConfig:
     )
     """List of microservices governed by the safety layer."""
 
+    auto_discovery: bool = True
+    """Whether to auto-discover workloads in the target namespace."""
+
+    label_selector: str = ""
+    """Optional Kubernetes label selector to filter target deployments (e.g. 'app=ecommerce')."""
+
     hpa_min_replicas: int = 1
     """Default minimum replicas for dynamic HPA scaling."""
 

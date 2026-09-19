@@ -1,0 +1,17 @@
+apiVersion: v2
+name: flexascale
+description: FlexaScale Autonomous RL Autoscaler, Kubernetes Operator & Live Telemetry Dashboard
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - autoscaling
+  - reinforcement-learning
+  - kubernetes
+  - gnn
+  - ppo
+  - prometheus
+home: https://github.com/ashwinpraveengo/flexascale
+maintainers:
+  - name: FlexaScale Team
+    email: maintainers@flexascale.local

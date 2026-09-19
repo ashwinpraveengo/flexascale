@@ -1,0 +1,71 @@
+# Default values for FlexaScale Helm Chart
+# Reusable, application-agnostic Kubernetes autoscaler add-on.
+
+# Namespace where target microservices and deployments reside
+targetNamespace: default
+
+# Workload & Service Auto-Discovery
+discovery:
+  # Enable dynamic discovery of Kubernetes Deployments in targetNamespace
+  enabled: true
+  # Optional label selector to filter target workloads (e.g. "app.kubernetes.io/part-of=ecommerce")
+  # Leave empty to discover and monitor all scalable deployments in targetNamespace
+  labelSelector: ""
+  # Discovery polling interval in seconds
+  intervalSeconds: 15.0
+  # Explicit list of service/deployment names (overrides auto-discovery if non-empty)
+  services: []
+
+# Autonomous Operator Configuration
+operator:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: flexascale-operator
+    tag: latest
+    pullPolicy: IfNotPresent
+  interval: 5.0
+  threshold: 0.70
+  deactivationThreshold: 0.60
+  cooldownSeconds: 15.0
+  modelPath: "/app/models/best_model/best_model.zip"
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# FastAPI Backend & Glassmorphic Telemetry Dashboard
+api:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: flexascale-api
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+    nodePort: 30080
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Global Prometheus Telemetry Endpoint (cAdvisor & kube-state-metrics)
+prometheus:
+  url: "http://monitoring-kube-prometheus-prometheus.flexascale-monitoring.svc:9090"
+  timeoutSeconds: 3.0
+
+# Target SLO & Autoscaling Parameters
+autoscaling:
+  targetCpuUtilization: 70
+  sloLatencyTargetMs: 100.0
+  hpaMinReplicas: 1
+  hpaMaxReplicas: 10

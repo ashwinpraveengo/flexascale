@@ -139,7 +139,7 @@ class HPAManager:
     def get_deployment_replicas(self, service_id: str) -> int:
         """Query current running replicas for a deployment."""
         if self.mock or self.config.dry_run:
-            return self._mock_replicas.get(service_id, self.config.hpa_min_replicas)
+            return self._mock_replicas.setdefault(service_id, self.config.hpa_min_replicas)
 
         cmd = [
             "kubectl",
@@ -167,60 +167,71 @@ class HPAManager:
     def get_hpa_bounds(self, service_id: str) -> tuple[int, int]:
         """Query (minReplicas, maxReplicas) from the HPA resource."""
         if self.mock or self.config.dry_run:
-            return self._mock_hpa_bounds.get(
+            return self._mock_hpa_bounds.setdefault(
                 service_id,
                 (self.config.hpa_min_replicas, self.config.hpa_max_replicas),
             )
 
-        hpa_name = f"{service_id}-hpa"
-        cmd = [
-            "kubectl",
-            "get",
-            f"hpa/{hpa_name}",
-            "-n",
-            self.config.namespace,
-            "-o",
-            "json",
-        ]
-        try:
-            res = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=True,
-                timeout=5.0,
-            )
-            data = json.loads(res.stdout)
-            spec = data.get("spec", {})
-            return (
-                int(spec.get("minReplicas", self.config.hpa_min_replicas)),
-                int(spec.get("maxReplicas", self.config.hpa_max_replicas)),
-            )
-        except Exception as exc:
-            logger.debug("Could not read HPA bounds for '%s': %s", hpa_name, exc)
-            return (self.config.hpa_min_replicas, self.config.hpa_max_replicas)
+        for hpa_name in (f"{service_id}-hpa", service_id):
+            cmd = [
+                "kubectl",
+                "get",
+                f"hpa/{hpa_name}",
+                "-n",
+                self.config.namespace,
+                "-o",
+                "json",
+            ]
+            try:
+                res = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    timeout=5.0,
+                )
+                data = json.loads(res.stdout)
+                spec = data.get("spec", {})
+                return (
+                    int(spec.get("minReplicas", self.config.hpa_min_replicas)),
+                    int(spec.get("maxReplicas", self.config.hpa_max_replicas)),
+                )
+            except Exception:
+                continue
+
+        return (self.config.hpa_min_replicas, self.config.hpa_max_replicas)
 
     def _patch_hpa(self, hpa_name: str, patch_data: dict[str, Any]) -> bool:
-        """Patch an HPA resource via kubectl."""
-        cmd = [
-            "kubectl",
-            "patch",
-            f"hpa/{hpa_name}",
-            "-n",
-            self.config.namespace,
-            "--type=merge",
-            "-p",
-            json.dumps(patch_data),
-        ]
-        try:
-            subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=True,
-                timeout=5.0,
-            )
-            return True
-        except Exception as exc:
-            logger.error("Failed to patch HPA '%s': %s", hpa_name, exc)
-            return False
+        """Patch an HPA resource via kubectl, trying both {service_id}-hpa and {service_id}."""
+        candidate_names = [hpa_name]
+        if hpa_name.endswith("-hpa"):
+            candidate_names.append(hpa_name[:-4])
+        else:
+            candidate_names.append(f"{hpa_name}-hpa")
+
+        for name in candidate_names:
+            cmd = [
+                "kubectl",
+                "patch",
+                f"hpa/{name}",
+                "-n",
+                self.config.namespace,
+                "--type=merge",
+                "-p",
+                json.dumps(patch_data),
+            ]
+            try:
+                res = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    timeout=5.0,
+                )
+                if res.returncode == 0:
+                    return True
+            except Exception:
+                continue
+
+        logger.debug("Failed to patch HPA candidate names %s in namespace %s", candidate_names, self.config.namespace)
+        return False

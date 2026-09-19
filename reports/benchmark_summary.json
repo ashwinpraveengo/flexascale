@@ -1,0 +1,31 @@
+{
+  "timestamp": 1789826693.6267052,
+  "config": {
+    "split": "test",
+    "episodes": 3,
+    "slo_target_ms": 100.0,
+    "cpu_target": 70.0,
+    "confidence_threshold": 0.7
+  },
+  "standard_hpa": {
+    "avg_reward": 0.203668471064046,
+    "mean_latency": 177.9027893066406,
+    "p95_latency": 190.4385223388672,
+    "p99_latency": 190.4385223388672,
+    "slo_violation_rate": 100.0,
+    "avg_replicas": 30.5,
+    "action_oscillations": 0.0,
+    "total_steps": 15
+  },
+  "flexascale_rl": {
+    "avg_reward": 0.2627538474835456,
+    "mean_latency": 166.0636962890625,
+    "p95_latency": 169.4439239501953,
+    "p99_latency": 169.4439239501953,
+    "slo_violation_rate": 100.0,
+    "avg_replicas": 32.0,
+    "action_oscillations": 0.0,
+    "avg_fallbacks_per_ep": 10.0,
+    "total_steps": 15
+  }
+}
