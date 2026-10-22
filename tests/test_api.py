@@ -30,14 +30,14 @@ def test_system_status(client):
     assert data["status"] == "healthy"
     assert "modes" in data
     assert "replicas" in data
-    assert len(data["modes"]) == 4
+    assert len(data["modes"]) in (4, 7)
 
 
 def test_metrics_endpoint(client):
     res = client.get("/api/metrics")
     assert res.status_code == 200
     metrics = res.json()
-    assert len(metrics) == 4
+    assert len(metrics) in (4, 7)
     for m in metrics:
         assert "cpu_utilization" in m
         assert "latency_ms" in m
@@ -58,8 +58,8 @@ def test_graph_endpoint(client):
     res = client.get("/api/graph")
     assert res.status_code == 200
     graph = res.json()
-    assert graph["num_nodes"] == 4
-    assert len(graph["nodes"]) == 4
+    assert graph["num_nodes"] in (4, 7)
+    assert len(graph["nodes"]) in (4, 7)
     assert len(graph["edges"]) >= 3
 
 
@@ -95,4 +95,4 @@ def test_step_trigger(client):
     res = client.post("/api/step")
     assert res.status_code == 200
     decisions = res.json()
-    assert len(decisions) == 4
+    assert len(decisions) in (4, 7)

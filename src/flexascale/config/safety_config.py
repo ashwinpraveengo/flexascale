@@ -60,10 +60,13 @@ class SafetyConfig:
     """Kubernetes namespace where microservices and HPAs reside."""
 
     service_names: tuple[str, ...] = (
-        "frontend",
-        "orders",
-        "inventory",
-        "payments",
+        "api-gateway",
+        "user-service",
+        "catalog-service",
+        "cart-service",
+        "order-service",
+        "inventory-service",
+        "payment-service",
     )
     """List of microservices governed by the safety layer."""
 

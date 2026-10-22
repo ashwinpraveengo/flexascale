@@ -1,0 +1,6 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),21,2026-10-20T21:15:46Z,2026-10-20T21:16:27Z
+POST,POST /api/orders/checkout [High Latency 300ms],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [High Latency 300ms]'),12,2026-10-20T21:15:39Z,2026-10-20T21:16:27Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('500 Server Error: Internal Server Error for url: POST /api/orders/checkout [FlashSale Contention]'),1,2026-10-20T21:16:25Z,2026-10-20T21:16:25Z
+POST,POST /api/users/login,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/users/login'),8,2026-10-20T21:15:36Z,2026-10-20T21:15:40Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),1,2026-10-20T21:15:37Z,2026-10-20T21:15:37Z

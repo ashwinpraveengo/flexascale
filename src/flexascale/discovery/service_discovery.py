@@ -21,13 +21,15 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-# Default services to ignore (FlexaScale internal controllers)
+# Default services to ignore (FlexaScale internal controllers, databases, static frontend)
 DEFAULT_EXCLUDED_PATTERNS: tuple[str, ...] = (
     r"^flexascale-.*",
     r".*monitoring.*",
     r".*grafana.*",
     r".*prometheus.*",
     r".*kube-state-metrics.*",
+    r".*postgres.*",
+    r".*shopping-frontend.*",
 )
 
 
@@ -52,7 +54,13 @@ class ServiceDiscovery:
         self.excluded_patterns = [re.compile(p) for p in excluded_patterns]
         self.mock = mock
         self._mock_services = list(mock_services) if mock_services is not None else [
-            "frontend", "orders", "inventory", "payments"
+            "api-gateway",
+            "user-service",
+            "catalog-service",
+            "cart-service",
+            "order-service",
+            "inventory-service",
+            "payment-service",
         ]
         self.cache_ttl = cache_ttl_seconds
         self._cached_services: List[str] = []

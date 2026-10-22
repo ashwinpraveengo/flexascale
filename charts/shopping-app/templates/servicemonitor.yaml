@@ -1,0 +1,27 @@
+{{- if .Values.monitoring.serviceMonitor.enabled }}
+{{- range $key, $val := .Values.services }}
+{{- if ne $val.name "shopping-frontend" }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $val.name }}-monitor
+  namespace: {{ $.Values.namespace }}
+  labels:
+    {{- include "shopping-app.labels" $ | nindent 4 }}
+    app: {{ $val.name }}
+    {{- with $.Values.monitoring.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $val.name }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: {{ $.Values.monitoring.serviceMonitor.interval }}
+      scrapeTimeout: {{ $.Values.monitoring.serviceMonitor.scrapeTimeout }}
+{{- end }}
+{{- end }}
+{{- end }}

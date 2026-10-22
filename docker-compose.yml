@@ -1,33 +1,168 @@
 version: '3.8'
+
 services:
-  frontend:
-    build: ./frontend
+  postgres:
+    image: postgres:16-alpine
+    container_name: shopping-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-ecommerce}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./apps/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build:
+      context: ./apps/services/user-service
+      dockerfile: Dockerfile
+    container_name: shopping-user-service
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ecommerce}
+      - JWT_SECRET=${JWT_SECRET:-super-secret-jwt-key-for-shopping-app-2026}
+      - SERVICE_PORT=8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  catalog-service:
+    build:
+      context: ./apps/services/catalog-service
+      dockerfile: Dockerfile
+    container_name: shopping-catalog-service
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ecommerce}
+      - SERVICE_PORT=8002
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  cart-service:
+    build:
+      context: ./apps/services/cart-service
+      dockerfile: Dockerfile
+    container_name: shopping-cart-service
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ecommerce}
+      - CATALOG_SERVICE_URL=http://catalog-service:8002
+      - INVENTORY_SERVICE_URL=http://inventory-service:8005
+      - SERVICE_PORT=8003
+    depends_on:
+      postgres:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+
+  order-service:
+    build:
+      context: ./apps/services/order-service
+      dockerfile: Dockerfile
+    container_name: shopping-order-service
+    restart: unless-stopped
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ecommerce}
+      - CATALOG_SERVICE_URL=http://catalog-service:8002
+      - CART_SERVICE_URL=http://cart-service:8003
+      - INVENTORY_SERVICE_URL=http://inventory-service:8005
+      - PAYMENT_SERVICE_URL=http://payment-service:8006
+      - SERVICE_PORT=8004
+    depends_on:
+      postgres:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+      cart-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+
+  inventory-service:
+    build:
+      context: ./apps/services/inventory-service
+      dockerfile: Dockerfile
+    container_name: shopping-inventory-service
+    restart: unless-stopped
+    ports:
+      - "8005:8005"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ecommerce}
+      - SERVICE_PORT=8005
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  payment-service:
+    build:
+      context: ./apps/services/payment-service
+      dockerfile: Dockerfile
+    container_name: shopping-payment-service
+    restart: unless-stopped
+    ports:
+      - "8006:8006"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-ecommerce}
+      - SERVICE_PORT=8006
+      - SIMULATE_FAILURE_RATE=${SIMULATE_FAILURE_RATE:-0.0}
+      - PAYMENT_DEFAULT_DELAY_MS=${PAYMENT_DEFAULT_DELAY_MS:-50}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api-gateway:
+    build:
+      context: ./apps/services/api-gateway
+      dockerfile: Dockerfile
+    container_name: shopping-api-gateway
+    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      - ORDERS_URL=http://orders:8000
+      - SERVICE_PORT=8000
+      - USER_SERVICE_URL=http://user-service:8001
+      - CATALOG_SERVICE_URL=http://catalog-service:8002
+      - CART_SERVICE_URL=http://cart-service:8003
+      - ORDER_SERVICE_URL=http://order-service:8004
+      - INVENTORY_SERVICE_URL=http://inventory-service:8005
+      - PAYMENT_SERVICE_URL=http://payment-service:8006
     depends_on:
-      - orders
+      - user-service
+      - catalog-service
+      - cart-service
+      - order-service
+      - inventory-service
+      - payment-service
 
-  orders:
-    build: ./orders
+  shopping-frontend:
+    build:
+      context: ./apps/shopping-frontend
+      dockerfile: Dockerfile
+    container_name: shopping-frontend
+    restart: unless-stopped
     ports:
-      - "8001:8000"
-    environment:
-      - INVENTORY_URL=http://inventory:8000
+      - "3000:80"
     depends_on:
-      - inventory
+      - api-gateway
 
-  inventory:
-    build: ./inventory
-    ports:
-      - "8002:8000"
-    environment:
-      - PAYMENTS_URL=http://payments:8000
-    depends_on:
-      - payments
-
-  payments:
-    build: ./payments
-    ports:
-      - "8003:8000"
+volumes:
+  postgres_data:

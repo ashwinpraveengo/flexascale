@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: flexascale-grafana-dashboard
+  name: shopping-app-grafana-dashboard
   namespace: flexascale-monitoring
   labels:
     grafana_dashboard: "1"
+    app.kubernetes.io/part-of: flexascale-ecommerce
 data:
-  flexascale-dashboard.json: |-
+  shopping-app.json: |-
     {
       "annotations": {
         "list": [
@@ -31,96 +32,8 @@ data:
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
           "id": 100,
-          "title": "FlexaScale Cluster Autoscaling Overview",
+          "title": "E-Commerce Microservices Performance & Health",
           "type": "row"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "CPU Utilization (%)",
-                "axisPlacement": "auto",
-                "drawStyle": "line",
-                "fillOpacity": 15,
-                "gradientMode": "opacity",
-                "lineWidth": 2,
-                "pointSize": 5,
-                "showPoints": "auto",
-                "spanNulls": false
-              },
-              "mappings": [],
-              "max": 100,
-              "min": 0,
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
-          "id": 1,
-          "options": {
-            "legend": { "calcs": ["mean", "lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-            "tooltip": { "mode": "multi", "sort": "desc" }
-          },
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "editorMode": "code",
-              "expr": "avg by (container) (rate(container_cpu_usage_seconds_total{namespace=\"flexascale-apps\", container=~\"frontend|orders|inventory|payments\"}[1m])) * 100",
-              "legendFormat": "{{container}} CPU %",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "CPU Utilization per Service",
-          "type": "timeseries"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "Memory Utilization (%)",
-                "axisPlacement": "auto",
-                "drawStyle": "line",
-                "fillOpacity": 15,
-                "gradientMode": "opacity",
-                "lineWidth": 2,
-                "pointSize": 5,
-                "showPoints": "auto",
-                "spanNulls": false
-              },
-              "mappings": [],
-              "max": 100,
-              "min": 0,
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
-          "id": 2,
-          "options": {
-            "legend": { "calcs": ["mean", "lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
-            "tooltip": { "mode": "multi", "sort": "desc" }
-          },
-          "targets": [
-            {
-              "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "editorMode": "code",
-              "expr": "(sum by (container) (container_memory_working_set_bytes{namespace=\"flexascale-apps\", container=~\"frontend|orders|inventory|payments\"}) / sum by (container) (kube_pod_container_resource_limits{namespace=\"flexascale-apps\", resource=\"memory\"})) * 100",
-              "legendFormat": "{{container}} Mem %",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Memory Utilization per Service",
-          "type": "timeseries"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -146,8 +59,8 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
-          "id": 3,
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+          "id": 1,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -156,13 +69,56 @@ data:
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
               "editorMode": "code",
-              "expr": "sum by (app) (rate(http_requests_total{namespace=\"flexascale-apps\"}[1m]))",
-              "legendFormat": "{{app}} RPS",
+              "expr": "sum by (service) (rate(http_requests_total[1m]))",
+              "legendFormat": "{{service}} RPS",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Request Rate (Throughput)",
+          "title": "HTTP Request Rate by Service (RPS)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "Errors / sec",
+                "axisPlacement": "auto",
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "opacity",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "auto",
+                "spanNulls": false
+              },
+              "mappings": [],
+              "min": 0,
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+          "id": 2,
+          "options": {
+            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "sum by (service, status) (rate(http_requests_total{status=~\"[45]..\"}[1m]))",
+              "legendFormat": "{{service}} [{{status}}]",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "HTTP Error Rates (4xx / 5xx) by Service",
           "type": "timeseries"
         },
         {
@@ -189,8 +145,8 @@ data:
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
-          "id": 4,
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+          "id": 3,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
@@ -199,13 +155,13 @@ data:
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
               "editorMode": "code",
-              "expr": "(sum by (app) (rate(http_request_duration_seconds_sum{namespace=\"flexascale-apps\"}[1m])) / sum by (app) (rate(http_request_duration_seconds_count{namespace=\"flexascale-apps\"}[1m]))) * 1000",
-              "legendFormat": "{{app}} Latency (ms)",
+              "expr": "histogram_quantile(0.95, sum by (le, service) (rate(http_request_duration_seconds_bucket[1m]))) * 1000",
+              "legendFormat": "{{service}} P95 (ms)",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Response Latency",
+          "title": "P95 Request Latency by Service",
           "type": "timeseries"
         },
         {
@@ -216,7 +172,7 @@ data:
               "custom": {
                 "axisCenteredZero": false,
                 "axisColorMode": "text",
-                "axisLabel": "Error Rate (%)",
+                "axisLabel": "Active Requests",
                 "axisPlacement": "auto",
                 "drawStyle": "line",
                 "fillOpacity": 15,
@@ -227,13 +183,61 @@ data:
                 "spanNulls": false
               },
               "mappings": [],
-              "max": 100,
+              "min": 0
+            },
+            "overrides": []
+          },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+          "id": 4,
+          "options": {
+            "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "editorMode": "code",
+              "expr": "sum by (service) (http_requests_in_flight)",
+              "legendFormat": "{{service}} In-Flight",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "In-Flight Concurrent Requests",
+          "type": "timeseries"
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+          "id": 101,
+          "title": "Container Resource Consumption & Pod Replicas",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "CPU Utilization (%)",
+                "axisPlacement": "auto",
+                "drawStyle": "line",
+                "fillOpacity": 15,
+                "gradientMode": "opacity",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "showPoints": "auto",
+                "spanNulls": false
+              },
+              "mappings": [],
               "min": 0,
               "unit": "percent"
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
           "id": 5,
           "options": {
             "legend": { "calcs": ["mean", "lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
@@ -243,13 +247,13 @@ data:
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
               "editorMode": "code",
-              "expr": "((sum by (app) (rate(http_requests_total{namespace=\"flexascale-apps\", status=~\"5..\"}[1m])) or (0 * sum by (app) (rate(http_requests_total{namespace=\"flexascale-apps\"}[1m])))) / sum by (app) (rate(http_requests_total{namespace=\"flexascale-apps\"}[1m]))) * 100",
-              "legendFormat": "{{app}} Error %",
+              "expr": "avg by (container) (rate(container_cpu_usage_seconds_total{namespace=\"flexascale-apps\", container=~\"api-gateway|user-service|catalog-service|cart-service|order-service|inventory-service|payment-service|shopping-frontend\"}[1m])) * 100",
+              "legendFormat": "{{container}} CPU %",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Error Rate (%)",
+          "title": "CPU Utilization per Container",
           "type": "timeseries"
         },
         {
@@ -260,51 +264,52 @@ data:
               "custom": {
                 "axisCenteredZero": false,
                 "axisColorMode": "text",
-                "axisLabel": "Replica Count",
+                "axisLabel": "Working Set (MiB)",
                 "axisPlacement": "auto",
-                "drawStyle": "bars",
-                "fillOpacity": 50,
+                "drawStyle": "line",
+                "fillOpacity": 15,
                 "gradientMode": "opacity",
-                "lineWidth": 1,
+                "lineWidth": 2,
                 "pointSize": 5,
-                "showPoints": "never",
+                "showPoints": "auto",
                 "spanNulls": false
               },
               "mappings": [],
               "min": 0,
-              "unit": "short"
+              "unit": "decmbytes"
             },
             "overrides": []
           },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
           "id": 6,
           "options": {
-            "legend": { "calcs": ["lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+            "legend": { "calcs": ["mean", "lastNotNull", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
             "tooltip": { "mode": "multi", "sort": "desc" }
           },
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
               "editorMode": "code",
-              "expr": "sum by (deployment) (kube_deployment_status_replicas_ready{namespace=\"flexascale-apps\"})",
-              "legendFormat": "{{deployment}} Replicas",
+              "expr": "sum by (container) (container_memory_working_set_bytes{namespace=\"flexascale-apps\", container=~\"api-gateway|user-service|catalog-service|cart-service|order-service|inventory-service|payment-service|shopping-frontend\"}) / 1024 / 1024",
+              "legendFormat": "{{container}} RAM (MiB)",
               "range": true,
               "refId": "A"
             }
           ],
-          "title": "Active Running Pod Replicas",
+          "title": "Memory Usage per Container (MiB)",
           "type": "timeseries"
         }
       ],
       "refresh": "5s",
       "schemaVersion": 38,
       "style": "dark",
-      "tags": ["flexascale", "kubernetes", "autoscaling", "ppo", "gnn"],
-      "templating": { "list": [] },
+      "tags": ["flexascale", "ecommerce", "microservices"],
       "time": { "from": "now-15m", "to": "now" },
-      "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"] },
+      "timepicker": {
+        "refresh_intervals": ["5s", "10s", "30s", "1m"]
+      },
       "timezone": "browser",
-      "title": "FlexaScale - Microservices Auto-Scaling Dashboard",
-      "uid": "flexascale-overview",
+      "title": "FlexaScale - E-Commerce Microservices Observability",
+      "uid": "flexascale-ecommerce-overview",
       "version": 1
     }

@@ -145,12 +145,12 @@ class LiveStateBuilder:
         data: Dict[str, Any] = {
             "timestamp": current_ts,
             "service_id": service_id,
-            "cpu_utilization": float(params.get("cpu_utilization", 20.0)),
-            "memory_utilization": float(params.get("memory_utilization", 25.0)),
-            "replica_count": int(params.get("replica_count", 1)),
-            "request_rate": float(params.get("request_rate", 10.0)),
-            "latency_ms": float(params.get("latency_ms", 15.0)),
-            "successful_requests": float(params.get("request_rate", 10.0)),
+            "cpu_utilization": max(0.0, min(100.0, float(params.get("cpu_utilization", 20.0)))),
+            "memory_utilization": max(0.0, min(100.0, float(params.get("memory_utilization", 25.0)))),
+            "replica_count": max(1, int(params.get("replica_count", 1))),
+            "request_rate": max(0.0, float(params.get("request_rate", 10.0))),
+            "latency_ms": max(0.0, float(params.get("latency_ms", 15.0))),
+            "successful_requests": max(0.0, float(params.get("request_rate", 10.0))),
             "failed_requests": 0.0,
             "source": StateSource.LIVE,
         }

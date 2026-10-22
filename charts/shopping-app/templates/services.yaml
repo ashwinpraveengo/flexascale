@@ -1,0 +1,20 @@
+{{- range $key, $val := .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $val.name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    {{- include "shopping-app.labels" $ | nindent 4 }}
+    app: {{ $val.name }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ $val.port }}
+      targetPort: http
+      name: http
+      protocol: TCP
+  selector:
+    app: {{ $val.name }}
+{{- end }}

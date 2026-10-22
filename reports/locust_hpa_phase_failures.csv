@@ -1,0 +1,9 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),13,2026-10-20T21:14:18Z,2026-10-20T21:14:53Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [FlashSale Contention]'),6,2026-10-20T21:15:01Z,2026-10-20T21:15:01Z
+POST,POST /api/orders/checkout [High Latency 300ms],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [High Latency 300ms]'),3,2026-10-20T21:14:34Z,2026-10-20T21:15:00Z
+POST,POST /api/orders/checkout [High Latency 300ms],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [High Latency 300ms]'),6,2026-10-20T21:14:16Z,2026-10-20T21:14:41Z
+POST,POST /api/users/login,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/users/login'),4,2026-10-20T21:14:13Z,2026-10-20T21:14:14Z
+POST,POST /api/orders/checkout [Simulated Decline],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Simulated Decline]'),3,2026-10-20T21:15:00Z,2026-10-20T21:15:02Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),4,2026-10-20T21:14:59Z,2026-10-20T21:15:02Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),7,2026-10-20T21:14:33Z,2026-10-20T21:15:01Z

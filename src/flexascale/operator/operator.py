@@ -159,15 +159,15 @@ class FlexaScaleOperator:
 
         if self.model is not None:
             try:
-                # 1. If service count matches PPO multi-discrete space, use standard PPO forward
-                obs_tensor, _ = self.model.policy.obs_to_tensor(obs)
                 expected_act_dim = (
                     len(self.model.action_space.nvec)
                     if hasattr(self.model.action_space, "nvec")
                     else (1 if hasattr(self.model.action_space, "n") else None)
                 )
 
+                # 1. If service count matches PPO multi-discrete space, use standard PPO forward
                 if expected_act_dim == num_services:
+                    obs_tensor, _ = self.model.policy.obs_to_tensor(obs)
                     rl_action, _ = self.model.predict(obs, deterministic=True)
                     actions_list = (
                         np.asarray(rl_action).flatten().tolist()
@@ -201,6 +201,7 @@ class FlexaScaleOperator:
                 gnn_encoder = getattr(features_extractor, "encoder", None)
                 if gnn_encoder is not None and hasattr(gnn_encoder, "predict_node_actions"):
                     with torch.no_grad():
+                        obs_tensor = torch.as_tensor(obs, device=self.model.device, dtype=torch.float32)
                         x = obs_tensor.view(-1, 5)
                         edge_index = self.graph_inference.get_edge_index().to(obs_tensor.device)
                         node_acts, node_confs = gnn_encoder.predict_node_actions(x, edge_index)

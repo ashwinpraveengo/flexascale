@@ -96,7 +96,9 @@ def run_single_scenario(scenario_name: str, args):
     print(f"Target Host: {args.host}")
     print("=" * 80)
 
-    locustfile_path = Path(__file__).parent.parent / "locust" / "locustfile.py"
+    load_testing_path = Path(__file__).parent.parent / "load-testing" / "locustfile.py"
+    locust_path = Path(__file__).parent.parent / "locust" / "locustfile.py"
+    locustfile_path = load_testing_path if load_testing_path.exists() else locust_path
 
     if args.mock:
         # Synthetic mock benchmark simulation

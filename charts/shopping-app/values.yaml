@@ -1,0 +1,247 @@
+# Default values for shopping-app.
+namespace: flexascale-apps
+createNamespace: false
+
+# Global settings
+global:
+  imagePullPolicy: IfNotPresent
+  environment: production
+
+# PostgreSQL Persistence
+postgresql:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  port: 5432
+  auth:
+    username: postgres
+    password: postgresPassword123!
+    database: ecommerce
+  persistence:
+    enabled: true
+    size: 2Gi
+    storageClass: ""
+    accessMode: ReadWriteOnce
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Secrets
+security:
+  jwtSecret: "super-secret-production-jwt-key-for-shopping-app-2026"
+
+# Microservices Definitions
+services:
+  apiGateway:
+    name: api-gateway
+    replicas: 1
+    image:
+      repository: api-gateway
+      tag: latest
+    port: 8000
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  userService:
+    name: user-service
+    replicas: 1
+    image:
+      repository: user-service
+      tag: latest
+    port: 8001
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  catalogService:
+    name: catalog-service
+    replicas: 1
+    image:
+      repository: catalog-service
+      tag: latest
+    port: 8002
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  cartService:
+    name: cart-service
+    replicas: 1
+    image:
+      repository: cart-service
+      tag: latest
+    port: 8003
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  orderService:
+    name: order-service
+    replicas: 1
+    image:
+      repository: order-service
+      tag: latest
+    port: 8004
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  inventoryService:
+    name: inventory-service
+    replicas: 1
+    image:
+      repository: inventory-service
+      tag: latest
+    port: 8005
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  paymentService:
+    name: payment-service
+    replicas: 1
+    image:
+      repository: payment-service
+      tag: latest
+    port: 8006
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    config:
+      simulateFailureRate: "0.0"
+      defaultDelayMs: "50"
+
+  frontend:
+    name: shopping-frontend
+    replicas: 1
+    image:
+      repository: shopping-frontend
+      tag: latest
+    port: 80
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 128Mi
+    probes:
+      livenessPath: /
+      readinessPath: /
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "16m"
+  hosts:
+    - host: ""
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: api-gateway
+          port: 8000
+        - path: /metrics
+          pathType: Prefix
+          service: api-gateway
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: shopping-frontend
+          port: 80
+    - host: shopping.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: api-gateway
+          port: 8000
+        - path: /metrics
+          pathType: Prefix
+          service: api-gateway
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: shopping-frontend
+          port: 80
+
+# Prometheus Monitoring
+monitoring:
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    scrapeTimeout: 10s
+    labels:
+      release: prometheus

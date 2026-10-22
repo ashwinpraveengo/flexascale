@@ -1,0 +1,68 @@
+{{- range $key, $val := .Values.services }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $val.name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    {{- include "shopping-app.labels" $ | nindent 4 }}
+    app: {{ $val.name }}
+spec:
+  replicas: {{ $val.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: {{ $val.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $val.name }}
+        {{- include "shopping-app.labels" $ | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ $val.port | quote }}
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: {{ $val.name }}
+          image: "{{ $val.image.repository }}:{{ $val.image.tag }}"
+          imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ $val.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: shopping-config
+            - secretRef:
+                name: shopping-secrets
+          env:
+            - name: SERVICE_PORT
+              value: {{ $val.port | quote }}
+            - name: SERVICE_NAME
+              value: {{ $val.name | quote }}
+          resources:
+            {{- toYaml $val.resources | nindent 12 }}
+          {{- if $val.probes }}
+          livenessProbe:
+            httpGet:
+              path: {{ $val.probes.livenessPath }}
+              port: http
+            initialDelaySeconds: {{ $val.probes.initialDelaySeconds }}
+            periodSeconds: {{ $val.probes.periodSeconds }}
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: {{ $val.probes.readinessPath }}
+              port: http
+            initialDelaySeconds: {{ $val.probes.initialDelaySeconds }}
+            periodSeconds: {{ $val.probes.periodSeconds }}
+            timeoutSeconds: 5
+            failureThreshold: 5
+          {{- end }}
+{{- end }}

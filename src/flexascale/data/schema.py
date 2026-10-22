@@ -166,6 +166,10 @@ class ServiceState:
     error_rate: float = 0.0
     success_rate: float = 1.0
 
+    # 6. Telemetry Health & Missing-Data Tracking
+    missing_metrics: tuple[str, ...] = ()
+    telemetry_status: dict[str, bool] = field(default_factory=dict)
+
     # Field category metadata mappings
     RAW_FIELDS: ClassVar[Tuple[str, ...]] = (
         "timestamp",
@@ -365,6 +369,9 @@ class ServiceState:
             "failed_requests": self.failed_requests,
             "error_rate": self.error_rate,
             "success_rate": self.success_rate,
+            # Telemetry Status & Missing-Data Tracking
+            "missing_metrics": list(self.missing_metrics),
+            "telemetry_status": dict(self.telemetry_status),
         }
 
     # ------------------------------------------------------------------
@@ -404,6 +411,8 @@ class ServiceState:
             failed_requests=float(data.get("failed_requests", 0.0)),
             error_rate=float(data.get("error_rate", 0.0)),
             success_rate=float(data.get("success_rate", 1.0)),
+            missing_metrics=tuple(data.get("missing_metrics", ())),
+            telemetry_status=dict(data.get("telemetry_status", {})),
         )
 
     @classmethod

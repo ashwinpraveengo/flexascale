@@ -1,0 +1,812 @@
+{
+  "metadata": {
+    "timestamp": 1792530992.4496632,
+    "duration_seconds": 60,
+    "locust_users": 30,
+    "spawn_rate": 5,
+    "namespace": "flexascale-apps",
+    "services": [
+      "api-gateway",
+      "user-service",
+      "catalog-service",
+      "cart-service",
+      "order-service",
+      "inventory-service",
+      "payment-service"
+    ]
+  },
+  "native_hpa": {
+    "summary": {
+      "total_requests": 633,
+      "mean_rps": 10.7,
+      "total_failures": 46,
+      "failure_rate_percent": 7.27,
+      "p50_latency_ms": 790.0,
+      "p95_latency_ms": 5800.0,
+      "p99_latency_ms": 6100.0,
+      "max_latency_ms": 6508.94,
+      "avg_replicas": 7.0,
+      "peak_replicas": 7,
+      "min_replicas": 7,
+      "replica_hours": 0.07389,
+      "scaling_events": 0,
+      "oscillations": 0,
+      "slo_violation_rate_percent": 52.63,
+      "slo_violation_duration_s": 20.0,
+      "recovery_time_s": 0.0,
+      "avg_cpu_percent": 8.62,
+      "peak_cpu_percent": 19.78,
+      "avg_memory_percent": 38.07,
+      "peak_memory_percent": 40.69
+    },
+    "telemetry": [
+      {
+        "timestamp": 1792530843.58,
+        "elapsed_seconds": 0.0,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 0.28,
+        "avg_memory_percent": 34.85,
+        "total_rps": 1.45,
+        "max_latency_ms": 15.0,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": false
+      },
+      {
+        "timestamp": 1792530846.58,
+        "elapsed_seconds": 3.0,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 0.28,
+        "avg_memory_percent": 34.85,
+        "total_rps": 1.47,
+        "max_latency_ms": 15.0,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": false
+      },
+      {
+        "timestamp": 1792530849.72,
+        "elapsed_seconds": 6.14,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 0.52,
+        "avg_memory_percent": 34.88,
+        "total_rps": 2.49,
+        "max_latency_ms": 15.0,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": false
+      },
+      {
+        "timestamp": 1792530852.93,
+        "elapsed_seconds": 9.35,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 0.58,
+        "avg_memory_percent": 34.88,
+        "total_rps": 7.61,
+        "max_latency_ms": 15.0,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": false
+      },
+      {
+        "timestamp": 1792530856.19,
+        "elapsed_seconds": 12.62,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 0.55,
+        "avg_memory_percent": 34.88,
+        "total_rps": 7.53,
+        "max_latency_ms": 15.0,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": false
+      },
+      {
+        "timestamp": 1792530859.33,
+        "elapsed_seconds": 15.75,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 3.19,
+        "avg_memory_percent": 36.8,
+        "total_rps": 9.71,
+        "max_latency_ms": 15.0,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": false
+      },
+      {
+        "timestamp": 1792530862.54,
+        "elapsed_seconds": 18.96,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 3.2,
+        "avg_memory_percent": 36.8,
+        "total_rps": 12.16,
+        "max_latency_ms": 15.0,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": false
+      },
+      {
+        "timestamp": 1792530865.73,
+        "elapsed_seconds": 22.15,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 3.21,
+        "avg_memory_percent": 36.8,
+        "total_rps": 29.24,
+        "max_latency_ms": 33.11,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": false
+      },
+      {
+        "timestamp": 1792530868.91,
+        "elapsed_seconds": 25.33,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 8.31,
+        "avg_memory_percent": 39.62,
+        "total_rps": 36.5,
+        "max_latency_ms": 33.11,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": false
+      },
+      {
+        "timestamp": 1792530872.11,
+        "elapsed_seconds": 28.53,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 9.9,
+        "avg_memory_percent": 39.6,
+        "total_rps": 40.76,
+        "max_latency_ms": 4966.45,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530875.35,
+        "elapsed_seconds": 31.77,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 10.41,
+        "avg_memory_percent": 39.6,
+        "total_rps": 44.12,
+        "max_latency_ms": 4966.45,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530878.6,
+        "elapsed_seconds": 35.02,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 12.21,
+        "avg_memory_percent": 39.77,
+        "total_rps": 56.94,
+        "max_latency_ms": 4966.45,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530881.84,
+        "elapsed_seconds": 38.27,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 11.81,
+        "avg_memory_percent": 39.76,
+        "total_rps": 86.95,
+        "max_latency_ms": 4966.45,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530885.04,
+        "elapsed_seconds": 41.46,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 11.66,
+        "avg_memory_percent": 39.76,
+        "total_rps": 87.92,
+        "max_latency_ms": 4966.45,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530888.16,
+        "elapsed_seconds": 44.58,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 12.95,
+        "avg_memory_percent": 39.74,
+        "total_rps": 91.16,
+        "max_latency_ms": 4966.45,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530891.48,
+        "elapsed_seconds": 47.9,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 17.53,
+        "avg_memory_percent": 39.74,
+        "total_rps": 93.48,
+        "max_latency_ms": 4966.45,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530894.85,
+        "elapsed_seconds": 51.28,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 18.14,
+        "avg_memory_percent": 39.74,
+        "total_rps": 104.01,
+        "max_latency_ms": 4966.45,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530898.24,
+        "elapsed_seconds": 54.66,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 19.28,
+        "avg_memory_percent": 40.69,
+        "total_rps": 106.54,
+        "max_latency_ms": 4966.45,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530901.64,
+        "elapsed_seconds": 58.06,
+        "controller": "Native_HPA",
+        "avg_cpu_percent": 19.78,
+        "avg_memory_percent": 40.63,
+        "total_rps": 106.98,
+        "max_latency_ms": 2756.98,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      }
+    ]
+  },
+  "flexascale_rl": {
+    "summary": {
+      "total_requests": 807,
+      "mean_rps": 13.63,
+      "total_failures": 43,
+      "failure_rate_percent": 5.33,
+      "p50_latency_ms": 670.0,
+      "p95_latency_ms": 3700.0,
+      "p99_latency_ms": 6100.0,
+      "max_latency_ms": 6288.4,
+      "avg_replicas": 20.39,
+      "peak_replicas": 24,
+      "min_replicas": 7,
+      "replica_hours": 0.20389,
+      "scaling_events": 4,
+      "oscillations": 0,
+      "slo_violation_rate_percent": 100.0,
+      "slo_violation_duration_s": 36.0,
+      "recovery_time_s": 0.0,
+      "avg_cpu_percent": 8.84,
+      "peak_cpu_percent": 13.15,
+      "avg_memory_percent": 25.69,
+      "peak_memory_percent": 41.0
+    },
+    "telemetry": [
+      {
+        "timestamp": 1792530927.76,
+        "elapsed_seconds": 0.0,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 13.15,
+        "avg_memory_percent": 41.0,
+        "total_rps": 67.8,
+        "max_latency_ms": 5743.73,
+        "total_replicas": 7,
+        "replicas_by_service": {
+          "api-gateway": 1,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530931.31,
+        "elapsed_seconds": 3.54,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 12.23,
+        "avg_memory_percent": 18.05,
+        "total_rps": 55.71,
+        "max_latency_ms": 5772.91,
+        "total_replicas": 8,
+        "replicas_by_service": {
+          "api-gateway": 2,
+          "user-service": 1,
+          "catalog-service": 1,
+          "cart-service": 1,
+          "order-service": 1,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530934.56,
+        "elapsed_seconds": 6.79,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 10.85,
+        "avg_memory_percent": 18.05,
+        "total_rps": 53.3,
+        "max_latency_ms": 5772.91,
+        "total_replicas": 17,
+        "replicas_by_service": {
+          "api-gateway": 2,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 4,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530938.3,
+        "elapsed_seconds": 10.53,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 9.04,
+        "avg_memory_percent": 18.46,
+        "total_rps": 50.87,
+        "max_latency_ms": 6404.42,
+        "total_replicas": 17,
+        "replicas_by_service": {
+          "api-gateway": 2,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 4,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530941.75,
+        "elapsed_seconds": 13.99,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 6.88,
+        "avg_memory_percent": 22.51,
+        "total_rps": 27.05,
+        "max_latency_ms": 5432.8,
+        "total_replicas": 17,
+        "replicas_by_service": {
+          "api-gateway": 2,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 4,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530945.15,
+        "elapsed_seconds": 17.39,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 6.63,
+        "avg_memory_percent": 22.51,
+        "total_rps": 27.12,
+        "max_latency_ms": 5432.8,
+        "total_replicas": 17,
+        "replicas_by_service": {
+          "api-gateway": 2,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 4,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530948.36,
+        "elapsed_seconds": 20.6,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 6.68,
+        "avg_memory_percent": 23.06,
+        "total_rps": 28.77,
+        "max_latency_ms": 5432.8,
+        "total_replicas": 20,
+        "replicas_by_service": {
+          "api-gateway": 2,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530951.87,
+        "elapsed_seconds": 24.11,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 6.63,
+        "avg_memory_percent": 24.73,
+        "total_rps": 29.96,
+        "max_latency_ms": 4439.24,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530955.4,
+        "elapsed_seconds": 27.64,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 6.2,
+        "avg_memory_percent": 24.73,
+        "total_rps": 37.51,
+        "max_latency_ms": 4439.24,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530958.75,
+        "elapsed_seconds": 30.98,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 7.19,
+        "avg_memory_percent": 26.41,
+        "total_rps": 38.88,
+        "max_latency_ms": 4439.24,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530962.46,
+        "elapsed_seconds": 34.7,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 7.97,
+        "avg_memory_percent": 25.31,
+        "total_rps": 52.76,
+        "max_latency_ms": 6766.63,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530965.92,
+        "elapsed_seconds": 38.16,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 8.17,
+        "avg_memory_percent": 25.31,
+        "total_rps": 63.07,
+        "max_latency_ms": 6766.63,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530969.54,
+        "elapsed_seconds": 41.77,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 8.91,
+        "avg_memory_percent": 28.55,
+        "total_rps": 79.51,
+        "max_latency_ms": 6766.63,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530973.26,
+        "elapsed_seconds": 45.49,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 9.11,
+        "avg_memory_percent": 28.55,
+        "total_rps": 102.37,
+        "max_latency_ms": 6766.63,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530976.75,
+        "elapsed_seconds": 48.99,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 9.29,
+        "avg_memory_percent": 28.55,
+        "total_rps": 105.72,
+        "max_latency_ms": 7083.7,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530980.29,
+        "elapsed_seconds": 52.53,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 9.98,
+        "avg_memory_percent": 28.9,
+        "total_rps": 114.22,
+        "max_latency_ms": 7083.7,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530983.79,
+        "elapsed_seconds": 56.03,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 10.13,
+        "avg_memory_percent": 28.9,
+        "total_rps": 125.52,
+        "max_latency_ms": 7083.7,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      },
+      {
+        "timestamp": 1792530987.3,
+        "elapsed_seconds": 59.54,
+        "controller": "FlexaScale_RL",
+        "avg_cpu_percent": 10.03,
+        "avg_memory_percent": 28.9,
+        "total_rps": 132.47,
+        "max_latency_ms": 7083.7,
+        "total_replicas": 24,
+        "replicas_by_service": {
+          "api-gateway": 6,
+          "user-service": 2,
+          "catalog-service": 3,
+          "cart-service": 4,
+          "order-service": 7,
+          "inventory-service": 1,
+          "payment-service": 1
+        },
+        "slo_violation": true
+      }
+    ]
+  }
+}

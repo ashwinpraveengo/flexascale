@@ -53,3 +53,31 @@ def test_live_builder_to_dict():
     assert "observation_vector" in dict_repr
     assert len(dict_repr["observation_vector"]) == 20
     assert len(dict_repr["services"]) == 4
+
+
+def test_live_builder_seven_shopping_services_shape():
+    from flexascale.rl.gnn_encoder import SHOPPING_SERVICES
+
+    builder = LiveStateBuilder(services=SHOPPING_SERVICES, mock=True)
+    cluster_state = builder.build()
+
+    assert isinstance(cluster_state, LiveClusterState)
+    assert len(cluster_state.service_states) == 7
+    # 7 services * 5 dimensions = 35
+    assert cluster_state.observation_vector.shape == (35,)
+    assert cluster_state.observation_vector.dtype == np.float32
+
+    for sid in SHOPPING_SERVICES:
+        assert sid in cluster_state.service_states
+        state = cluster_state.service_states[sid]
+        assert state.to_vector().shape == (VECTOR_DIM,)
+
+
+def test_live_builder_missing_telemetry_tracking():
+    builder = LiveStateBuilder(services=["api-gateway"], mock=False)
+    fallback_state = builder._build_fallback_state("api-gateway")
+
+    assert fallback_state.service_id == "api-gateway"
+    assert fallback_state.cpu_utilization == 0.0
+    assert fallback_state.replica_count == 1
+    assert fallback_state.to_vector().shape == (VECTOR_DIM,)

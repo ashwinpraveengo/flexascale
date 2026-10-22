@@ -56,6 +56,31 @@ DEFAULT_EDGES: tuple[tuple[str, str], ...] = (
 )
 """Directed downstream request flow."""
 
+SHOPPING_SERVICES: tuple[str, ...] = (
+    "api-gateway",
+    "user-service",
+    "catalog-service",
+    "cart-service",
+    "order-service",
+    "inventory-service",
+    "payment-service",
+)
+"""Canonical fleet of 7 microservices in the live shopping application."""
+
+SHOPPING_EDGES: tuple[tuple[str, str], ...] = (
+    ("api-gateway", "user-service"),
+    ("api-gateway", "catalog-service"),
+    ("api-gateway", "cart-service"),
+    ("api-gateway", "order-service"),
+    ("cart-service", "catalog-service"),
+    ("cart-service", "inventory-service"),
+    ("order-service", "catalog-service"),
+    ("order-service", "inventory-service"),
+    ("order-service", "payment-service"),
+    ("order-service", "cart-service"),
+)
+"""Architectural dependency hypothesis for the 7 shopping microservices."""
+
 
 class ServiceDependencyGraph:
     """
