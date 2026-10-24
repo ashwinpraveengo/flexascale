@@ -1,0 +1,169 @@
+{
+  "generated_at": "2026-10-22 23:38:17",
+  "provenance": {
+    "source": "Alibaba cluster-trace-microservices-v2021 (https://github.com/alibaba/clusterdata)",
+    "raw_files": [
+      "data/raw/alibaba/v2021/MSResource_0.csv",
+      "data/raw/alibaba/v2021/MSRTQps_0.csv"
+    ],
+    "builder": "python -m flexascale.data.build_dataset",
+    "units": {
+      "cpu_utilization": "percent of container CPU allocation (0-100)",
+      "memory_utilization": "percent of container memory allocation (0-100)",
+      "replica_count": "distinct msinstanceid per service per timestamp",
+      "request_rate": "providerRPC_MCR (mean over instances)",
+      "latency_ms": "providerRPC_RT (mean over instances, ms)"
+    },
+    "sampling_interval_ms": 60000,
+    "migrations": [
+      {
+        "name": "fraction_to_percent_v1",
+        "applied_at": "2026-10-22T22:46:12+0530",
+        "columns": [
+          "cpu_utilization",
+          "memory_utilization"
+        ],
+        "factor": 100.0,
+        "files": [
+          {
+            "file": "data/processed/alibaba_service_state.csv",
+            "rows": 36355,
+            "action": "converted_fraction_to_percent",
+            "max_before": {
+              "cpu_utilization": 0.87448183760712,
+              "memory_utilization": 0.9572775893741184
+            },
+            "sha256_after": "195506908dac538748d27d61e2a332a1d7abc5e13632aa87953f0becb3064101"
+          },
+          {
+            "file": "data/processed/alibaba_service_state_train.csv",
+            "rows": 25446,
+            "action": "converted_fraction_to_percent",
+            "max_before": {
+              "cpu_utilization": 0.87448183760712,
+              "memory_utilization": 0.9572127086144908
+            },
+            "sha256_after": "109025ecf17f8b0906f6b208ec894e5839f6e4b01a0b7909285d40d46f7d6d3e"
+          },
+          {
+            "file": "data/processed/alibaba_service_state_val.csv",
+            "rows": 4847,
+            "action": "converted_fraction_to_percent",
+            "max_before": {
+              "cpu_utilization": 0.62547348484776,
+              "memory_utilization": 0.957154843542311
+            },
+            "sha256_after": "ab7e9c5ff688a95f263113f6ef657f70636ef27aa06987bc0b401a8a437afa17"
+          },
+          {
+            "file": "data/processed/alibaba_service_state_test.csv",
+            "rows": 6062,
+            "action": "converted_fraction_to_percent",
+            "max_before": {
+              "cpu_utilization": 0.6000620567364906,
+              "memory_utilization": 0.9572775893741184
+            },
+            "sha256_after": "adb0fe3f3a2f872fd853e4944b20647f13e86129307565ca3088bea5bf9080c8"
+          }
+        ]
+      }
+    ]
+  },
+  "rows": 36355,
+  "services": 1213,
+  "timestamps": 30,
+  "sampling_interval_ms": [
+    60000
+  ],
+  "span_minutes": 29.0,
+  "services_present_at_every_timestamp": 1178,
+  "splits": [
+    {
+      "split": "train",
+      "rows": 25446,
+      "services": 1213,
+      "timestamps": 21,
+      "first_ts": 0,
+      "last_ts": 1200000
+    },
+    {
+      "split": "val",
+      "rows": 4847,
+      "services": 1213,
+      "timestamps": 4,
+      "first_ts": 1260000,
+      "last_ts": 1440000
+    },
+    {
+      "split": "test",
+      "rows": 6062,
+      "services": 1213,
+      "timestamps": 5,
+      "first_ts": 1500000,
+      "last_ts": 1740000
+    }
+  ],
+  "split_timestamp_overlap": {
+    "train&val": 0,
+    "train&test": 0,
+    "val&test": 0
+  },
+  "splits_partition_full_dataset": true,
+  "missing_values": {
+    "cpu_utilization": 0,
+    "memory_utilization": 0,
+    "replica_count": 0,
+    "request_rate": 0,
+    "latency_ms": 0
+  },
+  "share_zero_request_rate": 0.03696878008527025,
+  "share_latency_over_100ms": 0.09522761655893275,
+  "share_replicas_over_50": 0.31728785586576813,
+  "distributions": {
+    "cpu_utilization": {
+      "mean": 13.664549879040075,
+      "std": 9.118237554802667,
+      "min": 0.37291666666665,
+      "5%": 4.06020833331583,
+      "50%": 11.13854166673263,
+      "95%": 31.712585060257467,
+      "max": 87.448183760712
+    },
+    "memory_utilization": {
+      "mean": 61.22755899223872,
+      "std": 12.737748362828397,
+      "min": 14.75235223770141,
+      "5%": 39.95671272277831,
+      "50%": 62.33862400054932,
+      "95%": 80.67017418563746,
+      "max": 95.72775893741183
+    },
+    "replica_count": {
+      "mean": 75.72003850914592,
+      "std": 168.7636658363664,
+      "min": 1.0,
+      "5%": 2.0,
+      "50%": 23.0,
+      "95%": 330.0,
+      "max": 2716.0
+    },
+    "request_rate": {
+      "mean": 65.69148616045914,
+      "std": 144.701896516081,
+      "min": 0.0,
+      "5%": 0.0075757575757575,
+      "50%": 15.781060606060606,
+      "95%": 297.23285714285663,
+      "max": 1981.1560897435893
+    },
+    "latency_ms": {
+      "mean": 37.13529882627745,
+      "std": 87.25967385879211,
+      "min": 0.0,
+      "5%": 0.3380964372619965,
+      "50%": 11.917277355691573,
+      "95%": 160.73892361412084,
+      "max": 2902.5
+    }
+  }
+}

@@ -88,22 +88,32 @@ class FlexaScaleEnv(gym.Env):
                 self._all_service_ids = [available[0]]
             self._single_service_mode = True
         else:
-            # Multi-service cluster mode: pick top 4 most frequent services
+            # Multi-service cluster mode: start from the most frequent services
             service_counts = self._df["service_id"].value_counts()
-            self._all_service_ids = service_counts.head(4).index.tolist()
+            self._all_service_ids = service_counts.head(self.config.num_services).index.tolist()
             self._single_service_mode = False
 
-        # Filter dataset to selected services
-        self._df_filtered = self._df[self._df["service_id"].isin(self._all_service_ids)]
+        if self.config.service_sampling not in ("top_frequency", "random"):
+            raise ValueError(f"Unknown service_sampling '{self.config.service_sampling}'.")
+        if self.config.demand_model not in ("trace", "normalized"):
+            raise ValueError(f"Unknown demand_model '{self.config.demand_model}'.")
 
-        # Precompute sequential data
-        self._sequence = []
-        for ts, group in self._df_filtered.groupby("timestamp"):
-            ts_dict = {row["service_id"]: row for _, row in group.iterrows()}
-            self._sequence.append(ts_dict)
+        # Candidate pool for random sampling: services observed at every timestamp
+        # with non-zero CPU demand, so sampled episodes have no missing rows.
+        self._sampling_pool: list[str] = []
+        if self.config.service_sampling == "random" and not self._single_service_mode:
+            n_ts = self._df["timestamp"].nunique()
+            per_service = self._df.groupby("service_id").agg(
+                n=("timestamp", "nunique"), cpu=("cpu_utilization", "max")
+            )
+            self._sampling_pool = sorted(
+                per_service[(per_service["n"] == n_ts) & (per_service["cpu"] > 0)].index
+            )
+            if len(self._sampling_pool) < self.config.num_services:
+                raise ValueError("Not enough complete services in split for random sampling.")
 
-        if not self._sequence:
-            raise ValueError("No matching sequence data found for simulated services.")
+        self._demand_scale: dict[str, float] = {}
+        self._select_services(self._all_service_ids)
 
         num_services = len(self._all_service_ids)
         logger.info(
@@ -155,12 +165,29 @@ class FlexaScaleEnv(gym.Env):
         self._simulated_replicas = {}
         self._prev_replicas = {}
 
+        if self._sampling_pool:
+            idx = self.np_random.choice(
+                len(self._sampling_pool), size=self.config.num_services, replace=False
+            )
+            self._select_services([self._sampling_pool[i] for i in sorted(idx)])
+
+        if self.config.demand_model == "normalized":
+            self._compute_demand_scales()
+
         first_step = self._sequence[0]
         for sid in self._all_service_ids:
-            if sid in first_step:
-                initial_replicas = int(first_step[sid]["replica_count"])
-            else:
+            if sid not in first_step:
                 initial_replicas = self.config.min_replicas
+            elif self.config.demand_model == "normalized":
+                row = first_step[sid]
+                demand = self._scaled_demand(sid, row)
+                initial_replicas = int(np.ceil(demand / self.config.cpu_target_pct))
+            else:
+                initial_replicas = int(first_step[sid]["replica_count"])
+            if self.config.randomize_initial_replicas:
+                initial_replicas = int(
+                    self.np_random.integers(self.config.min_replicas, self.config.max_replicas + 1)
+                )
 
             self._simulated_replicas[sid] = int(
                 np.clip(
@@ -252,12 +279,64 @@ class FlexaScaleEnv(gym.Env):
             raise ValueError(f"Dataset is missing required columns: {sorted(missing)}")
         return df
 
+    def _select_services(self, service_ids: Sequence[str]) -> None:
+        """Restrict the replayed sequence to ``service_ids`` (in that order)."""
+        self._all_service_ids = list(service_ids)
+        self._df_filtered = self._df[self._df["service_id"].isin(self._all_service_ids)]
+        self._sequence = []
+        for _, group in self._df_filtered.groupby("timestamp"):
+            self._sequence.append({row["service_id"]: row for _, row in group.iterrows()})
+        if not self._sequence:
+            raise ValueError("No matching sequence data found for simulated services.")
+
+    def _compute_demand_scales(self) -> None:
+        """Pick a per-service scale so peak demand needs a random replica count."""
+        self._demand_scale = {}
+        for sid in self._all_service_ids:
+            peak = max(
+                float(step[sid]["cpu_utilization"]) * max(1, int(step[sid]["replica_count"]))
+                for step in self._sequence
+                if sid in step
+            )
+            peak_replicas = self.np_random.integers(
+                self.config.peak_replicas_low, self.config.peak_replicas_high + 1
+            )
+            target = float(peak_replicas) * self.config.cpu_target_pct
+            self._demand_scale[sid] = target / peak if peak > 0 else 0.0
+
+    def _scaled_demand(self, sid: str, row: Any) -> float:
+        """CPU demand in replica-percent units after per-episode rescaling."""
+        trace_demand = float(row["cpu_utilization"]) * max(1, int(row["replica_count"]))
+        return trace_demand * self._demand_scale.get(sid, 0.0)
+
+    def _normalized_service_obs(self, sid: str, row: Any) -> tuple[float, float, float, float]:
+        """(cpu, mem, rps, latency) under the 'normalized' demand model."""
+        sim_reps = max(1, self._simulated_replicas.get(sid, 1))
+        rho = self._scaled_demand(sid, row) / (sim_reps * 100.0)
+        rho_trace = min(float(row["cpu_utilization"]) / 100.0, 0.95)
+        congestion = (1.0 - rho_trace) / (1.0 - min(rho, 0.98))
+        if rho > 1.0:
+            congestion *= rho  # backlog grows when demand exceeds capacity
+        sim_cpu = min(rho, 1.0) * 100.0
+        sim_mem = float(row["memory_utilization"])
+        sim_rps = (
+            float(row["request_rate"])
+            * max(1, int(row["replica_count"]))
+            * self._demand_scale.get(sid, 0.0)
+        )
+        sim_latency = float(row["latency_ms"]) * congestion
+        return sim_cpu, sim_mem, sim_rps, sim_latency
+
     def _build_observation(self) -> np.ndarray:
         current_step = self._sequence[self._step_idx]
         obs_parts = []
 
         for sid in self._all_service_ids:
-            if sid in current_step:
+            if sid in current_step and self.config.demand_model == "normalized":
+                sim_cpu, sim_mem, sim_rps, sim_latency = self._normalized_service_obs(
+                    sid, current_step[sid]
+                )
+            elif sid in current_step:
                 row = current_step[sid]
                 trace_replicas = max(1, int(row["replica_count"]))
                 sim_reps = max(1, self._simulated_replicas.get(sid, 1))
@@ -291,7 +370,7 @@ class FlexaScaleEnv(gym.Env):
     ) -> tuple[float, dict[str, float]]:
         w = self.config.reward_weights
         total_reward = 0.0
-        agg_components = {"slo": 0.0, "efficiency": 0.0, "stability": 0.0}
+        agg_components = {"slo": 0.0, "efficiency": 0.0, "stability": 0.0, "cost": 0.0}
 
         for i, sid in enumerate(self._all_service_ids):
             base_idx = i * VECTOR_DIM
@@ -309,17 +388,20 @@ class FlexaScaleEnv(gym.Env):
 
             efficiency_reward = -abs(cpu - self.config.cpu_target_pct) / 100.0
             stability_penalty = -float(delta_replicas)
+            cost_penalty = -float(self._simulated_replicas[sid]) / float(self.config.max_replicas)
 
             reward = (
                 w.get("slo", 1.0) * slo_reward
                 + w.get("efficiency", 0.3) * efficiency_reward
                 + w.get("stability", 0.1) * stability_penalty
+                + w.get("cost", 0.0) * cost_penalty
             )
 
             total_reward += reward
             agg_components["slo"] += slo_reward
             agg_components["efficiency"] += efficiency_reward
             agg_components["stability"] += stability_penalty
+            agg_components["cost"] += cost_penalty
 
         num_services = len(self._all_service_ids)
         total_reward /= num_services

@@ -1,0 +1,69 @@
+{
+  "source": "Alibaba cluster-trace-microservices-v2021 (https://github.com/alibaba/clusterdata)",
+  "raw_files": [
+    "data/raw/alibaba/v2021/MSResource_0.csv",
+    "data/raw/alibaba/v2021/MSRTQps_0.csv"
+  ],
+  "builder": "python -m flexascale.data.build_dataset",
+  "units": {
+    "cpu_utilization": "percent of container CPU allocation (0-100)",
+    "memory_utilization": "percent of container memory allocation (0-100)",
+    "replica_count": "distinct msinstanceid per service per timestamp",
+    "request_rate": "providerRPC_MCR (mean over instances)",
+    "latency_ms": "providerRPC_RT (mean over instances, ms)"
+  },
+  "sampling_interval_ms": 60000,
+  "migrations": [
+    {
+      "name": "fraction_to_percent_v1",
+      "applied_at": "2026-10-22T22:46:12+0530",
+      "columns": [
+        "cpu_utilization",
+        "memory_utilization"
+      ],
+      "factor": 100.0,
+      "files": [
+        {
+          "file": "data/processed/alibaba_service_state.csv",
+          "rows": 36355,
+          "action": "converted_fraction_to_percent",
+          "max_before": {
+            "cpu_utilization": 0.87448183760712,
+            "memory_utilization": 0.9572775893741184
+          },
+          "sha256_after": "195506908dac538748d27d61e2a332a1d7abc5e13632aa87953f0becb3064101"
+        },
+        {
+          "file": "data/processed/alibaba_service_state_train.csv",
+          "rows": 25446,
+          "action": "converted_fraction_to_percent",
+          "max_before": {
+            "cpu_utilization": 0.87448183760712,
+            "memory_utilization": 0.9572127086144908
+          },
+          "sha256_after": "109025ecf17f8b0906f6b208ec894e5839f6e4b01a0b7909285d40d46f7d6d3e"
+        },
+        {
+          "file": "data/processed/alibaba_service_state_val.csv",
+          "rows": 4847,
+          "action": "converted_fraction_to_percent",
+          "max_before": {
+            "cpu_utilization": 0.62547348484776,
+            "memory_utilization": 0.957154843542311
+          },
+          "sha256_after": "ab7e9c5ff688a95f263113f6ef657f70636ef27aa06987bc0b401a8a437afa17"
+        },
+        {
+          "file": "data/processed/alibaba_service_state_test.csv",
+          "rows": 6062,
+          "action": "converted_fraction_to_percent",
+          "max_before": {
+            "cpu_utilization": 0.6000620567364906,
+            "memory_utilization": 0.9572775893741184
+          },
+          "sha256_after": "adb0fe3f3a2f872fd853e4944b20647f13e86129307565ca3088bea5bf9080c8"
+        }
+      ]
+    }
+  ]
+}

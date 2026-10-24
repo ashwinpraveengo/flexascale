@@ -1,0 +1,84 @@
+{
+  "model": "PPO (Stable-Baselines3) with GNN dependency feature extractor",
+  "trained_at": "2026-10-22T23:30:28+0530",
+  "git_commit": "5d3aa6a",
+  "python": "3.14.7",
+  "training_seconds": 1079.6,
+  "total_timesteps": 150000,
+  "seed": 42,
+  "num_services": 4,
+  "observation": {
+    "per_service_fields": [
+      "cpu_utilization",
+      "memory_utilization",
+      "replica_count",
+      "request_rate",
+      "latency_ms"
+    ],
+    "units": {
+      "cpu_utilization": "percent of CPU allocation (0-100)",
+      "memory_utilization": "percent of memory allocation (0-100)",
+      "replica_count": "replicas (1-10)",
+      "request_rate": "requests per second (total for the service)",
+      "latency_ms": "mean latency in milliseconds"
+    },
+    "normalization": "none (raw values clipped to observation-space bounds)",
+    "dim": 20
+  },
+  "action": {
+    "per_service": {
+      "0": "scale down by 1",
+      "1": "hold",
+      "2": "scale up by 1"
+    }
+  },
+  "graph": {
+    "type": "chain",
+    "nodes": 4
+  },
+  "environment": {
+    "dataset_path": "data/processed/alibaba_service_state.csv",
+    "train_split": "train",
+    "eval_split": "val",
+    "split_method": "temporal",
+    "service_sampling": "random",
+    "demand_model": "normalized",
+    "randomize_initial_replicas": true,
+    "min_replicas": 1,
+    "max_replicas": 10,
+    "latency_target_ms": 100.0,
+    "cpu_target_pct": 70.0,
+    "reward_weights": {
+      "slo": 1.0,
+      "efficiency": 0.3,
+      "stability": 0.1,
+      "cost": 0.5
+    }
+  },
+  "ppo": {
+    "n_steps": 512,
+    "batch_size": 64,
+    "extractor": "gnn",
+    "conv_type": "gcn",
+    "hidden_dim": 64,
+    "features_dim": 64
+  },
+  "validation": {
+    "timesteps": [
+      30000,
+      60000,
+      90000,
+      120000,
+      150000
+    ],
+    "mean_reward": [
+      -1.3055,
+      -2.2168,
+      -2.9844,
+      -0.8429,
+      -3.2756
+    ],
+    "best_timestep": 120000,
+    "best_mean_reward": -0.8429
+  }
+}

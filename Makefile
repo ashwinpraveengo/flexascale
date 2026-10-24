@@ -1,9 +1,20 @@
-.PHONY: help build up down restart logs ps seed test test-all helm-lint helm-template k8s-apply k8s-delete clean
+.PHONY: help build up down restart logs ps seed test test-all helm-lint helm-template k8s-apply k8s-delete clean \
+	review-check review-start demo-start review-stop review-status test-framework dashboard-build evaluate
 
 PYTHON ?= ./.venv/bin/python3
 PYTEST ?= ./.venv/bin/pytest
 
 help:
+	@echo "Review / presentation (scripts/*.sh are the source of truth):"
+	@echo "  make review-check   - Preflight only (starts nothing, changes nothing)"
+	@echo "  make review-start   - Start port-forwards + Live Lab dashboard (http://127.0.0.1:8090)"
+	@echo "  make demo-start     - Same as review-start plus demo checklist"
+	@echo "  make review-status  - Cluster, pods, ownership, model, dashboard and URLs"
+	@echo "  make review-stop    - Stop managed processes and restore native HPA ownership"
+	@echo "  make test-framework - FlexaScale framework tests (no cluster needed)"
+	@echo "  make dashboard-build- Rebuild the Live Lab UI into src/flexascale/lab/static"
+	@echo "  make evaluate       - Held-out simulation evaluation of the trained policies"
+	@echo ""
 	@echo "FlexaScale E-Commerce Microservices Management Commands:"
 	@echo "  make build          - Build all microservice and frontend Docker images"
 	@echo "  make up             - Start local development stack with Docker Compose"
@@ -45,6 +56,30 @@ test:
 
 test-all:
 	$(PYTEST) tests/ -v
+
+test-framework:
+	$(PYTEST) tests/ --ignore=tests/shopping-app -q
+
+review-check:
+	./scripts/start_review.sh --check
+
+review-start:
+	./scripts/start_review.sh
+
+demo-start:
+	./scripts/start_demo.sh
+
+review-status:
+	./scripts/review_status.sh
+
+review-stop:
+	./scripts/stop_review.sh
+
+dashboard-build:
+	cd dashboard && npm ci && npm run build
+
+evaluate:
+	$(PYTHON) scripts/evaluate_policies.py --episodes 200
 
 helm-lint:
 	helm lint charts/shopping-app

@@ -7,9 +7,10 @@ live telemetry and constructs normalized, schema-compliant ServiceState objects.
 
 from __future__ import annotations
 
-import time
 import logging
-from typing import Any, Dict
+import re
+import time
+from typing import Any, Dict, List
 import requests
 
 try:
@@ -40,6 +41,18 @@ class MetricsClient:
         self.sampling_interval_seconds = sampling_interval_seconds
         self.timeout_seconds = timeout_seconds
         self.prom = PrometheusConnect(url=url, disable_ssl=disable_ssl) if _HAS_PROM_CLIENT else None
+
+    def _series_exists(self, selector: str) -> bool:
+        """True when Prometheus holds at least one series for ``selector``."""
+        try:
+            r = requests.get(
+                f"{self.url}/api/v1/query",
+                params={"query": f"count({selector})"},
+                timeout=self.timeout_seconds,
+            )
+            return r.status_code == 200 and bool(r.json().get("data", {}).get("result"))
+        except Exception:
+            return False
 
     def is_connected(self) -> bool:
         """Check if Prometheus instance is reachable."""
@@ -94,12 +107,17 @@ class MetricsClient:
         window = f"{max(60, self.sampling_interval_seconds * 3)}s"
         current_ts = int(time.time())
         missing_metrics: list[str] = []
+        # Pods of Deployment <service_id> are named <service_id>-<rs-hash>-<suffix>.
+        pods = f"^{service_id}-[a-z0-9]+-[a-z0-9]+$"  # DNS-1123 names need no escaping
         telemetry_status: dict[str, bool] = {}
 
         # 1. CPU Utilization (percentage: 0 to 100)
+        # CPU as percent of the pods' CPU request (same semantics as native HPA).
         cpu_query = (
-            f'avg(rate(container_cpu_usage_seconds_total{{namespace="{namespace}", '
-            f'pod=~"^{service_id}.*", container!=""}}[{window}])) * 100'
+            f'100 * sum(rate(container_cpu_usage_seconds_total{{namespace="{namespace}", '
+            f'pod=~"{pods}", container!="", container!="POD"}}[{window}])) / '
+            f'sum(kube_pod_container_resource_requests{{namespace="{namespace}", '
+            f'pod=~"{pods}", resource="cpu"}})'
         )
         cpu_util, cpu_ok = self._safe_query_metric(cpu_query, default=0.0)
         telemetry_status["cpu_utilization"] = cpu_ok
@@ -109,15 +127,18 @@ class MetricsClient:
         # 2. Memory Utilization (percentage: 0 to 100)
         mem_query = (
             f'avg(container_memory_working_set_bytes{{namespace="{namespace}", '
-            f'pod=~"^{service_id}.*", container!=""}} / '
+            f'pod=~"{pods}", container!=""}} / '
             f'container_spec_memory_limit_bytes{{namespace="{namespace}", '
-            f'pod=~"^{service_id}.*", container!=""}}) * 100'
+            f'pod=~"{pods}", container!=""}}) * 100'
         )
         mem_util, mem_ok = self._safe_query_metric(mem_query, default=0.0)
         if not mem_ok or mem_util <= 0.0:
+            # No memory limit: express usage relative to the memory request instead.
             raw_mem_query = (
-                f'avg(container_memory_working_set_bytes{{namespace="{namespace}", '
-                f'pod=~"^{service_id}.*", container!=""}}) / 268435456.0 * 100'
+                f'100 * sum(container_memory_working_set_bytes{{namespace="{namespace}", '
+                f'pod=~"{pods}", container!="", container!="POD"}}) / '
+                f'sum(kube_pod_container_resource_requests{{namespace="{namespace}", '
+                f'pod=~"{pods}", resource="memory"}})'
             )
             raw_mem, raw_ok = self._safe_query_metric(raw_mem_query, default=0.0)
             if raw_ok and raw_mem > 0:
@@ -130,7 +151,7 @@ class MetricsClient:
         # 3. Replica Count (healthy running pods)
         rep_query = (
             f'count(kube_pod_status_phase{{namespace="{namespace}", '
-            f'pod=~"^{service_id}.*", phase="Running"}} == 1)'
+            f'pod=~"{pods}", phase="Running"}} == 1)'
         )
         replica_count_f, rep_ok = self._safe_query_metric(rep_query, default=1.0)
         replica_count = int(replica_count_f) if rep_ok else 1
@@ -143,21 +164,15 @@ class MetricsClient:
         # 4. Request Rate (req/s over window)
         req_query = (
             f'sum(rate(http_requests_total{{namespace="{namespace}", '
-            f'pod=~"^{service_id}.*"}}[{window}]))'
+            f'pod=~"{pods}"}}[{window}]))'
         )
         req_rate, req_ok = self._safe_query_metric(req_query, default=0.0)
 
-        # Zero-code fallback: if application does not expose http_requests_total,
-        # estimate traffic from cAdvisor container network bytes (~1 KB / req)
-        if not req_ok or req_rate <= 0.0:
-            net_query = (
-                f'sum(rate(container_network_receive_bytes_total{{namespace="{namespace}", '
-                f'pod=~"^{service_id}.*"}}[{window}])) / 1024.0'
+        # No fabricated fallback: without http_requests_total the rate is reported missing.
+        if req_ok and req_rate <= 0.0:
+            req_ok = self._series_exists(
+                f'http_requests_total{{namespace="{namespace}", pod=~"{pods}"}}'
             )
-            net_rate, net_ok = self._safe_query_metric(net_query, default=0.0)
-            if net_ok:
-                req_rate = max(0.0, net_rate)
-                req_ok = True
         telemetry_status["request_rate"] = req_ok
         if not req_ok:
             missing_metrics.append("request_rate")
@@ -165,32 +180,28 @@ class MetricsClient:
         # 5. Success / Error Request Rates
         succ_query = (
             f'sum(rate(http_requests_total{{namespace="{namespace}", '
-            f'pod=~"^{service_id}.*", status=~"2..|3.."}}[{window}]))'
+            f'pod=~"{pods}", status=~"2..|3.."}}[{window}]))'
         )
         succ_rate, succ_ok = self._safe_query_metric(succ_query, default=req_rate)
 
         err_query = (
             f'sum(rate(http_requests_total{{namespace="{namespace}", '
-            f'pod=~"^{service_id}.*", status=~"4..|5.."}}[{window}]))'
+            f'pod=~"{pods}", status=~"4..|5.."}}[{window}]))'
         )
         err_rate_val, err_ok = self._safe_query_metric(err_query, default=0.0)
 
         # 6. Latency (ms over window)
         lat_query = (
             f'avg(rate(http_request_duration_seconds_sum{{namespace="{namespace}", '
-            f'pod=~"^{service_id}.*"}}[{window}]) / '
+            f'pod=~"{pods}"}}[{window}]) / '
             f'rate(http_request_duration_seconds_count{{namespace="{namespace}", '
-            f'pod=~"^{service_id}.*"}}[{window}])) * 1000'
+            f'pod=~"{pods}"}}[{window}])) * 1000'
         )
         latency, lat_ok = self._safe_query_metric(lat_query, default=0.0)
 
-        # Zero-code latency fallback: estimate queuing latency if uninstrumented
-        if (not lat_ok or latency <= 0.0) and cpu_util > 0.0:
-            # Baseline processing time ~15ms with non-linear saturation knee above 70% CPU
-            base_lat = 15.0
-            knee = max(0.0, (cpu_util - 70.0) / 10.0)
-            latency = base_lat + (knee ** 2) * 20.0
-            lat_ok = True
+        # No fabricated fallback: latency without request histograms is reported missing.
+        if not lat_ok or latency != latency:
+            latency, lat_ok = 0.0, False
         telemetry_status["latency_ms"] = lat_ok
         if not lat_ok:
             missing_metrics.append("latency_ms")
@@ -223,9 +234,10 @@ class MetricsClient:
         window = f"{max(60, self.sampling_interval_seconds * 3)}s"
         flows: List[tuple[str, str, float]] = []
 
-        # 0. API Gateway custom forward metrics (gateway_forward_total with target_service)
+        # 0. Router/gateway forward counters: any workload exporting
+        #    gateway_forward_total{target_service=...} is treated as the caller.
         gw_query = (
-            f'sum by (target_service) ('
+            f'sum by (pod, target_service) ('
             f'rate(gateway_forward_total{{namespace="{namespace}"}}[{window}]))'
         )
         try:
@@ -237,10 +249,12 @@ class MetricsClient:
             if r.status_code == 200:
                 results = r.json().get("data", {}).get("result", [])
                 for item in results:
-                    dst = item.get("metric", {}).get("target_service")
+                    metric = item.get("metric", {})
+                    dst = metric.get("target_service")
+                    src = re.sub(r"-[a-z0-9]{5,10}-[a-z0-9]{5}$", "", metric.get("pod", ""))
                     val = float(item.get("value", [0, 0])[1])
-                    if dst and val > 0:
-                        flows.append(("api-gateway", dst, val))
+                    if src and dst and src != dst and val > 0:
+                        flows.append((src, dst, val))
         except Exception:
             pass
 

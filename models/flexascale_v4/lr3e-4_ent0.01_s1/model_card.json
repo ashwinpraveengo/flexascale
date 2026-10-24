@@ -1,0 +1,140 @@
+{
+  "model": "PPO (Stable-Baselines3) with GNN dependency feature extractor",
+  "trained_at": "2026-10-24T15:16:25+0530",
+  "git_commit": "5d3aa6a",
+  "python": "3.14.7",
+  "training_seconds": 32613.0,
+  "total_timesteps": 1000000,
+  "seed": 1,
+  "num_services": 4,
+  "observation": {
+    "version": 2,
+    "per_service_fields": [
+      "cpu_fraction",
+      "memory_fraction",
+      "replica_fraction",
+      "rps_trend",
+      "latency_slo_ratio"
+    ],
+    "units": {
+      "cpu_fraction": "CPU used / CPU request (clipped to 0-1)",
+      "memory_fraction": "memory used / memory limit (0-1)",
+      "replica_fraction": "replicas / max_replicas (10)",
+      "rps_trend": "request rate now / request rate one minute earlier (0-3, 1 if unknown)",
+      "latency_slo_ratio": "mean latency / the service's latency SLO (0-5)"
+    },
+    "max_replicas": 10,
+    "normalization": "unit-free by construction; clipped to observation-space bounds",
+    "dim": 20,
+    "graph_semantics": "slot i calls slot i+1",
+    "decision_slot": 0
+  },
+  "action": {
+    "per_service": {
+      "0": "scale down by 1",
+      "1": "hold",
+      "2": "scale up by 1"
+    }
+  },
+  "graph": {
+    "type": "chain",
+    "nodes": 4
+  },
+  "environment": {
+    "env_class": "FlexaScaleEnvV2",
+    "dataset_path": "data/processed/alibaba_service_state.csv",
+    "train_split": "train",
+    "eval_split": "val",
+    "split_method": "service",
+    "service_sampling": "random",
+    "demand_model": "normalized",
+    "randomize_initial_replicas": true,
+    "min_replicas": 1,
+    "max_replicas": 10,
+    "latency_target_ms": 100.0,
+    "cpu_target_pct": 70.0,
+    "reward_weights": {
+      "slo": 1.0,
+      "efficiency": 0.3,
+      "stability": 0.1,
+      "cost": 1.0
+    },
+    "peak_replicas": [
+      1,
+      4
+    ],
+    "slo_slack": [
+      1.2,
+      2.0
+    ],
+    "downstream_coupling_high": 1.0,
+    "external_latency_high": 2.0,
+    "bottleneck_probability": 0.4,
+    "traffic_events": true,
+    "slo_penalty_cap": 3.0,
+    "control": "focal",
+    "background_epsilon": 0.2
+  },
+  "ppo": {
+    "n_steps": 256,
+    "batch_size": 256,
+    "ent_coef": 0.01,
+    "n_envs": 8,
+    "learning_rate": 0.0003,
+    "target_kl": 0.03,
+    "gamma": 0.95,
+    "extractor": "gnn",
+    "conv_type": "gcn",
+    "hidden_dim": 64,
+    "features_dim": 64
+  },
+  "validation": {
+    "timesteps": [
+      50000,
+      100000,
+      150000,
+      200000,
+      250000,
+      300000,
+      350000,
+      400000,
+      450000,
+      500000,
+      550000,
+      600000,
+      650000,
+      700000,
+      750000,
+      800000,
+      850000,
+      900000,
+      950000,
+      1000000
+    ],
+    "mean_reward": [
+      -23.8099,
+      -16.9606,
+      -15.7102,
+      -21.2239,
+      -10.4622,
+      -9.9955,
+      -10.9306,
+      -10.9568,
+      -11.4599,
+      -13.1076,
+      -15.4137,
+      -21.921,
+      -12.9351,
+      -10.0709,
+      -13.0023,
+      -22.0512,
+      -12.6073,
+      -9.0345,
+      -10.907,
+      -12.7798
+    ],
+    "best_timestep": 900000,
+    "best_mean_reward": -9.0345,
+    "episodes_per_evaluation": 30
+  }
+}

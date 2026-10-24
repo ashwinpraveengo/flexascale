@@ -1,0 +1,302 @@
+# Synthetic 5-service "bookstore" used to verify that FlexaScale is not tied to the shopping app.
+# Different service count (5), names, topology, image and resource sizes. Only three services
+# have a native HPA; the other two show how FlexaScale handles Deployments without an autoscaler.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flexascale-bookstore
+  labels: {app.kubernetes.io/part-of: bookstore}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: bookstore-topology, namespace: flexascale-bookstore}
+data:
+  storefront: "home=search,recommendations;search=search;cart=cart"
+  search: "default=recommendations"
+  recommendations: ""
+  cart: "default=pricing"
+  pricing: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storefront
+  namespace: flexascale-bookstore
+  labels: {app: storefront, app.kubernetes.io/part-of: bookstore}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: storefront}}
+  template:
+    metadata:
+      labels: {app: storefront, app.kubernetes.io/part-of: bookstore}
+    spec:
+      containers:
+        - name: storefront
+          image: bookstore-svc:1.0
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: 8080}]
+          env:
+            - {name: SERVICE_NAME, value: storefront}
+            - {name: WORK_MS, value: "4"}
+            - name: ROUTES
+              valueFrom: {configMapKeyRef: {name: bookstore-topology, key: storefront}}
+          resources:
+            requests: {cpu: 150m, memory: 48Mi}
+            limits: {cpu: 300m, memory: 96Mi}
+          readinessProbe: {httpGet: {path: /readyz, port: http}, periodSeconds: 5}
+          livenessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 10}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storefront
+  namespace: flexascale-bookstore
+  labels: {app: storefront, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {app: storefront}
+  ports: [{name: http, port: 8080, targetPort: http}]
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: storefront
+  namespace: flexascale-bookstore
+  labels: {app: storefront, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {matchLabels: {app: storefront}}
+  endpoints: [{port: http, path: /metrics, interval: 15s}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search
+  namespace: flexascale-bookstore
+  labels: {app: search, app.kubernetes.io/part-of: bookstore}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: search}}
+  template:
+    metadata:
+      labels: {app: search, app.kubernetes.io/part-of: bookstore}
+    spec:
+      containers:
+        - name: search
+          image: bookstore-svc:1.0
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: 8080}]
+          env:
+            - {name: SERVICE_NAME, value: search}
+            - {name: WORK_MS, value: "12"}
+            - name: ROUTES
+              valueFrom: {configMapKeyRef: {name: bookstore-topology, key: search}}
+          resources:
+            requests: {cpu: 100m, memory: 48Mi}
+            limits: {cpu: 300m, memory: 96Mi}
+          readinessProbe: {httpGet: {path: /readyz, port: http}, periodSeconds: 5}
+          livenessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 10}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search
+  namespace: flexascale-bookstore
+  labels: {app: search, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {app: search}
+  ports: [{name: http, port: 8080, targetPort: http}]
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: search
+  namespace: flexascale-bookstore
+  labels: {app: search, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {matchLabels: {app: search}}
+  endpoints: [{port: http, path: /metrics, interval: 15s}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendations
+  namespace: flexascale-bookstore
+  labels: {app: recommendations, app.kubernetes.io/part-of: bookstore}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: recommendations}}
+  template:
+    metadata:
+      labels: {app: recommendations, app.kubernetes.io/part-of: bookstore}
+    spec:
+      containers:
+        - name: recommendations
+          image: bookstore-svc:1.0
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: 8080}]
+          env:
+            - {name: SERVICE_NAME, value: recommendations}
+            - {name: WORK_MS, value: "20"}
+            - name: ROUTES
+              valueFrom: {configMapKeyRef: {name: bookstore-topology, key: recommendations}}
+          resources:
+            requests: {cpu: 100m, memory: 48Mi}
+            limits: {cpu: 300m, memory: 96Mi}
+          readinessProbe: {httpGet: {path: /readyz, port: http}, periodSeconds: 5}
+          livenessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 10}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendations
+  namespace: flexascale-bookstore
+  labels: {app: recommendations, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {app: recommendations}
+  ports: [{name: http, port: 8080, targetPort: http}]
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: recommendations
+  namespace: flexascale-bookstore
+  labels: {app: recommendations, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {matchLabels: {app: recommendations}}
+  endpoints: [{port: http, path: /metrics, interval: 15s}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart
+  namespace: flexascale-bookstore
+  labels: {app: cart, app.kubernetes.io/part-of: bookstore}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: cart}}
+  template:
+    metadata:
+      labels: {app: cart, app.kubernetes.io/part-of: bookstore}
+    spec:
+      containers:
+        - name: cart
+          image: bookstore-svc:1.0
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: 8080}]
+          env:
+            - {name: SERVICE_NAME, value: cart}
+            - {name: WORK_MS, value: "6"}
+            - name: ROUTES
+              valueFrom: {configMapKeyRef: {name: bookstore-topology, key: cart}}
+          resources:
+            requests: {cpu: 100m, memory: 48Mi}
+            limits: {cpu: 300m, memory: 96Mi}
+          readinessProbe: {httpGet: {path: /readyz, port: http}, periodSeconds: 5}
+          livenessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 10}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart
+  namespace: flexascale-bookstore
+  labels: {app: cart, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {app: cart}
+  ports: [{name: http, port: 8080, targetPort: http}]
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cart
+  namespace: flexascale-bookstore
+  labels: {app: cart, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {matchLabels: {app: cart}}
+  endpoints: [{port: http, path: /metrics, interval: 15s}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pricing
+  namespace: flexascale-bookstore
+  labels: {app: pricing, app.kubernetes.io/part-of: bookstore}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: pricing}}
+  template:
+    metadata:
+      labels: {app: pricing, app.kubernetes.io/part-of: bookstore}
+    spec:
+      containers:
+        - name: pricing
+          image: bookstore-svc:1.0
+          imagePullPolicy: IfNotPresent
+          ports: [{name: http, containerPort: 8080}]
+          env:
+            - {name: SERVICE_NAME, value: pricing}
+            - {name: WORK_MS, value: "3"}
+            - name: ROUTES
+              valueFrom: {configMapKeyRef: {name: bookstore-topology, key: pricing}}
+          resources:
+            requests: {cpu: 50m, memory: 48Mi}
+            limits: {cpu: 200m, memory: 96Mi}
+          readinessProbe: {httpGet: {path: /readyz, port: http}, periodSeconds: 5}
+          livenessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 10}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pricing
+  namespace: flexascale-bookstore
+  labels: {app: pricing, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {app: pricing}
+  ports: [{name: http, port: 8080, targetPort: http}]
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: pricing
+  namespace: flexascale-bookstore
+  labels: {app: pricing, app.kubernetes.io/part-of: bookstore}
+spec:
+  selector: {matchLabels: {app: pricing}}
+  endpoints: [{port: http, path: /metrics, interval: 15s}]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: storefront-autoscaler
+  namespace: flexascale-bookstore
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: storefront}
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource: {name: cpu, target: {type: Utilization, averageUtilization: 60}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: search-autoscaler
+  namespace: flexascale-bookstore
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: search}
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource: {name: cpu, target: {type: Utilization, averageUtilization: 60}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: recommendations-autoscaler
+  namespace: flexascale-bookstore
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: recommendations}
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource: {name: cpu, target: {type: Utilization, averageUtilization: 60}}

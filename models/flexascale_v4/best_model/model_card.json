@@ -1,0 +1,210 @@
+{
+  "model": "PPO (Stable-Baselines3) with GNN dependency feature extractor",
+  "trained_at": "2026-10-24T15:15:56+0530",
+  "git_commit": "5d3aa6a",
+  "python": "3.14.7",
+  "training_seconds": 32584.2,
+  "total_timesteps": 1000000,
+  "seed": 3,
+  "num_services": 4,
+  "observation": {
+    "version": 2,
+    "per_service_fields": [
+      "cpu_fraction",
+      "memory_fraction",
+      "replica_fraction",
+      "rps_trend",
+      "latency_slo_ratio"
+    ],
+    "units": {
+      "cpu_fraction": "CPU used / CPU request (clipped to 0-1)",
+      "memory_fraction": "memory used / memory limit (0-1)",
+      "replica_fraction": "replicas / max_replicas (10)",
+      "rps_trend": "request rate now / request rate one minute earlier (0-3, 1 if unknown)",
+      "latency_slo_ratio": "mean latency / the service's latency SLO (0-5)"
+    },
+    "max_replicas": 10,
+    "normalization": "unit-free by construction; clipped to observation-space bounds",
+    "dim": 20,
+    "graph_semantics": "slot i calls slot i+1",
+    "decision_slot": 0
+  },
+  "action": {
+    "per_service": {
+      "0": "scale down by 1",
+      "1": "hold",
+      "2": "scale up by 1"
+    }
+  },
+  "graph": {
+    "type": "chain",
+    "nodes": 4
+  },
+  "environment": {
+    "env_class": "FlexaScaleEnvV2",
+    "dataset_path": "data/processed/alibaba_service_state.csv",
+    "train_split": "train",
+    "eval_split": "val",
+    "split_method": "service",
+    "service_sampling": "random",
+    "demand_model": "normalized",
+    "randomize_initial_replicas": true,
+    "min_replicas": 1,
+    "max_replicas": 10,
+    "latency_target_ms": 100.0,
+    "cpu_target_pct": 70.0,
+    "reward_weights": {
+      "slo": 1.0,
+      "efficiency": 0.3,
+      "stability": 0.1,
+      "cost": 1.0
+    },
+    "peak_replicas": [
+      1,
+      4
+    ],
+    "slo_slack": [
+      1.2,
+      2.0
+    ],
+    "downstream_coupling_high": 1.0,
+    "external_latency_high": 2.0,
+    "bottleneck_probability": 0.4,
+    "traffic_events": true,
+    "slo_penalty_cap": 3.0,
+    "control": "focal",
+    "background_epsilon": 0.2
+  },
+  "ppo": {
+    "n_steps": 256,
+    "batch_size": 256,
+    "ent_coef": 0.01,
+    "n_envs": 8,
+    "learning_rate": 0.0001,
+    "target_kl": 0.03,
+    "gamma": 0.95,
+    "extractor": "gnn",
+    "conv_type": "gcn",
+    "hidden_dim": 64,
+    "features_dim": 64
+  },
+  "validation": {
+    "timesteps": [
+      50000,
+      100000,
+      150000,
+      200000,
+      250000,
+      300000,
+      350000,
+      400000,
+      450000,
+      500000,
+      550000,
+      600000,
+      650000,
+      700000,
+      750000,
+      800000,
+      850000,
+      900000,
+      950000,
+      1000000
+    ],
+    "mean_reward": [
+      -14.2753,
+      -16.2635,
+      -19.677,
+      -16.8704,
+      -17.3495,
+      -8.8909,
+      -16.3459,
+      -9.3699,
+      -8.2542,
+      -5.4132,
+      -14.1361,
+      -11.4488,
+      -13.2261,
+      -14.179,
+      -13.7072,
+      -7.577,
+      -11.064,
+      -10.003,
+      -15.9023,
+      -3.8873
+    ],
+    "best_timestep": 1000000,
+    "best_mean_reward": -3.8873,
+    "episodes_per_evaluation": 30
+  },
+  "selection": {
+    "protocol": "highest mean reward per step on 200 fixed validation-service episodes",
+    "selected": "lr1e-4_ent0.01_s3/final",
+    "candidates": [
+      {
+        "candidate": "lr1e-4_ent0.01_s3/best",
+        "path": "models/flexascale_v4/lr1e-4_ent0.01_s3/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v4/lr1e-4_ent0.01_s3",
+        "val_reward": -0.4411,
+        "val_slo_violation_rate": 0.3603,
+        "val_avg_replicas": 4.884
+      },
+      {
+        "candidate": "lr1e-4_ent0.01_s3/final",
+        "path": "models/flexascale_v4/lr1e-4_ent0.01_s3/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v4/lr1e-4_ent0.01_s3",
+        "val_reward": -0.4399,
+        "val_slo_violation_rate": 0.3624,
+        "val_avg_replicas": 4.776
+      },
+      {
+        "candidate": "lr3e-4_ent0.003_s1/best",
+        "path": "models/flexascale_v4/lr3e-4_ent0.003_s1/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v4/lr3e-4_ent0.003_s1",
+        "val_reward": -0.4541,
+        "val_slo_violation_rate": 0.3488,
+        "val_avg_replicas": 5.124
+      },
+      {
+        "candidate": "lr3e-4_ent0.003_s1/final",
+        "path": "models/flexascale_v4/lr3e-4_ent0.003_s1/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v4/lr3e-4_ent0.003_s1",
+        "val_reward": -0.4969,
+        "val_slo_violation_rate": 0.3533,
+        "val_avg_replicas": 5.387
+      },
+      {
+        "candidate": "lr3e-4_ent0.01_s1/best",
+        "path": "models/flexascale_v4/lr3e-4_ent0.01_s1/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v4/lr3e-4_ent0.01_s1",
+        "val_reward": -0.4782,
+        "val_slo_violation_rate": 0.3576,
+        "val_avg_replicas": 5.428
+      },
+      {
+        "candidate": "lr3e-4_ent0.01_s1/final",
+        "path": "models/flexascale_v4/lr3e-4_ent0.01_s1/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v4/lr3e-4_ent0.01_s1",
+        "val_reward": -0.4559,
+        "val_slo_violation_rate": 0.3488,
+        "val_avg_replicas": 5.192
+      },
+      {
+        "candidate": "lr3e-4_ent0.01_s2/best",
+        "path": "models/flexascale_v4/lr3e-4_ent0.01_s2/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v4/lr3e-4_ent0.01_s2",
+        "val_reward": -0.4917,
+        "val_slo_violation_rate": 0.3517,
+        "val_avg_replicas": 5.5
+      },
+      {
+        "candidate": "lr3e-4_ent0.01_s2/final",
+        "path": "models/flexascale_v4/lr3e-4_ent0.01_s2/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v4/lr3e-4_ent0.01_s2",
+        "val_reward": -0.5079,
+        "val_slo_violation_rate": 0.3429,
+        "val_avg_replicas": 5.992
+      }
+    ]
+  }
+}

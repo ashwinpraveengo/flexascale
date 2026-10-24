@@ -1,71 +1,74 @@
-# Default values for FlexaScale Helm Chart
-# Reusable, application-agnostic Kubernetes autoscaler add-on.
+# FlexaScale Helm chart values.
+#
+# FlexaScale is installed next to an existing application. It never needs the
+# application's source code: it reads Deployments/HPAs from the Kubernetes API
+# and telemetry from Prometheus. Everything application-specific is in `policy`.
+#
+# SAFE DEFAULT: policy.mode = observe. The operator computes and logs decisions
+# but changes nothing, and its RBAC role has no write permissions. Switch to
+# live control explicitly:  --set policy.mode=live
 
-# Namespace where target microservices and deployments reside
-targetNamespace: default
+image:
+  repository: flexascale
+  tag: "0.3.0"
+  pullPolicy: IfNotPresent
 
-# Workload & Service Auto-Discovery
-discovery:
-  # Enable dynamic discovery of Kubernetes Deployments in targetNamespace
-  enabled: true
-  # Optional label selector to filter target workloads (e.g. "app.kubernetes.io/part-of=ecommerce")
-  # Leave empty to discover and monitor all scalable deployments in targetNamespace
-  labelSelector: ""
-  # Discovery polling interval in seconds
-  intervalSeconds: 15.0
-  # Explicit list of service/deployment names (overrides auto-discovery if non-empty)
-  services: []
+# Application policy (same schema as config/apps/*.yaml, see docs/FINAL_PROJECT_SUMMARY.md).
+policy:
+  name: shopping                      # used for the controller Lease: flexascale-<name>
+  namespace: flexascale-apps          # namespace of the target application
+  label_selector: ""                  # e.g. app.kubernetes.io/part-of=shop
+  include: []                         # allowlist of Deployments (empty = all eligible)
+  exclude: [shopping-frontend]        # denylist
+  exclude_datastores: true            # skip postgres/mysql/redis/... images unless included
+  mode: observe                       # observe | live
+  min_replicas: 1
+  max_replicas: 10
+  max_step: 1
+  max_total_replicas: null           # app-wide replica budget for FlexaScale scale-ups
+  services: {}                        # per-Deployment bounds, e.g. {api: {min_replicas: 2, max_replicas: 6}}
+  cpu_target_pct: 70
+  scale_down_block_cpu_pct: 85
+  scale_down_block_memory_pct: 90
+  slo_latency_ms: 250                 # null disables latency checks
+  confidence_threshold: 0.70
+  deactivation_threshold: 0.60
+  cooldown_seconds: 15
+  scale_up_cooldown_seconds: 30
+  scale_down_cooldown_seconds: 60
+  hpa_fallback: true
+  lease_seconds: 30
+  poll_interval_seconds: 10
+  stale_after_seconds: 120
+  prometheus_url: http://monitoring-kube-prometheus-prometheus.flexascale-monitoring.svc:9090
+  model_path: /app/models/flexascale_v4/best_model/best_model.zip
+  topology: []                        # optional [[caller, callee], ...]
+  cost:
+    currency: USD
+    cpu_per_vcpu_hour: null
+    memory_per_gib_hour: null
+    memory_weight: 0.125
 
-# Autonomous Operator Configuration
 operator:
   enabled: true
-  replicaCount: 1
-  image:
-    repository: flexascale-operator
-    tag: latest
-    pullPolicy: IfNotPresent
-  interval: 5.0
-  threshold: 0.70
-  deactivationThreshold: 0.60
-  cooldownSeconds: 15.0
-  modelPath: "/app/models/best_model/best_model.zip"
   resources:
-    limits:
-      cpu: 1000m
-      memory: 1024Mi
-    requests:
-      cpu: 250m
-      memory: 256Mi
+    requests: {cpu: 100m, memory: 384Mi}
+    limits: {cpu: "1", memory: 1Gi}
+  terminationGracePeriodSeconds: 45   # time to restore HPAs and release the lease on shutdown
 
-# FastAPI Backend & Glassmorphic Telemetry Dashboard
+rbac:
+  create: true
+
+# Legacy REST API/dashboard from earlier phases. Disabled: it exposes mutation
+# endpoints. The presentation dashboard is scripts/run_lab.py (local, 127.0.0.1).
 api:
-  enabled: true
+  enabled: false
   replicaCount: 1
-  image:
-    repository: flexascale-api
-    tag: latest
-    pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 8080
     targetPort: 8080
     nodePort: 30080
   resources:
-    limits:
-      cpu: 500m
-      memory: 512Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
-
-# Global Prometheus Telemetry Endpoint (cAdvisor & kube-state-metrics)
-prometheus:
-  url: "http://monitoring-kube-prometheus-prometheus.flexascale-monitoring.svc:9090"
-  timeoutSeconds: 3.0
-
-# Target SLO & Autoscaling Parameters
-autoscaling:
-  targetCpuUtilization: 70
-  sloLatencyTargetMs: 100.0
-  hpaMinReplicas: 1
-  hpaMaxReplicas: 10
+    limits: {cpu: 500m, memory: 512Mi}
+    requests: {cpu: 100m, memory: 128Mi}

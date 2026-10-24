@@ -14,15 +14,13 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import torch
 
 from flexascale.rl.gnn_encoder import (
     DEFAULT_EDGES,
     DEFAULT_SERVICES,
-    SHOPPING_EDGES,
-    SHOPPING_SERVICES,
     ServiceDependencyGraph,
 )
 
@@ -64,11 +62,6 @@ class LiveGraphInference:
         if initial_edges is None:
             if set(self.services) == set(DEFAULT_SERVICES):
                 edges_to_use = list(DEFAULT_EDGES)
-            elif any(s in self.services for s in ("api-gateway", "catalog-service", "cart-service")):
-                edges_to_use = [
-                    (u, v) for u, v in SHOPPING_EDGES
-                    if u in self.services and v in self.services
-                ]
             elif len(self.services) > 1:
                 edges_to_use = [
                     (self.services[i], self.services[i + 1])

@@ -172,3 +172,8 @@ Thumbs.db
 
 # Alibaba raw trace files (~7.6GB) are excluded from git
 data/raw/
+
+# FlexaScale review/demo runtime state (PIDs, logs, port-forwards)
+.runtime/
+node_modules/
+logs/tb/

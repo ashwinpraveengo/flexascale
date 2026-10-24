@@ -1,3 +1,8 @@
+> **Withdrawn (2026-10-22 final audit).** The FlexaScale column of this 60-second benchmark was produced by the GNN's
+> `node_policy_head`, which PPO never trains (the saved model accepted 4 services, the shop has 7), using a model trained on
+> CPU/memory data stored as fractions instead of percent. The numbers therefore do not describe a trained policy, and the
+> narrative claims below are not supported. Kept for traceability only. Current results: `reports/live_benchmark_report.md`.
+
 # FlexaScale vs. Native Kubernetes HPA: Empirical Benchmark Evaluation
 
 **Generated:** 2026-10-20 21:16:32 UTC  

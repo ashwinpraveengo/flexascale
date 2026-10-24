@@ -26,7 +26,7 @@ Architecture:
 
 from __future__ import annotations
 
-from typing import Any, Sequence
+from typing import Any, Optional, Sequence, Tuple
 import gymnasium as gym
 import torch
 import torch.nn as nn
@@ -65,7 +65,7 @@ SHOPPING_SERVICES: tuple[str, ...] = (
     "inventory-service",
     "payment-service",
 )
-"""Canonical fleet of 7 microservices in the live shopping application."""
+"""Example: the 7 services of the bundled shopping application (not used by core logic)."""
 
 SHOPPING_EDGES: tuple[tuple[str, str], ...] = (
     ("api-gateway", "user-service"),
@@ -79,7 +79,7 @@ SHOPPING_EDGES: tuple[tuple[str, str], ...] = (
     ("order-service", "payment-service"),
     ("order-service", "cart-service"),
 )
-"""Architectural dependency hypothesis for the 7 shopping microservices."""
+"""Example topology for the shopping application; the live equivalent lives in config/apps/shopping.yaml."""
 
 
 class ServiceDependencyGraph:

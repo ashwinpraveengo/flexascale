@@ -13,7 +13,7 @@ import logging
 import math
 import time
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Sequence
 
 from flexascale.config.safety_config import SafetyConfig
 from flexascale.safety.hpa_manager import HPAManager
@@ -309,7 +309,10 @@ class SafetyCoordinator:
     ) -> None:
         """Emergency or teardown helper: ensures all services are under active HPA control."""
         logger.info("[SAFETY] Falling back all services to HPA (reason: %s)...", reason)
-        target_services = list(services) if services is not None else list(self.config.service_names)
+        if services is not None:
+            target_services = list(services)
+        else:
+            target_services = sorted(set(self.config.service_names) | set(self.lock_manager._locks))
         for sid in target_services:
             self._execute_hpa_fallback(
                 service_id=sid,

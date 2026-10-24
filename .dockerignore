@@ -1,0 +1,11 @@
+# Allowlist for deploy/flexascale/Dockerfile (repository-root build context).
+# The application images under apps/ use their own build contexts.
+*
+!pyproject.toml
+!src
+!scripts/run_operator.py
+!scripts/run_api.py
+!models/flexascale_v4/best_model
+!models/flexascale_v4/model_card.json
+!deploy/flexascale/requirements.txt
+**/__pycache__

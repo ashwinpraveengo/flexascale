@@ -9,3 +9,4 @@ uvicorn
 prometheus-api-client
 python-dotenv
 pytest
+pyyaml

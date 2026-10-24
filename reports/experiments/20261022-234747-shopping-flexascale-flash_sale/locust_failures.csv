@@ -1,0 +1,21 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),13,2026-10-22T18:24:11Z,2026-10-22T18:25:32Z
+POST,POST /api/orders/checkout [Success],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Success]'),2,2026-10-22T18:25:57Z,2026-10-22T18:26:38Z
+POST,POST /api/cart/{user_id}/items,HTTPError('500 Server Error: Internal Server Error for url: POST /api/cart/{user_id}/items'),2,2026-10-22T18:25:30Z,2026-10-22T18:25:30Z
+GET,GET /api/categories,HTTPError('504 Server Error: Gateway Timeout for url: GET /api/categories'),30,2026-10-22T18:25:43Z,2026-10-22T18:29:07Z
+GET,GET /api/products?q=[search],HTTPError('500 Server Error: Internal Server Error for url: GET /api/products?q=[search]'),1,2026-10-22T18:25:31Z,2026-10-22T18:25:31Z
+GET,GET /api/cart/{user_id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/cart/{user_id}'),1,2026-10-22T18:25:31Z,2026-10-22T18:25:31Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [FlashSale Contention]'),21,2026-10-22T18:25:44Z,2026-10-22T18:29:10Z
+GET,GET /api/cart/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/cart/{user_id}'),38,2026-10-22T18:25:37Z,2026-10-22T18:29:14Z
+POST,POST /api/cart/{user_id}/items,HTTPError('502 Server Error: Bad Gateway for url: POST /api/cart/{user_id}/items'),15,2026-10-22T18:25:37Z,2026-10-22T18:27:35Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [FlashSale Contention]'),265,2026-10-22T18:25:38Z,2026-10-22T18:29:12Z
+GET,GET /api/products/{id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/products/{id}'),55,2026-10-22T18:25:43Z,2026-10-22T18:28:57Z
+POST,POST /api/cart/{user_id}/items,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/cart/{user_id}/items'),49,2026-10-22T18:25:39Z,2026-10-22T18:29:10Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('500 Server Error: Internal Server Error for url: POST /api/orders/checkout [FlashSale Contention]'),15,2026-10-22T18:25:30Z,2026-10-22T18:25:33Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),10,2026-10-22T18:25:29Z,2026-10-22T18:27:18Z
+GET,GET /api/products,HTTPError('504 Server Error: Gateway Timeout for url: GET /api/products'),81,2026-10-22T18:25:43Z,2026-10-22T18:29:11Z
+GET,GET /api/products/{id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/products/{id}'),1,2026-10-22T18:25:32Z,2026-10-22T18:25:32Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),24,2026-10-22T18:25:37Z,2026-10-22T18:28:41Z
+GET,GET /api/products?q=[search],HTTPError('504 Server Error: Gateway Timeout for url: GET /api/products?q=[search]'),56,2026-10-22T18:25:43Z,2026-10-22T18:28:40Z
+GET,GET /api/products,HTTPError('500 Server Error: Internal Server Error for url: GET /api/products'),1,2026-10-22T18:25:32Z,2026-10-22T18:25:32Z
+GET,GET /api/categories,HTTPError('500 Server Error: Internal Server Error for url: GET /api/categories'),1,2026-10-22T18:25:32Z,2026-10-22T18:25:32Z

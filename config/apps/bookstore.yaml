@@ -1,0 +1,44 @@
+# FlexaScale application policy: synthetic 5-service "bookstore" used to verify portability.
+# Deployed from examples/bookstore/ (generic image, no FlexaScale-specific code).
+name: bookstore
+namespace: flexascale-bookstore
+label_selector: app.kubernetes.io/part-of=bookstore
+include: []
+exclude: []
+exclude_datastores: true
+
+mode: observe
+
+min_replicas: 1
+max_replicas: 6
+max_step: 1
+max_total_replicas: 15           # app-wide budget: the Minikube node is a 6 GiB container (see readiness report)
+services:
+  storefront: {min_replicas: 1, max_replicas: 4}
+
+cpu_target_pct: 70
+scale_down_block_cpu_pct: 85
+scale_down_block_memory_pct: 90
+slo_latency_ms: 200
+
+confidence_threshold: 0.70
+deactivation_threshold: 0.60
+cooldown_seconds: 15
+scale_up_cooldown_seconds: 30      # telemetry is a 1-minute rate; wait until the last scale-up is visible
+scale_down_cooldown_seconds: 60
+hpa_fallback: true
+lease_seconds: 30
+
+poll_interval_seconds: 10
+stale_after_seconds: 120
+prometheus_url: http://localhost:9090
+model_path: models/flexascale_v4/best_model/best_model.zip
+
+topology: []                     # no prior: inferred from traffic, else neighbourhood by name
+
+cost:
+  currency: USD
+  # Illustrative pricing assumptions (order of magnitude of public on-demand
+  # container pricing). Not a provider quote: replace with your own rates.
+  cpu_per_vcpu_hour: 0.04
+  memory_per_gib_hour: 0.005

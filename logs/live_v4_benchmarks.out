@@ -1,0 +1,14 @@
+15:27:28 started 20261024-152728-shopping-hpa-steady_browsing
+15:33:29 completed 20261024-152728-shopping-hpa-steady_browsing  req/s=11.357040967633674 p95=1000.0 fail%=3.3043478260869565 replica_h=1.194198 safe=True error=None
+15:33:29 started 20261024-153329-shopping-flexascale-steady_browsing
+15:45:39 completed 20261024-153329-shopping-flexascale-steady_browsing  req/s=11.019972735772628 p95=1500.0 fail%=3.3164027487302064 replica_h=1.23844 safe=True error=None
+15:45:39 started 20261024-154539-shopping-hpa-checkout_heavy
+Traceback (most recent call last):
+  File "/home/ashwin/flexascale/scripts/run_lab_experiments.py", line 78, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/ashwin/flexascale/scripts/run_lab_experiments.py", line 65, in main
+    final = wait_for(started["id"], timeout=args.duration + 900)
+  File "/home/ashwin/flexascale/scripts/run_lab_experiments.py", line 37, in wait_for
+    raise TimeoutError(run_id)
+TimeoutError: 20261024-154539-shopping-hpa-checkout_heavy

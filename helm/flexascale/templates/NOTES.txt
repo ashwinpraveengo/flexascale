@@ -1,24 +1,26 @@
-Thank you for installing FlexaScale!
+FlexaScale {{ .Chart.AppVersion }} installed as release "{{ .Release.Name }}" in namespace {{ .Release.Namespace }}.
 
-Your autonomous RL auto-scaler, Kubernetes operator, and live dashboard are now deployed.
+Target application : namespace {{ .Values.policy.namespace }}{{ if .Values.policy.label_selector }}, selector {{ .Values.policy.label_selector }}{{ end }}
+Mode               : {{ .Values.policy.mode }}{{ if eq .Values.policy.mode "observe" }}  (decisions are computed and logged; nothing is changed){{ else }}  (LIVE: FlexaScale may scale Deployments after taking the lease and freezing their HPAs){{ end }}
+Prometheus         : {{ .Values.policy.prometheus_url }}
 
-1. Get the application URL by running these commands:
-{{- if contains "NodePort" .Values.api.service.type }}
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services flexascale-api)
-  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo "FlexaScale Dashboard URL: http://$NODE_IP:$NODE_PORT"
-{{- else if contains "LoadBalancer" .Values.api.service.type }}
-  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-  kubectl get svc --namespace {{ .Release.Namespace }} -w flexascale-api
-{{- else if contains "ClusterIP" .Values.api.service.type }}
-  echo "Port-forwarding FlexaScale API & Dashboard:"
-  kubectl --namespace {{ .Release.Namespace }} port-forward svc/flexascale-api 8080:8080 &
-  echo "Access the live web dashboard at: http://localhost:8080"
-  echo "Access the interactive OpenAPI docs at: http://localhost:8080/docs"
+1. Check the operator and the services it selected:
+   kubectl -n {{ .Release.Namespace }} logs deploy/{{ .Release.Name }}-operator | head -40
+
+2. Inspect proposed decisions (JSON lines, one per service per step):
+   kubectl -n {{ .Release.Namespace }} exec deploy/{{ .Release.Name }}-operator -- tail -n 20 /var/log/flexascale/decisions.jsonl
+
+3. Controller ownership:
+   kubectl -n {{ .Values.policy.namespace }} get lease flexascale-{{ .Values.policy.name }}
+   kubectl -n {{ .Values.policy.namespace }} get hpa -o custom-columns=NAME:.metadata.name,MIN:.spec.minReplicas,MAX:.spec.maxReplicas,FROZEN_BY:.metadata.annotations.flexascale\.io/frozen-by
+
+{{- if eq .Values.policy.mode "observe" }}
+
+4. Enable live control only after reviewing step 2:
+   helm upgrade {{ .Release.Name }} <chart> -n {{ .Release.Namespace }} --reuse-values --set policy.mode=live
 {{- end }}
 
-2. Inspect the autonomous RL operator logs:
-  kubectl --namespace {{ .Release.Namespace }} logs -f deployment/flexascale-operator
-
-3. Inspect scaling mutual-exclusion lock state:
-  kubectl --namespace {{ .Values.targetNamespace }} get configmap flexascale-safety-lock -o yaml
+Return control to native HPA at any time:
+   helm upgrade {{ .Release.Name }} <chart> -n {{ .Release.Namespace }} --reuse-values --set policy.mode=observe
+Uninstall (the operator restores frozen HPAs on shutdown; the application is not touched):
+   helm uninstall {{ .Release.Name }} -n {{ .Release.Namespace }}

@@ -1,6 +1,6 @@
 # FlexaScale vs. Standard Kubernetes HPA Benchmark Report
 
-Generated on: 2026-10-20 17:51:30  
+Generated on: 2026-10-22 17:40:36  
 Evaluation Dataset: Alibaba Microservice Trace (`test` split)  
 Evaluation Episodes: 3  
 

@@ -186,6 +186,12 @@ def build_resource_state() -> pd.DataFrame:
         }
     )
 
+    # The v2021 trace reports instance_cpu_usage / instance_memory_usage as
+    # fractions (0-1) of the container allocation. The ServiceState schema,
+    # the simulator and live Prometheus telemetry all use percent (0-100).
+    resource_state["cpu_utilization"] = resource_state["cpu_utilization"] * 100.0
+    resource_state["memory_utilization"] = resource_state["memory_utilization"] * 100.0
+
     resource_state = resource_state.dropna(
         subset=[
             "cpu_utilization",

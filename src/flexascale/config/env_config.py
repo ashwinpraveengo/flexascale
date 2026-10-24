@@ -64,6 +64,37 @@ class EnvConfig:
     ``reset()`` call — useful for diverse RL training.
     """
 
+    num_services: int = 4
+    """Number of services simulated together in multi-service mode."""
+
+    service_sampling: str = "top_frequency"
+    """
+    How multi-service episodes pick their services:
+    - 'top_frequency': the ``num_services`` most frequent services (fixed).
+    - 'random': a fresh random subset on every ``reset()`` drawn from services
+      present at every timestamp of the split, so the policy cannot memorise
+      slot identities.
+    """
+
+    demand_model: str = "trace"
+    """
+    How trace load is mapped to simulated utilisation:
+    - 'trace': CPU scales with trace_replicas / simulated_replicas (original model).
+    - 'normalized': each service's CPU demand (cpu% x instances) is rescaled per
+      episode so its peak needs between ``peak_replicas_low`` and
+      ``peak_replicas_high`` replicas at ``cpu_target_pct``; latency follows an
+      M/M/1-style congestion factor. Keeps observations in the live replica range.
+    """
+
+    peak_replicas_low: int = 2
+    """Lower bound of the per-episode peak replica requirement ('normalized' mode)."""
+
+    peak_replicas_high: int = 8
+    """Upper bound of the per-episode peak replica requirement ('normalized' mode)."""
+
+    randomize_initial_replicas: bool = False
+    """Start each episode from a uniform random replica count in [min, max]."""
+
     # ------------------------------------------------------------------
     # Replica limits
     # ------------------------------------------------------------------
@@ -110,6 +141,7 @@ class EnvConfig:
             "slo": 1.0,
             "efficiency": 0.3,
             "stability": 0.1,
+            "cost": 0.0,
         }
     )
     """
@@ -119,7 +151,43 @@ class EnvConfig:
         slo         – weight for the SLO / latency compliance term
         efficiency  – weight for the CPU-target proximity term
         stability   – weight for the scaling-churn penalty
+        cost        – weight for the allocation-cost penalty -replicas/max_replicas
+                      (0 reproduces the original reward)
     """
+
+    # ------------------------------------------------------------------
+    # Dependency-aware dynamics (FlexaScaleEnvV2 only; ignored by FlexaScaleEnv)
+    # ------------------------------------------------------------------
+
+    slo_slack_low: float = 1.2
+    slo_slack_high: float = 2.0
+    """Per-service SLO = slack x the service's latency at ``cpu_target_pct`` (attainable by design)."""
+
+    downstream_coupling_high: float = 1.0
+    """Slot i calls slot i+1; a fraction U(0, high) of the callee's latency adds to the caller's."""
+
+    external_latency_high: float = 2.0
+    """Per-service latency that replicas cannot remove, U(0, high) x service time (e.g. a database)."""
+
+    bottleneck_probability: float = 0.4
+    """Probability that an episode has a shared dependency whose latency grows with total load."""
+
+    traffic_events: bool = True
+    """Overlay one app-wide traffic event (spike, ramp or drop) on the trace demand per episode."""
+
+    control: str = "all"
+    """
+    'all': the agent's four action heads scale all four services and the reward averages them.
+    'focal': the agent scales slot 0 only and is rewarded for slot 0 only; slots 1-3 (slot 0's
+    downstream chain) follow ``background_policy``. Matches live neighbourhood inference, where only
+    the slot-0 decision of each window is used.
+    """
+
+    background_epsilon: float = 0.2
+    """'focal' control: probability that a background service takes a random action instead of the HPA rule."""
+
+    slo_penalty_cap: float = 3.0
+    """Bounded SLO penalty: a violating step scores max(-(latency/SLO - 1), -cap)."""
 
     # ------------------------------------------------------------------
     # Observation bounds (used for Gymnasium Box space)

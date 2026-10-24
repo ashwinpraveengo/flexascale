@@ -1,5 +1,9 @@
 # FlexaScale — E-Commerce Microservices & Intelligent Auto-Scaling Framework
 
+> **Final release (2026-10-22).** Review/presentation quick start: `./scripts/start_review.sh --demo`, then open
+> http://127.0.0.1:8090/ (see the top of [RUNNING.md](RUNNING.md)). Project summary, demo runbook and viva notes are in `docs/`.
+> Verified status of every component: `reports/final_readiness_report.md`.
+
 FlexaScale is an RL-based intelligent autoscaling framework for distributed microservices on Kubernetes. This repository houses the realistic, cloud-native **E-Commerce Shopping Application** workload alongside the FlexaScale reinforcement learning research framework.
 
 ---

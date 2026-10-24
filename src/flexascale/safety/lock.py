@@ -76,9 +76,11 @@ class ScalingLockManager:
         self,
         config: SafetyConfig | None = None,
         sync_k8s: bool = False,
+        kube: Any = None,
     ) -> None:
         self.config = config or SafetyConfig()
         self.sync_k8s = sync_k8s
+        self.kube = kube
         self._locks: dict[str, LockState] = {}
 
         # Initialize lock records for all configured services in HPA mode
@@ -256,6 +258,9 @@ class ScalingLockManager:
                 "data": data,
             }
 
+            if self.kube is not None:
+                self.kube.apply(manifest)
+                return
             cmd = ["kubectl", "apply", "-f", "-"]
             subprocess.run(
                 cmd,

@@ -1,40 +1,58 @@
+{{- if .Values.rbac.create }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: flexascale-operator
+  name: {{ .Release.Name }}-operator
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: flexascale
-    app.kubernetes.io/component: operator
+    {{- include "flexascale.labels" . | nindent 4 }}
 ---
+# Namespaced and least-privilege: only the target application's namespace.
+# Write verbs are granted only when policy.mode is "live".
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
-  name: flexascale-operator-role
+  name: {{ .Release.Name }}-operator
+  namespace: {{ .Values.policy.namespace }}
   labels:
-    app.kubernetes.io/name: flexascale
+    {{- include "flexascale.labels" . | nindent 4 }}
 rules:
   - apiGroups: ["apps"]
-    resources: ["deployments", "deployments/scale"]
-    verbs: ["get", "list", "watch", "update", "patch"]
+    resources: ["deployments"]
+    # patch (live only): records the original replica count of HPA-less Deployments.
+    verbs: ["get", "list", "watch"{{ if eq .Values.policy.mode "live" }}, "patch"{{ end }}]
   - apiGroups: ["autoscaling"]
     resources: ["horizontalpodautoscalers"]
-    verbs: ["get", "list", "watch", "update", "patch"]
+    verbs: ["get", "list", "watch"{{ if eq .Values.policy.mode "live" }}, "patch"{{ end }}]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get"{{ if eq .Values.policy.mode "live" }}, "create", "update"{{ end }}]
+{{- if eq .Values.policy.mode "live" }}
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["get", "update", "patch"]
   - apiGroups: [""]
-    resources: ["configmaps", "pods", "services", "endpoints"]
-    verbs: ["get", "list", "watch", "create", "update", "patch"]
+    resources: ["configmaps"]
+    resourceNames: ["flexascale-{{ .Values.policy.name }}-ownership"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["create"]
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
-  name: flexascale-operator-binding
+  name: {{ .Release.Name }}-operator
+  namespace: {{ .Values.policy.namespace }}
   labels:
-    app.kubernetes.io/name: flexascale
+    {{- include "flexascale.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: flexascale-operator-role
+  kind: Role
+  name: {{ .Release.Name }}-operator
 subjects:
   - kind: ServiceAccount
-    name: flexascale-operator
+    name: {{ .Release.Name }}-operator
     namespace: {{ .Release.Namespace }}
+{{- end }}

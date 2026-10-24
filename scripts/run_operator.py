@@ -6,6 +6,11 @@ Launches the autonomous scaling loop over the Kubernetes cluster or in mock mode
 Usage:
     python scripts/run_operator.py --demo
     python scripts/run_operator.py --live --interval 5.0
+
+Policy-driven mode (recommended; observation-only unless the policy or --mode says live):
+    python scripts/run_operator.py --policy config/apps/shopping.yaml
+    python scripts/run_operator.py --policy config/apps/shopping.yaml --mode live \
+        --prometheus-url http://localhost:9090 --decision-log .runtime/decisions.jsonl
 """
 
 import argparse
@@ -71,14 +76,83 @@ def parse_args():
     parser.add_argument(
         "--model-path",
         type=str,
-        default="models/best_model/best_model.zip",
-        help="Path to trained PPO policy zip file",
+        default=None,
+        help="Path to trained PPO policy zip (default: policy model_path, or models/best_model/best_model.zip)",
     )
+    parser.add_argument(
+        "--policy",
+        type=str,
+        default=None,
+        help="Application policy file (YAML/JSON). Enables the policy-driven AppOperator.",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["observe", "live"],
+        default=None,
+        help="Override the policy mode (default: the policy's own mode, normally 'observe')",
+    )
+    parser.add_argument("--prometheus-url", type=str, default=None, help="Override policy prometheus_url")
+    parser.add_argument("--decision-log", type=str, default=None, help="JSON-lines decision/audit log")
+    parser.add_argument("--status-file", type=str, default=None, help="JSON status file updated every step")
+    parser.add_argument("--validate-only", action="store_true", help="Validate the policy and exit")
     return parser.parse_args()
+
+
+def run_policy_operator(args) -> int:
+    """Run the AppOperator for one registered application."""
+    import dataclasses
+    import json
+
+    from flexascale.config.app_policy import AppPolicy
+    from flexascale.operator.app_operator import AppOperator
+
+    policy = AppPolicy.load(args.policy)
+    overrides = {}
+    if args.mode:
+        overrides["mode"] = args.mode
+    if args.prometheus_url:
+        overrides["prometheus_url"] = args.prometheus_url
+    if args.model_path:
+        overrides["model_path"] = args.model_path
+    if overrides:
+        policy = dataclasses.replace(policy, **overrides)
+    errors = policy.validate()
+    if errors:
+        print("Invalid policy:")
+        for e in errors:
+            print(f"  - {e}")
+        return 2
+    if args.validate_only:
+        print(json.dumps(policy.to_dict(), indent=2))
+        print("Policy is valid.")
+        return 0
+
+    operator = AppOperator(policy, decision_log=args.decision_log, status_file=args.status_file)
+    print("=" * 80)
+    print("FLEXASCALE APPLICATION OPERATOR")
+    print(f"Application:   {policy.name}  (namespace {policy.namespace})")
+    print(f"Mode:          {policy.mode}")
+    print(f"Model:         {operator.runtime.info()['model_path'] if operator.runtime else 'UNAVAILABLE: ' + str(operator.model_error)}")
+    print(f"Prometheus:    {policy.prometheus_url}")
+    print("=" * 80)
+
+    import signal
+
+    def _graceful(signum, _frame):
+        print(f"Signal {signum} received: returning control to HPA and releasing the lease...")
+        operator.stop()
+
+    signal.signal(signal.SIGTERM, _graceful)
+    signal.signal(signal.SIGINT, _graceful)
+    operator.run(max_steps=args.max_steps)
+    return 0
 
 
 def main():
     args = parse_args()
+    if args.policy:
+        logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+        return run_policy_operator(args)
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -118,7 +192,7 @@ def main():
         coordinator=coordinator,
         state_builder=state_builder,
         graph_inference=graph_infer,
-        model_path=args.model_path,
+        model_path=args.model_path or "models/best_model/best_model.zip",
         poll_interval_seconds=args.interval,
         mock=dry_run,
     )

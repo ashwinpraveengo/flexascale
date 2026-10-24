@@ -1,0 +1,18 @@
+Selection on validation services:
+  lr1e-4_ent0.01_s3/best -0.4411  (10s)
+  lr1e-4_ent0.01_s3/final -0.4399  (11s)
+  lr3e-4_ent0.003_s1/best -0.4541  (20s)
+  lr3e-4_ent0.003_s1/final -0.4969  (11s)
+  lr3e-4_ent0.01_s1/best -0.4782  (9s)
+  lr3e-4_ent0.01_s1/final -0.4559  (10s)
+  lr3e-4_ent0.01_s2/best -0.4917  (9s)
+  lr3e-4_ent0.01_s2/final -0.5079  (9s)
+selected lr1e-4_ent0.01_s3/final -> models/flexascale_v4/best_model/best_model.zip
+Test services, 300 paired episodes:
+  ppo_v4           -0.4249  (14s)
+  hpa_rule         -0.2876  (3s)
+  ppo_v3           -0.8608  (13s)
+  hold             -0.6976  (3s)
+  always_up        -0.8621  (3s)
+  random           -0.7872  (3s)
+Wrote reports/simulation_evaluation_v4.{md,json}

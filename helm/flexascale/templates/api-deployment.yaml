@@ -21,8 +21,8 @@ spec:
     spec:
       containers:
         - name: api
-          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
-          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - python3
             - scripts/run_api.py
@@ -34,9 +34,6 @@ spec:
           ports:
             - containerPort: {{ .Values.api.service.port }}
               name: http
-          envFrom:
-            - configMapRef:
-                name: flexascale-config
           livenessProbe:
             httpGet:
               path: /health

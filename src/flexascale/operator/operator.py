@@ -22,6 +22,7 @@ from stable_baselines3 import PPO
 from flexascale.config.safety_config import SafetyConfig
 from flexascale.discovery.service_discovery import ServiceDiscovery
 from flexascale.rl.gnn_encoder import DEFAULT_SERVICES
+from flexascale.rl.policy_runtime import PolicyRuntime
 from flexascale.safety.coordinator import SafetyCoordinator, SafetyDecision
 from flexascale.safety.lock import ControlMode
 from flexascale.state.graph_inference import LiveGraphInference
@@ -97,6 +98,8 @@ class FlexaScaleOperator:
         )
 
         self.model: Optional[PPO] = None
+        self.runtime: Optional[PolicyRuntime] = None
+        self.last_policy_mode = "none"
         self._running = False
         self._step_count = 0
         self.recent_decisions: List[SafetyDecision] = []
@@ -124,9 +127,11 @@ class FlexaScaleOperator:
 
     def _load_policy(self) -> None:
         """Attempt to load trained PPO policy model."""
+        self.runtime = None
         if self.model_path and os.path.exists(self.model_path):
             try:
-                self.model = PPO.load(self.model_path)
+                self.runtime = PolicyRuntime(self.model_path)
+                self.model = self.runtime.model
                 logger.info(
                     "[OPERATOR] Successfully loaded trained PPO model from '%s'",
                     self.model_path,
@@ -194,18 +199,24 @@ class FlexaScaleOperator:
                     else:
                         confidences = [0.85] * num_services
 
+                    self.last_policy_mode = "ppo_direct"
                     return actions_list, confidences
 
-                # 2. For variable/arbitrary N services: evaluate GNN node-level policy head
-                features_extractor = getattr(self.model.policy, "features_extractor", None)
-                gnn_encoder = getattr(features_extractor, "encoder", None)
-                if gnn_encoder is not None and hasattr(gnn_encoder, "predict_node_actions"):
-                    with torch.no_grad():
-                        obs_tensor = torch.as_tensor(obs, device=self.model.device, dtype=torch.float32)
-                        x = obs_tensor.view(-1, 5)
-                        edge_index = self.graph_inference.get_edge_index().to(obs_tensor.device)
-                        node_acts, node_confs = gnn_encoder.predict_node_actions(x, edge_index)
-                        return node_acts.tolist(), node_confs.tolist()
+                # 2. Different service count: apply the same trained weights per service
+                #    on dependency-graph neighbourhood windows (see PolicyRuntime).
+                #    The GNN's node_policy_head is never trained by PPO and is not used.
+                if self.runtime is not None:
+                    obs_flat = np.asarray(obs, dtype=np.float32).flatten()
+                    features = {
+                        sid: obs_flat[i * 5 : (i + 1) * 5] for i, sid in enumerate(self.services)
+                    }
+                    out = self.runtime.predict(features, self.graph_inference.get_active_edges())
+                    by_name = dict(zip(sorted(features), zip(out.actions, out.confidences)))
+                    self.last_policy_mode = out.mode
+                    return (
+                        [int(by_name[s][0]) for s in self.services],
+                        [float(by_name[s][1]) for s in self.services],
+                    )
 
             except Exception as exc:
                 logger.debug(
@@ -213,6 +224,7 @@ class FlexaScaleOperator:
                 )
 
         # Heuristic fallback calculation (size-invariant for any N services)
+        self.last_policy_mode = "heuristic_cpu_threshold"
         obs_flat = obs.flatten()
         actions = []
         confidences = []

@@ -4,6 +4,54 @@ This guide provides the complete, authoritative run instructions to set up, depl
 
 ---
 
+## Quick Start for Project Reviews and Presentations
+
+Use this when the cluster and application are already installed. Full installation is in sections [A–G](#a-repository--python-setup).
+
+**1. Start everything** (≈15 s if Minikube is running, 2–4 min if it has to start):
+
+```bash
+./scripts/start_review.sh --demo        # or: make demo-start   (preflight only: ./scripts/start_review.sh --check)
+```
+
+Wait for `READY`. It starts only port-forwards and the dashboard; it never rebuilds, reinstalls, retrains or downloads anything.
+
+**2. Open the URLs printed by the script:**
+
+| What | URL |
+| :--- | :--- |
+| Presentation dashboard (FlexaScale Live Autoscaling Lab) | http://127.0.0.1:8090/ |
+| Shopping application (Minikube ingress) | http://192.168.49.2/ (`minikube ip -p flexascale`). Login `demo@flexascale.io` / `CustomerPass123!` |
+| Prometheus / Grafana | http://localhost:9090/ and http://localhost:3000/ |
+
+**3. Check status at any time:** `./scripts/review_status.sh` (or `make review-status`).
+
+**4. Run a live experiment in the dashboard (Live experiment tab):**
+1. Controller: **Native HPA** or **FlexaScale**. FlexaScale takes the controller lease and freezes each HPA before scaling. With HPA, tick *shadow mode* to log what FlexaScale *would* do without changing anything.
+2. Scenario: steady browsing, gradual ramp-up, flash-sale spike, checkout-heavy, traffic drop, or payment latency & failures. Set peak users (about 25; the 6 GiB Minikube node cannot hold many more replicas), spawn rate and duration (300 s or more for non-preliminary results).
+3. Press **Start**. Browse the shop and place orders in another tab while Locust runs in the background. **Stop** ends the run early and always restores HPA ownership.
+4. Watch the KPI tiles, throughput, latency, replica and CPU charts, the per-service ownership table and the timeline. In the timeline, *Policy* is a proposal, *Scale request* is a change actually sent, and *Replica change* / *Ready* is what Kubernetes did.
+
+**5. Compare:** run the same scenario once with each controller, then open **Results & comparison**, pick the HPA run as baseline and the FlexaScale run as candidate. Percentages only appear for comparable, complete runs. Raw data is in `reports/experiments/<run>/run.json` and `telemetry.csv`.
+
+**6. Stop safely:** `./scripts/stop_review.sh` (or `make review-stop`). It stops only processes the scripts started, restores every HPA's original bounds and verifies that no FlexaScale lease is held. Minikube, deployments and database data are left untouched.
+
+**Troubleshooting**
+
+| Symptom | Fix |
+| :--- | :--- |
+| Minikube stopped / API unreachable | `./scripts/start_review.sh` starts the existing profile. `minikube status -p flexascale`. Docker must be running. |
+| Pods not ready (e.g. `shopping-frontend` CrashLoopBackOff right after a restart: nginx starts before DNS is ready) | Wait 1 min, or `kubectl -n flexascale-apps rollout restart deploy/shopping-frontend`. Inspect with `kubectl get pods -A \| grep -v Running`. |
+| Prometheus unavailable / metrics missing | `./scripts/review_status.sh`. Restart the port-forward with `./scripts/stop_review.sh && ./scripts/start_review.sh`. Check `kubectl -n flexascale-monitoring get pods`. Latency shows "missing" until a service receives traffic. |
+| Port 8090/9090/3000 already in use | The script refuses to touch foreign processes. Free the port or set `FLEXASCALE_LAB_PORT`, `FLEXASCALE_PROMETHEUS_PORT` or `FLEXASCALE_GRAFANA_PORT` (also update `prometheus_url` in `config/lab.yaml`). |
+| Dashboard does not load | `cat .runtime/logs/lab.log`. If the UI bundle is missing: `make dashboard-build`. |
+| Model missing ("FlexaScale live runs will be refused") | The model is `models/flexascale_v4/best_model/best_model.zip` (see [W](#w-retraining-and-evaluating-the-policy)). Without it FlexaScale stays in observation mode. |
+| "controller lease held" / HPA left frozen | `./scripts/stop_review.sh` restores HPAs. If a dead controller still holds the lease: `./scripts/stop_review.sh --force-release-lease`. Check with `python -m flexascale.lab.procctl ownership`. |
+
+Details: [U. Installing FlexaScale on any application](#u-installing-flexascale-on-any-kubernetes-application) · [V. Live Lab and reproducible evaluation](#v-live-autoscaling-lab-and-reproducible-evaluation) · [W. Retraining](#w-retraining-and-evaluating-the-policy) · docs/FINAL_DEMO_RUNBOOK.md
+
+---
+
 ## Architecture Overview
 
 ```
@@ -1321,14 +1369,78 @@ python3 scripts/run_api.py --live --port 8080
 - [x] **Phase 6**: Realistic Locust load scenarios implemented: `lunch_spike`, `quiet_night`, `burst` (`run_locust_scenarios.py`)
 - [x] **Phase 6**: FlexaScale vs Standard Kubernetes HPA benchmark runner with automated report generation (`reports/benchmark_report.md`, `reports/benchmark_summary.json`)
 - [x] **Application-Agnostic Core**: Dynamic workload discovery (`ServiceDiscovery`) via Kubernetes API and Prometheus (`test_discovery.py`)
-- [x] **Application-Agnostic GNN**: Size-invariant node-level scaling policy evaluation on arbitrary service counts ($N \ge 1$) (`test_agnostic_operator.py`)
-- [x] **Application-Agnostic Telemetry**: Zero-code cAdvisor and kube-state-metrics Prometheus extraction with container network I/O fallback
+- [x] **Application-Agnostic GNN** *(corrected 2026-10-22)*: the GNN encoder accepts any node count, but its `node_policy_head` is **not trained by PPO** and is no longer used for decisions. Arbitrary service counts are now handled by applying the trained PPO policy on dependency-graph neighbourhood windows (`flexascale.rl.policy_runtime`, `tests/test_policy_and_operator.py`)
+- [x] **Application-Agnostic Telemetry** *(corrected)*: cAdvisor + kube-state-metrics telemetry, CPU as % of request (HPA semantics). The former network-I/O "request rate" and CPU-derived "latency" fallbacks fabricated values and were removed: missing metrics are now reported as missing
 - [x] **Reusable Production Helm Chart**: Package installable via `helm install` into any Kubernetes cluster, configurable via `values.yaml` (`helm lint helm/flexascale`)
 - [x] **Phase 7 — Shopping Microservices Discovery**: Discovered all seven backend services (`api-gateway`, `user-service`, `catalog-service`, `cart-service`, `order-service`, `inventory-service`, `payment-service`) with non-scalable services (`postgres`, `shopping-frontend`) cleanly filtered
 - [x] **Phase 7 — Live State Observation Schema**: Prometheus client collects CPU, Memory, Replicas, RPS, and Latency for all 7 services, building exact 35-dimensional float32 observation vectors (`scripts/validate_schema.py`)
 - [x] **Phase 7 — Missing Telemetry Exposure**: Telemetry status and missing-data flags explicitly tracked in `ServiceState` without silent zero masking
-- [x] **Phase 7 — GNN Node Policy Inference**: Size-invariant GNN node policy head (`predict_node_actions`) generates deterministic actions and confidences across the 7-node topology
+- [ ] ~~**Phase 7 — GNN Node Policy Inference**~~ *(withdrawn)*: `predict_node_actions` produced actions from untrained weights. Replaced by trained-weight neighbourhood inference (see section V)
 - [x] **Phase 7 — Live Mutual-Exclusion Safety**: Lease lock ConfigMap (`flexascale-safety-lock`) and HPA freezing (`min=N, max=N`) verified live on Minikube
 - [x] **Phase 7 — Closed-Loop Control**: Prometheus metrics → Live State Builder → GNN Inference → Safety Controller → Replica Scaling / HPA Fallback verified live (`scripts/run_closed_loop.py --live`)
 - [x] **Phase 7 — Locust Shopping Traffic**: Realistic multi-user load generated across catalog browsing, customer checkout saga, payment delay, and flash-sale contention
-- [x] **Phase 7 — Empirical Benchmark**: Head-to-head comparison against Native Kubernetes HPA executed on live cluster with raw CSV/JSON telemetry and markdown report (`reports/shopping_benchmark_report.md`)
+- [x] **Phase 7 — Empirical Benchmark** *(superseded)*: the 60 s run in `reports/shopping_benchmark_report.md` used the untrained node head and the fraction-unit model; its FlexaScale numbers do not reflect a trained policy. Current live results: `reports/live_benchmark_report.md`
+
+---
+
+## U. Installing FlexaScale on any Kubernetes application
+
+FlexaScale needs no change to the application's code. It reads Deployments and HPAs from the Kubernetes API and telemetry from Prometheus (cAdvisor + kube-state-metrics; `http_requests_total` / `http_request_duration_seconds` are optional and add request-rate and latency features).
+
+1. **Prerequisites:** Kubernetes ≥ 1.27, Prometheus scraping cAdvisor and kube-state-metrics (e.g. kube-prometheus-stack), Helm 3, and CPU/memory requests set on the target Deployments (CPU utilisation is measured against the request, as HPA does).
+2. **Metrics available?** `kubectl -n <ns> top pods` and, in Prometheus, `container_cpu_usage_seconds_total{namespace="<ns>"}` and `kube_deployment_spec_replicas{namespace="<ns>"}`.
+3. **Build and load the operator image** (Minikube shown; ≈1.9 GB, CPU-only PyTorch):
+   ```bash
+   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.3.0 .
+   minikube -p flexascale image load flexascale:0.3.0
+   ```
+4. **Install in observation mode** (the default: no cluster changes, read-only RBAC):
+   ```bash
+   helm upgrade --install flexascale helm/flexascale -n flexascale-system --create-namespace \
+     --set policy.name=myapp --set policy.namespace=<app-namespace> \
+     --set policy.label_selector='app.kubernetes.io/part-of=myapp' \
+     --set policy.prometheus_url=http://<prometheus-svc>.<ns>.svc:9090
+   ```
+   The same schema can be used locally: `python scripts/run_operator.py --policy config/apps/<app>.yaml --validate-only`.
+5. **Select the target application:** `policy.include` / `policy.exclude` / `policy.label_selector`. Datastore images (postgres, redis, …), FlexaScale itself and monitoring are skipped automatically. Nothing outside `policy.namespace` is ever touched.
+6. **Validate discovered services and metrics:** `kubectl -n flexascale-system logs deploy/flexascale-operator | head`.
+7. **Inspect proposed decisions:** `kubectl -n flexascale-system exec deploy/flexascale-operator -- tail /var/log/flexascale/decisions.jsonl` (`proposed_replicas`, `policy.confidence`, `safety_reasons`, `applied: false`).
+8. **Enable live control explicitly:** `helm upgrade flexascale helm/flexascale -n flexascale-system --reuse-values --set policy.mode=live`. This also adds the write permissions to the Role.
+9. **Observe scaling:** `kubectl -n <ns> get hpa,deploy -w`. Frozen HPAs carry `flexascale.io/frozen-by` and the original bounds as annotations. The Lease is `flexascale-<name>`.
+10. **Restore HPA / disable FlexaScale:** `--set policy.mode=observe` (the operator restores every frozen HPA on shutdown).
+11. **Uninstall:** `helm uninstall flexascale -n flexascale-system`. The application, its HPAs (restored) and its data are not removed. Check with `python -m flexascale.lab.procctl ownership`.
+
+Upgrades and rollbacks use `helm upgrade` / `helm rollback`. The operator uses the `Recreate` strategy, so an old and a new operator never run together, and the Lease would refuse a second controller anyway.
+
+Second application used to verify portability: `examples/bookstore/` (5 services, different names, sizes, topology and HPA naming; 3 of 5 services have an HPA). Deploy with:
+```bash
+docker build -t bookstore-svc:1.0 examples/bookstore && minikube -p flexascale image load bookstore-svc:1.0
+kubectl apply -f examples/bookstore/k8s.yaml
+python scripts/run_operator.py --policy config/apps/bookstore.yaml --prometheus-url http://localhost:9090 --max-steps 1 --decision-log /tmp/bookstore.jsonl
+```
+
+## V. Live Autoscaling Lab and reproducible evaluation
+
+* Dashboard server: `python scripts/run_lab.py` (127.0.0.1:8090, same-origin API only). Configuration: `config/lab.yaml` (apps, Prometheus URL, results directory, end-to-end p95 SLO).
+* Each experiment: preflight → comparable reset (HPAs held at their minimum, Deployments scaled to minimum, HPAs restored, settle check) → controller setup (HPA: lease free and nothing frozen; FlexaScale: operator in live mode with the lease) → Locust scenario (`load-testing/scenarios.py`) → 5 s sampling → teardown (stop Locust and operator, restore HPAs, verify ownership) → `reports/experiments/<run>/run.json`, `telemetry.csv`, `decisions.jsonl`, `locust_*.csv`.
+* Batch of comparable runs through the same API: `python scripts/run_lab_experiments.py --scenarios flash_sale,steady_browsing --users 25 --duration 300`. Each run takes about 17 min including the settle wait. On a laptop, prevent suspend for the whole batch: `systemd-inhibit --what=sleep:idle:handle-lid-switch <command>`.
+* Deployments without an HPA: before FlexaScale first scales one, it records the count in the `flexascale.io/original-replicas` annotation, and it restores that count on shutdown.
+* Aggregate report: `python scripts/build_live_report.py` → `reports/live_benchmark_report.md`
+* Cost: `cost` block of the app policy. With no prices it reports a unitless resource-cost proxy (vCPU-h + 0.125 × GiB-h of *requested* resources). With prices it reports an estimate. It never reports a bill.
+* Policy inference: the trained model has a fixed 4-service input. For N ≠ 4 services each service is evaluated in a 4-node window (itself + nearest neighbours in the dependency graph, padded with idle nodes) with the same trained weights (`ppo_neighborhood` in the decision log).
+
+## W. Retraining and evaluating the policy
+
+**Current policy (v4):** `./scripts/train_v4.sh` (4-run grid, 1M steps each, ~9 h on 16 cores) and then `python scripts/evaluate_v4.py` (selection on validation services → `models/flexascale_v4/best_model`, then one test run → `reports/simulation_evaluation_v4.md`). See `docs/POLICY_V4.md`.
+
+Previous policy (v3, original simulator):
+
+```bash
+# ~20 min on 16 CPU cores. Writes models/<dir>/best_model, checkpoints, eval_logs, model_card.json
+python -m flexascale.rl.train --timesteps 150000 --service-sampling random --demand-model normalized \
+  --max-replicas 10 --randomize-initial-replicas --cost-weight 0.5 --n-steps 512 --batch-size 64 \
+  --seed 42 --save-dir models/flexascale_v3
+python scripts/evaluate_policies.py --episodes 200      # held-out test split -> reports/simulation_evaluation.md
+python scripts/data_quality_report.py                   # -> reports/data_quality_report.md
+```
+Checkpoint selection uses the validation split; the test split is only used by `evaluate_policies.py`.

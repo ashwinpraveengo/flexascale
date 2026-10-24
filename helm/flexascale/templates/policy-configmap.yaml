@@ -1,0 +1,11 @@
+{{- include "flexascale.validate" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-policy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "flexascale.labels" . | nindent 4 }}
+data:
+  policy.yaml: |
+    {{- toYaml .Values.policy | nindent 4 }}

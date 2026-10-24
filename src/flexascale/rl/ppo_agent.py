@@ -44,6 +44,8 @@ class PPOAgentManager:
         batch_size: int = 32,
         n_epochs: int = 10,
         gamma: float = 0.99,
+        ent_coef: float = 0.0,
+        target_kl: float | None = None,
         net_arch: dict[str, list[int]] | None = None,
     ):
         self.env = env
@@ -78,6 +80,8 @@ class PPOAgentManager:
             batch_size=batch_size,
             n_epochs=n_epochs,
             gamma=gamma,
+            ent_coef=ent_coef,
+            target_kl=target_kl,
         )
 
     def train(
@@ -86,11 +90,13 @@ class PPOAgentManager:
         save_dir: str = "./models/",
         progress_bar: bool = False,
         eval_env: gym.Env | None = None,
+        eval_freq: int | None = None,
+        n_eval_episodes: int = 5,
     ):
         os.makedirs(save_dir, exist_ok=True)
 
         # Callbacks for checkpointing and evaluation
-        eval_freq = max(1000, total_timesteps // 5)
+        eval_freq = eval_freq or max(1000, total_timesteps // 5)
         checkpoint_callback = CheckpointCallback(
             save_freq=eval_freq,
             save_path=os.path.join(save_dir, "checkpoints"),
@@ -103,6 +109,7 @@ class PPOAgentManager:
             best_model_save_path=os.path.join(save_dir, "best_model"),
             log_path=os.path.join(save_dir, "eval_logs"),
             eval_freq=eval_freq,
+            n_eval_episodes=n_eval_episodes,
             deterministic=True,
             render=False,
         )

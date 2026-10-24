@@ -59,16 +59,11 @@ class SafetyConfig:
     namespace: str = "flexascale-apps"
     """Kubernetes namespace where microservices and HPAs reside."""
 
-    service_names: tuple[str, ...] = (
-        "api-gateway",
-        "user-service",
-        "catalog-service",
-        "cart-service",
-        "order-service",
-        "inventory-service",
-        "payment-service",
-    )
-    """List of microservices governed by the safety layer."""
+    service_names: tuple[str, ...] = ()
+    """
+    Services pre-registered with the safety layer. Empty by default: services are
+    registered on first use or come from discovery / an AppPolicy.
+    """
 
     auto_discovery: bool = True
     """Whether to auto-discover workloads in the target namespace."""

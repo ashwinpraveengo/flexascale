@@ -1,0 +1,20 @@
+# FlexaScale Live Autoscaling Lab configuration.
+# Each entry registers an application the dashboard can run experiments against.
+# url: "minikube-ingress" resolves to http://<minikube ip> of the profile below.
+minikube_profile: flexascale
+prometheus_url: http://localhost:9090          # port-forwarded by scripts/start_review.sh
+grafana_url: http://localhost:3000
+results_dir: reports/experiments
+sample_interval_seconds: 5
+e2e_p95_slo_ms: 1000                           # end-to-end SLO on Locust p95 (10 s window)
+apps:
+  shopping:
+    title: E-commerce shop (7 services)
+    policy: config/apps/shopping.yaml
+    url: minikube-ingress
+    locustfile: load-testing/scenarios.py
+  bookstore:
+    title: Synthetic bookstore (5 services)
+    policy: config/apps/bookstore.yaml
+    url: http://localhost:18081                # port-forward to the bookstore storefront
+    locustfile: examples/bookstore/bookstore_locust.py
