@@ -1,5 +1,6 @@
+from contextlib import asynccontextmanager
 import asyncio
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from fastapi import FastAPI, Request, Response, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
@@ -7,9 +8,26 @@ import httpx
 from .config import (
     SERVICE_NAME, HTTP_TIMEOUT,
     USER_SERVICE_URL, CATALOG_SERVICE_URL, CART_SERVICE_URL,
-    ORDER_SERVICE_URL, INVENTORY_SERVICE_URL, PAYMENT_SERVICE_URL
+    ORDER_SERVICE_URL, INVENTORY_SERVICE_URL, PAYMENT_SERVICE_URL,
+    SEARCH_SERVICE_URL, RECOMMENDATION_SERVICE_URL, REVIEW_SERVICE_URL,
+    PRICING_SERVICE_URL, SHIPPING_SERVICE_URL, WISHLIST_SERVICE_URL
 )
 from .metrics import setup_metrics, GATEWAY_FORWARD_TOTAL
+
+
+_http_client: Optional[httpx.AsyncClient] = None
+
+
+@asynccontextmanager
+async def shared_client():
+    """One pooled HTTP client per process. A client per call (the earlier code) built a new
+    connection pool and TLS context every time; under checkout bursts that pushed the pod
+    past its memory limit (OOMKilled)."""
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        _http_client = httpx.AsyncClient(
+            timeout=HTTP_TIMEOUT, limits=httpx.Limits(max_connections=200, max_keepalive_connections=50))
+    yield _http_client
 
 app = FastAPI(title="API Gateway", version="1.0.0")
 
@@ -31,6 +49,12 @@ SERVICE_MAP = {
     "orders": ORDER_SERVICE_URL,
     "inventory": INVENTORY_SERVICE_URL,
     "payments": PAYMENT_SERVICE_URL,
+    "search": SEARCH_SERVICE_URL,
+    "recommendations": RECOMMENDATION_SERVICE_URL,
+    "reviews": REVIEW_SERVICE_URL,
+    "pricing": PRICING_SERVICE_URL,
+    "shipping": SHIPPING_SERVICE_URL,
+    "wishlist": WISHLIST_SERVICE_URL,
 }
 
 @app.get("/")
@@ -53,12 +77,12 @@ def ready_check():
 async def system_status():
     """Checks the health and responsiveness of all registered downstream microservices."""
     results: Dict[str, Any] = {}
-    async with httpx.AsyncClient(timeout=3.0) as client:
+    async with shared_client() as client:
         for name, url in SERVICE_MAP.items():
             if name in ("categories",):  # Handled by catalog-service
                 continue
             try:
-                resp = await client.get(f"{url}/healthz")
+                resp = await client.get(f"{url}/healthz", timeout=3.0)
                 results[name] = {
                     "url": url,
                     "status": "up" if resp.status_code == 200 else "degraded",
@@ -92,7 +116,7 @@ async def forward_request(target_base_url: str, request: Request, path: str) -> 
     method = request.method
 
     try:
-        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+        async with shared_client() as client:
             resp = await client.request(
                 method=method,
                 url=url,
@@ -189,3 +213,27 @@ async def route_payments(path: str, request: Request):
 @app.api_route("/api/payments", methods=["GET", "POST"])
 async def route_payments_root(request: Request):
     return await forward_request(PAYMENT_SERVICE_URL, request, "/api/payments")
+
+@app.api_route("/api/search", methods=["GET"])
+async def route_search(request: Request):
+    return await forward_request(SEARCH_SERVICE_URL, request, "/api/search")
+
+@app.api_route("/api/recommendations/{path:path}", methods=["GET"])
+async def route_recommendations(path: str, request: Request):
+    return await forward_request(RECOMMENDATION_SERVICE_URL, request, f"/api/recommendations/{path}")
+
+@app.api_route("/api/reviews/{path:path}", methods=["GET", "POST"])
+async def route_reviews(path: str, request: Request):
+    return await forward_request(REVIEW_SERVICE_URL, request, f"/api/reviews/{path}")
+
+@app.api_route("/api/pricing/{path:path}", methods=["POST"])
+async def route_pricing(path: str, request: Request):
+    return await forward_request(PRICING_SERVICE_URL, request, f"/api/pricing/{path}")
+
+@app.api_route("/api/shipping/{path:path}", methods=["POST"])
+async def route_shipping(path: str, request: Request):
+    return await forward_request(SHIPPING_SERVICE_URL, request, f"/api/shipping/{path}")
+
+@app.api_route("/api/wishlist/{path:path}", methods=["GET", "POST", "DELETE"])
+async def route_wishlist(path: str, request: Request):
+    return await forward_request(WISHLIST_SERVICE_URL, request, f"/api/wishlist/{path}")

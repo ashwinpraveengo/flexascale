@@ -1,0 +1,14 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),35,2026-10-24T21:33:26Z,2026-10-24T21:37:55Z
+POST,POST /api/cart/{user_id}/items,HTTPError('500 Server Error: Internal Server Error for url: POST /api/cart/{user_id}/items'),2,2026-10-24T21:35:51Z,2026-10-24T21:36:29Z
+GET,GET /api/products?q=[search],HTTPError('500 Server Error: Internal Server Error for url: GET /api/products?q=[search]'),3,2026-10-24T21:35:46Z,2026-10-24T21:36:10Z
+POST,POST /api/orders/checkout [Success],HTTPError('500 Server Error: Internal Server Error for url: POST /api/orders/checkout [Success]'),3,2026-10-24T21:36:19Z,2026-10-24T21:37:14Z
+GET,GET /api/cart/{user_id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/cart/{user_id}'),1,2026-10-24T21:36:25Z,2026-10-24T21:36:25Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [FlashSale Contention]'),4,2026-10-24T21:35:13Z,2026-10-24T21:36:14Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('500 Server Error: Internal Server Error for url: POST /api/orders/checkout [FlashSale Contention]'),10,2026-10-24T21:36:19Z,2026-10-24T21:38:04Z
+POST,POST /api/cart/{user_id}/items,HTTPError('404 Client Error: Not Found for url: POST /api/cart/{user_id}/items'),7,2026-10-24T21:35:37Z,2026-10-24T21:36:11Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),13,2026-10-24T21:34:29Z,2026-10-24T21:37:43Z
+GET,GET /api/products/{id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/products/{id}'),10,2026-10-24T21:35:43Z,2026-10-24T21:36:12Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),3,2026-10-24T21:35:44Z,2026-10-24T21:35:55Z
+GET,GET /api/products,HTTPError('500 Server Error: Internal Server Error for url: GET /api/products'),14,2026-10-24T21:35:37Z,2026-10-24T21:36:12Z
+GET,GET /api/categories,HTTPError('500 Server Error: Internal Server Error for url: GET /api/categories'),8,2026-10-24T21:35:37Z,2026-10-24T21:36:07Z

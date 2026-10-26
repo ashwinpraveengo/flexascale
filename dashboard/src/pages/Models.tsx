@@ -1,0 +1,74 @@
+import { Json, fmt } from '../api';
+import { Card, Empty, KV, Skeleton, StatusBadge, usePoll } from '../ui';
+import { api } from '../api';
+
+const ci = (mc: number[] | undefined, d: number, scale = 1) => (mc ? `${fmt(scale * mc[0], d)} ± ${fmt(scale * mc[1], d)}` : '—');
+
+export function Models({ deployed, live }: { deployed?: string; live?: Json }) {
+  const { data: models, error } = usePoll<Json>(api.models, 60000);
+  if (error) return <Card title="Models"><Empty icon="error">{error}</Empty></Card>;
+  if (!models) return <div className="card p-5 space-y-3"><Skeleton h={14} w="30%" /><Skeleton h={80} /></div>;
+  const cards = Object.entries(models).filter(([k]) => !k.startsWith('_')).sort(([a], [b]) => b.localeCompare(a));
+  const sims = (['_simulation_evaluation_v6', '_simulation_evaluation_v5', '_simulation_evaluation_v4'] as const).filter((k) => models[k]);
+  const card = deployed ? models[deployed] : null;
+  const op = live?.operator;
+  const opModel = op?.model;
+  const services = (live?.services || []).filter((s: Json) => s.eligible).length;
+  const slots = card?.num_services;
+  return (
+    <div className="space-y-4">
+      <Card eyebrow="Deployed policy & inference" title={deployed ? `models/${deployed}` : 'No model configured'}
+        actions={<StatusBadge level={!deployed ? 'critical' : card ? 'good' : 'critical'} label={!deployed ? 'not configured' : card ? 'artifact + model card present' : 'model card missing'} />}>
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 text-sm">
+          <KV wrap k="Artifact" v={<span title={live?.policy?.model_path}>{live?.policy?.model_path || '—'}</span>} />
+          <KV k="Policy type" v={card ? `${card.model?.includes('GNN') ? 'PPO + GNN' : 'PPO'}${card.observation?.decision_slot === 0 ? ', per-service (focal)' : ''}` : '—'} />
+          <KV k="Actions" v={card?.action?.deltas ? card.action.deltas.map((d: number) => (d > 0 ? `+${d}` : `${d}`)).join(' ') + ' replicas' : '−1 0 +1 replicas'} />
+          <KV k="Observation" v={card ? `v${card.observation?.version ?? 1} · ${card.observation?.dim ?? '?'} inputs` : '—'} />
+          <KV wrap k="Topology compatibility" v={slots && services ? (services === slots ? `${services} services: direct` : `${services} services → ${slots}-service neighbourhood windows`) : '—'} />
+          <KV k="Inference (operator)" v={op ? (opModel ? <StatusBadge level="good" label={`loaded · ${op.effective_mode} · step ${op.step}`} /> : <StatusBadge level="critical" label={`unavailable: ${op.model_error || 'unknown'}`} />)
+            : <span className="muted">no operator running (loaded per experiment)</span>} />
+          <KV k="Loaded model sha256" v={opModel?.sha256 ? <span className="tnum" title={opModel.sha256}>{String(opModel.sha256).slice(0, 16)}…</span> : '—'} />
+          <KV wrap k="Fallback" v="CPU-threshold heuristic if the model cannot load; live mode refused" />
+        </div>
+        {op?.last_error && <p className="text-xs mt-3" style={{ color: 'var(--critical)' }}>Operator error: {op.last_error}</p>}
+      </Card>
+      {sims.map((k) => {
+        const s = models[k];
+        const ver = k.slice(-2);
+        return (
+          <Card key={k} eyebrow={`Held-out simulation · ${ver}`} title={`${s.episodes} paired test episodes${s.seeds ? ` (seeds ${s.seeds[0]}–${s.seeds[1]})` : ''}`} pad={false}>
+            <p className="text-xs muted px-5 -mt-1 mb-2">Selected: {s.selection?.selected} (validation reward only). ± = 95% confidence half-width. A simulator result does not prove live performance.</p>
+            <div className="overflow-x-auto scroll-thin">
+              <table className="data w-full text-sm tnum">
+                <thead><tr><th>Policy</th><th>Reward / step</th><th>SLO violations</th><th>Avg replicas</th><th>Avg CPU %</th><th>Changes / step</th></tr></thead>
+                <tbody>
+                  {Object.entries(s.summary).map(([name, v]: [string, Json]) => (
+                    <tr key={name} style={name.startsWith('ppo_' + ver) && !name.includes('no_') ? { background: 'var(--accent-soft)' } : undefined}>
+                      <td>{name}</td><td>{ci(v.reward, 3)}</td><td>{ci(v.slo_violation_rate, 1, 100)}%</td><td>{ci(v.avg_replicas, 2)}</td><td>{ci(v.avg_cpu_pct, 1)}</td><td>{ci(v.replica_changes_per_step, 2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        );
+      })}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {cards.map(([name, card]: [string, Json]) => (
+          <Card key={name} eyebrow={name === deployed ? 'Deployed' : 'Model'} title={`models/${name}`}>
+            <dl className="text-sm grid grid-cols-[140px_1fr] gap-x-3 gap-y-1.5">
+              <dt className="muted">Model</dt><dd>{card.model}</dd>
+              <dt className="muted">Training</dt><dd className="tnum">{fmt(card.total_timesteps)} steps · {card.training_seconds > 0 ? `${fmt(card.training_seconds)} s` : 'duration n/a (host clock changed during training)'} · {card.trained_at}</dd>
+              <dt className="muted">Simulator</dt><dd>{card.environment?.env_class || 'FlexaScaleEnv'}{card.environment?.control_step_seconds ? ` · ${card.environment.control_step_seconds} s decisions` : ''}</dd>
+              <dt className="muted">Actions</dt><dd>{card.action?.deltas ? card.action.deltas.map((d: number) => (d > 0 ? `+${d}` : `${d}`)).join(', ') : '−1, 0, +1'} replicas</dd>
+              <dt className="muted">Observation</dt><dd>v{card.observation?.version ?? 1}: {card.observation?.per_service_fields?.join(', ')}</dd>
+              <dt className="muted">Reward weights</dt><dd className="tnum">{Object.entries(card.environment?.reward_weights || {}).map(([k, v]) => `${k} ${v}`).join(' · ')}</dd>
+              {card.warm_start && <><dt className="muted">Warm start</dt><dd>{card.warm_start.teacher} · agreement {fmt(100 * (card.warm_start.slot0_agreement_heldout || 0))}%</dd></>}
+              {card.selection && <><dt className="muted">Selected</dt><dd>{card.selection.selected} of {card.selection.candidates?.length} candidates</dd></>}
+            </dl>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}

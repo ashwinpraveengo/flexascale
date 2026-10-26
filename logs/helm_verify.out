@@ -1,0 +1,188 @@
+=== 20:47:31 0. baseline
+  HPAs:
+    recommendations-autoscaler min=1 max=5 
+    search-autoscaler min=1 max=5 
+    storefront-autoscaler min=1 max=5 
+  Deployments:
+    cart replicas=1 
+    pricing replicas=1 
+    recommendations replicas=1 
+    search replicas=1 
+    storefront replicas=1 
+  Lease flexascale-bookstore holder: 'fsverify-operator-86c8d57c98-q86tp-6fadc8'
+=== 20:47:31 1. helm install (observe)
+NAME: fsverify
+LAST DEPLOYED: Mon Oct 26 20:47:31 2026
+NAMESPACE: fsverify
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+FlexaScale 0.4.0 installed as release "fsverify" in namespace fsverify.
+
+Target application : namespace flexascale-bookstore, selector app.kubernetes.io/part-of=bookstore
+Mode               : observe  (decisions are computed and logged; nothing is changed)
+Prometheus         : http://monitoring-kube-prometheus-prometheus.flexascale-monitoring.svc:9090
+
+1. Check the operator and the services it selected:
+   kubectl -n fsverify logs deploy/fsverify-operator | head -40
+
+2. Inspect proposed decisions (JSON lines, one per service per step):
+   kubectl -n fsverify exec deploy/fsverify-operator -- tail -n 20 /var/log/flexascale/decisions.jsonl
+
+3. Controller ownership:
+   kubectl -n flexascale-bookstore get lease flexascale-bookstore
+   kubectl -n flexascale-bookstore get hpa -o custom-columns=NAME:.metadata.name,MIN:.spec.minReplicas,MAX:.spec.maxReplicas,FROZEN_BY:.metadata.annotations.flexascale\.io/frozen-by
+
+4. Enable live control only after reviewing step 2:
+   helm upgrade fsverify <chart> -n fsverify --reuse-values --set policy.mode=live
+
+Return control to native HPA at any time:
+   helm upgrade fsverify <chart> -n fsverify --reuse-values --set policy.mode=observe
+Uninstall (the operator restores frozen HPAs on shutdown; the application is not touched):
+   helm uninstall fsverify -n fsverify
+  can-i patch hpa: no  update deployments --subresource=scale: no  create leases: no
+/usr/local/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  HPAs:
+    recommendations-autoscaler min=1 max=5 
+    search-autoscaler min=1 max=5 
+    storefront-autoscaler min=1 max=5 
+  Deployments:
+    cart replicas=1 
+    pricing replicas=1 
+    recommendations replicas=1 
+    search replicas=1 
+    storefront replicas=1 
+  Lease flexascale-bookstore holder: 'fsverify-operator-86c8d57c98-q86tp-6fadc8'
+=== 20:47:59 2. helm upgrade --set policy.mode=live (revision 2)
+Release "fsverify" has been upgraded. Happy Helming!
+NAME: fsverify
+LAST DEPLOYED: Mon Oct 26 20:47:59 2026
+NAMESPACE: fsverify
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+FlexaScale 0.4.0 installed as release "fsverify" in namespace fsverify.
+
+Target application : namespace flexascale-bookstore, selector app.kubernetes.io/part-of=bookstore
+Mode               : live  (LIVE: FlexaScale may scale Deployments after taking the lease and freezing their HPAs)
+Prometheus         : http://monitoring-kube-prometheus-prometheus.flexascale-monitoring.svc:9090
+
+1. Check the operator and the services it selected:
+   kubectl -n fsverify logs deploy/fsverify-operator | head -40
+
+2. Inspect proposed decisions (JSON lines, one per service per step):
+   kubectl -n fsverify exec deploy/fsverify-operator -- tail -n 20 /var/log/flexascale/decisions.jsonl
+
+3. Controller ownership:
+   kubectl -n flexascale-bookstore get lease flexascale-bookstore
+   kubectl -n flexascale-bookstore get hpa -o custom-columns=NAME:.metadata.name,MIN:.spec.minReplicas,MAX:.spec.maxReplicas,FROZEN_BY:.metadata.annotations.flexascale\.io/frozen-by
+
+Return control to native HPA at any time:
+   helm upgrade fsverify <chart> -n fsverify --reuse-values --set policy.mode=observe
+Uninstall (the operator restores frozen HPAs on shutdown; the application is not touched):
+   helm uninstall fsverify -n fsverify
+  can-i patch hpa: yes  update deployments --subresource=scale: yes  create leases: yes
+  lease acquired by 'fsverify-operator-86c8d57c98-q86tp-6fadc8' after 3 s
+2026-10-26 15:18:30,844 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'cart' (expires in 30.0s)
+2026-10-26 15:18:31,427 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'cart' to target replicas (min=1, max=1)
+2026-10-26 15:18:31,558 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'pricing' (expires in 30.0s)
+2026-10-26 15:18:31,794 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'pricing' to target replicas (min=1, max=1)
+2026-10-26 15:18:31,937 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'recommendations' (expires in 30.0s)
+2026-10-26 15:18:32,167 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'recommendations' to target replicas (min=1, max=1)
+2026-10-26 15:18:32,359 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'search' (expires in 30.0s)
+2026-10-26 15:18:32,667 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'search' to target replicas (min=1, max=1)
+2026-10-26 15:18:32,869 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'storefront' (expires in 30.0s)
+2026-10-26 15:18:33,147 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'storefront' to target replicas (min=1, max=1)
+  HPAs:
+    recommendations-autoscaler min=1 max=1 {'frozen-by': 'flexascale-bookstore', 'original-max-replicas': '5', 'original-min-replicas': '1'}
+    search-autoscaler min=1 max=1 {'frozen-by': 'flexascale-bookstore', 'original-max-replicas': '5', 'original-min-replicas': '1'}
+    storefront-autoscaler min=1 max=1 {'frozen-by': 'flexascale-bookstore', 'original-max-replicas': '5', 'original-min-replicas': '1'}
+  Deployments:
+    cart replicas=1 {'frozen-by': 'flexascale-bookstore', 'original-replicas': '1'}
+    pricing replicas=1 {'frozen-by': 'flexascale-bookstore', 'original-replicas': '1'}
+    recommendations replicas=1 
+    search replicas=1 
+    storefront replicas=1 
+  Lease flexascale-bookstore holder: 'fsverify-operator-86c8d57c98-wf5vr-8a15bf'
+=== 20:48:39 3. helm rollback to revision 1 (observe)
+Rollback was a success! Happy Helming!
+deployment "fsverify-operator" successfully rolled out
+  lease free after 3 s
+  can-i patch hpa: no  update deployments --subresource=scale: no  create leases: no
+  HPAs:
+    recommendations-autoscaler min=1 max=5 
+    search-autoscaler min=1 max=5 
+    storefront-autoscaler min=1 max=5 
+  Deployments:
+    cart replicas=1 
+    pricing replicas=1 
+    recommendations replicas=1 
+    search replicas=1 
+    storefront replicas=1 
+  Lease flexascale-bookstore holder: ''
+=== 20:48:56 4. helm upgrade live again (revision 3), then helm uninstall
+Release "fsverify" has been upgraded. Happy Helming!
+NAME: fsverify
+LAST DEPLOYED: Mon Oct 26 20:48:56 2026
+NAMESPACE: fsverify
+STATUS: deployed
+REVISION: 4
+TEST SUITE: None
+NOTES:
+FlexaScale 0.4.0 installed as release "fsverify" in namespace fsverify.
+
+Target application : namespace flexascale-bookstore, selector app.kubernetes.io/part-of=bookstore
+Mode               : live  (LIVE: FlexaScale may scale Deployments after taking the lease and freezing their HPAs)
+Prometheus         : http://monitoring-kube-prometheus-prometheus.flexascale-monitoring.svc:9090
+
+1. Check the operator and the services it selected:
+   kubectl -n fsverify logs deploy/fsverify-operator | head -40
+
+2. Inspect proposed decisions (JSON lines, one per service per step):
+   kubectl -n fsverify exec deploy/fsverify-operator -- tail -n 20 /var/log/flexascale/decisions.jsonl
+
+3. Controller ownership:
+   kubectl -n flexascale-bookstore get lease flexascale-bookstore
+   kubectl -n flexascale-bookstore get hpa -o custom-columns=NAME:.metadata.name,MIN:.spec.minReplicas,MAX:.spec.maxReplicas,FROZEN_BY:.metadata.annotations.flexascale\.io/frozen-by
+
+Return control to native HPA at any time:
+   helm upgrade fsverify <chart> -n fsverify --reuse-values --set policy.mode=observe
+Uninstall (the operator restores frozen HPAs on shutdown; the application is not touched):
+   helm uninstall fsverify -n fsverify
+  lease acquired by 'fsverify-operator-86c8d57c98-dnhxz-58c039' after 6 s
+  HPAs:
+    recommendations-autoscaler min=1 max=1 {'frozen-by': 'flexascale-bookstore', 'original-max-replicas': '5', 'original-min-replicas': '1'}
+    search-autoscaler min=1 max=1 {'frozen-by': 'flexascale-bookstore', 'original-max-replicas': '5', 'original-min-replicas': '1'}
+    storefront-autoscaler min=1 max=1 {'frozen-by': 'flexascale-bookstore', 'original-max-replicas': '5', 'original-min-replicas': '1'}
+  Deployments:
+    cart replicas=1 {'frozen-by': 'flexascale-bookstore', 'original-replicas': '1'}
+    pricing replicas=1 {'frozen-by': 'flexascale-bookstore', 'original-replicas': '1'}
+    recommendations replicas=1 
+    search replicas=1 
+    storefront replicas=1 
+  Lease flexascale-bookstore holder: 'fsverify-operator-86c8d57c98-dnhxz-58c039'
+REVISION	UPDATED                 	STATUS    	CHART           	APP VERSION	DESCRIPTION     
+1       	Mon Oct 26 20:47:31 2026	superseded	flexascale-0.4.0	0.4.0      	Install complete
+2       	Mon Oct 26 20:47:59 2026	superseded	flexascale-0.4.0	0.4.0      	Upgrade complete
+3       	Mon Oct 26 20:48:39 2026	superseded	flexascale-0.4.0	0.4.0      	Rollback to 1   
+4       	Mon Oct 26 20:48:56 2026	deployed  	flexascale-0.4.0	0.4.0      	Upgrade complete
+release "fsverify" uninstalled
+  lease free after 3 s
+  HPAs:
+    recommendations-autoscaler min=1 max=5 
+    search-autoscaler min=1 max=5 
+    storefront-autoscaler min=1 max=5 
+  Deployments:
+    cart replicas=1 
+    pricing replicas=1 
+    recommendations replicas=1 
+    search replicas=1 
+    storefront replicas=1 
+  Lease flexascale-bookstore holder: ''
+  RBAC left in flexascale-bookstore: none
+namespace "fsverify" deleted
+=== 20:49:54 done; main release:
+NAME      	NAMESPACE        	REVISION	UPDATED                                	STATUS  	CHART           	APP VERSION
+flexascale	flexascale-system	6       	2026-10-25 13:47:38.234818099 +0530 IST	deployed	flexascale-0.4.0	0.4.0      

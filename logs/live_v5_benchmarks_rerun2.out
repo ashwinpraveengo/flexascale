@@ -1,0 +1,22 @@
+=== repeat 2 (rerun after host crash, started 11:36)
+11:36:20 started 20261025-113620-shopping-hpa-checkout_heavy
+11:46:50 completed 20261025-113620-shopping-hpa-checkout_heavy  req/s=11.331422672551943 p95=4200.0 fail%=27.517564402810304 replica_h=1.401337 safe=True error=None
+11:46:50 started 20261025-114650-shopping-flexascale-checkout_heavy
+12:03:11 completed 20261025-114650-shopping-flexascale-checkout_heavy  req/s=12.383033749287671 p95=3100.0 fail%=32.047159699892816 replica_h=1.418145 safe=True error=None
+12:03:11 started 20261025-120311-shopping-hpa-payment_degradation
+12:14:32 completed 20261025-120311-shopping-hpa-payment_degradation  req/s=9.983117173956115 p95=3100.0 fail%=34.378126042014 replica_h=1.027189 safe=True error=None
+12:14:32 started 20261025-121432-shopping-flexascale-payment_degradation
+12:25:52 completed 20261025-121432-shopping-flexascale-payment_degradation  req/s=10.265614071647853 p95=4100.0 fail%=34.35385111182726 replica_h=1.091152 safe=True error=None
+12:25:52 started 20261025-122552-shopping-hpa-flash_sale
+12:37:13 completed 20261025-122552-shopping-hpa-flash_sale  req/s=9.22389441799439 p95=1900.0 fail%=6.536655832430481 replica_h=0.925992 safe=True error=None
+12:37:13 started 20261025-123713-shopping-flexascale-flash_sale
+12:48:33 completed 20261025-123713-shopping-flexascale-flash_sale  req/s=10.209000074862416 p95=1900.0 fail%=2.3770758710517748 replica_h=1.150993 safe=True error=None
+12:48:33 started 20261025-124833-shopping-hpa-gradual_ramp
+12:59:54 completed 20261025-124833-shopping-hpa-gradual_ramp  req/s=7.94986396104327 p95=1200.0 fail%=8.316094331816302 replica_h=0.886906 safe=True error=None
+12:59:54 started 20261025-125954-shopping-flexascale-gradual_ramp
+13:17:05 completed 20261025-125954-shopping-flexascale-gradual_ramp  req/s=7.350889545626366 p95=2200.0 fail%=7.643600180913614 replica_h=1.123204 safe=True error=None
+13:17:05 started 20261025-131705-shopping-hpa-traffic_drop
+13:34:06 completed 20261025-131705-shopping-hpa-traffic_drop  req/s=5.495201267739896 p95=1700.0 fail%=8.15581253804017 replica_h=1.080037 safe=True error=None
+13:34:06 started 20261025-133406-shopping-flexascale-traffic_drop
+13:45:26 completed 20261025-133406-shopping-flexascale-traffic_drop  req/s=5.979921065620267 p95=1200.0 fail%=8.221476510067115 replica_h=0.961794 safe=True error=None
+RUNS 20261025-113620-shopping-hpa-checkout_heavy,20261025-114650-shopping-flexascale-checkout_heavy,20261025-120311-shopping-hpa-payment_degradation,20261025-121432-shopping-flexascale-payment_degradation,20261025-122552-shopping-hpa-flash_sale,20261025-123713-shopping-flexascale-flash_sale,20261025-124833-shopping-hpa-gradual_ramp,20261025-125954-shopping-flexascale-gradual_ramp,20261025-131705-shopping-hpa-traffic_drop,20261025-133406-shopping-flexascale-traffic_drop

@@ -1,0 +1,197 @@
+{
+  "id": "20261025-045707-shopping-flexascale-checkout_heavy",
+  "request": {
+    "app": "shopping",
+    "controller": "flexascale",
+    "scenario": "checkout_heavy",
+    "users": 25,
+    "spawn_rate": 5.0,
+    "duration": 300,
+    "reset_replicas": true,
+    "shadow": true
+  },
+  "app_title": "E-commerce shop (7 services)",
+  "namespace": "flexascale-apps",
+  "app_url": "http://192.168.49.2",
+  "state": "failed",
+  "created_at": 1792884427.0306125,
+  "started_at": null,
+  "ended_at": 1792884432.3694825,
+  "error": "RuntimeError: Prometheus not reachable at http://localhost:9090",
+  "events": [
+    {
+      "t": 1792884427.4170463,
+      "elapsed": null,
+      "kind": "preflight",
+      "message": "Target E-commerce shop (7 services) at http://192.168.49.2 (namespace flexascale-apps)"
+    },
+    {
+      "t": 1792884431.4323933,
+      "elapsed": null,
+      "kind": "error",
+      "message": "RuntimeError: Prometheus not reachable at http://localhost:9090"
+    },
+    {
+      "t": 1792884432.3692417,
+      "elapsed": null,
+      "kind": "ownership",
+      "message": "Cleanup: native HPA ownership verified",
+      "cleanup": {
+        "locust": "not_managed",
+        "operator": "not_managed",
+        "hpas_restored": [],
+        "lease_holder_after": null,
+        "frozen_hpas_after": [],
+        "safe": true
+      }
+    },
+    {
+      "t": 1792884432.3697073,
+      "elapsed": null,
+      "kind": "experiment",
+      "message": "Experiment failed",
+      "state": "failed"
+    }
+  ],
+  "samples": [],
+  "summary": {
+    "complete": false,
+    "settled_start": null,
+    "reset_check_passed": null,
+    "preliminary": true,
+    "actual_duration_s": 5.3,
+    "samples": 0,
+    "workload": {},
+    "slo": {
+      "e2e_p95_slo_ms": 1000,
+      "e2e_violation_seconds": 0.0,
+      "e2e_violation_fraction": null,
+      "service_mean_slo_ms": 250,
+      "service_violation_seconds": 0.0
+    },
+    "utilization": {
+      "avg_cpu_pct_of_request": null,
+      "peak_cpu_pct_of_request": null,
+      "avg_memory_pct": null
+    },
+    "replicas": {
+      "avg_total_desired": null,
+      "peak_total_desired": null
+    },
+    "stability": {
+      "scaling_events": 0,
+      "oscillations": 0
+    },
+    "resources": null,
+    "decisions": {
+      "total": 0,
+      "applied": 0,
+      "proposed_changes": 0,
+      "flexascale_owned": 0,
+      "hpa_fallbacks": 0,
+      "policy_modes": []
+    }
+  },
+  "cleanup": {
+    "locust": "not_managed",
+    "operator": "not_managed",
+    "hpas_restored": [],
+    "lease_holder_after": null,
+    "frozen_hpas_after": [],
+    "safe": true
+  },
+  "model": null,
+  "initial_replicas": null,
+  "start_replicas": null,
+  "slo": {
+    "e2e_p95_ms": 1000,
+    "service_mean_ms": 250
+  },
+  "policy": {
+    "name": "shopping",
+    "namespace": "flexascale-apps",
+    "label_selector": "",
+    "include": [],
+    "exclude": [
+      "shopping-frontend"
+    ],
+    "exclude_patterns": [
+      "^flexascale-.*",
+      ".*prometheus.*",
+      ".*grafana.*",
+      ".*alertmanager.*",
+      ".*kube-state-metrics.*"
+    ],
+    "exclude_datastores": true,
+    "mode": "observe",
+    "min_replicas": 1,
+    "max_replicas": 10,
+    "max_step": 1,
+    "max_total_replicas": 28,
+    "services": {},
+    "cpu_target_pct": 70,
+    "scale_down_block_cpu_pct": 85,
+    "scale_down_block_memory_pct": 90,
+    "slo_latency_ms": 250,
+    "confidence_threshold": 0.7,
+    "deactivation_threshold": 0.6,
+    "cooldown_seconds": 15,
+    "scale_down_cooldown_seconds": 60,
+    "scale_up_cooldown_seconds": 30,
+    "hpa_fallback": true,
+    "lease_seconds": 30,
+    "poll_interval_seconds": 10,
+    "stale_after_seconds": 120,
+    "prometheus_url": "http://localhost:9090",
+    "model_path": "models/flexascale_v5/best_model/best_model.zip",
+    "topology": [
+      [
+        "api-gateway",
+        "user-service"
+      ],
+      [
+        "api-gateway",
+        "catalog-service"
+      ],
+      [
+        "api-gateway",
+        "cart-service"
+      ],
+      [
+        "api-gateway",
+        "order-service"
+      ],
+      [
+        "cart-service",
+        "catalog-service"
+      ],
+      [
+        "cart-service",
+        "inventory-service"
+      ],
+      [
+        "order-service",
+        "catalog-service"
+      ],
+      [
+        "order-service",
+        "inventory-service"
+      ],
+      [
+        "order-service",
+        "payment-service"
+      ],
+      [
+        "order-service",
+        "cart-service"
+      ]
+    ],
+    "cost": {
+      "currency": "USD",
+      "cpu_per_vcpu_hour": null,
+      "memory_per_gib_hour": null,
+      "memory_weight": 0.125,
+      "label": "normalized resource-cost proxy (no pricing configured)"
+    }
+  }
+}

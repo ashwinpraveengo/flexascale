@@ -1,0 +1,22 @@
+Selection on validation services:
+  lr1e-4_s1/warm_start -0.3093  (7s)
+  lr1e-4_s1/best   -0.2462  (7s)
+  lr1e-4_s1/final  -0.2398  (8s)
+  lr1e-4_s2/warm_start -0.3070  (9s)
+  lr1e-4_s2/best   -0.2683  (10s)
+  lr1e-4_s2/final  -0.2755  (8s)
+  lr3e-5_s1/warm_start -0.2913  (8s)
+  lr3e-5_s1/best   -0.2441  (9s)
+  lr3e-5_s1/final  -0.2441  (8s)
+  lr3e-5_s2/warm_start -0.2909  (9s)
+  lr3e-5_s2/best   -0.2348  (9s)
+  lr3e-5_s2/final  -0.2263  (9s)
+selected lr3e-5_s2/final -> models/flexascale_v5/best_model/best_model.zip
+Test services, 300 paired episodes (fresh seeds):
+  ppo_v5           -0.2743  (14s)
+  ppo_v5_no_neighbours -0.2898  (16s)
+  hpa_rule         -0.3383  (3s)
+  tuned_rule_77_45 -0.2267  (3s)
+  ppo_v4           -0.4738  (13s)
+  hold             -0.8027  (3s)
+Wrote reports/simulation_evaluation_v5.{md,json}

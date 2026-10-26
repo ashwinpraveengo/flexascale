@@ -10,7 +10,7 @@
 
 image:
   repository: flexascale
-  tag: "0.3.0"
+  tag: "0.4.0"
   pullPolicy: IfNotPresent
 
 # Application policy (same schema as config/apps/*.yaml, see docs/FINAL_PROJECT_SUMMARY.md).
@@ -41,7 +41,7 @@ policy:
   poll_interval_seconds: 10
   stale_after_seconds: 120
   prometheus_url: http://monitoring-kube-prometheus-prometheus.flexascale-monitoring.svc:9090
-  model_path: /app/models/flexascale_v4/best_model/best_model.zip
+  model_path: /app/models/flexascale_v5/best_model/best_model.zip
   topology: []                        # optional [[caller, callee], ...]
   cost:
     currency: USD
@@ -55,6 +55,9 @@ operator:
     requests: {cpu: 100m, memory: 384Mi}
     limits: {cpu: "1", memory: 1Gi}
   terminationGracePeriodSeconds: 45   # time to restore HPAs and release the lease on shutdown
+  # Before upgrade, rollback and uninstall, a hook Job scales the operator to 0 and waits, so a live
+  # operator restores frozen HPAs and releases the Lease while its write permissions still exist.
+  handbackHook: true
 
 rbac:
   create: true

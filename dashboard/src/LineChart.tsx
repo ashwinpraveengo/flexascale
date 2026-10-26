@@ -19,6 +19,9 @@ interface Props {
   height?: number;
   minMax?: number;
   empty?: string;
+  /** Synchronised crosshair: elapsed seconds shared by several charts. */
+  syncX?: number | null;
+  onSyncX?: (x: number | null) => void;
 }
 
 const PAD = { l: 44, r: 12, t: 10, b: 24 };
@@ -32,9 +35,17 @@ function niceMax(v: number): number {
   return 10 * exp;
 }
 
-export function LineChart({ title, unit, x, series, reference, step, digits = 0, height = 190, minMax = 1, empty }: Props) {
+export function LineChart({ title, unit, x, series, reference, step, digits = 0, height = 190, minMax = 1, empty, syncX, onSyncX }: Props) {
   const ref = useRef<SVGSVGElement>(null);
-  const [hover, setHover] = useState<number | null>(null);
+  const [ownHover, setOwnHover] = useState<number | null>(null);
+  const synced = onSyncX !== undefined;
+  const nearest = (xv: number) => {
+    let best = 0;
+    for (let i = 1; i < x.length; i++) if (Math.abs(x[i] - xv) < Math.abs(x[best] - xv)) best = i;
+    return best;
+  };
+  const hover = synced ? (syncX == null || !x.length ? null : nearest(syncX)) : ownHover;
+  const setHover = (i: number | null) => (synced ? onSyncX!(i == null ? null : x[i]) : setOwnHover(i));
   const width = 560;
   const w = width - PAD.l - PAD.r;
   const h = height - PAD.t - PAD.b;
@@ -75,9 +86,7 @@ export function LineChart({ title, unit, x, series, reference, step, digits = 0,
     const rect = ref.current.getBoundingClientRect();
     const px = ((e.clientX - rect.left) / rect.width) * width;
     const xv = xMin + ((px - PAD.l) / w) * (xMax - xMin);
-    let best = 0;
-    for (let i = 1; i < x.length; i++) if (Math.abs(x[i] - xv) < Math.abs(x[best] - xv)) best = i;
-    setHover(best);
+    setHover(nearest(xv));
   }
 
   const hasData = x.length > 1 && series.some((s) => s.values.some((v) => v !== null));

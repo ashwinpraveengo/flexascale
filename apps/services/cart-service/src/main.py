@@ -6,11 +6,26 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 import httpx
 
-from .config import SERVICE_NAME, CATALOG_SERVICE_URL, INVENTORY_SERVICE_URL, HTTP_TIMEOUT
+from .config import SERVICE_NAME, CATALOG_SERVICE_URL, INVENTORY_SERVICE_URL, PRICING_SERVICE_URL, HTTP_TIMEOUT
 from .database import get_db, init_db, engine
 from .models import Cart, CartItem
 from .schemas import CartItemAdd, CartItemUpdate, CartItemOut, CartOut
 from .metrics import setup_metrics
+
+
+_http_client: Optional[httpx.AsyncClient] = None
+
+
+@asynccontextmanager
+async def shared_client():
+    """One pooled HTTP client per process. A client per call (the earlier code) built a new
+    connection pool and TLS context every time; under checkout bursts that pushed the pod
+    past its memory limit (OOMKilled)."""
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        _http_client = httpx.AsyncClient(
+            timeout=HTTP_TIMEOUT, limits=httpx.Limits(max_connections=200, max_keepalive_connections=50))
+    yield _http_client
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,7 +71,7 @@ def get_or_create_cart(user_id: int, db: Session) -> Cart:
 
 async def fetch_product_details(product_id: int) -> Optional[dict]:
     try:
-        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+        async with shared_client() as client:
             resp = await client.get(f"{CATALOG_SERVICE_URL}/api/products/{product_id}")
             if resp.status_code == 200:
                 return resp.json()
@@ -66,7 +81,7 @@ async def fetch_product_details(product_id: int) -> Optional[dict]:
 
 async def check_inventory_availability(product_id: int, quantity: int) -> bool:
     try:
-        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+        async with shared_client() as client:
             resp = await client.get(f"{INVENTORY_SERVICE_URL}/api/inventory/{product_id}")
             if resp.status_code == 200:
                 data = resp.json()
@@ -75,6 +90,21 @@ async def check_inventory_availability(product_id: int, quantity: int) -> bool:
     except Exception as e:
         print(f"Warning: Could not check inventory for product {product_id}: {e}")
     return True
+
+async def fetch_price_quote(items: list):
+    """Promotions and tax from pricing-service; best effort (None = list prices only)."""
+    if not items:
+        return None
+    try:
+        async with shared_client() as client:
+            resp = await client.post(f"{PRICING_SERVICE_URL}/api/pricing/quote", json={"items": [
+                {"product_id": it.product_id, "unit_price": it.unit_price, "quantity": it.quantity} for it in items
+            ]})
+            if resp.status_code == 200:
+                return resp.json()
+    except Exception as e:
+        print(f"Warning: pricing quote failed: {e}")
+    return None
 
 @app.get("/api/cart/{user_id}", response_model=CartOut)
 async def get_cart(user_id: int, db: Session = Depends(get_db)):
@@ -104,12 +134,17 @@ async def get_cart(user_id: int, db: Session = Depends(get_db)):
             in_stock=True
         ))
 
+    quote = await fetch_price_quote(items_out)
+
     return CartOut(
         id=cart.id,
         user_id=cart.user_id,
         items=items_out,
         total_items=total_items,
         total_amount=round(total_amount, 2),
+        discount=quote["discount"] if quote else 0.0,
+        tax=quote["tax"] if quote else None,
+        payable_total=quote["total"] if quote else None,
         updated_at=cart.updated_at
     )
 

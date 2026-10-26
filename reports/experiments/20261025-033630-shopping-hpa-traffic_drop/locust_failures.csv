@@ -1,0 +1,6 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),45,2026-10-24T22:18:04Z,2026-10-24T22:22:27Z
+POST,POST /api/orders/checkout [Success],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Success]'),7,2026-10-24T22:18:30Z,2026-10-24T22:19:34Z
+POST,POST /api/users/login,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/users/login'),8,2026-10-24T22:17:59Z,2026-10-24T22:18:02Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),26,2026-10-24T22:18:04Z,2026-10-24T22:22:11Z
+GET,GET /api/orders/user/{user_id},HTTPError('502 Server Error: Bad Gateway for url: GET /api/orders/user/{user_id}'),6,2026-10-24T22:18:24Z,2026-10-24T22:19:32Z

@@ -1,0 +1,15 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/wishlist/{user_id}/items,HTTPError('504 Server Error: Gateway Time-out for url: POST /api/wishlist/{user_id}/items'),7,2026-10-25T14:06:01Z,2026-10-25T14:09:51Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Time-out for url: POST /api/orders/checkout [Success]'),9,2026-10-25T14:05:42Z,2026-10-25T14:09:48Z
+GET,GET /api/products/{id},HTTPError('504 Server Error: Gateway Time-out for url: GET /api/products/{id}'),67,2026-10-25T14:05:11Z,2026-10-25T14:09:59Z
+GET,GET /api/search?q=[search],HTTPError('504 Server Error: Gateway Time-out for url: GET /api/search?q=[search]'),53,2026-10-25T14:05:11Z,2026-10-25T14:09:54Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Time-out for url: GET /api/orders/user/{user_id}'),6,2026-10-25T14:05:29Z,2026-10-25T14:09:11Z
+GET,GET /api/recommendations/{id},HTTPError('504 Server Error: Gateway Time-out for url: GET /api/recommendations/{id}'),62,2026-10-25T14:05:41Z,2026-10-25T14:09:53Z
+POST,POST /api/shipping/quote,HTTPError('504 Server Error: Gateway Time-out for url: POST /api/shipping/quote'),10,2026-10-25T14:05:26Z,2026-10-25T14:09:02Z
+GET,GET /api/reviews/{id},HTTPError('504 Server Error: Gateway Time-out for url: GET /api/reviews/{id}'),62,2026-10-25T14:05:26Z,2026-10-25T14:09:38Z
+POST,POST /api/cart/{user_id}/items,HTTPError('504 Server Error: Gateway Time-out for url: POST /api/cart/{user_id}/items'),28,2026-10-25T14:05:27Z,2026-10-25T14:09:51Z
+GET,GET /api/wishlist/{user_id},HTTPError('504 Server Error: Gateway Time-out for url: GET /api/wishlist/{user_id}'),6,2026-10-25T14:06:16Z,2026-10-25T14:09:44Z
+POST,POST /api/users/login,HTTPError('504 Server Error: Gateway Time-out for url: POST /api/users/login'),5,2026-10-25T14:05:11Z,2026-10-25T14:05:15Z
+GET,GET /api/cart/{user_id},HTTPError('504 Server Error: Gateway Time-out for url: GET /api/cart/{user_id}'),18,2026-10-25T14:05:45Z,2026-10-25T14:09:49Z
+GET,GET /api/categories,HTTPError('504 Server Error: Gateway Time-out for url: GET /api/categories'),39,2026-10-25T14:05:12Z,2026-10-25T14:09:55Z
+GET,GET /api/products,HTTPError('504 Server Error: Gateway Time-out for url: GET /api/products'),78,2026-10-25T14:05:11Z,2026-10-25T14:09:50Z

@@ -1,0 +1,78 @@
+=== repeat 1 (04:35)
+04:35:00 started 20261026-043500-shopping-hpa-steady_browsing
+04:44:31 completed 20261026-043500-shopping-hpa-steady_browsing  req/s=18.396218453410444 p95=64.0 fail%=0.01808972503617945 replica_h=1.470717 safe=True error=None
+04:44:31 started 20261026-044431-shopping-auto-steady_browsing
+04:56:02 completed 20261026-044431-shopping-auto-steady_browsing  req/s=18.379680741470153 p95=69.0 fail%=0.0 replica_h=1.413596 safe=True error=None
+04:56:02 started 20261026-045602-shopping-hpa-checkout_heavy
+05:07:23 completed 20261026-045602-shopping-hpa-checkout_heavy  req/s=20.766873867673254 p95=230.0 fail%=1.1853275668749 replica_h=1.907274 safe=True error=None
+05:07:23 started 20261026-050723-shopping-auto-checkout_heavy
+05:23:34 completed 20261026-050723-shopping-auto-checkout_heavy  req/s=20.101342151726058 p95=290.0 fail%=1.1591323066732904 replica_h=1.783481 safe=True error=None
+05:23:34 started 20261026-052334-shopping-hpa-payment_degradation
+05:34:55 completed 20261026-052334-shopping-hpa-payment_degradation  req/s=15.49571992247398 p95=190.0 fail%=0.42955326460481097 replica_h=1.573651 safe=True error=None
+05:34:55 started 20261026-053455-shopping-auto-payment_degradation
+05:46:26 completed 20261026-053455-shopping-auto-payment_degradation  req/s=15.516298591846523 p95=190.0 fail%=0.12881064834693 replica_h=1.55123 safe=True error=None
+05:46:26 started 20261026-054626-shopping-hpa-flash_sale
+06:02:37 completed 20261026-054626-shopping-hpa-flash_sale  req/s=15.774962445728317 p95=360.0 fail%=0.485334458746571 replica_h=1.997731 safe=True error=None
+06:02:37 started 20261026-060237-shopping-auto-flash_sale
+06:14:08 completed 20261026-060237-shopping-auto-flash_sale  req/s=15.413913023634468 p95=450.0 fail%=0.41072200605274534 replica_h=1.818113 safe=True error=None
+06:14:08 started 20261026-061408-shopping-hpa-gradual_ramp
+06:25:29 completed 20261026-061408-shopping-hpa-gradual_ramp  req/s=12.12504183761509 p95=130.0 fail%=0.05492996429552321 replica_h=1.395785 safe=True error=None
+06:25:29 started 20261026-062529-shopping-auto-gradual_ramp
+06:41:40 completed 20261026-062529-shopping-auto-gradual_ramp  req/s=12.256191076838308 p95=140.0 fail%=0.0 replica_h=1.387075 safe=True error=None
+06:41:40 started 20261026-064140-shopping-hpa-traffic_drop
+06:53:01 completed 20261026-064140-shopping-hpa-traffic_drop  req/s=8.735033741726076 p95=150.0 fail%=0.3440366972477064 replica_h=1.590282 safe=True error=None
+06:53:01 started 20261026-065301-shopping-auto-traffic_drop
+07:04:22 completed 20261026-065301-shopping-auto-traffic_drop  req/s=8.895111007825648 p95=130.0 fail%=0.41275797373358347 replica_h=1.399719 safe=True error=None
+RUNS 20261026-043500-shopping-hpa-steady_browsing,20261026-044431-shopping-auto-steady_browsing,20261026-045602-shopping-hpa-checkout_heavy,20261026-050723-shopping-auto-checkout_heavy,20261026-052334-shopping-hpa-payment_degradation,20261026-053455-shopping-auto-payment_degradation,20261026-054626-shopping-hpa-flash_sale,20261026-060237-shopping-auto-flash_sale,20261026-061408-shopping-hpa-gradual_ramp,20261026-062529-shopping-auto-gradual_ramp,20261026-064140-shopping-hpa-traffic_drop,20261026-065301-shopping-auto-traffic_drop
+=== repeat 2 (07:04)
+07:04:22 started 20261026-070422-shopping-hpa-steady_browsing
+07:15:53 completed 20261026-070422-shopping-hpa-steady_browsing  req/s=18.685879038942044 p95=69.0 fail%=0.017815784785319793 replica_h=1.456592 safe=True error=None
+07:15:53 started 20261026-071553-shopping-auto-steady_browsing
+07:27:14 completed 20261026-071553-shopping-auto-steady_browsing  req/s=18.488858746426033 p95=67.0 fail%=0.01801477211313277 replica_h=1.420439 safe=True error=None
+07:27:14 started 20261026-072714-shopping-hpa-checkout_heavy
+07:43:45 completed 20261026-072714-shopping-hpa-checkout_heavy  req/s=20.529102923523265 p95=250.0 fail%=1.118495704328092 replica_h=1.910112 safe=True error=None
+07:43:45 started 20261026-074345-shopping-auto-checkout_heavy
+07:55:06 completed 20261026-074345-shopping-auto-checkout_heavy  req/s=20.769112313266888 p95=230.0 fail%=1.0261343594676928 replica_h=1.787503 safe=True error=None
+07:55:06 started 20261026-075506-shopping-hpa-payment_degradation
+08:11:47 completed 20261026-075506-shopping-hpa-payment_degradation  req/s=15.62196198509424 p95=200.0 fail%=0.21321961620469082 replica_h=1.56786 safe=True error=None
+08:11:48 started 20261026-081148-shopping-auto-payment_degradation
+08:23:09 completed 20261026-081148-shopping-auto-payment_degradation  req/s=15.684196677092809 p95=180.0 fail%=0.2335952431514122 replica_h=1.540128 safe=True error=None
+08:23:09 started 20261026-082309-shopping-hpa-flash_sale
+08:39:30 completed 20261026-082309-shopping-hpa-flash_sale  req/s=15.425327788462674 p95=410.0 fail%=0.49665299071474844 replica_h=1.982417 safe=True error=None
+08:39:30 started 20261026-083930-shopping-auto-flash_sale
+08:51:01 completed 20261026-083930-shopping-auto-flash_sale  req/s=15.83676164007452 p95=390.0 fail%=0.3157230056830141 replica_h=1.829022 safe=True error=None
+08:51:01 started 20261026-085101-shopping-hpa-gradual_ramp
+09:02:22 completed 20261026-085101-shopping-hpa-gradual_ramp  req/s=12.358376004761922 p95=140.0 fail%=0.13466199838405601 replica_h=1.395707 safe=True error=None
+09:02:22 started 20261026-090222-shopping-auto-gradual_ramp
+09:18:33 completed 20261026-090222-shopping-auto-gradual_ramp  req/s=12.241882659537524 p95=120.0 fail%=0.08163265306122448 replica_h=1.387148 safe=True error=None
+09:18:33 started 20261026-091833-shopping-hpa-traffic_drop
+09:30:04 completed 20261026-091833-shopping-hpa-traffic_drop  req/s=8.673250122624651 p95=160.0 fail%=0.3835826620636747 replica_h=1.595959 safe=True error=None
+09:30:04 started 20261026-093004-shopping-auto-traffic_drop
+09:41:25 completed 20261026-093004-shopping-auto-traffic_drop  req/s=8.725542176124026 p95=140.0 fail%=0.3058103975535168 replica_h=1.413488 safe=True error=None
+RUNS 20261026-070422-shopping-hpa-steady_browsing,20261026-071553-shopping-auto-steady_browsing,20261026-072714-shopping-hpa-checkout_heavy,20261026-074345-shopping-auto-checkout_heavy,20261026-075506-shopping-hpa-payment_degradation,20261026-081148-shopping-auto-payment_degradation,20261026-082309-shopping-hpa-flash_sale,20261026-083930-shopping-auto-flash_sale,20261026-085101-shopping-hpa-gradual_ramp,20261026-090222-shopping-auto-gradual_ramp,20261026-091833-shopping-hpa-traffic_drop,20261026-093004-shopping-auto-traffic_drop
+=== repeat 3 (09:41)
+09:41:25 started 20261026-094125-shopping-hpa-steady_browsing
+09:52:46 completed 20261026-094125-shopping-hpa-steady_browsing  req/s=18.385584451068475 p95=68.0 fail%=0.03621220351258374 replica_h=1.462214 safe=True error=None
+09:52:46 started 20261026-095246-shopping-auto-steady_browsing
+10:04:17 completed 20261026-095246-shopping-auto-steady_browsing  req/s=18.747124436899302 p95=69.0 fail%=0.035523978685612786 replica_h=1.416245 safe=True error=None
+10:04:17 started 20261026-100417-shopping-hpa-checkout_heavy
+10:20:28 completed 20261026-100417-shopping-hpa-checkout_heavy  req/s=20.15635950251791 p95=290.0 fail%=1.2706270627062706 replica_h=1.912804 safe=True error=None
+10:20:28 started 20261026-102028-shopping-auto-checkout_heavy
+10:31:59 completed 20261026-102028-shopping-auto-checkout_heavy  req/s=20.811470995869666 p95=240.0 fail%=1.0081613058089294 replica_h=1.697123 safe=True error=None
+10:31:59 started 20261026-103159-shopping-hpa-payment_degradation
+10:48:40 completed 20261026-103159-shopping-hpa-payment_degradation  req/s=15.315035988129244 p95=200.0 fail%=0.3042155584528466 replica_h=1.567691 safe=True error=None
+10:48:40 started 20261026-104840-shopping-auto-payment_degradation
+11:00:01 completed 20261026-104840-shopping-auto-payment_degradation  req/s=15.490749602064088 p95=200.0 fail%=0.2149151085321298 replica_h=1.530268 safe=True error=None
+11:00:01 started 20261026-110001-shopping-hpa-flash_sale
+11:16:32 completed 20261026-110001-shopping-hpa-flash_sale  req/s=15.098636371296347 p95=450.0 fail%=0.39691289966923926 replica_h=1.871384 safe=True error=None
+11:16:32 started 20261026-111632-shopping-auto-flash_sale
+11:28:03 completed 20261026-111632-shopping-auto-flash_sale  req/s=15.608305441280823 p95=450.0 fail%=0.21344717182497333 replica_h=1.902064 safe=True error=None
+11:28:03 started 20261026-112803-shopping-hpa-gradual_ramp
+11:39:24 completed 20261026-112803-shopping-hpa-gradual_ramp  req/s=12.142302280073773 p95=160.0 fail%=0.05482456140350877 replica_h=1.395666 safe=True error=None
+11:39:24 started 20261026-113924-shopping-auto-gradual_ramp
+11:55:46 completed 20261026-113924-shopping-auto-gradual_ramp  req/s=11.994060454581176 p95=280.0 fail%=0.11095700416088766 replica_h=1.518877 safe=True error=None
+11:55:46 started 20261026-115546-shopping-hpa-traffic_drop
+12:07:18 completed 20261026-115546-shopping-hpa-traffic_drop  req/s=8.407347589849245 p95=310.0 fail%=0.5171042163882259 replica_h=1.659787 safe=True error=None
+12:07:18 started 20261026-120718-shopping-auto-traffic_drop
+12:18:50 completed 20261026-120718-shopping-auto-traffic_drop  req/s=8.709464228195726 p95=280.0 fail%=0.4982752012265236 replica_h=1.65315 safe=True error=None
+RUNS 20261026-094125-shopping-hpa-steady_browsing,20261026-095246-shopping-auto-steady_browsing,20261026-100417-shopping-hpa-checkout_heavy,20261026-102028-shopping-auto-checkout_heavy,20261026-103159-shopping-hpa-payment_degradation,20261026-104840-shopping-auto-payment_degradation,20261026-110001-shopping-hpa-flash_sale,20261026-111632-shopping-auto-flash_sale,20261026-112803-shopping-hpa-gradual_ramp,20261026-113924-shopping-auto-gradual_ramp,20261026-115546-shopping-hpa-traffic_drop,20261026-120718-shopping-auto-traffic_drop

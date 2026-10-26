@@ -28,6 +28,8 @@ ANNOTATION_ORIGINAL_MAX = "flexascale.io/original-max-replicas"
 ANNOTATION_FROZEN_BY = "flexascale.io/frozen-by"
 # Set on a Deployment with no HPA before FlexaScale first scales it; consumed on restore.
 ANNOTATION_ORIGINAL_REPLICAS = "flexascale.io/original-replicas"
+# Set on an HPA whose spec.behavior the lab changed for one run (JSON, "null" = unset); consumed on restore.
+ANNOTATION_ORIGINAL_BEHAVIOR = "flexascale.io/original-behavior"
 LABEL_EXCLUDE = "flexascale.io/exclude"
 
 

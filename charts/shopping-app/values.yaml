@@ -24,13 +24,14 @@ postgresql:
     size: 2Gi
     storageClass: ""
     accessMode: ReadWriteOnce
+  maxConnections: 300               # shared by 16 services and all their replicas
   resources:
     requests:
       cpu: 100m
       memory: 256Mi
     limits:
       cpu: 500m
-      memory: 512Mi
+      memory: 768Mi
 
 # Secrets
 security:
@@ -43,7 +44,7 @@ services:
     replicas: 1
     image:
       repository: api-gateway
-      tag: latest
+      tag: "1.2"
     port: 8000
     resources:
       requests:
@@ -103,7 +104,7 @@ services:
     replicas: 1
     image:
       repository: cart-service
-      tag: latest
+      tag: "1.2"
     port: 8003
     resources:
       requests:
@@ -123,7 +124,7 @@ services:
     replicas: 1
     image:
       repository: order-service
-      tag: latest
+      tag: "1.3"
     port: 8004
     resources:
       requests:
@@ -181,12 +182,192 @@ services:
       simulateFailureRate: "0.0"
       defaultDelayMs: "50"
 
+  searchService:
+    name: search-service
+    replicas: 1
+    image:
+      repository: search-service
+      tag: "1.0"
+    port: 8007
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 500m
+        memory: 192Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  recommendationService:
+    name: recommendation-service
+    replicas: 1
+    image:
+      repository: recommendation-service
+      tag: "1.0"
+    port: 8008
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 500m
+        memory: 192Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  reviewService:
+    name: review-service
+    replicas: 1
+    image:
+      repository: review-service
+      tag: "1.0.1"
+    port: 8009
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 500m
+        memory: 192Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  pricingService:
+    name: pricing-service
+    replicas: 1
+    image:
+      repository: pricing-service
+      tag: "1.0"
+    port: 8010
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 500m
+        memory: 192Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  promotionService:
+    name: promotion-service
+    replicas: 1
+    image:
+      repository: promotion-service
+      tag: "1.0"
+    port: 8011
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 500m
+        memory: 192Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  shippingService:
+    name: shipping-service
+    replicas: 1
+    image:
+      repository: shipping-service
+      tag: "1.0"
+    port: 8012
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 500m
+        memory: 192Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  fraudService:
+    name: fraud-service
+    replicas: 1
+    image:
+      repository: fraud-service
+      tag: "1.0.1"
+    port: 8013
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 500m
+        memory: 192Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  notificationService:
+    name: notification-service
+    replicas: 1
+    image:
+      repository: notification-service
+      tag: "1.0"
+    port: 8014
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 500m
+        memory: 192Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
+  wishlistService:
+    name: wishlist-service
+    replicas: 1
+    image:
+      repository: wishlist-service
+      tag: "1.0.1"
+    port: 8015
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 500m
+        memory: 192Mi
+    probes:
+      livenessPath: /healthz
+      readinessPath: /readyz
+      initialDelaySeconds: 5
+      periodSeconds: 10
+
   frontend:
     name: shopping-frontend
     replicas: 1
     image:
       repository: shopping-frontend
-      tag: latest
+      tag: "1.1"
     port: 80
     resources:
       requests:

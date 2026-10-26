@@ -10,6 +10,7 @@ from stable_baselines3.common.monitor import Monitor
 
 from flexascale.simulator.flexascale_env import FlexaScaleEnv
 from flexascale.simulator.dependency_env import FEATURE_NAMES, OBSERVATION_VERSION, FlexaScaleEnvV2
+from flexascale.simulator.control_env import FlexaScaleEnvV3
 from flexascale.rl.ppo_agent import PPOAgentManager
 from flexascale.rl.gnn_encoder import GNNExtractor
 from flexascale.rl.mock_extractor import MockExtractor
@@ -115,8 +116,9 @@ def main():
         "--env-version",
         type=int,
         default=1,
-        choices=[1, 2],
-        help="1 = FlexaScaleEnv (raw-unit observation); 2 = FlexaScaleEnvV2 (dependency-aware, unit-free)",
+        choices=[1, 2, 3],
+        help="1 = FlexaScaleEnv (raw-unit observation); 2 = FlexaScaleEnvV2 (dependency-aware, unit-free); "
+             "3 = FlexaScaleEnvV3 (v2 + 15 s control loop, start-up delay, metric lag, guards, native HPA)",
     )
     parser.add_argument(
         "--split-method",
@@ -138,6 +140,10 @@ def main():
     parser.add_argument("--gamma", type=float, default=0.99, help="Discount factor")
     parser.add_argument("--n-steps", type=int, default=64, help="PPO rollout length")
     parser.add_argument("--batch-size", type=int, default=32, help="PPO minibatch size")
+    parser.add_argument("--clip-range", type=float, default=0.2, help="PPO clip range (SB3 default 0.2)")
+    parser.add_argument("--warm-start", type=str, default="none", choices=["none", "hpa"],
+                        help="v2 env only: imitate the HPA-like rule (actor + critic) before PPO")
+    parser.add_argument("--warm-start-episodes", type=int, default=3000, help="Teacher rollouts for --warm-start")
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
     parser.add_argument("--save-dir", type=str, default="./models/", help="Output directory")
     args = parser.parse_args()
@@ -155,9 +161,9 @@ def main():
         peak_replicas_high=args.peak_replicas_high,
         reward_weights={"slo": 1.0, "efficiency": 0.3, "stability": 0.1, "cost": args.cost_weight},
     )
-    if args.env_version == 2 and args.demand_model != "normalized":
-        parser.error("--env-version 2 requires --demand-model normalized")
-    env_class = FlexaScaleEnvV2 if args.env_version == 2 else FlexaScaleEnv
+    if args.env_version >= 2 and args.demand_model != "normalized":
+        parser.error("--env-version 2/3 requires --demand-model normalized")
+    env_class = {1: FlexaScaleEnv, 2: FlexaScaleEnvV2, 3: FlexaScaleEnvV3}[args.env_version]
 
     print(f"Initializing FlexaScale Training Environment on split '{args.split}'...")
     train_config = EnvConfig(split=args.split, **env_kwargs)
@@ -205,9 +211,24 @@ def main():
         gamma=args.gamma,
         learning_rate=args.learning_rate,
         target_kl=args.target_kl,
+        clip_range=args.clip_range,
     )
     if args.seed is not None:
         agent_manager.model.set_random_seed(args.seed)
+
+    warm = None
+    if args.warm_start == "hpa":
+        if args.env_version < 2:
+            parser.error("--warm-start hpa requires --env-version 2 or 3")
+        from flexascale.rl.imitation import hpa_teacher, ratio_teacher, warm_start
+
+        teacher = ratio_teacher(train_config.action_deltas, args.max_replicas) if args.env_version == 3 else hpa_teacher
+        print(f"Warm start: imitating the HPA rule ({args.warm_start_episodes} episodes)...")
+        warm = warm_start(agent_manager.model, env_class(config=train_config),
+                          episodes=args.warm_start_episodes, seed=(args.seed or 0) * 100_000, teacher=teacher)
+        print(f"Warm start done: {warm}")
+        os.makedirs(args.save_dir, exist_ok=True)
+        agent_manager.model.save(os.path.join(args.save_dir, "warm_start"))
 
     print(f"Starting training for {args.timesteps} timesteps...")
     started = time.time()
@@ -245,7 +266,7 @@ def main():
         "total_timesteps": args.timesteps,
         "seed": args.seed,
         "num_services": args.num_services,
-        "observation": _observation_card(args, train_config) if args.env_version == 2 else {
+        "observation": _observation_card(args, train_config) if args.env_version >= 2 else {
             "version": 1,
             "per_service_fields": list(VECTOR_FIELDS),
             "units": {
@@ -258,7 +279,9 @@ def main():
             "normalization": "none (raw values clipped to observation-space bounds)",
             "dim": args.num_services * len(VECTOR_FIELDS),
         },
-        "action": {"per_service": {"0": "scale down by 1", "1": "hold", "2": "scale up by 1"}},
+        "action": {"per_service": {str(i): f"change replicas by {d:+d}" for i, d in enumerate(train_config.action_deltas)},
+                   "deltas": list(train_config.action_deltas)} if args.env_version == 3 else
+                  {"per_service": {"0": "scale down by 1", "1": "hold", "2": "scale up by 1"}, "deltas": [-1, 0, 1]},
         "graph": {"type": "chain", "nodes": args.num_services},
         "environment": {
             "env_class": env_class.__name__,
@@ -284,7 +307,21 @@ def main():
                 "slo_penalty_cap": train_config.slo_penalty_cap,
                 "control": train_config.control,
                 "background_epsilon": train_config.background_epsilon,
-            } if args.env_version == 2 else {}),
+            } if args.env_version >= 2 else {}),
+            **({
+                "control_step_seconds": 60 // train_config.substeps,
+                "startup_delay_steps": train_config.startup_delay_steps,
+                "cpu_window_steps": train_config.cpu_window_steps,
+                "trend_lookback_steps": train_config.trend_lookback_steps,
+                "guards": {
+                    "scale_up_cooldown_steps": train_config.scale_up_cooldown_steps,
+                    "scale_down_cooldown_steps": train_config.scale_down_cooldown_steps,
+                    "max_scale_down_step": train_config.max_scale_down_step,
+                    "scale_down_block_cpu_pct": train_config.scale_down_block_cpu_pct,
+                },
+                "background_policy": "native HPA algorithm (tolerance, scale-up limit, stabilisation window)",
+                "hpa_stabilization_steps": train_config.hpa_stabilization_steps,
+            } if args.env_version == 3 else {}),
         },
         "ppo": {
             "n_steps": args.n_steps,
@@ -293,6 +330,7 @@ def main():
             "n_envs": args.n_envs,
             "learning_rate": args.learning_rate,
             "target_kl": args.target_kl,
+            "clip_range": args.clip_range,
             "gamma": args.gamma,
             "extractor": args.extractor,
             "conv_type": args.conv_type,
@@ -300,6 +338,7 @@ def main():
             "features_dim": args.features_dim,
         },
         "validation": eval_summary,
+        "warm_start": warm,
     }
     card_path = os.path.join(args.save_dir, "model_card.json")
     with open(card_path, "w", encoding="utf-8") as f:

@@ -1,0 +1,155 @@
+{
+  "model": "PPO (Stable-Baselines3) with GNN dependency feature extractor",
+  "trained_at": "2026-10-25T18:43:13+0530",
+  "git_commit": "d0378cc",
+  "python": "3.14.7",
+  "training_seconds": -17032.6,
+  "total_timesteps": 1500000,
+  "seed": 2,
+  "num_services": 4,
+  "observation": {
+    "version": 2,
+    "per_service_fields": [
+      "cpu_fraction",
+      "memory_fraction",
+      "replica_fraction",
+      "rps_trend",
+      "latency_slo_ratio"
+    ],
+    "units": {
+      "cpu_fraction": "CPU used / CPU request (clipped to 0-1)",
+      "memory_fraction": "memory used / memory limit (0-1)",
+      "replica_fraction": "replicas / max_replicas (10)",
+      "rps_trend": "request rate now / request rate one minute earlier (0-3, 1 if unknown)",
+      "latency_slo_ratio": "mean latency / the service's latency SLO (0-5)"
+    },
+    "max_replicas": 10,
+    "normalization": "unit-free by construction; clipped to observation-space bounds",
+    "dim": 20,
+    "graph_semantics": "slot i calls slot i+1",
+    "decision_slot": 0
+  },
+  "action": {
+    "per_service": {
+      "0": "change replicas by -2",
+      "1": "change replicas by -1",
+      "2": "change replicas by +0",
+      "3": "change replicas by +1",
+      "4": "change replicas by +2",
+      "5": "change replicas by +3"
+    },
+    "deltas": [
+      -2,
+      -1,
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "graph": {
+    "type": "chain",
+    "nodes": 4
+  },
+  "environment": {
+    "env_class": "FlexaScaleEnvV3",
+    "dataset_path": "data/processed/alibaba_service_state.csv",
+    "train_split": "train",
+    "eval_split": "val",
+    "split_method": "service",
+    "service_sampling": "random",
+    "demand_model": "normalized",
+    "randomize_initial_replicas": true,
+    "min_replicas": 1,
+    "max_replicas": 10,
+    "latency_target_ms": 100.0,
+    "cpu_target_pct": 70.0,
+    "reward_weights": {
+      "slo": 1.0,
+      "efficiency": 0.3,
+      "stability": 0.1,
+      "cost": 1.0
+    },
+    "peak_replicas": [
+      1,
+      4
+    ],
+    "slo_slack": [
+      1.2,
+      2.0
+    ],
+    "downstream_coupling_high": 1.0,
+    "external_latency_high": 2.0,
+    "bottleneck_probability": 0.4,
+    "traffic_events": true,
+    "slo_penalty_cap": 3.0,
+    "control": "focal",
+    "background_epsilon": 0.2,
+    "control_step_seconds": 15,
+    "startup_delay_steps": 1,
+    "cpu_window_steps": 4,
+    "trend_lookback_steps": 4,
+    "guards": {
+      "scale_up_cooldown_steps": 1,
+      "scale_down_cooldown_steps": 2,
+      "max_scale_down_step": 2,
+      "scale_down_block_cpu_pct": 85.0
+    },
+    "background_policy": "native HPA algorithm (tolerance, scale-up limit, stabilisation window)",
+    "hpa_stabilization_steps": 20
+  },
+  "ppo": {
+    "n_steps": 256,
+    "batch_size": 256,
+    "ent_coef": 0.001,
+    "n_envs": 8,
+    "learning_rate": 3e-05,
+    "target_kl": 0.02,
+    "clip_range": 0.1,
+    "gamma": 0.97,
+    "extractor": "gnn",
+    "conv_type": "gcn",
+    "hidden_dim": 64,
+    "features_dim": 64
+  },
+  "validation": {
+    "timesteps": [
+      150000,
+      300000,
+      450000,
+      600000,
+      750000,
+      900000,
+      1050000,
+      1200000,
+      1350000,
+      1500000
+    ],
+    "mean_reward": [
+      13.6272,
+      -23.8841,
+      -9.5293,
+      33.8955,
+      4.4336,
+      9.2389,
+      -4.0953,
+      -37.3146,
+      -2.7868,
+      -12.7975
+    ],
+    "best_timestep": 600000,
+    "best_mean_reward": 33.8955,
+    "episodes_per_evaluation": 30
+  },
+  "warm_start": {
+    "teacher": "native HPA ratio rule: ceil(n x cpu / 0.7) outside +-10%, deltas [-2, -1, 0, 1, 2, 3]",
+    "episodes": 3000,
+    "epsilon": 0.3,
+    "samples": 357000,
+    "epochs": 30,
+    "lr": 0.001,
+    "slot0_agreement_heldout": 0.8285,
+    "value_mse_heldout": 125.6515,
+    "return_var_heldout": 551.1762
+  }
+}

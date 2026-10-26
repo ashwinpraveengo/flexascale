@@ -1,0 +1,492 @@
+{
+  "generated_at": "2026-10-25 01:02:26",
+  "episodes": 300,
+  "seeds": [
+    30000,
+    30299
+  ],
+  "reward_weights": {
+    "slo": 1.0,
+    "efficiency": 0.3,
+    "stability": 0.1,
+    "cost": 1.0
+  },
+  "selection": {
+    "protocol": "highest mean reward per step on 200 fixed validation-service episodes",
+    "selected": "lr3e-5_s2/final",
+    "candidates": [
+      {
+        "candidate": "lr1e-4_s1/warm_start",
+        "path": "models/flexascale_v5/lr1e-4_s1/warm_start.zip",
+        "seed_dir": "models/flexascale_v5/lr1e-4_s1",
+        "val_reward": -0.3093,
+        "val_slo_violation_rate": 0.39,
+        "val_avg_replicas": 2.843
+      },
+      {
+        "candidate": "lr1e-4_s1/best",
+        "path": "models/flexascale_v5/lr1e-4_s1/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v5/lr1e-4_s1",
+        "val_reward": -0.2462,
+        "val_slo_violation_rate": 0.3603,
+        "val_avg_replicas": 3.302
+      },
+      {
+        "candidate": "lr1e-4_s1/final",
+        "path": "models/flexascale_v5/lr1e-4_s1/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v5/lr1e-4_s1",
+        "val_reward": -0.2398,
+        "val_slo_violation_rate": 0.3571,
+        "val_avg_replicas": 3.301
+      },
+      {
+        "candidate": "lr1e-4_s2/warm_start",
+        "path": "models/flexascale_v5/lr1e-4_s2/warm_start.zip",
+        "seed_dir": "models/flexascale_v5/lr1e-4_s2",
+        "val_reward": -0.307,
+        "val_slo_violation_rate": 0.3921,
+        "val_avg_replicas": 2.834
+      },
+      {
+        "candidate": "lr1e-4_s2/best",
+        "path": "models/flexascale_v5/lr1e-4_s2/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v5/lr1e-4_s2",
+        "val_reward": -0.2683,
+        "val_slo_violation_rate": 0.3516,
+        "val_avg_replicas": 3.637
+      },
+      {
+        "candidate": "lr1e-4_s2/final",
+        "path": "models/flexascale_v5/lr1e-4_s2/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v5/lr1e-4_s2",
+        "val_reward": -0.2755,
+        "val_slo_violation_rate": 0.3453,
+        "val_avg_replicas": 3.703
+      },
+      {
+        "candidate": "lr3e-5_s1/warm_start",
+        "path": "models/flexascale_v5/lr3e-5_s1/warm_start.zip",
+        "seed_dir": "models/flexascale_v5/lr3e-5_s1",
+        "val_reward": -0.2913,
+        "val_slo_violation_rate": 0.3876,
+        "val_avg_replicas": 2.882
+      },
+      {
+        "candidate": "lr3e-5_s1/best",
+        "path": "models/flexascale_v5/lr3e-5_s1/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v5/lr3e-5_s1",
+        "val_reward": -0.2441,
+        "val_slo_violation_rate": 0.3597,
+        "val_avg_replicas": 3.22
+      },
+      {
+        "candidate": "lr3e-5_s1/final",
+        "path": "models/flexascale_v5/lr3e-5_s1/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v5/lr3e-5_s1",
+        "val_reward": -0.2441,
+        "val_slo_violation_rate": 0.3552,
+        "val_avg_replicas": 3.328
+      },
+      {
+        "candidate": "lr3e-5_s2/warm_start",
+        "path": "models/flexascale_v5/lr3e-5_s2/warm_start.zip",
+        "seed_dir": "models/flexascale_v5/lr3e-5_s2",
+        "val_reward": -0.2909,
+        "val_slo_violation_rate": 0.3857,
+        "val_avg_replicas": 2.843
+      },
+      {
+        "candidate": "lr3e-5_s2/best",
+        "path": "models/flexascale_v5/lr3e-5_s2/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v5/lr3e-5_s2",
+        "val_reward": -0.2348,
+        "val_slo_violation_rate": 0.3553,
+        "val_avg_replicas": 3.346
+      },
+      {
+        "candidate": "lr3e-5_s2/final",
+        "path": "models/flexascale_v5/lr3e-5_s2/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v5/lr3e-5_s2",
+        "val_reward": -0.2263,
+        "val_slo_violation_rate": 0.3521,
+        "val_avg_replicas": 3.248
+      }
+    ]
+  },
+  "summary": {
+    "ppo_v5": {
+      "reward": [
+        -0.2742520686979888,
+        0.09280613862766436
+      ],
+      "slo_violation_rate": [
+        0.3793103448275862,
+        0.03858916562197593
+      ],
+      "avg_replicas": [
+        3.2567816091954023,
+        0.17216358888526487
+      ],
+      "avg_cpu_pct": [
+        55.43085949869024,
+        1.462152554434865
+      ],
+      "replica_changes_per_step": [
+        0.19620689655172413,
+        0.012765810012301473
+      ]
+    },
+    "ppo_v5_no_neighbours": {
+      "reward": [
+        -0.2898069084372604,
+        0.0890337375950748
+      ],
+      "slo_violation_rate": [
+        0.36666666666666664,
+        0.03921207097331678
+      ],
+      "avg_replicas": [
+        3.7055172413793103,
+        0.1960157858477197
+      ],
+      "avg_cpu_pct": [
+        49.186423005079625,
+        1.5476027970203436
+      ],
+      "replica_changes_per_step": [
+        0.17413793103448275,
+        0.014125633145410136
+      ]
+    },
+    "hpa_rule": {
+      "reward": [
+        -0.3382613778306425,
+        0.09098410852901746
+      ],
+      "slo_violation_rate": [
+        0.41379310344827586,
+        0.037281677518306675
+      ],
+      "avg_replicas": [
+        2.8128735632183908,
+        0.13893878591881914
+      ],
+      "avg_cpu_pct": [
+        62.83884865269191,
+        1.1022420382630962
+      ],
+      "replica_changes_per_step": [
+        0.39011494252873563,
+        0.028031898250601928
+      ]
+    },
+    "tuned_rule_77_45": {
+      "reward": [
+        -0.22666644538504283,
+        0.0925754286251701
+      ],
+      "slo_violation_rate": [
+        0.37356321839080453,
+        0.03873646519829325
+      ],
+      "avg_replicas": [
+        3.118620689655172,
+        0.15931925273984515
+      ],
+      "avg_cpu_pct": [
+        56.488188553960995,
+        1.0515035848566723
+      ],
+      "replica_changes_per_step": [
+        0.21459770114942528,
+        0.01572544089400776
+      ]
+    },
+    "ppo_v4": {
+      "reward": [
+        -0.4738486171689149,
+        0.09621810557946564
+      ],
+      "slo_violation_rate": [
+        0.38241379310344825,
+        0.038613287857964
+      ],
+      "avg_replicas": [
+        4.812298850574713,
+        0.2553052336319868
+      ],
+      "avg_cpu_pct": [
+        40.55542735678706,
+        2.4348351620980413
+      ],
+      "replica_changes_per_step": [
+        0.08045977011494253,
+        0.008689276436145322
+      ]
+    },
+    "hold": {
+      "reward": [
+        -0.8026734205202097,
+        0.1183801065885589
+      ],
+      "slo_violation_rate": [
+        0.43241379310344824,
+        0.04210581304668993
+      ],
+      "avg_replicas": [
+        5.583333333333333,
+        0.334520416906633
+      ],
+      "avg_cpu_pct": [
+        40.19763154335373,
+        3.3653361893805576
+      ],
+      "replica_changes_per_step": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "paired_v5_minus": {
+    "hpa_rule": {
+      "reward": [
+        0.06400930913265376,
+        0.030822536755530018
+      ],
+      "slo_violation_rate": [
+        -0.034482758620689655,
+        0.008503662674037916
+      ],
+      "avg_replicas": [
+        0.44390804597701145,
+        0.08236053504673636
+      ],
+      "avg_cpu_pct": [
+        -7.407989154001671,
+        0.9862258402300561
+      ],
+      "replica_changes_per_step": [
+        -0.19390804597701147,
+        0.025327114027645432
+      ]
+    },
+    "tuned_rule_77_45": {
+      "reward": [
+        -0.04758562331294593,
+        0.013361049236781877
+      ],
+      "slo_violation_rate": [
+        0.00574712643678161,
+        0.0035799313652290585
+      ],
+      "avg_replicas": [
+        0.13816091954022988,
+        0.07968072167176549
+      ],
+      "avg_cpu_pct": [
+        -1.0573290552707622,
+        0.969485341258684
+      ],
+      "replica_changes_per_step": [
+        -0.01839080459770115,
+        0.00991038301212107
+      ]
+    },
+    "ppo_v4": {
+      "reward": [
+        0.1995965484709261,
+        0.02696807152731563
+      ],
+      "slo_violation_rate": [
+        -0.0031034482758620693,
+        0.01044550308751053
+      ],
+      "avg_replicas": [
+        -1.5555172413793104,
+        0.19862737558904192
+      ],
+      "avg_cpu_pct": [
+        14.87543214190318,
+        1.8150162198538877
+      ],
+      "replica_changes_per_step": [
+        0.11574712643678162,
+        0.013140602775624713
+      ]
+    },
+    "ppo_v5_no_neighbours": {
+      "reward": [
+        0.015554839739271653,
+        0.014980848535435782
+      ],
+      "slo_violation_rate": [
+        0.01264367816091954,
+        0.004315235862114334
+      ],
+      "avg_replicas": [
+        -0.44873563218390805,
+        0.09814323551992539
+      ],
+      "avg_cpu_pct": [
+        6.244436493610613,
+        1.1187940228351296
+      ],
+      "replica_changes_per_step": [
+        0.022068965517241378,
+        0.010725844641530636
+      ]
+    }
+  },
+  "episodes_v5_better": {
+    "hpa_rule": 0.43333333333333335,
+    "tuned_rule_77_45": 0.23333333333333334,
+    "ppo_v4": 0.8633333333333333,
+    "ppo_v5_no_neighbours": 0.5266666666666666
+  },
+  "groups": {
+    "event=drop": {
+      "ppo_v5": {
+        "reward": 0.14032808282171527,
+        "slo_violation_rate": 0.23448275862068962,
+        "avg_replicas": 2.4911330049261085,
+        "avg_cpu_pct": 45.6373023746715,
+        "replica_changes_per_step": 0.20935960591133007
+      },
+      "hpa_rule": {
+        "reward": 0.04627027819388301,
+        "slo_violation_rate": 0.27783251231527095,
+        "avg_replicas": 2.0290640394088673,
+        "avg_cpu_pct": 54.25627017172553,
+        "replica_changes_per_step": 0.37339901477832516
+      },
+      "tuned_rule_77_45": {
+        "reward": 0.17687282124379763,
+        "slo_violation_rate": 0.23349753694581282,
+        "avg_replicas": 2.251724137931035,
+        "avg_cpu_pct": 48.66197476451438,
+        "replica_changes_per_step": 0.22167487684729062
+      },
+      "episodes": 70
+    },
+    "event=none": {
+      "ppo_v5": {
+        "reward": -0.23815837714777313,
+        "slo_violation_rate": 0.376657824933687,
+        "avg_replicas": 3.5400530503978778,
+        "avg_cpu_pct": 56.767545700551544,
+        "replica_changes_per_step": 0.12254641909814323
+      },
+      "hpa_rule": {
+        "reward": -0.22614749073312196,
+        "slo_violation_rate": 0.4047745358090185,
+        "avg_replicas": 3.003713527851459,
+        "avg_cpu_pct": 64.58003718052687,
+        "replica_changes_per_step": 0.27480106100795754
+      },
+      "tuned_rule_77_45": {
+        "reward": -0.20373018806495782,
+        "slo_violation_rate": 0.37824933687002643,
+        "avg_replicas": 3.451458885941645,
+        "avg_cpu_pct": 56.79268238293913,
+        "replica_changes_per_step": 0.12625994694960213
+      },
+      "episodes": 65
+    },
+    "event=ramp": {
+      "ppo_v5": {
+        "reward": -0.3979954995051049,
+        "slo_violation_rate": 0.42139959432048685,
+        "avg_replicas": 3.6232251521298178,
+        "avg_cpu_pct": 60.12622905434172,
+        "replica_changes_per_step": 0.1850912778904666
+      },
+      "hpa_rule": {
+        "reward": -0.5702463220053178,
+        "slo_violation_rate": 0.47870182555780927,
+        "avg_replicas": 3.2023326572008113,
+        "avg_cpu_pct": 67.27788743902754,
+        "replica_changes_per_step": 0.52789046653144
+      },
+      "tuned_rule_77_45": {
+        "reward": -0.33125453930797305,
+        "slo_violation_rate": 0.40872210953346855,
+        "avg_replicas": 3.435091277890467,
+        "avg_cpu_pct": 60.81408267586435,
+        "replica_changes_per_step": 0.23275862068965522
+      },
+      "episodes": 68
+    },
+    "event=spike": {
+      "ppo_v5": {
+        "reward": -0.5108721435666425,
+        "slo_violation_rate": 0.45609669392108065,
+        "avg_replicas": 3.362602204052613,
+        "avg_cpu_pct": 58.311058114937936,
+        "replica_changes_per_step": 0.2438677568432279
+      },
+      "hpa_rule": {
+        "reward": -0.5282576910180415,
+        "slo_violation_rate": 0.47244934233913966,
+        "avg_replicas": 2.9776039815143975,
+        "avg_cpu_pct": 64.75378269276976,
+        "replica_changes_per_step": 0.3828652683967294
+      },
+      "tuned_rule_77_45": {
+        "reward": -0.45993051758159037,
+        "slo_violation_rate": 0.4468538926413082,
+        "avg_replicas": 3.299324564521863,
+        "avg_cpu_pct": 58.89934387445851,
+        "replica_changes_per_step": 0.25595449697831496
+      },
+      "episodes": 97
+    },
+    "bottleneck=False": {
+      "ppo_v5": {
+        "reward": 0.13779449892979892,
+        "slo_violation_rate": 0.18053904082441538,
+        "avg_replicas": 3.3416567578279825,
+        "avg_cpu_pct": 54.605258116473415,
+        "replica_changes_per_step": 0.1837098692033294
+      },
+      "hpa_rule": {
+        "reward": 0.05905807410526354,
+        "slo_violation_rate": 0.22354340071343642,
+        "avg_replicas": 2.7693222354340072,
+        "avg_cpu_pct": 63.93732737163231,
+        "replica_changes_per_step": 0.4054696789536267
+      },
+      "tuned_rule_77_45": {
+        "reward": 0.19056107370366396,
+        "slo_violation_rate": 0.1734046769718589,
+        "avg_replicas": 3.082639714625446,
+        "avg_cpu_pct": 57.14308244803246,
+        "replica_changes_per_step": 0.20669837495045582
+      },
+      "episodes": 174
+    },
+    "bottleneck=True": {
+      "ppo_v5": {
+        "reward": -0.8432687573268384,
+        "slo_violation_rate": 0.6538040503557746,
+        "avg_replicas": 3.139573070607554,
+        "avg_cpu_pct": 56.570975693180145,
+        "replica_changes_per_step": 0.21346469622331693
+      },
+      "hpa_rule": {
+        "reward": -0.8869406209802271,
+        "slo_violation_rate": 0.6765188834154352,
+        "avg_replicas": 2.8730158730158726,
+        "avg_cpu_pct": 61.32190185034564,
+        "replica_changes_per_step": 0.36891078270388605
+      },
+      "tuned_rule_77_45": {
+        "reward": -0.8028377812694473,
+        "slo_violation_rate": 0.6499726327312536,
+        "avg_replicas": 3.1683087027914607,
+        "avg_cpu_pct": 55.58381127167184,
+        "replica_changes_per_step": 0.22550629447181172
+      },
+      "episodes": 126
+    }
+  }
+}

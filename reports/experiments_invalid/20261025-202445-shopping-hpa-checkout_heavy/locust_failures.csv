@@ -1,0 +1,12 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),36,2026-10-25T15:06:26Z,2026-10-25T15:11:16Z
+POST,POST /api/orders/checkout [Success],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Success]'),36,2026-10-25T15:06:42Z,2026-10-25T15:10:45Z
+POST,POST /api/cart/{user_id}/items,HTTPError('500 Server Error: Internal Server Error for url: POST /api/cart/{user_id}/items'),1,2026-10-25T15:10:00Z,2026-10-25T15:10:00Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [FlashSale Contention]'),49,2026-10-25T15:06:42Z,2026-10-25T15:10:45Z
+GET,GET /api/cart/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/cart/{user_id}'),3,2026-10-25T15:08:45Z,2026-10-25T15:08:52Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [FlashSale Contention]'),31,2026-10-25T15:06:49Z,2026-10-25T15:11:04Z
+POST,POST /api/cart/{user_id}/items,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/cart/{user_id}/items'),15,2026-10-25T15:08:10Z,2026-10-25T15:09:56Z
+POST,POST /api/users/login,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/users/login'),17,2026-10-25T15:06:24Z,2026-10-25T15:06:29Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),59,2026-10-25T15:06:33Z,2026-10-25T15:11:24Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),53,2026-10-25T15:06:52Z,2026-10-25T15:11:21Z
+GET,GET /api/orders/user/{user_id},HTTPError('502 Server Error: Bad Gateway for url: GET /api/orders/user/{user_id}'),26,2026-10-25T15:06:42Z,2026-10-25T15:10:45Z

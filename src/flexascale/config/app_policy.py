@@ -106,7 +106,9 @@ class AppPolicy:
     min_replicas: int = 1
     max_replicas: int = 10
     max_step: int = 1
-    """Maximum replica change per decision."""
+    """Maximum replica increase per decision (models with larger actions are clipped to it)."""
+    max_scale_down_step: int = 1
+    """Maximum replica decrease per decision."""
     max_total_replicas: Optional[int] = None
     """App-wide replica budget across all managed Deployments; FlexaScale never scales up beyond it."""
     services: Dict[str, ServiceBounds] = field(default_factory=dict)
@@ -139,6 +141,9 @@ class AppPolicy:
     """Optional (caller, callee) edges. Inferred from telemetry when empty."""
 
     cost: CostProfile = field(default_factory=CostProfile)
+
+    auto: Dict[str, Any] = field(default_factory=dict)
+    """Auto-mode rule parameters (``operator/auto_mode.py`` AutoConfig); used only when the operator runs with --auto."""
 
     # ------------------------------------------------------------------
     # Loading
@@ -203,6 +208,8 @@ class AppPolicy:
             errors.append("max_total_replicas must be >= min_replicas")
         if self.max_step < 1:
             errors.append("max_step must be >= 1")
+        if self.max_scale_down_step < 1:
+            errors.append("max_scale_down_step must be >= 1")
         for name, bounds in self.services.items():
             lo = bounds.min_replicas if bounds.min_replicas is not None else self.min_replicas
             hi = bounds.max_replicas if bounds.max_replicas is not None else self.max_replicas
@@ -238,6 +245,12 @@ class AppPolicy:
                 errors.append(f"cost.{label} must be non-negative")
         if (cost.cpu_per_vcpu_hour is None) != (cost.memory_per_gib_hour is None):
             errors.append("cost: set both cpu_per_vcpu_hour and memory_per_gib_hour, or neither")
+        try:
+            from flexascale.operator.auto_mode import AutoConfig
+
+            errors.extend(AutoConfig.from_dict(self.auto).validate())
+        except ValueError as exc:
+            errors.append(str(exc))
         return errors
 
     def assert_valid(self) -> None:

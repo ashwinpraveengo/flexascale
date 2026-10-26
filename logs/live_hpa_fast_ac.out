@@ -1,0 +1,6 @@
+=== repeat 1 (13:08)
+13:08:03 started 20261026-130803-shopping-hpa-traffic_drop
+13:14:04 completed 20261026-130803-shopping-hpa-traffic_drop  req/s=8.837880527302165 p95=170.0 fail%=0.07538635506973237 replica_h=1.648895 safe=True error=None
+13:14:04 started 20261026-131404-shopping-hpa_fast-traffic_drop
+13:25:35 completed 20261026-131404-shopping-hpa_fast-traffic_drop  req/s=8.754316149538592 p95=180.0 fail%=0.3431185665268776 replica_h=1.442861 safe=True error=None
+RUNS 20261026-130803-shopping-hpa-traffic_drop,20261026-131404-shopping-hpa_fast-traffic_drop

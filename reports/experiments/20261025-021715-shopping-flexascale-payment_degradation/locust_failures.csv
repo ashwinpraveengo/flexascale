@@ -1,0 +1,22 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),51,2026-10-24T20:59:12Z,2026-10-24T21:03:32Z
+POST,POST /api/orders/checkout [Success],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Success]'),2,2026-10-24T21:00:07Z,2026-10-24T21:00:07Z
+POST,POST /api/orders/checkout [Simulated Decline],HTTPError('500 Server Error: Internal Server Error for url: POST /api/orders/checkout [Simulated Decline]'),37,2026-10-24T21:02:10Z,2026-10-24T21:04:08Z
+POST,POST /api/cart/{user_id}/items,HTTPError('500 Server Error: Internal Server Error for url: POST /api/cart/{user_id}/items'),10,2026-10-24T21:02:55Z,2026-10-24T21:04:00Z
+GET,GET /api/products?q=[search],HTTPError('500 Server Error: Internal Server Error for url: GET /api/products?q=[search]'),2,2026-10-24T21:03:13Z,2026-10-24T21:03:40Z
+POST,POST /api/orders/checkout [Success],HTTPError('500 Server Error: Internal Server Error for url: POST /api/orders/checkout [Success]'),6,2026-10-24T21:03:27Z,2026-10-24T21:04:10Z
+GET,GET /api/cart/{user_id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/cart/{user_id}'),6,2026-10-24T21:02:56Z,2026-10-24T21:03:44Z
+POST,POST /api/orders/checkout [Simulated Decline],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Simulated Decline]'),1,2026-10-24T21:00:07Z,2026-10-24T21:00:07Z
+GET,GET /api/cart/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/cart/{user_id}'),2,2026-10-24T21:03:20Z,2026-10-24T21:03:59Z
+POST,POST /api/orders/checkout [High Latency 300ms],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [High Latency 300ms]'),2,2026-10-24T21:00:07Z,2026-10-24T21:00:07Z
+POST,POST /api/orders/checkout [High Latency 300ms],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [High Latency 300ms]'),1,2026-10-24T21:03:16Z,2026-10-24T21:03:16Z
+POST,POST /api/orders/checkout [High Latency 300ms],HTTPError('500 Server Error: Internal Server Error for url: POST /api/orders/checkout [High Latency 300ms]'),91,2026-10-24T21:01:46Z,2026-10-24T21:04:01Z
+POST,POST /api/cart/{user_id}/items,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/cart/{user_id}/items'),4,2026-10-24T21:03:24Z,2026-10-24T21:03:53Z
+POST,POST /api/orders/checkout [High Latency 300ms],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [High Latency 300ms]'),655,2026-10-24T20:59:05Z,2026-10-24T21:04:08Z
+POST,POST /api/cart/{user_id}/items,HTTPError('404 Client Error: Not Found for url: POST /api/cart/{user_id}/items'),1,2026-10-24T21:04:03Z,2026-10-24T21:04:03Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),29,2026-10-24T20:59:19Z,2026-10-24T21:03:44Z
+GET,GET /api/products/{id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/products/{id}'),3,2026-10-24T21:03:22Z,2026-10-24T21:03:56Z
+GET,GET /api/orders/user/{user_id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/orders/user/{user_id}'),3,2026-10-24T21:02:05Z,2026-10-24T21:02:25Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),14,2026-10-24T21:00:03Z,2026-10-24T21:04:09Z
+GET,GET /api/products,HTTPError('500 Server Error: Internal Server Error for url: GET /api/products'),4,2026-10-24T21:03:14Z,2026-10-24T21:03:51Z
+GET,GET /api/orders/user/{user_id},HTTPError('502 Server Error: Bad Gateway for url: GET /api/orders/user/{user_id}'),2,2026-10-24T21:00:07Z,2026-10-24T21:01:03Z

@@ -95,6 +95,8 @@ def parse_args():
     parser.add_argument("--decision-log", type=str, default=None, help="JSON-lines decision/audit log")
     parser.add_argument("--status-file", type=str, default=None, help="JSON status file updated every step")
     parser.add_argument("--validate-only", action="store_true", help="Validate the policy and exit")
+    parser.add_argument("--auto", action="store_true",
+                        help="Auto mode: per-service rules choose FlexaScale or native HPA (policy 'auto' block)")
     return parser.parse_args()
 
 
@@ -127,11 +129,11 @@ def run_policy_operator(args) -> int:
         print("Policy is valid.")
         return 0
 
-    operator = AppOperator(policy, decision_log=args.decision_log, status_file=args.status_file)
+    operator = AppOperator(policy, decision_log=args.decision_log, status_file=args.status_file, auto=args.auto)
     print("=" * 80)
     print("FLEXASCALE APPLICATION OPERATOR")
     print(f"Application:   {policy.name}  (namespace {policy.namespace})")
-    print(f"Mode:          {policy.mode}")
+    print(f"Mode:          {policy.mode}{' (Auto: FlexaScale/HPA per service)' if args.auto else ''}")
     print(f"Model:         {operator.runtime.info()['model_path'] if operator.runtime else 'UNAVAILABLE: ' + str(operator.model_error)}")
     print(f"Prometheus:    {policy.prometheus_url}")
     print("=" * 80)

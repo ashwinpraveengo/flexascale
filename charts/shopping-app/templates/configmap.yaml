@@ -16,6 +16,15 @@ data:
   ORDER_SERVICE_URL: "http://order-service:8004"
   INVENTORY_SERVICE_URL: "http://inventory-service:8005"
   PAYMENT_SERVICE_URL: "http://payment-service:8006"
+  SEARCH_SERVICE_URL: "http://search-service:8007"
+  RECOMMENDATION_SERVICE_URL: "http://recommendation-service:8008"
+  REVIEW_SERVICE_URL: "http://review-service:8009"
+  PRICING_SERVICE_URL: "http://pricing-service:8010"
+  PROMOTION_SERVICE_URL: "http://promotion-service:8011"
+  SHIPPING_SERVICE_URL: "http://shipping-service:8012"
+  FRAUD_SERVICE_URL: "http://fraud-service:8013"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:8014"
+  WISHLIST_SERVICE_URL: "http://wishlist-service:8015"
   HTTP_TIMEOUT: "6.0"
   SIMULATE_FAILURE_RATE: {{ .Values.services.paymentService.config.simulateFailureRate | quote }}
   PAYMENT_DEFAULT_DELAY_MS: {{ .Values.services.paymentService.config.defaultDelayMs | quote }}

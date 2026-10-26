@@ -1,0 +1,127 @@
+{{- if and .Values.operator.enabled .Values.operator.handbackHook }}
+# Hand control back to native HPA *before* Helm changes the operator or its RBAC.
+#
+# On upgrade, rollback and uninstall Helm updates (or deletes) the Role at the same moment as it
+# replaces the operator pod. A live operator restores frozen HPAs and releases the Lease on
+# SIGTERM, but by then its write permissions may already be gone, and the HPAs would stay frozen
+# (found in the in-cluster test, reports/final_readiness_report.md §9). This hook scales the
+# operator to 0 and waits for it to exit while the old Role is still in place; the Deployment's
+# `replicas: 1` brings it back on upgrade and rollback.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-handback
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "flexascale.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-upgrade,pre-rollback,pre-delete
+    helm.sh/hook-weight: "-10"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-handback
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "flexascale.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-upgrade,pre-rollback,pre-delete
+    helm.sh/hook-weight: "-10"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+rules:
+  # Only the operator's own Deployment, in the release namespace; nothing in the application namespace.
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["{{ .Release.Name }}-operator"]
+    verbs: ["get"]
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    resourceNames: ["{{ .Release.Name }}-operator"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-handback
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "flexascale.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-upgrade,pre-rollback,pre-delete
+    helm.sh/hook-weight: "-10"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-handback
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}-handback
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-handback
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "flexascale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: handback
+  annotations:
+    helm.sh/hook: pre-upgrade,pre-rollback,pre-delete
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ add .Values.operator.terminationGracePeriodSeconds 120 }}
+  template:
+    metadata:
+      labels:
+        {{- include "flexascale.labels" . | nindent 8 }}
+        app.kubernetes.io/component: handback
+    spec:
+      serviceAccountName: {{ .Release.Name }}-handback
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: handback
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -u
+              NS={{ .Release.Namespace }}; DEP={{ .Release.Name }}-operator
+              SEL=app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=operator
+              if ! kubectl -n "$NS" get deployment "$DEP" >/dev/null 2>&1; then
+                echo "no operator Deployment: nothing to hand back"; exit 0
+              fi
+              echo "scaling $DEP to 0 so that it restores every HPA and releases the Lease with its current permissions"
+              kubectl -n "$NS" scale deployment "$DEP" --replicas=0
+              kubectl -n "$NS" wait --for=delete pod -l "$SEL" --timeout={{ add .Values.operator.terminationGracePeriodSeconds 60 }}s \
+                || echo "warning: operator pod still present; continuing"
+              echo "hand-back done"
+          env:
+            - name: HOME
+              value: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 200m, memory: 128Mi}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+{{- end }}

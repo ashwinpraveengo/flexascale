@@ -1,0 +1,17 @@
+=== reruns of host-affected pairs (19:20)
+19:20:13 started 20261026-192013-shopping-hpa-steady_browsing
+19:31:35 completed 20261026-192013-shopping-hpa-steady_browsing  req/s=17.808173404103247 p95=240.0 fail%=0.05606428704914969 replica_h=1.769551 safe=True error=None
+19:31:35 started 20261026-193135-shopping-hpa_fast-steady_browsing
+19:38:55 stopped   20261026-193135-shopping-hpa_fast-steady_browsing  req/s=17.882285991497675 p95=94.0 fail%=0.10515247108307045 replica_h=0.238555 safe=True error=None
+RUNS 20261026-192013-shopping-hpa-steady_browsing,20261026-193135-shopping-hpa_fast-steady_browsing
+19:38:56 started 20261026-193856-shopping-hpa-checkout_heavy
+19:55:37 completed 20261026-193856-shopping-hpa-checkout_heavy  req/s=18.806274287272828 p95=590.0 fail%=1.3611454834718049 replica_h=1.926736 safe=True error=None
+19:55:37 started 20261026-195537-shopping-hpa_fast-checkout_heavy
+20:07:08 completed 20261026-195537-shopping-hpa_fast-checkout_heavy  req/s=19.617961122192437 p95=450.0 fail%=1.304642494069807 replica_h=1.854721 safe=True error=None
+RUNS 20261026-193856-shopping-hpa-checkout_heavy,20261026-195537-shopping-hpa_fast-checkout_heavy
+20:07:08 started 20261026-200708-shopping-hpa-traffic_drop
+20:23:39 completed 20261026-200708-shopping-hpa-traffic_drop  req/s=9.052098103186381 p95=180.0 fail%=0.1474382602285293 replica_h=1.536244 safe=True error=None
+20:23:39 started 20261026-202339-shopping-hpa_fast-traffic_drop
+20:35:10 completed 20261026-202339-shopping-hpa_fast-traffic_drop  req/s=8.732890192269487 p95=180.0 fail%=0.11441647597254005 replica_h=1.489978 safe=True error=None
+RUNS 20261026-200708-shopping-hpa-traffic_drop,20261026-202339-shopping-hpa_fast-traffic_drop
+=== reruns done (20:35)

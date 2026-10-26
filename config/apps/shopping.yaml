@@ -1,4 +1,4 @@
-# FlexaScale application policy: bundled e-commerce demo (7 FastAPI services).
+# FlexaScale application policy: bundled e-commerce demo (16 FastAPI services).
 # The shopping app is an *example* workload: everything application-specific
 # (namespace, names, topology) lives in this file, not in FlexaScale's code.
 name: shopping
@@ -13,7 +13,7 @@ mode: observe                    # observe | live  (live must be enabled explici
 min_replicas: 1
 max_replicas: 10                 # matches the native HPAs and the trained model's replica range
 max_step: 1
-max_total_replicas: 28           # app-wide budget: the Minikube node is a 6 GiB container (see readiness report)
+max_total_replicas: 48           # app-wide budget: 16 services on a 9 GiB Minikube node (see readiness report)
 services: {}
 
 cpu_target_pct: 70
@@ -32,7 +32,7 @@ lease_seconds: 30
 poll_interval_seconds: 10
 stale_after_seconds: 120
 prometheus_url: http://localhost:9090
-model_path: models/flexascale_v4/best_model/best_model.zip
+model_path: models/flexascale_v5/best_model/best_model.zip
 
 # Known call graph (caller -> callee) from the application's architecture.
 topology:
@@ -46,9 +46,33 @@ topology:
   - [order-service, inventory-service]
   - [order-service, payment-service]
   - [order-service, cart-service]
+  - [order-service, shipping-service]
+  - [order-service, fraud-service]
+  - [order-service, notification-service]
+  - [cart-service, pricing-service]
+  - [api-gateway, search-service]
+  - [api-gateway, recommendation-service]
+  - [api-gateway, review-service]
+  - [api-gateway, wishlist-service]
+  - [api-gateway, shipping-service]
+  - [search-service, catalog-service]
+  - [search-service, pricing-service]
+  - [pricing-service, promotion-service]
+  - [recommendation-service, catalog-service]
+  - [recommendation-service, review-service]
+  - [wishlist-service, catalog-service]
 
 cost:
   currency: USD
-  cpu_per_vcpu_hour: null        # set both prices to report money; null = normalized proxy
-  memory_per_gib_hour: null
+  # Estimate only (Minikube has no bill): AWS Fargate on-demand list prices, Linux/x86, us-east-1,
+  # applied to the CPU/memory *requested* by ready replicas. Set both to null for the unitless proxy.
+  cpu_per_vcpu_hour: 0.04048
+  memory_per_gib_hour: 0.004445
   memory_weight: 0.125
+  label: "estimated at AWS Fargate on-demand list prices (us-east-1), not a bill"
+
+# Auto mode (operator --auto / dashboard "Auto"): per-service FlexaScale-or-HPA rules, operator/auto_mode.py
+auto:
+  sla_latency_ratio: 1.0         # SLA risk above 1.0 x slo_latency_ms (mean latency per service)
+  cpu_risk_pct: 85               # ... or at/above this CPU % of request
+  dwell_steps: 2                 # consecutive steps before switching to FlexaScale (hand-backs to HPA on risk are immediate)

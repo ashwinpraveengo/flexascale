@@ -1,0 +1,10 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),69,2026-10-24T23:01:59Z,2026-10-24T23:06:42Z
+POST,POST /api/orders/checkout [Success],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Success]'),1,2026-10-24T23:04:25Z,2026-10-24T23:04:25Z
+POST,POST /api/cart/{user_id}/items,HTTPError('500 Server Error: Internal Server Error for url: POST /api/cart/{user_id}/items'),1,2026-10-24T23:06:09Z,2026-10-24T23:06:09Z
+GET,GET /api/products?q=[search],HTTPError('500 Server Error: Internal Server Error for url: GET /api/products?q=[search]'),1,2026-10-24T23:06:19Z,2026-10-24T23:06:19Z
+POST,POST /api/orders/checkout [Success],HTTPError('500 Server Error: Internal Server Error for url: POST /api/orders/checkout [Success]'),5,2026-10-24T23:06:17Z,2026-10-24T23:06:48Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),22,2026-10-24T23:02:05Z,2026-10-24T23:06:51Z
+GET,GET /api/orders/user/{user_id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/orders/user/{user_id}'),4,2026-10-24T23:06:15Z,2026-10-24T23:06:53Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),1,2026-10-24T23:06:56Z,2026-10-24T23:06:56Z
+GET,GET /api/orders/user/{user_id},HTTPError('502 Server Error: Bad Gateway for url: GET /api/orders/user/{user_id}'),7,2026-10-24T23:02:40Z,2026-10-24T23:04:26Z

@@ -1,23 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ShoppingBag, Check, ShieldCheck, Truck, RefreshCw, AlertCircle } from 'lucide-react';
-import { Product, InventoryItem } from '../types';
+import { ArrowLeft, ShoppingBag, Check, ShieldCheck, Truck, RefreshCw, AlertCircle, Star } from 'lucide-react';
+import { Product, InventoryItem, Review, Recommendation } from '../types';
 import { api } from '../api';
 
 interface ProductDetailViewProps {
   product: Product;
   onAddToCart: (product: Product, quantity: number) => void;
   onBack: () => void;
+  onSelectProduct?: (productId: number) => void;
 }
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   product,
   onAddToCart,
   onBack,
+  onSelectProduct,
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [inventory, setInventory] = useState<InventoryItem | null>(null);
   const [loadingInventory, setLoadingInventory] = useState(true);
   const [added, setAdded] = useState(false);
+  const [reviews, setReviews] = useState<{ average: number | null; count: number; reviews: Review[] } | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    // review-service and recommendation-service; the page still works if either is down.
+    api.reviews.forProduct(product.id)
+      .then((data) => { if (isMounted) setReviews(data); })
+      .catch(() => { if (isMounted) setReviews(null); });
+    api.recommendations.forProduct(product.id)
+      .then((data) => { if (isMounted) setRecommendations(data.recommendations); })
+      .catch(() => { if (isMounted) setRecommendations([]); });
+    return () => { isMounted = false; };
+  }, [product.id]);
 
   useEffect(() => {
     let isMounted = true;
@@ -172,6 +188,58 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Reviews (review-service) */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 space-y-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-bold text-slate-900">Customer reviews</h2>
+          {reviews && reviews.average !== null && (
+            <span className="flex items-center gap-1 text-sm font-semibold text-amber-600">
+              <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> {reviews.average.toFixed(1)} ({reviews.count})
+            </span>
+          )}
+        </div>
+        {reviews && reviews.reviews.length > 0 ? (
+          <ul className="divide-y divide-slate-100">
+            {reviews.reviews.slice(0, 5).map((r) => (
+              <li key={r.id} className="py-3 flex items-start gap-3">
+                <span className="text-xs font-bold text-amber-600 w-10">{'★'.repeat(r.rating)}</span>
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">{r.title}</p>
+                  {r.body && <p className="text-sm text-slate-600">{r.body}</p>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-slate-500">{reviews ? 'No reviews yet.' : 'Reviews are unavailable right now.'}</p>
+        )}
+      </div>
+
+      {/* Recommendations (recommendation-service) */}
+      {recommendations.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-slate-900">Customers also viewed</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {recommendations.map((rec) => (
+              <button
+                key={rec.id}
+                type="button"
+                onClick={() => onSelectProduct?.(rec.id)}
+                className="text-left bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden hover:-translate-y-0.5 transition-transform"
+              >
+                <div className="aspect-square bg-slate-100">
+                  {rec.image_url && <img src={rec.image_url} alt={rec.name} className="w-full h-full object-cover" />}
+                </div>
+                <div className="p-3 space-y-1">
+                  <p className="text-sm font-semibold text-slate-800 line-clamp-2">{rec.name}</p>
+                  <p className="text-sm font-bold text-slate-900">${Number(rec.price).toFixed(2)}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -5,7 +5,7 @@
 !src
 !scripts/run_operator.py
 !scripts/run_api.py
-!models/flexascale_v4/best_model
-!models/flexascale_v4/model_card.json
+!models/flexascale_v5/best_model
+!models/flexascale_v5/model_card.json
 !deploy/flexascale/requirements.txt
 **/__pycache__

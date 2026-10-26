@@ -190,6 +190,43 @@ class EnvConfig:
     """Bounded SLO penalty: a violating step scores max(-(latency/SLO - 1), -cap)."""
 
     # ------------------------------------------------------------------
+    # Control-loop realism (FlexaScaleEnvV3 only; see simulator/control_env.py)
+    # ------------------------------------------------------------------
+
+    substeps: int = 4
+    """Control steps per one-minute trace step (4 = 15 s, the live poll interval)."""
+
+    action_deltas: tuple[int, ...] = (-2, -1, 0, 1, 2, 3)
+    """Replica change for each action index."""
+
+    max_scale_down_step: int = 2
+    """Operator guard: at most this many replicas removed per decision."""
+
+    startup_delay_steps: int = 1
+    """Control steps before a new replica is ready (live median 10 s, p90 15 s)."""
+
+    cpu_window_steps: int = 4
+    """Observed CPU is the mean over this many control steps (Prometheus rate over 1 minute)."""
+
+    trend_lookback_steps: int = 4
+    """Request-rate trend compares with this many control steps ago (~60 s, as live)."""
+
+    scale_up_cooldown_steps: int = 1
+    """Operator guard: steps between two scale-ups of one service (live 15 s)."""
+
+    scale_down_cooldown_steps: int = 2
+    """Operator guard: steps between two scale-downs of one service (live 30 s)."""
+
+    scale_down_block_cpu_pct: float = 85.0
+    """Operator guard: no scale-down at or above this observed CPU."""
+
+    hpa_stabilization_steps: int = 20
+    """Native HPA scale-down stabilisation window (default 300 s)."""
+
+    hpa_tolerance: float = 0.1
+    """Native HPA tolerance around the CPU target."""
+
+    # ------------------------------------------------------------------
     # Observation bounds (used for Gymnasium Box space)
     # ------------------------------------------------------------------
 

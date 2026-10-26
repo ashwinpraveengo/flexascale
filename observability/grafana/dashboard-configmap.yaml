@@ -247,7 +247,7 @@ data:
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
               "editorMode": "code",
-              "expr": "avg by (container) (rate(container_cpu_usage_seconds_total{namespace=\"flexascale-apps\", container=~\"api-gateway|user-service|catalog-service|cart-service|order-service|inventory-service|payment-service|shopping-frontend\"}[1m])) * 100",
+              "expr": "avg by (container) (rate(container_cpu_usage_seconds_total{namespace=\"flexascale-apps\", container!=\"\", container!=\"POD\", container!=\"postgres\"}[1m])) * 100",
               "legendFormat": "{{container}} CPU %",
               "range": true,
               "refId": "A"
@@ -290,7 +290,7 @@ data:
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
               "editorMode": "code",
-              "expr": "sum by (container) (container_memory_working_set_bytes{namespace=\"flexascale-apps\", container=~\"api-gateway|user-service|catalog-service|cart-service|order-service|inventory-service|payment-service|shopping-frontend\"}) / 1024 / 1024",
+              "expr": "sum by (container) (container_memory_working_set_bytes{namespace=\"flexascale-apps\", container!=\"\", container!=\"POD\", container!=\"postgres\"}) / 1024 / 1024",
               "legendFormat": "{{container}} RAM (MiB)",
               "range": true,
               "refId": "A"

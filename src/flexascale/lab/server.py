@@ -43,7 +43,9 @@ def _model_cards() -> Dict[str, Any]:
         except ValueError:
             continue
     for key, name in (("_simulation_evaluation", "simulation_evaluation.json"),
-                      ("_simulation_evaluation_v4", "simulation_evaluation_v4.json")):
+                      ("_simulation_evaluation_v4", "simulation_evaluation_v4.json"),
+                      ("_simulation_evaluation_v5", "simulation_evaluation_v5.json"),
+                      ("_simulation_evaluation_v6", "simulation_evaluation_v6.json")):
         sim = ROOT / "reports" / name
         if sim.is_file():
             try:
@@ -133,6 +135,10 @@ def create_lab_app(lab: Optional[Lab] = None) -> FastAPI:
             return L().compare(baseline, candidate)
         except KeyError:
             raise HTTPException(404, "unknown run")
+
+    @app.get("/api/lab/benchmark")
+    def bench(app: Optional[str] = None):
+        return L().benchmark(app)
 
     @app.get("/api/lab/models")
     def models():

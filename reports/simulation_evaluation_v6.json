@@ -1,0 +1,551 @@
+{
+  "generated_at": "2026-10-25 18:56:26",
+  "episodes": 300,
+  "seeds": [
+    40000,
+    40299
+  ],
+  "reward_weights": {
+    "slo": 1.0,
+    "efficiency": 0.3,
+    "stability": 0.1,
+    "cost": 1.0
+  },
+  "selection": {
+    "protocol": "highest mean reward per step on 200 fixed validation-service episodes (FlexaScaleEnvV3)",
+    "selected": "lr1e-4_s2/warm_start",
+    "candidates": [
+      {
+        "candidate": "lr1e-4_s1/warm_start",
+        "path": "models/flexascale_v6/lr1e-4_s1/warm_start.zip",
+        "seed_dir": "models/flexascale_v6/lr1e-4_s1",
+        "val_reward": -0.0279,
+        "val_slo_violation_rate": 0.3061,
+        "val_avg_replicas": 3.332
+      },
+      {
+        "candidate": "lr1e-4_s1/best",
+        "path": "models/flexascale_v6/lr1e-4_s1/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v6/lr1e-4_s1",
+        "val_reward": -0.0823,
+        "val_slo_violation_rate": 0.2732,
+        "val_avg_replicas": 4.148
+      },
+      {
+        "candidate": "lr1e-4_s1/final",
+        "path": "models/flexascale_v6/lr1e-4_s1/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v6/lr1e-4_s1",
+        "val_reward": -0.3102,
+        "val_slo_violation_rate": 0.3258,
+        "val_avg_replicas": 4.673
+      },
+      {
+        "candidate": "lr1e-4_s2/warm_start",
+        "path": "models/flexascale_v6/lr1e-4_s2/warm_start.zip",
+        "seed_dir": "models/flexascale_v6/lr1e-4_s2",
+        "val_reward": 0.0153,
+        "val_slo_violation_rate": 0.2861,
+        "val_avg_replicas": 3.547
+      },
+      {
+        "candidate": "lr1e-4_s2/best",
+        "path": "models/flexascale_v6/lr1e-4_s2/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v6/lr1e-4_s2",
+        "val_reward": -0.0319,
+        "val_slo_violation_rate": 0.2829,
+        "val_avg_replicas": 3.677
+      },
+      {
+        "candidate": "lr1e-4_s2/final",
+        "path": "models/flexascale_v6/lr1e-4_s2/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v6/lr1e-4_s2",
+        "val_reward": -0.1811,
+        "val_slo_violation_rate": 0.2691,
+        "val_avg_replicas": 4.86
+      },
+      {
+        "candidate": "lr3e-5_s1/warm_start",
+        "path": "models/flexascale_v6/lr3e-5_s1/warm_start.zip",
+        "seed_dir": "models/flexascale_v6/lr3e-5_s1",
+        "val_reward": -0.0029,
+        "val_slo_violation_rate": 0.2957,
+        "val_avg_replicas": 3.44
+      },
+      {
+        "candidate": "lr3e-5_s1/best",
+        "path": "models/flexascale_v6/lr3e-5_s1/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v6/lr3e-5_s1",
+        "val_reward": -0.0436,
+        "val_slo_violation_rate": 0.2839,
+        "val_avg_replicas": 3.863
+      },
+      {
+        "candidate": "lr3e-5_s1/final",
+        "path": "models/flexascale_v6/lr3e-5_s1/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v6/lr3e-5_s1",
+        "val_reward": -0.0955,
+        "val_slo_violation_rate": 0.2761,
+        "val_avg_replicas": 4.178
+      },
+      {
+        "candidate": "lr3e-5_s2/warm_start",
+        "path": "models/flexascale_v6/lr3e-5_s2/warm_start.zip",
+        "seed_dir": "models/flexascale_v6/lr3e-5_s2",
+        "val_reward": -0.0019,
+        "val_slo_violation_rate": 0.2877,
+        "val_avg_replicas": 3.527
+      },
+      {
+        "candidate": "lr3e-5_s2/best",
+        "path": "models/flexascale_v6/lr3e-5_s2/best_model/best_model.zip",
+        "seed_dir": "models/flexascale_v6/lr3e-5_s2",
+        "val_reward": -0.1141,
+        "val_slo_violation_rate": 0.3027,
+        "val_avg_replicas": 3.571
+      },
+      {
+        "candidate": "lr3e-5_s2/final",
+        "path": "models/flexascale_v6/lr3e-5_s2/ppo_flexascale_final.zip",
+        "seed_dir": "models/flexascale_v6/lr3e-5_s2",
+        "val_reward": -0.1464,
+        "val_slo_violation_rate": 0.265,
+        "val_avg_replicas": 4.8
+      }
+    ],
+    "native_hpa_val_reward": 0.077
+  },
+  "summary": {
+    "ppo_v6": {
+      "reward": [
+        0.059986946482968866,
+        0.09335257745926659
+      ],
+      "slo_violation_rate": [
+        0.27005602240896354,
+        0.039771254952215375
+      ],
+      "avg_replicas": [
+        3.5041736694677867,
+        0.21538113468054781
+      ],
+      "avg_cpu_pct": [
+        56.26338785070111,
+        1.3641620397801273
+      ],
+      "replica_changes_per_step": [
+        0.08666666666666667,
+        0.0066231557537629855
+      ],
+      "guard_blocked_rate": [
+        0.1681232492997199,
+        0.032172297091398364
+      ]
+    },
+    "ppo_v6_no_neighbours": {
+      "reward": [
+        0.06907506675642126,
+        0.09321555677205218
+      ],
+      "slo_violation_rate": [
+        0.2852941176470588,
+        0.039680998558841475
+      ],
+      "avg_replicas": [
+        3.1923529411764706,
+        0.2030170337838001
+      ],
+      "avg_cpu_pct": [
+        60.83448645272463,
+        1.507345325173218
+      ],
+      "replica_changes_per_step": [
+        0.060140056022408975,
+        0.004963965053878383
+      ],
+      "guard_blocked_rate": [
+        0.12904761904761902,
+        0.028355147068024177
+      ]
+    },
+    "native_hpa": {
+      "reward": [
+        0.10768198813551877,
+        0.08420095074326253
+      ],
+      "slo_violation_rate": [
+        0.26355742296918766,
+        0.03996302807875187
+      ],
+      "avg_replicas": [
+        3.217282913165266,
+        0.1726421603396825
+      ],
+      "avg_cpu_pct": [
+        58.77067080652272,
+        0.8547200645655422
+      ],
+      "replica_changes_per_step": [
+        0.06787114845938375,
+        0.0046926208094541285
+      ],
+      "guard_blocked_rate": [
+        0.0,
+        0.0
+      ]
+    },
+    "hpa_ratio_rule": {
+      "reward": [
+        0.0961626326450691,
+        0.09328433423079178
+      ],
+      "slo_violation_rate": [
+        0.26717086834733894,
+        0.039911677724071996
+      ],
+      "avg_replicas": [
+        3.34249299719888,
+        0.2086748957962957
+      ],
+      "avg_cpu_pct": [
+        58.29601911934209,
+        1.4066847055381528
+      ],
+      "replica_changes_per_step": [
+        0.06333333333333334,
+        0.005430915183089253
+      ],
+      "guard_blocked_rate": [
+        0.14467787114845937,
+        0.031838020058236195
+      ]
+    },
+    "ppo_v5": {
+      "reward": [
+        0.008127323368720947,
+        0.09008187502692053
+      ],
+      "slo_violation_rate": [
+        0.2806442577030812,
+        0.039323828624021395
+      ],
+      "avg_replicas": [
+        3.7000560224089636,
+        0.2111243473516434
+      ],
+      "avg_cpu_pct": [
+        54.681629855923454,
+        1.4962205464140077
+      ],
+      "replica_changes_per_step": [
+        0.0607563025210084,
+        0.004950388597159524
+      ],
+      "guard_blocked_rate": [
+        0.1307002801120448,
+        0.02669807301418639
+      ]
+    },
+    "hold": {
+      "reward": [
+        -0.5198289161742605,
+        0.11923871298465742
+      ],
+      "slo_violation_rate": [
+        0.32372549019607844,
+        0.043875760704786146
+      ],
+      "avg_replicas": [
+        5.663333333333333,
+        0.32688488140789096
+      ],
+      "avg_cpu_pct": [
+        40.551452470465264,
+        3.2958583853363583
+      ],
+      "replica_changes_per_step": [
+        0.0,
+        0.0
+      ],
+      "guard_blocked_rate": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "paired_v6_minus": {
+    "native_hpa": {
+      "reward": [
+        -0.047695041652549904,
+        0.017775567172508062
+      ],
+      "slo_violation_rate": [
+        0.006498599439775911,
+        0.0034442856505995717
+      ],
+      "avg_replicas": [
+        0.28689075630252103,
+        0.15506788256775833
+      ],
+      "avg_cpu_pct": [
+        -2.507282955821603,
+        1.3647176929491738
+      ],
+      "replica_changes_per_step": [
+        0.01879551820728291,
+        0.005115358545835615
+      ],
+      "guard_blocked_rate": [
+        0.1681232492997199,
+        0.032172297091398364
+      ]
+    },
+    "hpa_ratio_rule": {
+      "reward": [
+        -0.03617568616210022,
+        0.010355367059770018
+      ],
+      "slo_violation_rate": [
+        0.0028851540616246503,
+        0.003568932527302878
+      ],
+      "avg_replicas": [
+        0.16168067226890756,
+        0.03751274262341516
+      ],
+      "avg_cpu_pct": [
+        -2.032631268640972,
+        0.4801478942616411
+      ],
+      "replica_changes_per_step": [
+        0.023333333333333334,
+        0.003990752807080545
+      ],
+      "guard_blocked_rate": [
+        0.023445378151260503,
+        0.014225176280649704
+      ]
+    },
+    "ppo_v5": {
+      "reward": [
+        0.05185962311424792,
+        0.015014906731993953
+      ],
+      "slo_violation_rate": [
+        -0.010588235294117645,
+        0.005652249565298634
+      ],
+      "avg_replicas": [
+        -0.19588235294117648,
+        0.0835067269217874
+      ],
+      "avg_cpu_pct": [
+        1.581757994777655,
+        0.9501508713833594
+      ],
+      "replica_changes_per_step": [
+        0.02591036414565826,
+        0.004991693874520601
+      ],
+      "guard_blocked_rate": [
+        0.03742296918767507,
+        0.015638561417871087
+      ]
+    },
+    "ppo_v6_no_neighbours": {
+      "reward": [
+        -0.009088120273452398,
+        0.012624022677807142
+      ],
+      "slo_violation_rate": [
+        -0.015238095238095238,
+        0.006159673372804139
+      ],
+      "avg_replicas": [
+        0.3118207282913165,
+        0.04355794181188854
+      ],
+      "avg_cpu_pct": [
+        -4.571098602023522,
+        0.5677202514543342
+      ],
+      "replica_changes_per_step": [
+        0.026526610644257705,
+        0.0047459387514808705
+      ],
+      "guard_blocked_rate": [
+        0.03907563025210084,
+        0.015185455682647606
+      ]
+    }
+  },
+  "episodes_v6_better": {
+    "native_hpa": 0.34,
+    "hpa_ratio_rule": 0.23,
+    "ppo_v5": 0.6266666666666667,
+    "ppo_v6_no_neighbours": 0.35
+  },
+  "groups": {
+    "event=drop": {
+      "ppo_v6": {
+        "reward": 0.46276608514878237,
+        "slo_violation_rate": 0.12287934041541142,
+        "avg_replicas": 2.2248295544632946,
+        "avg_cpu_pct": 49.65323323264783,
+        "replica_changes_per_step": 0.05866497542413192,
+        "guard_blocked_rate": 0.07134929443475503
+      },
+      "native_hpa": {
+        "reward": 0.47318345853366267,
+        "slo_violation_rate": 0.1235135563659426,
+        "avg_replicas": 2.107182495639765,
+        "avg_cpu_pct": 49.06196502508644,
+        "replica_changes_per_step": 0.04233391469795464,
+        "guard_blocked_rate": 0.0
+      },
+      "ppo_v5": {
+        "reward": 0.38552752469080304,
+        "slo_violation_rate": 0.1407959410179166,
+        "avg_replicas": 2.5779292849215154,
+        "avg_cpu_pct": 47.040282398000286,
+        "replica_changes_per_step": 0.06136039321388932,
+        "guard_blocked_rate": 0.08228951958141745
+      },
+      "episodes": 53
+    },
+    "event=none": {
+      "ppo_v6": {
+        "reward": 0.08278769909845582,
+        "slo_violation_rate": 0.285307671455679,
+        "avg_replicas": 3.365546218487395,
+        "avg_cpu_pct": 54.986761376955016,
+        "replica_changes_per_step": 0.0504201680672269,
+        "guard_blocked_rate": 0.20886419083762534
+      },
+      "native_hpa": {
+        "reward": 0.18935726167055242,
+        "slo_violation_rate": 0.2835456763350501,
+        "avg_replicas": 2.52927622661968,
+        "avg_cpu_pct": 63.69099268970011,
+        "replica_changes_per_step": 0.035646516671184604,
+        "guard_blocked_rate": 0.0
+      },
+      "ppo_v5": {
+        "reward": 0.06396522374169586,
+        "slo_violation_rate": 0.2835456763350501,
+        "avg_replicas": 3.527785307671456,
+        "avg_cpu_pct": 53.95081907889483,
+        "replica_changes_per_step": 0.030496069395500133,
+        "guard_blocked_rate": 0.16874491732176738
+      },
+      "episodes": 62
+    },
+    "event=ramp": {
+      "ppo_v6": {
+        "reward": -0.12705703009939856,
+        "slo_violation_rate": 0.35114720045321496,
+        "avg_replicas": 4.0340855443300905,
+        "avg_cpu_pct": 59.725035889508284,
+        "replica_changes_per_step": 0.08233405721839297,
+        "guard_blocked_rate": 0.18430743083750348
+      },
+      "native_hpa": {
+        "reward": -0.06680379144474051,
+        "slo_violation_rate": 0.34255499952790097,
+        "avg_replicas": 3.6109904636011705,
+        "avg_cpu_pct": 63.135810577508565,
+        "replica_changes_per_step": 0.05825701066943631,
+        "guard_blocked_rate": 0.0
+      },
+      "ppo_v5": {
+        "reward": -0.18742553141715737,
+        "slo_violation_rate": 0.3657822679633651,
+        "avg_replicas": 4.102823151732603,
+        "avg_cpu_pct": 59.704216660418474,
+        "replica_changes_per_step": 0.05608535549051081,
+        "guard_blocked_rate": 0.10065149655367765
+      },
+      "episodes": 89
+    },
+    "event=spike": {
+      "ppo_v6": {
+        "reward": -0.0037008357630478467,
+        "slo_violation_rate": 0.266281512605042,
+        "avg_replicas": 3.8087359943977592,
+        "avg_cpu_pct": 57.527995774401575,
+        "replica_changes_per_step": 0.12955182072829133,
+        "guard_blocked_rate": 0.18023459383753504
+      },
+      "native_hpa": {
+        "reward": 0.014908962014366256,
+        "slo_violation_rate": 0.2547268907563025,
+        "avg_replicas": 3.9094887955182074,
+        "avg_cpu_pct": 56.90612924445381,
+        "replica_changes_per_step": 0.11169467787114845,
+        "guard_blocked_rate": 0.0
+      },
+      "ppo_v5": {
+        "reward": -0.054997222644316834,
+        "slo_violation_rate": 0.2770483193277311,
+        "avg_replicas": 4.057422969187675,
+        "avg_cpu_pct": 54.715915875148944,
+        "replica_changes_per_step": 0.08429621848739495,
+        "guard_blocked_rate": 0.16071428571428573
+      },
+      "episodes": 96
+    },
+    "bottleneck=False": {
+      "ppo_v6": {
+        "reward": 0.5049147604609474,
+        "slo_violation_rate": 0.06400858215626676,
+        "avg_replicas": 2.962497765063472,
+        "avg_cpu_pct": 59.99372530645226,
+        "replica_changes_per_step": 0.09936527802610405,
+        "guard_blocked_rate": 0.03446272125871625
+      },
+      "native_hpa": {
+        "reward": 0.5044735103078863,
+        "slo_violation_rate": 0.05627570177006972,
+        "avg_replicas": 3.152422671196138,
+        "avg_cpu_pct": 58.29462814082894,
+        "replica_changes_per_step": 0.07022170570355801,
+        "guard_blocked_rate": 0.0
+      },
+      "ppo_v5": {
+        "reward": 0.42419318569759035,
+        "slo_violation_rate": 0.07795458608975504,
+        "avg_replicas": 3.3431521544788123,
+        "avg_cpu_pct": 56.716142292396185,
+        "replica_changes_per_step": 0.06646701233684962,
+        "guard_blocked_rate": 0.04241909529769355
+      },
+      "episodes": 188
+    },
+    "bottleneck=True": {
+      "ppo_v6": {
+        "reward": -0.6868561698372094,
+        "slo_violation_rate": 0.6159213685474189,
+        "avg_replicas": 4.413415366146459,
+        "avg_cpu_pct": 50.00174997854739,
+        "replica_changes_per_step": 0.06535114045618247,
+        "guard_blocked_rate": 0.3924819927971188
+      },
+      "native_hpa": {
+        "reward": -0.558360924082384,
+        "slo_violation_rate": 0.6114945978391356,
+        "avg_replicas": 3.326155462184874,
+        "avg_cpu_pct": 59.56974242393728,
+        "replica_changes_per_step": 0.06392557022809123,
+        "guard_blocked_rate": 0.0
+      },
+      "ppo_v5": {
+        "reward": -0.6902689455404525,
+        "slo_violation_rate": 0.6208733493397359,
+        "avg_replicas": 4.299144657863145,
+        "avg_cpu_pct": 51.26655540898711,
+        "replica_changes_per_step": 0.05117046818727491,
+        "guard_blocked_rate": 0.27888655462184875
+      },
+      "episodes": 112
+    }
+  }
+}

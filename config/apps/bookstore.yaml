@@ -32,7 +32,7 @@ lease_seconds: 30
 poll_interval_seconds: 10
 stale_after_seconds: 120
 prometheus_url: http://localhost:9090
-model_path: models/flexascale_v4/best_model/best_model.zip
+model_path: models/flexascale_v5/best_model/best_model.zip
 
 topology: []                     # no prior: inferred from traffic, else neighbourhood by name
 

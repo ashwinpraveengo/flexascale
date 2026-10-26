@@ -161,6 +161,11 @@ class PolicyRuntime:
         # Models trained with 'focal' control have only one trained decision head (slot 0):
         # always evaluate them on per-service windows, never all heads at once.
         self.decision_slot = obs_card.get("decision_slot")
+        # Replica change per action index (v6+: -2..+3; earlier models: -1, 0, +1).
+        n_actions = int(space.nvec[0]) if hasattr(space, "nvec") else int(space.n)
+        self.action_deltas: List[int] = [int(d) for d in ((self.card or {}).get("action") or {}).get("deltas") or [-1, 0, 1]]
+        if len(self.action_deltas) != n_actions:
+            raise ValueError(f"Model has {n_actions} actions per service but its card lists deltas {self.action_deltas}")
 
     # ------------------------------------------------------------------
 
@@ -176,6 +181,7 @@ class PolicyRuntime:
             "observation_fields": list(self.field_names),
             "max_replicas": self.max_replicas,
             "decision_slot": self.decision_slot,
+            "action_deltas": list(self.action_deltas),
             "num_timesteps": int(getattr(self.model, "num_timesteps", 0)),
             "model_card": bool(self.card),
             "trained_at": card.get("trained_at"),

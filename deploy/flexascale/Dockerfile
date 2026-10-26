@@ -1,5 +1,5 @@
 # FlexaScale operator image (CPU-only PyTorch). Build from the repository root:
-#   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.3.0 .
+#   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.4.0 .
 FROM python:3.11-slim
 
 ARG KUBECTL_VERSION=v1.31.0
@@ -17,8 +17,8 @@ COPY pyproject.toml ./
 COPY src ./src
 RUN pip install --no-cache-dir --no-deps .
 COPY scripts/run_operator.py scripts/run_api.py ./scripts/
-COPY models/flexascale_v4/best_model ./models/flexascale_v4/best_model
-COPY models/flexascale_v4/model_card.json ./models/flexascale_v4/model_card.json
+COPY models/flexascale_v5/best_model ./models/flexascale_v5/best_model
+COPY models/flexascale_v5/model_card.json ./models/flexascale_v5/model_card.json
 
 USER 65534
 ENTRYPOINT ["python", "/app/scripts/run_operator.py"]

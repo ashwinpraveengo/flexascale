@@ -1,0 +1,14 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),53,2026-10-24T22:01:20Z,2026-10-24T22:06:05Z
+POST,POST /api/cart/{user_id}/items,HTTPError('500 Server Error: Internal Server Error for url: POST /api/cart/{user_id}/items'),16,2026-10-24T22:04:50Z,2026-10-24T22:06:05Z
+GET,GET /api/products?q=[search],HTTPError('500 Server Error: Internal Server Error for url: GET /api/products?q=[search]'),3,2026-10-24T22:04:40Z,2026-10-24T22:04:51Z
+POST,POST /api/orders/checkout [Success],HTTPError('500 Server Error: Internal Server Error for url: POST /api/orders/checkout [Success]'),36,2026-10-24T22:04:38Z,2026-10-24T22:06:18Z
+GET,GET /api/cart/{user_id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/cart/{user_id}'),8,2026-10-24T22:05:22Z,2026-10-24T22:06:14Z
+POST,POST /api/cart/{user_id}/items,HTTPError('404 Client Error: Not Found for url: POST /api/cart/{user_id}/items'),3,2026-10-24T22:04:48Z,2026-10-24T22:04:57Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),32,2026-10-24T22:01:32Z,2026-10-24T22:06:13Z
+GET,GET /api/products/{id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/products/{id}'),4,2026-10-24T22:04:48Z,2026-10-24T22:05:45Z
+GET,GET /api/orders/user/{user_id},HTTPError('500 Server Error: Internal Server Error for url: GET /api/orders/user/{user_id}'),13,2026-10-24T22:04:35Z,2026-10-24T22:06:15Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),2,2026-10-24T22:04:36Z,2026-10-24T22:05:42Z
+GET,GET /api/products,HTTPError('500 Server Error: Internal Server Error for url: GET /api/products'),8,2026-10-24T22:04:42Z,2026-10-24T22:04:58Z
+GET,GET /api/orders/user/{user_id},HTTPError('502 Server Error: Bad Gateway for url: GET /api/orders/user/{user_id}'),1,2026-10-24T22:03:49Z,2026-10-24T22:03:49Z
+GET,GET /api/categories,HTTPError('500 Server Error: Internal Server Error for url: GET /api/categories'),5,2026-10-24T22:04:48Z,2026-10-24T22:04:58Z

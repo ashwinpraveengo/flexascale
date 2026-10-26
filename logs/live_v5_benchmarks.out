@@ -1,0 +1,52 @@
+=== repeat 1
+01:03:11 started 20261025-010311-shopping-hpa-steady_browsing
+01:09:11 completed 20261025-010311-shopping-hpa-steady_browsing  req/s=11.091998174894755 p95=1500.0 fail%=3.8622754491017965 replica_h=1.159267 safe=True error=None
+01:09:11 started 20261025-010911-shopping-flexascale-steady_browsing
+01:26:12 completed 20261025-010911-shopping-flexascale-steady_browsing  req/s=11.110405912736173 p95=1500.0 fail%=3.0673019654556284 replica_h=1.18295 safe=True error=None
+01:26:12 started 20261025-012612-shopping-hpa-checkout_heavy
+01:43:13 completed 20261025-012612-shopping-hpa-checkout_heavy  req/s=11.812560677674385 p95=4900.0 fail%=31.43501550606146 replica_h=1.363565 safe=True error=None
+01:43:13 started 20261025-014313-shopping-flexascale-checkout_heavy
+02:00:24 completed 20261025-014313-shopping-flexascale-checkout_heavy  req/s=8.001548835888796 p95=6000.0 fail%=31.83306055646481 replica_h=1.297429 safe=True error=None
+02:00:24 started 20261025-020024-shopping-hpa-payment_degradation
+02:17:15 completed 20261025-020024-shopping-hpa-payment_degradation  req/s=8.603970084081144 p95=4600.0 fail%=32.259301879555046 replica_h=1.361843 safe=True error=None
+02:17:15 started 20261025-021715-shopping-flexascale-payment_degradation
+02:34:26 completed 20261025-021715-shopping-flexascale-payment_degradation  req/s=8.751960933903336 p95=3900.0 fail%=34.72065991751031 replica_h=1.461613 safe=True error=None
+02:34:26 started 20261025-023426-shopping-hpa-flash_sale
+02:51:17 completed 20261025-023426-shopping-hpa-flash_sale  req/s=7.971082391108842 p95=2400.0 fail%=3.3444816053511706 replica_h=1.247617 safe=True error=None
+02:51:17 started 20261025-025117-shopping-flexascale-flash_sale
+03:08:18 completed 20261025-025117-shopping-flexascale-flash_sale  req/s=8.395103519945524 p95=2300.0 fail%=4.480570975416336 replica_h=1.387936 safe=True error=None
+03:08:18 started 20261025-030818-shopping-hpa-gradual_ramp
+03:24:59 completed 20261025-030818-shopping-hpa-gradual_ramp  req/s=7.151440751661176 p95=2300.0 fail%=8.472998137802607 replica_h=1.243639 safe=True error=None
+03:24:59 started 20261025-032459-shopping-flexascale-gradual_ramp
+03:36:30 completed 20261025-032459-shopping-flexascale-gradual_ramp  req/s=6.584227540831287 p95=3300.0 fail%=9.172482552342972 replica_h=1.316925 safe=True error=None
+03:36:30 started 20261025-033630-shopping-hpa-traffic_drop
+03:53:01 completed 20261025-033630-shopping-hpa-traffic_drop  req/s=4.871050468399966 p95=3700.0 fail%=6.288448393711551 replica_h=1.390532 safe=True error=None
+03:53:01 started 20261025-035301-shopping-flexascale-traffic_drop
+04:06:12 completed 20261025-035301-shopping-flexascale-traffic_drop  req/s=5.427329374988689 p95=2400.0 fail%=8.081431215299197 replica_h=1.476915 safe=True error=None
+RUNS 20261025-010311-shopping-hpa-steady_browsing,20261025-010911-shopping-flexascale-steady_browsing,20261025-012612-shopping-hpa-checkout_heavy,20261025-014313-shopping-flexascale-checkout_heavy,20261025-020024-shopping-hpa-payment_degradation,20261025-021715-shopping-flexascale-payment_degradation,20261025-023426-shopping-hpa-flash_sale,20261025-025117-shopping-flexascale-flash_sale,20261025-030818-shopping-hpa-gradual_ramp,20261025-032459-shopping-flexascale-gradual_ramp,20261025-033630-shopping-hpa-traffic_drop,20261025-035301-shopping-flexascale-traffic_drop
+=== repeat 2
+04:06:12 started 20261025-040612-shopping-hpa-steady_browsing
+04:23:13 completed 20261025-040612-shopping-hpa-steady_browsing  req/s=11.173544722369988 p95=1600.0 fail%=2.8874484384207424 replica_h=1.32824 safe=True error=None
+04:23:13 started 20261025-042313-shopping-flexascale-steady_browsing
+04:37:14 completed 20261025-042313-shopping-flexascale-steady_browsing  req/s=10.872919065049938 p95=1700.0 fail%=3.3494266747133374 replica_h=1.599666 safe=True error=None
+04:37:14 started 20261025-043714-shopping-hpa-checkout_heavy
+04:57:07 completed 20261025-043714-shopping-hpa-checkout_heavy  req/s=6.678223409096022 p95=6100.0 fail%=44.33545855811673 replica_h=1.650318 safe=True error=None
+04:57:07 started 20261025-045707-shopping-flexascale-checkout_heavy
+04:57:17 failed    20261025-045707-shopping-flexascale-checkout_heavy  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: Prometheus not reachable at http://localhost:9090
+04:57:17 started 20261025-045717-shopping-hpa-payment_degradation
+04:57:27 failed    20261025-045717-shopping-hpa-payment_degradation  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: Prometheus not reachable at http://localhost:9090
+04:57:27 started 20261025-045727-shopping-flexascale-payment_degradation
+04:57:37 failed    20261025-045727-shopping-flexascale-payment_degradation  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: Prometheus not reachable at http://localhost:9090
+04:57:37 started 20261025-045737-shopping-hpa-flash_sale
+04:57:47 failed    20261025-045737-shopping-hpa-flash_sale  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: Prometheus not reachable at http://localhost:9090
+04:57:47 started 20261025-045747-shopping-flexascale-flash_sale
+04:57:57 failed    20261025-045747-shopping-flexascale-flash_sale  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: Prometheus not reachable at http://localhost:9090
+04:57:57 started 20261025-045757-shopping-hpa-gradual_ramp
+04:58:07 failed    20261025-045757-shopping-hpa-gradual_ramp  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: Prometheus not reachable at http://localhost:9090
+04:58:07 started 20261025-045807-shopping-flexascale-gradual_ramp
+04:58:17 failed    20261025-045807-shopping-flexascale-gradual_ramp  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: Prometheus not reachable at http://localhost:9090
+04:58:17 started 20261025-045817-shopping-hpa-traffic_drop
+04:58:27 failed    20261025-045817-shopping-hpa-traffic_drop  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: Prometheus not reachable at http://localhost:9090
+04:58:27 started 20261025-045827-shopping-flexascale-traffic_drop
+04:58:37 failed    20261025-045827-shopping-flexascale-traffic_drop  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: Prometheus not reachable at http://localhost:9090
+RUNS 20261025-040612-shopping-hpa-steady_browsing,20261025-042313-shopping-flexascale-steady_browsing,20261025-043714-shopping-hpa-checkout_heavy,20261025-045707-shopping-flexascale-checkout_heavy,20261025-045717-shopping-hpa-payment_degradation,20261025-045727-shopping-flexascale-payment_degradation,20261025-045737-shopping-hpa-flash_sale,20261025-045747-shopping-flexascale-flash_sale,20261025-045757-shopping-hpa-gradual_ramp,20261025-045807-shopping-flexascale-gradual_ramp,20261025-045817-shopping-hpa-traffic_drop,20261025-045827-shopping-flexascale-traffic_drop

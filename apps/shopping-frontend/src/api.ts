@@ -1,6 +1,4 @@
-import {
-  User, Category, Product, Cart, Order, InventoryItem, SystemStatus
-} from './types';
+import { User, Category, Product, Cart, Order, InventoryItem, SystemStatus, Review, Recommendation } from './types';
 
 const API_BASE = '/api';
 
@@ -179,6 +177,16 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ adjustment }),
       }),
+  },
+
+  reviews: {
+    forProduct: (productId: number) =>
+      request<{ product_id: number; average: number | null; count: number; reviews: Review[] }>(`/reviews/${productId}`),
+  },
+
+  recommendations: {
+    forProduct: (productId: number) =>
+      request<{ product_id: number; recommendations: Recommendation[] }>(`/recommendations/${productId}`),
   },
 
   system: {

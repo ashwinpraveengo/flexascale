@@ -25,4 +25,7 @@ class CartOut(BaseModel):
     items: List[CartItemOut]
     total_items: int
     total_amount: float
+    discount: float = 0.0
+    tax: Optional[float] = None
+    payable_total: Optional[float] = None
     updated_at: datetime

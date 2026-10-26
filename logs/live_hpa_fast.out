@@ -1,0 +1,10 @@
+=== repeat 1 (12:20)
+12:20:13 started 20261026-122013-shopping-hpa_fast-traffic_drop
+12:30:25 completed 20261026-122013-shopping-hpa_fast-traffic_drop  req/s=8.49957137434371 p95=500.0 fail%=0.5110062893081762 replica_h=1.680867 safe=True error=None
+12:30:25 started 20261026-123025-shopping-hpa_fast-flash_sale
+12:41:58 completed 20261026-123025-shopping-hpa_fast-flash_sale  req/s=10.670376179397769 p95=1500.0 fail%=0.8733624454148472 replica_h=2.101778 safe=True error=None
+12:41:58 started 20261026-124158-shopping-hpa_fast-checkout_heavy
+12:58:50 completed 20261026-124158-shopping-hpa_fast-checkout_heavy  req/s=15.404906759166906 p95=1600.0 fail%=1.8170019467878 replica_h=2.087521 safe=True error=None
+12:58:50 started 20261026-125850-shopping-hpa_fast-steady_browsing
+Terminated                 .venv/bin/python -u scripts/run_lab_experiments.py --scenarios traffic_drop,flash_sale,checkout_heavy,steady_browsing,payment_degradation,gradual_ramp --controllers ${FLEXASCALE_CONTROLLERS:-hpa,flexascale} --users 25 --spawn-rate 5 --duration 300
+bash failed with exit status 143.

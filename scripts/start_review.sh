@@ -93,7 +93,7 @@ if [ "$MODE" = "check" ]; then
   step "5/8 Monitoring (check only)"
   kubectl -n "$MON_NS" get svc "$PROM_SVC" >/dev/null 2>&1 && ok "Prometheus service present" || err "Prometheus service missing"
   step "Model"
-  [ -f models/flexascale_v4/best_model/best_model.zip ] || [ -f models/flexascale_v3/best_model/best_model.zip ] || [ -f models/flexascale_v2/best_model/best_model.zip ] && ok "trained model present" || err "trained model missing"
+  [ -f models/flexascale_v5/best_model/best_model.zip ] || [ -f models/flexascale_v4/best_model/best_model.zip ] || [ -f models/flexascale_v3/best_model/best_model.zip ] || [ -f models/flexascale_v2/best_model/best_model.zip ] && ok "trained model present" || err "trained model missing"
   echo; echo "${C_OK}Preflight passed${C_0} in $(( $(date +%s) - START ))s. Nothing was started or changed."
   exit 0
 fi
@@ -118,7 +118,7 @@ ksm="$(curl -fsS --get "http://localhost:${PROM_PORT}/api/v1/query" --data-urlen
 
 step "7/8 FlexaScale prerequisites and controller ownership"
 MODEL=""
-for m in models/flexascale_v4/best_model/best_model.zip models/flexascale_v3/best_model/best_model.zip models/flexascale_v2/best_model/best_model.zip; do
+for m in models/flexascale_v5/best_model/best_model.zip models/flexascale_v4/best_model/best_model.zip models/flexascale_v3/best_model/best_model.zip models/flexascale_v2/best_model/best_model.zip; do
   [ -f "$m" ] && { MODEL="$m"; break; }
 done
 policy_model="$("$PY" -c 'from flexascale.config.app_policy import AppPolicy; print(AppPolicy.load("config/apps/shopping.yaml").model_path)')"

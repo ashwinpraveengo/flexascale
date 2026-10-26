@@ -1,5 +1,5 @@
 # Prometheus Scrape Configuration for Shopping Microservices
-# Scrapes metrics from the 7 backend microservices on port http (/metrics)
+# Scrapes metrics from the backend microservices on port http (/metrics)
 
 scrape_configs:
   - job_name: 'shopping-microservices'

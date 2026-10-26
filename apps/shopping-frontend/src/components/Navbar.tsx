@@ -228,7 +228,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="py-4 space-y-3">
               <p className="text-xs text-slate-500">
-                Live responsiveness of the 7 backend microservices communicating through the API Gateway:
+                Live responsiveness of the backend microservices communicating through the API Gateway:
               </p>
 
               <div className="space-y-2">

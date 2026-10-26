@@ -46,6 +46,7 @@ class PPOAgentManager:
         gamma: float = 0.99,
         ent_coef: float = 0.0,
         target_kl: float | None = None,
+        clip_range: float = 0.2,
         net_arch: dict[str, list[int]] | None = None,
     ):
         self.env = env
@@ -82,6 +83,7 @@ class PPOAgentManager:
             gamma=gamma,
             ent_coef=ent_coef,
             target_kl=target_kl,
+            clip_range=clip_range,
         )
 
     def train(

@@ -1,0 +1,13 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),7,2026-10-25T21:44:36Z,2026-10-25T21:47:57Z
+GET,GET /api/search?q=[search],HTTPError('502 Server Error: Bad Gateway for url: GET /api/search?q=[search]'),1,2026-10-25T21:47:18Z,2026-10-25T21:47:18Z
+POST,POST /api/orders/checkout [Success],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Success]'),52,2026-10-25T21:45:02Z,2026-10-25T21:49:18Z
+POST,POST /api/orders/checkout [Simulated Decline],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Simulated Decline]'),121,2026-10-25T21:44:50Z,2026-10-25T21:49:17Z
+POST,POST /api/orders/checkout [High Latency 300ms],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [High Latency 300ms]'),274,2026-10-25T21:44:49Z,2026-10-25T21:49:19Z
+POST,POST /api/cart/{user_id}/items,HTTPError('502 Server Error: Bad Gateway for url: POST /api/cart/{user_id}/items'),1,2026-10-25T21:47:35Z,2026-10-25T21:47:35Z
+POST,POST /api/orders/checkout [High Latency 300ms],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [High Latency 300ms]'),118,2026-10-25T21:44:56Z,2026-10-25T21:49:19Z
+POST,POST /api/orders/checkout [Simulated Decline],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Simulated Decline]'),43,2026-10-25T21:44:58Z,2026-10-25T21:49:17Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),23,2026-10-25T21:44:34Z,2026-10-25T21:49:10Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),27,2026-10-25T21:45:01Z,2026-10-25T21:49:15Z
+GET,GET /api/orders/user/{user_id},HTTPError('502 Server Error: Bad Gateway for url: GET /api/orders/user/{user_id}'),31,2026-10-25T21:44:49Z,2026-10-25T21:49:15Z
+POST,POST /api/orders/checkout [Success],HTTPError('403 Client Error: Forbidden for url: POST /api/orders/checkout [Success]'),6,2026-10-25T21:47:41Z,2026-10-25T21:47:56Z

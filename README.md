@@ -1,8 +1,19 @@
 # FlexaScale — E-Commerce Microservices & Intelligent Auto-Scaling Framework
 
-> **Final release (2026-10-22).** Review/presentation quick start: `./scripts/start_review.sh --demo`, then open
-> http://127.0.0.1:8090/ (see the top of [RUNNING.md](RUNNING.md)). Project summary, demo runbook and viva notes are in `docs/`.
-> Verified status of every component: `reports/final_readiness_report.md`.
+> **Final release (2026-10-26).** Review/presentation quick start: `./scripts/start_review.sh --demo`, then open
+> http://127.0.0.1:8090/ (FlexaScale control center; see the top of [RUNNING.md](RUNNING.md)). Project summary, demo runbook and
+> viva notes are in `docs/`. Verified status of every component: `reports/final_readiness_report.md`.
+>
+> **Results in one paragraph.** On their own, the learned PPO+GNN policies (v3–v6) do **not** beat Kubernetes' native HPA. The
+> deployed one, v5, used 8% more replica-hours live (6% on the pairs run on AC power; `docs/POLICY_V5.md`, `docs/POLICY_V6.md`). **Auto mode** lets FlexaScale
+> scale a service only while explainable, logged rules (controller health → policy confidence → SLA risk → efficiency) allow it,
+> and hands the service back to native HPA otherwise. On the 16-service shop it used 3.9% fewer replica-hours (95% CI −6.5 … −1.3; estimated
+> cost −4.0% at AWS Fargate list prices) than default native HPA over 18 paired runs, with no measurable latency or failure penalty. Final numbers and
+> the verdict rule fixed in advance: `reports/live_benchmark_report.md`, `docs/POLICY_V6.md` §3.1 and §5. The saving comes from
+> scaling down sooner than HPA's default 300 s window. A native HPA tuned to a 60 s window also saves, but less (−1.4%, 95% CI −2.6 … −0.2,
+> 12 pairs, with 2.3% lower throughput); the indirect comparison does not show Auto saving more than that tuned HPA (−2.5 points, CI −5.4 … +0.3;
+> `docs/POLICY_V6.md` §5.2). So Auto's value is a learned controller acting safely and explainably, with a saving at least comparable to a tuned
+> HPA's; it is not shown to beat one.
 
 FlexaScale is an RL-based intelligent autoscaling framework for distributed microservices on Kubernetes. This repository houses the realistic, cloud-native **E-Commerce Shopping Application** workload alongside the FlexaScale reinforcement learning research framework.
 
@@ -10,9 +21,11 @@ FlexaScale is an RL-based intelligent autoscaling framework for distributed micr
 
 ## 🛍️ Cloud-Native E-Commerce Application Architecture
 
-The shopping platform is a production-grade microservices application featuring a modern React frontend and seven independent backend microservices communicating via asynchronous HTTP with PostgreSQL persistence and Prometheus observability.
+The shopping platform is a production-grade microservices application featuring a modern React frontend and sixteen independent backend microservices communicating via asynchronous HTTP with PostgreSQL persistence and Prometheus observability.
 
 ### Microservice Ecosystem
+
+The diagram shows the core checkout path. The nine services added for the 16-service shop (Helm chart 1.1.0) are listed after the table.
 
 ```
                                  ┌─────────────────────────┐
@@ -73,6 +86,15 @@ The shopping platform is a production-grade microservices application featuring 
 | **`order-service`** | 8004 | Checkout orchestration via a **2-Phase Distributed Saga**: validates items with Catalog, reserves stock with Inventory, triggers payment with Payment Service, confirms order and inventory on success, or executes compensating release transactions on decline. | `orders` |
 | **`inventory-service`** | 8005 | Stock tracking with pessimistic row-level locking (`SELECT ... FOR UPDATE`), atomic inventory reservation, stock release rollback, and administrative stock updates. Prevents lost updates and overselling. | `inventory` |
 | **`payment-service`** | 8006 | Simulated payment engine with unique transaction IDs (`txn_*`), configurable card failure simulation, artificial delay injection (`X-Payment-Delay-Ms`), and idempotency key safety. **Never stores real card credentials.** | `payments` |
+| **`search-service`** | 8007 | Ranked full-text product search (BM25 over name and description) with live prices: gateway → search → pricing → promotion. | N/A |
+| **`recommendation-service`** | 8008 | "Customers also viewed": content similarity over the catalogue, weighted by review ratings. | N/A |
+| **`review-service`** | 8009 | Product reviews and rating summaries, read by the product page and by recommendations. | `review` |
+| **`pricing-service`** | 8010 | Final prices (promotions, tax) for a list of items. Used by search, cart and checkout. | N/A |
+| **`promotion-service`** | 8011 | Evaluates active promotion rules per product. CPU cost grows with the number of products requested. | N/A |
+| **`shipping-service`** | 8012 | Delivery quotes. A required checkout step. | N/A |
+| **`fraud-service`** | 8013 | Risk-scores a checkout before payment (fixed logistic model). A required checkout step. | N/A |
+| **`notification-service`** | 8014 | Order confirmation messages after a confirmed checkout. Best effort: a failure never fails the order. Nothing is actually sent. | N/A |
+| **`wishlist-service`** | 8015 | Saved products per user, enriched with live catalogue data. | `wishlist` |
 
 ---
 
@@ -153,21 +175,21 @@ To run the application locally without Kubernetes:
 # 1. Copy sample environment configuration
 cp .env.example .env
 
-# 2. Build and start all 8 containers and PostgreSQL
-docker-compose up --build -d
+# 2. Build and start the 16 services, the frontend and PostgreSQL
+docker compose up --build -d
 
 # 3. Seed test users, categories, and products
 python apps/database/seed.py
 
 # 4. Access application:
-# Frontend:     http://localhost
+# Frontend:     http://localhost:3000
 # API Gateway:  http://localhost:8000
 # Aggregated:   http://localhost:8000/api/system/status
 ```
 
 To stop and remove containers:
 ```bash
-docker-compose down -v
+docker compose down -v
 ```
 
 ---
@@ -181,7 +203,7 @@ The primary production deployment mechanism is the parameterized Helm chart loca
 Ensure your Minikube cluster is active with the required addons:
 
 ```bash
-minikube start -p flexascale --cpus=4 --memory=6144 --kubernetes-version=v1.31.0
+minikube start -p flexascale --cpus=4 --memory=9216 --kubernetes-version=v1.31.0
 minikube addons enable metrics-server -p flexascale
 minikube addons enable ingress -p flexascale
 ```
@@ -189,26 +211,10 @@ minikube addons enable ingress -p flexascale
 ### 2. Build & Load Container Images
 
 ```bash
-# Build all images locally
-docker build -t api-gateway:latest apps/services/api-gateway
-docker build -t user-service:latest apps/services/user-service
-docker build -t catalog-service:latest apps/services/catalog-service
-docker build -t cart-service:latest apps/services/cart-service
-docker build -t order-service:latest apps/services/order-service
-docker build -t inventory-service:latest apps/services/inventory-service
-docker build -t payment-service:latest apps/services/payment-service
-docker build -t shopping-frontend:latest apps/shopping-frontend
-
-# Load images into Minikube's image cache
+# Build every shop image (16 services + frontend) with the tag the Helm chart expects
+# (charts/shopping-app/values.yaml) and load it into Minikube
+./scripts/build_shop_images.sh
 minikube -p flexascale image load postgres:16-alpine
-minikube -p flexascale image load api-gateway:latest
-minikube -p flexascale image load user-service:latest
-minikube -p flexascale image load catalog-service:latest
-minikube -p flexascale image load cart-service:latest
-minikube -p flexascale image load order-service:latest
-minikube -p flexascale image load inventory-service:latest
-minikube -p flexascale image load payment-service:latest
-minikube -p flexascale image load shopping-frontend:latest
 ```
 
 ### 3. Deploy Chart
@@ -222,6 +228,9 @@ helm template shopping-app charts/shopping-app
 
 # Install or upgrade chart into flexascale-apps namespace
 helm upgrade --install shopping-app charts/shopping-app -n flexascale-apps
+
+# Native HPAs for all 16 services (CPU 70% of request, 1-10 replicas): the baseline FlexaScale is compared with
+kubectl apply -f deploy/kubernetes/hpa.yaml
 
 # Verify all pods are Ready
 kubectl get pods -n flexascale-apps -w

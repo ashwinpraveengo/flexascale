@@ -7,7 +7,7 @@
 # deployed model is chosen afterwards by scripts/evaluate_v4.py using the
 # validation services only. Reward weights and simulator settings are fixed.
 #
-#   ./scripts/train_v4.sh [timesteps]        (default 1000000; ~9 h on 16 cores, 4 runs in parallel)
+#   ./scripts/train_v4.sh [timesteps]        (default 1000000; ~25 min on 16 cores, 4 runs in parallel; run under systemd-inhibit on a laptop)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 STEPS="${1:-1000000}"

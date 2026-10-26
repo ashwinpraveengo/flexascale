@@ -39,6 +39,7 @@ from flexascale.config.safety_config import SafetyConfig
 from flexascale.discovery.workloads import WorkloadDiscovery, WorkloadInfo
 from flexascale.k8s.kube import Kube
 from flexascale.metrics.workload_metrics import WorkloadMetrics, WorkloadMetricsClient
+from flexascale.operator.auto_mode import AutoArbiter, AutoConfig
 from flexascale.rl.policy_runtime import PolicyOutput, PolicyRuntime
 from flexascale.safety.hpa_manager import HPAManager
 from flexascale.safety.lease import ControllerLease
@@ -49,6 +50,15 @@ from flexascale.state.graph_inference import LiveGraphInference
 logger = logging.getLogger(__name__)
 
 ACTION_LABELS = {0: "scale_down", 1: "hold", 2: "scale_up"}
+HEURISTIC_DELTAS = [-1, 0, 1]
+
+
+def action_label(delta: int) -> str:
+    """'scale_up' / 'hold' / 'scale_down', with the size when it is more than one replica."""
+    if delta == 0:
+        return "hold"
+    name = "scale_up" if delta > 0 else "scale_down"
+    return name if abs(delta) == 1 else f"{name}_{abs(delta)}"
 TREND_LOOKBACK_SECONDS = 60.0
 """v2 models were trained on one-minute trace steps: the rate trend compares with ~60 s ago."""
 
@@ -89,9 +99,13 @@ class AppOperator:
         status_file: Optional[str] = None,
         identity: Optional[str] = None,
         load_model: bool = True,
+        auto: bool = False,
     ) -> None:
         policy.assert_valid()
         self.policy = policy
+        self.arbiter: Optional[AutoArbiter] = (
+            AutoArbiter(AutoConfig.from_dict(policy.auto), policy.cpu_target_pct) if auto else None)
+        self.auto_state: Dict[str, Dict[str, Any]] = {}
         self.kube = kube or Kube()
         self.discovery = WorkloadDiscovery(policy, kube=self.kube)
         self.metrics = metrics or WorkloadMetricsClient(
@@ -318,6 +332,26 @@ class AppOperator:
             )
         return out
 
+    def _delta(self, action: int, output: PolicyOutput) -> int:
+        """Replica change requested by an action index (the model's own deltas for PPO output)."""
+        deltas = HEURISTIC_DELTAS
+        if self.runtime is not None and output.mode.startswith("ppo"):
+            deltas = getattr(self.runtime, "action_deltas", HEURISTIC_DELTAS)
+        return int(deltas[int(action)])
+
+    def _auto(self, record: Dict[str, Any], name: str, *, owner_hint: bool, confidence: float, current: int,
+              proposed: int, m: WorkloadMetrics, lo: int, hi: int, live: bool):
+        p = self.policy
+        dec = self.arbiter.decide(
+            name, model_available=self.runtime is not None, telemetry_ok=owner_hint,
+            lease_held=(self.effective_mode == "live") if live else True,
+            confidence=confidence, activation=p.confidence_threshold, deactivation=p.deactivation_threshold,
+            current=current, flexascale_proposal=int(proposed), cpu_pct=m.cpu_pct, latency_ms=m.latency_mean_ms,
+            slo_ms=p.slo_for(name), lo=lo, hi=hi)
+        record["auto"] = dec.to_dict()
+        self.auto_state[name] = record["auto"]
+        return dec
+
     def _decide(
         self,
         name: str,
@@ -349,7 +383,8 @@ class AppOperator:
             "policy": {
                 "mode": output.mode,
                 "action": int(action),
-                "action_label": ACTION_LABELS.get(int(action), str(action)),
+                "action_label": action_label(self._delta(action, output)),
+                "delta": self._delta(action, output),
                 "confidence": round(float(confidence), 4),
                 "probabilities": output.probabilities[idx] if output.probabilities else None,
                 "window": output.windows[idx] if output.windows else None,
@@ -365,16 +400,20 @@ class AppOperator:
             reasons.append("telemetry_unavailable" if m.cpu_pct is None else "telemetry_stale")
             proposed = current
             owner = ControlMode.HPA
+            if self.arbiter is not None:
+                self._auto(record, name, owner_hint=False, confidence=confidence, current=current, proposed=current,
+                           m=m, lo=lo, hi=hi, live=live)
         else:
-            proposed = current + (int(action) - 1)
-            proposed = max(lo, min(hi, proposed))
+            delta = max(-p.max_scale_down_step, min(p.max_step, self._delta(action, output)))
+            proposed = max(lo, min(hi, current + delta))
             if current < lo or current > hi:
                 proposed = max(lo, min(hi, current))
                 reasons.append("restore_replica_bounds")
             if proposed > current and p.max_total_replicas is not None and \
                     self._planned_total + (proposed - current) > p.max_total_replicas:
-                proposed = current
-                reasons.append("scale_up_blocked_replica_budget")
+                room = max(0, p.max_total_replicas - self._planned_total)
+                proposed = current + min(proposed - current, room)  # a multi-replica step shrinks to the budget
+                reasons.append("scale_up_blocked_replica_budget" if room == 0 else "scale_up_clipped_replica_budget")
             if proposed > current and workload.ready_replicas < current:
                 # Earlier replicas are still starting (or unschedulable): do not pile more on.
                 proposed = current
@@ -395,9 +434,15 @@ class AppOperator:
                     proposed, _ = current, reasons.append("scale_down_cooldown")
                 elif workload.ready_replicas < current:
                     proposed, _ = current, reasons.append("scale_down_waiting_for_readiness")
+            # Auto mode: ordered, explainable rules choose the owner (operator/auto_mode.py).
+            if self.arbiter is not None:
+                dec = self._auto(record, name, owner_hint=True, confidence=confidence, current=current, proposed=proposed,
+                                 m=m, lo=lo, hi=hi, live=live)
+                owner = ControlMode.RL if dec.owner == "flexascale" else ControlMode.HPA
+                if owner == ControlMode.HPA:
+                    reasons.append(f"auto_{dec.rule}")
             # Confidence gate with hysteresis.
-            owner_now = self.lock_manager.get_control_mode(name)
-            if owner_now == ControlMode.RL:
+            elif (owner_now := self.lock_manager.get_control_mode(name)) == ControlMode.RL:
                 owner = ControlMode.RL if confidence >= p.deactivation_threshold else ControlMode.HPA
                 if owner == ControlMode.HPA:
                     reasons.append("confidence_below_deactivation")
@@ -498,6 +543,8 @@ class AppOperator:
             "lease_identity": self.lease.identity,
             "last_error": self.last_error,
             "services": [d["service"] for d in (self.last_result.decisions if self.last_result else [])],
+            "auto": self.arbiter is not None,
+            "auto_state": self.auto_state if self.arbiter is not None else None,
         }
 
     def _write_status(self) -> None:

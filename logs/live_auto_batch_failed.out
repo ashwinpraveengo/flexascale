@@ -1,0 +1,78 @@
+=== repeat 1 (19:29)
+19:29:34 started 20261025-192934-shopping-hpa-steady_browsing
+19:40:15 completed 20261025-192934-shopping-hpa-steady_browsing  req/s=1.4837359482071384 p95=15000.0 fail%=100.0 replica_h=1.379013 safe=True error=None
+19:40:15 started 20261025-194015-shopping-auto-steady_browsing
+19:40:35 failed    20261025-194015-shopping-auto-steady_browsing  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:40:35 started 20261025-194035-shopping-hpa-checkout_heavy
+19:40:55 failed    20261025-194035-shopping-hpa-checkout_heavy  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:40:55 started 20261025-194055-shopping-auto-checkout_heavy
+19:41:15 failed    20261025-194055-shopping-auto-checkout_heavy  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:41:15 started 20261025-194115-shopping-hpa-payment_degradation
+19:41:35 failed    20261025-194115-shopping-hpa-payment_degradation  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:41:35 started 20261025-194135-shopping-auto-payment_degradation
+19:41:55 failed    20261025-194135-shopping-auto-payment_degradation  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:41:55 started 20261025-194155-shopping-hpa-flash_sale
+19:42:15 failed    20261025-194155-shopping-hpa-flash_sale  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:42:15 started 20261025-194215-shopping-auto-flash_sale
+19:42:35 failed    20261025-194215-shopping-auto-flash_sale  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:42:35 started 20261025-194235-shopping-hpa-gradual_ramp
+19:42:55 failed    20261025-194235-shopping-hpa-gradual_ramp  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:42:55 started 20261025-194255-shopping-auto-gradual_ramp
+19:43:15 failed    20261025-194255-shopping-auto-gradual_ramp  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:43:15 started 20261025-194315-shopping-hpa-traffic_drop
+19:43:35 failed    20261025-194315-shopping-hpa-traffic_drop  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:43:35 started 20261025-194335-shopping-auto-traffic_drop
+19:43:55 failed    20261025-194335-shopping-auto-traffic_drop  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+RUNS 20261025-192934-shopping-hpa-steady_browsing,20261025-194015-shopping-auto-steady_browsing,20261025-194035-shopping-hpa-checkout_heavy,20261025-194055-shopping-auto-checkout_heavy,20261025-194115-shopping-hpa-payment_degradation,20261025-194135-shopping-auto-payment_degradation,20261025-194155-shopping-hpa-flash_sale,20261025-194215-shopping-auto-flash_sale,20261025-194235-shopping-hpa-gradual_ramp,20261025-194255-shopping-auto-gradual_ramp,20261025-194315-shopping-hpa-traffic_drop,20261025-194335-shopping-auto-traffic_drop
+=== repeat 2 (19:43)
+19:43:55 started 20261025-194355-shopping-hpa-steady_browsing
+19:44:15 failed    20261025-194355-shopping-hpa-steady_browsing  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:44:15 started 20261025-194415-shopping-auto-steady_browsing
+19:44:35 failed    20261025-194415-shopping-auto-steady_browsing  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:44:35 started 20261025-194435-shopping-hpa-checkout_heavy
+19:44:55 failed    20261025-194435-shopping-hpa-checkout_heavy  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:44:55 started 20261025-194455-shopping-auto-checkout_heavy
+19:45:15 failed    20261025-194455-shopping-auto-checkout_heavy  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:45:15 started 20261025-194515-shopping-hpa-payment_degradation
+19:45:35 failed    20261025-194515-shopping-hpa-payment_degradation  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:45:35 started 20261025-194535-shopping-auto-payment_degradation
+19:45:55 failed    20261025-194535-shopping-auto-payment_degradation  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:45:55 started 20261025-194555-shopping-hpa-flash_sale
+19:46:15 failed    20261025-194555-shopping-hpa-flash_sale  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:46:15 started 20261025-194615-shopping-auto-flash_sale
+19:46:35 failed    20261025-194615-shopping-auto-flash_sale  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:46:35 started 20261025-194635-shopping-hpa-gradual_ramp
+19:46:55 failed    20261025-194635-shopping-hpa-gradual_ramp  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:46:55 started 20261025-194655-shopping-auto-gradual_ramp
+19:47:15 failed    20261025-194655-shopping-auto-gradual_ramp  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:47:15 started 20261025-194715-shopping-hpa-traffic_drop
+19:47:35 failed    20261025-194715-shopping-hpa-traffic_drop  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:47:36 started 20261025-194736-shopping-auto-traffic_drop
+19:47:56 failed    20261025-194736-shopping-auto-traffic_drop  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+RUNS 20261025-194355-shopping-hpa-steady_browsing,20261025-194415-shopping-auto-steady_browsing,20261025-194435-shopping-hpa-checkout_heavy,20261025-194455-shopping-auto-checkout_heavy,20261025-194515-shopping-hpa-payment_degradation,20261025-194535-shopping-auto-payment_degradation,20261025-194555-shopping-hpa-flash_sale,20261025-194615-shopping-auto-flash_sale,20261025-194635-shopping-hpa-gradual_ramp,20261025-194655-shopping-auto-gradual_ramp,20261025-194715-shopping-hpa-traffic_drop,20261025-194736-shopping-auto-traffic_drop
+=== repeat 3 (19:47)
+19:47:56 started 20261025-194756-shopping-hpa-steady_browsing
+19:48:16 failed    20261025-194756-shopping-hpa-steady_browsing  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:48:16 started 20261025-194816-shopping-auto-steady_browsing
+19:48:36 failed    20261025-194816-shopping-auto-steady_browsing  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:48:36 started 20261025-194836-shopping-hpa-checkout_heavy
+19:48:56 failed    20261025-194836-shopping-hpa-checkout_heavy  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:48:56 started 20261025-194856-shopping-auto-checkout_heavy
+19:49:16 failed    20261025-194856-shopping-auto-checkout_heavy  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:49:16 started 20261025-194916-shopping-hpa-payment_degradation
+19:49:36 failed    20261025-194916-shopping-hpa-payment_degradation  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:49:36 started 20261025-194936-shopping-auto-payment_degradation
+19:49:56 failed    20261025-194936-shopping-auto-payment_degradation  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:49:56 started 20261025-194956-shopping-hpa-flash_sale
+19:50:16 failed    20261025-194956-shopping-hpa-flash_sale  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:50:16 started 20261025-195016-shopping-auto-flash_sale
+19:50:36 failed    20261025-195016-shopping-auto-flash_sale  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:50:36 started 20261025-195036-shopping-hpa-gradual_ramp
+19:50:56 failed    20261025-195036-shopping-hpa-gradual_ramp  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:50:56 started 20261025-195056-shopping-auto-gradual_ramp
+19:51:16 failed    20261025-195056-shopping-auto-gradual_ramp  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:51:16 started 20261025-195116-shopping-hpa-traffic_drop
+19:51:36 failed    20261025-195116-shopping-hpa-traffic_drop  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+19:51:36 started 20261025-195136-shopping-auto-traffic_drop
+19:51:56 failed    20261025-195136-shopping-auto-traffic_drop  req/s=None p95=None fail%=None replica_h=None safe=True error=RuntimeError: app data reset failed: PUT /api/inventory/1: timed out
+RUNS 20261025-194756-shopping-hpa-steady_browsing,20261025-194816-shopping-auto-steady_browsing,20261025-194836-shopping-hpa-checkout_heavy,20261025-194856-shopping-auto-checkout_heavy,20261025-194916-shopping-hpa-payment_degradation,20261025-194936-shopping-auto-payment_degradation,20261025-194956-shopping-hpa-flash_sale,20261025-195016-shopping-auto-flash_sale,20261025-195036-shopping-hpa-gradual_ramp,20261025-195056-shopping-auto-gradual_ramp,20261025-195116-shopping-hpa-traffic_drop,20261025-195136-shopping-auto-traffic_drop

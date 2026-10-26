@@ -34,7 +34,7 @@ import yaml
 
 from flexascale.config.app_policy import AppPolicy
 from flexascale.config.safety_config import SafetyConfig
-from flexascale.discovery.workloads import WorkloadDiscovery, WorkloadInfo
+from flexascale.discovery.workloads import ANNOTATION_ORIGINAL_BEHAVIOR, WorkloadDiscovery, WorkloadInfo
 from flexascale.evaluation.cost import percent_change, scaling_stability, summarize_resources
 from flexascale.k8s.kube import Kube
 from flexascale.lab.processes import ProcessManager
@@ -54,7 +54,11 @@ SCENARIOS: Dict[str, Dict[str, str]] = {
     "traffic_drop": {"title": "Traffic drop", "description": "Peak load, then a drop to 10% (tests scale-down)."},
     "payment_degradation": {"title": "Payment latency & failures", "description": "300 ms payment delays plus declined cards."},
 }
-CONTROLLERS = ("hpa", "flexascale")
+CONTROLLERS = ("hpa", "flexascale", "auto", "hpa_fast")
+# "hpa_fast": native HPA with only its scale-down stabilisation window shortened (default 300 s), restored after
+# the run. A tuned-HPA reference; never used as the baseline of a pair.
+HPA_FAST_SCALE_DOWN_S = 60
+NATIVE_HPA_CONTROLLERS = ("hpa", "hpa_fast")
 LIMITS = {"users": (1, 500), "spawn_rate": (0.1, 100.0), "duration": (30, 3600)}
 TERMINAL_STATES = ("completed", "stopped", "failed", "interrupted")
 HPA_DOWNSCALE_WINDOW_S = 330  # Kubernetes default scale-down stabilisation (300 s) + margin
@@ -72,6 +76,8 @@ class LabApp:
     policy_path: str
     url: str
     locustfile: str
+    reset_requests: List[Dict[str, Any]] = field(default_factory=list)
+    """HTTP calls made before every run so each starts from the same data (e.g. restock, empty carts)."""
 
 
 @dataclass
@@ -94,6 +100,7 @@ class LabConfig:
                 policy_path=spec["policy"],
                 url=spec.get("url", ""),
                 locustfile=spec.get("locustfile", "load-testing/scenarios.py"),
+                reset_requests=list(spec.get("reset_requests") or []),
             )
             for name, spec in (data.pop("apps", {}) or {}).items()
         }
@@ -218,7 +225,7 @@ def start_settled(run: Dict[str, Any]) -> Optional[bool]:
         return policy_min
 
     controller = (run.get("request") or {}).get("controller")
-    snapshot = run.get("start_replicas") or (run.get("initial_replicas") if controller == "flexascale" else None)
+    snapshot = run.get("start_replicas") or (run.get("initial_replicas") if controller in ("flexascale", "auto") else None)
     if snapshot:
         return all(int(v) <= floor(k) for k, v in snapshot.items())
     if first:
@@ -272,6 +279,8 @@ class Experiment:
         self._locust_log_offset = 0
         self._prev: Dict[str, Dict[str, Any]] = {}
         self._e2e_violating = False
+        self.auto_state: Dict[str, Dict[str, Any]] = {}
+        self.auto_counts: Dict[str, int] = {}
         self.thread = threading.Thread(target=self._run, name=f"experiment-{self.id}", daemon=True)
 
     # -- bookkeeping ---------------------------------------------------------
@@ -306,6 +315,8 @@ class Experiment:
                 "initial_replicas": self.initial_replicas,
                 "start_replicas": self.start_replicas,
                 "slo": {"e2e_p95_ms": self.lab.cfg.e2e_p95_slo_ms, "service_mean_ms": self.policy.slo_latency_ms},
+                "auto_state": dict(self.auto_state),
+                "auto_counts": dict(self.auto_counts),
             }
 
     # -- lifecycle -----------------------------------------------------------
@@ -358,6 +369,8 @@ class Experiment:
 
         if not lab.metrics.healthy():
             raise RuntimeError(f"Prometheus not reachable at {lab.cfg.prometheus_url}")
+        if self.app.reset_requests:
+            self._reset_app_data()
         workloads = lab.discovery(self.req.app).discover(force_refresh=True)
         if not workloads:
             raise RuntimeError(f"no eligible Deployments found in namespace '{policy.namespace}'")
@@ -368,6 +381,9 @@ class Experiment:
         restored = hpa_mgr.restore_all_frozen()
         if restored:
             self.event("ownership", f"Restored HPAs left frozen by an earlier run: {', '.join(restored)}")
+        restored = hpa_mgr.restore_all_behavior()
+        if restored:
+            self.event("ownership", f"Restored HPA scale-down behaviour left by an earlier run: {', '.join(restored)}")
         lease = ControllerLease(policy.namespace, policy.name, kube=lab.kube)
         st = lease.status()
         if st.holder and not st.expired:
@@ -381,14 +397,39 @@ class Experiment:
         workloads = lab.discovery(self.req.app).discover(force_refresh=True)
         self.start_replicas = {w.name: w.desired_replicas for w in workloads}  # state at controller handoff
         without_hpa = [w.name for w in workloads if w.hpa is None]
-        if self.req.controller == "hpa":
+        if self.req.controller in NATIVE_HPA_CONTROLLERS:
+            if self.req.controller == "hpa_fast":
+                changed = hpa_mgr.set_scale_down_window(HPA_FAST_SCALE_DOWN_S)
+                missing = [w.hpa.name for w in workloads if w.hpa and w.hpa.name not in changed]
+                if missing:
+                    raise RuntimeError(f"could not set the HPA scale-down window on {', '.join(missing)}")
+                self.event("ownership", f"Native HPA scale-down stabilisation window set to {HPA_FAST_SCALE_DOWN_S} s "
+                                        f"(default 300 s) on {len(changed)} HPAs; restored after the run")
             if without_hpa:
                 self.event("ownership", f"No HPA for {', '.join(without_hpa)}: replicas stay fixed under 'HPA' mode")
             self.event("ownership", "Native HPA owns scaling; FlexaScale scaling disabled (lease free, no HPA frozen)")
             if self.req.shadow:
                 self._start_operator("observe")
         else:
-            self._start_operator("live")
+            self._start_operator("live", auto=self.req.controller == "auto")
+
+    def _reset_app_data(self) -> None:
+        """Run the app's configured reset calls; a failed call refuses the run (it would not be comparable)."""
+        import urllib.request
+
+        for spec in self.app.reset_requests:
+            paths = [spec["path"].format(id=i) for i in spec.get("ids", [None])] if "ids" in spec else [spec["path"]]
+            for path in paths:
+                body = json.dumps(spec["json"]).encode() if "json" in spec else None
+                req = urllib.request.Request(self.app_url.rstrip("/") + path, data=body, method=spec.get("method", "POST"),
+                                             headers={"Content-Type": "application/json"})
+                try:
+                    with urllib.request.urlopen(req, timeout=10) as resp:
+                        if resp.status >= 400:
+                            raise RuntimeError(f"HTTP {resp.status}")
+                except Exception as exc:
+                    raise RuntimeError(f"app data reset failed: {spec.get('method', 'POST')} {path}: {exc}") from exc
+        self.event("preflight", f"Application data reset ({len(self.app.reset_requests)} configured steps)")
 
     def _reset_replicas(self, workloads: List[WorkloadInfo], hpa_mgr: HPAManager) -> None:
         """
@@ -457,7 +498,7 @@ class Experiment:
                    + ", ".join(f"{k}={v}" for k, v in initial.items()), initial_replicas=initial, settled=stable)
         self._stop.wait(10)  # let CPU rate windows reflect the idle state
 
-    def _start_operator(self, mode: str) -> None:
+    def _start_operator(self, mode: str, auto: bool = False) -> None:
         lab = self.lab
         status_file = lab.pm.runtime_dir / "operator_status.json"
         status_file.unlink(missing_ok=True)
@@ -468,7 +509,7 @@ class Experiment:
             "--prometheus-url", lab.cfg.prometheus_url,
             "--decision-log", str(self.dir / "decisions.jsonl"),
             "--status-file", str(status_file),
-        ]
+        ] + (["--auto"] if auto else [])
         lab.pm.start("operator", cmd, cwd=str(ROOT), marker="run_operator.py", log_path=self.dir / "operator.log")
         deadline = time.time() + 90
         while time.time() < deadline:
@@ -486,6 +527,9 @@ class Experiment:
                     if mode == "live":
                         self.event("ownership", "FlexaScale operator holds the controller lease; HPAs are frozen per service before any scale",
                                    lease=(status.get("lease") or {}).get("holder"))
+                        if auto:
+                            self.event("auto", "Auto mode: each service is assigned to FlexaScale or native HPA by the rules "
+                                               "health -> confidence -> SLA risk -> efficiency, one owner at a time")
                     else:
                         self.event("ownership", "FlexaScale shadow mode: proposals are logged, cluster is not modified")
                     if not self.model_info:
@@ -543,10 +587,13 @@ class Experiment:
         frozen_left: List[str] = ["unknown"]
         deadline = time.time() + 180
         while True:
-            restored += hpa_mgr.restore_all_frozen() + hpa_mgr.restore_unmanaged_replicas()
+            restored += (hpa_mgr.restore_all_frozen() + hpa_mgr.restore_unmanaged_replicas()
+                         + hpa_mgr.restore_all_behavior())
             listed = lab.discovery(self.req.app).list_all(force_refresh=True)
             if lab.discovery(self.req.app).last_error is None:
                 frozen_left = [w.hpa.name for w in listed if w.hpa and w.hpa.frozen]
+                frozen_left += [o["metadata"]["name"] for o in lab.kube.list_items("hpa", self.policy.namespace) or []
+                                if ANNOTATION_ORIGINAL_BEHAVIOR in (o["metadata"].get("annotations") or {})]
             if not frozen_left or time.time() > deadline:
                 break
             self.event("warning", "HPA restore incomplete (Kubernetes API slow?); retrying")
@@ -558,7 +605,7 @@ class Experiment:
         result["frozen_hpas_after"] = frozen_left
         result["safe"] = not frozen_left and (st.expired or not st.holder) and not lab.pm.is_running("operator")
         self.cleanup = result
-        if self.started_at is not None or self.req.controller == "flexascale":
+        if self.started_at is not None or self.req.controller in ("flexascale", "auto"):
             self.event("ownership", "Cleanup: " + ("native HPA ownership verified" if result["safe"] else "WARNING - verify ownership manually"), cleanup=result)
 
     # -- sampling ------------------------------------------------------------
@@ -651,7 +698,7 @@ class Experiment:
             elif svc["hpa"]:
                 who = "HPA"
             else:
-                who = "FlexaScale (no HPA)" if self.req.controller == "flexascale" else "manual/other"
+                who = "FlexaScale (no HPA)" if self.req.controller in ("flexascale", "auto") else "manual/other"
             self.event("replicas", f"{name}: desired replicas {prev['desired']} -> {svc['desired']} (owner: {who})",
                        service=name, frm=prev["desired"], to=svc["desired"], owner=who)
             self._prev[name]["pending"] = True
@@ -683,6 +730,15 @@ class Experiment:
             pol = d.get("policy", {})
             svc = d.get("service")
             reasons = d.get("safety_reasons", [])
+            auto = d.get("auto")
+            if auto and d.get("mode") == "live":
+                prev = self.auto_state.get(svc)
+                if prev is None or prev.get("owner") != auto.get("owner"):
+                    who = "FlexaScale" if auto["owner"] == "flexascale" else "native HPA"
+                    self.event("auto", f"{svc} -> {who} ({auto['rule'].replace('_', ' ')}): {auto['reason']}",
+                               service=svc, owner=auto["owner"], rule=auto["rule"])
+                self.auto_state[svc] = auto
+                self.auto_counts[auto["rule"]] = self.auto_counts.get(auto["rule"], 0) + 1
             if d.get("applied"):
                 self.event("scale_request", f"{svc}: FlexaScale requested {d['current_replicas']} -> {d['proposed_replicas']} "
                            f"({pol.get('action_label')}, confidence {pol.get('confidence', 0):.2f}, {pol.get('mode')})",
@@ -690,7 +746,7 @@ class Experiment:
                            confidence=pol.get("confidence"), policy_mode=pol.get("mode"))
             elif d.get("apply_error"):
                 self.event("safety", f"{svc}: scale not applied ({d['apply_error']})", service=svc)
-            elif pol.get("action") != 1:
+            elif pol.get("delta", (pol.get("action") or 1) - 1) != 0:
                 pending.setdefault(d.get("step"), []).append(d)
             if any(r.startswith(("scale_down_blocked", "telemetry_")) for r in reasons) and d.get("mode") == "live":
                 self.event("safety", f"{svc}: {', '.join(reasons)}", service=svc)
@@ -699,7 +755,8 @@ class Experiment:
             parts = []
             for d in items:
                 pol = d.get("policy", {})
-                arrow = "+1" if pol.get("action") == 2 else "-1"
+                delta = pol.get("delta", (pol.get("action") or 1) - 1)
+                arrow = f"{delta:+d}"
                 owner = "FS" if d.get("controller") == "flexascale" else "HPA"
                 parts.append(f"{d.get('service')} {arrow} ({pol.get('confidence', 0):.2f}, {owner})")
             verb = "would propose" if observe else "proposed (not applied)"
@@ -912,7 +969,8 @@ class Lab:
         for w in all_w:
             m = metrics.get(w.name)
             if w.hpa and w.hpa.frozen:
-                owner = "flexascale"
+                # The lab's pre-run reset also freezes HPAs, with the lease free.
+                owner = "flexascale" if lease.holder and not lease.expired else "reset"
             elif w.hpa:
                 owner = "hpa"
             else:
@@ -933,8 +991,10 @@ class Lab:
             "operator": op_status,
             "policy": {"mode": policy.mode, "slo_latency_ms": policy.slo_latency_ms, "cpu_target_pct": policy.cpu_target_pct,
                        "min_replicas": policy.min_replicas, "max_replicas": policy.max_replicas,
-                       "confidence_threshold": policy.confidence_threshold, "model_path": policy.model_path,
-                       "topology": [list(e) for e in policy.topology]},
+                       "confidence_threshold": policy.confidence_threshold, "deactivation_threshold": policy.deactivation_threshold,
+                       "model_path": policy.model_path, "poll_interval_seconds": policy.poll_interval_seconds,
+                       "max_total_replicas": policy.max_total_replicas, "topology": [list(e) for e in policy.topology],
+                       "cost": dataclasses.asdict(policy.cost), "auto": policy.auto, "auto_valid": not policy.validate()},
         }
         self._live_cache[app] = {"ts": time.time(), "data": data}
         return data
@@ -992,6 +1052,11 @@ class Lab:
         if "/" in run_id or ".." in run_id or not path.is_file():
             raise KeyError(run_id)
         return json.loads(path.read_text())
+
+    def benchmark(self, app: Optional[str] = None) -> Dict[str, Any]:
+        from flexascale.lab.benchmark import benchmark, load_runs
+
+        return benchmark(load_runs(ROOT / self.cfg.results_dir), self.compare, app)
 
     def compare(self, baseline_id: str, candidate_id: str) -> Dict[str, Any]:
         a, b = self.run(baseline_id), self.run(candidate_id)

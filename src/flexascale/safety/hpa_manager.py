@@ -17,6 +17,7 @@ from typing import Any
 from flexascale.config.safety_config import SafetyConfig
 from flexascale.discovery.workloads import (
     ANNOTATION_FROZEN_BY,
+    ANNOTATION_ORIGINAL_BEHAVIOR,
     ANNOTATION_ORIGINAL_MAX,
     ANNOTATION_ORIGINAL_MIN,
     ANNOTATION_ORIGINAL_REPLICAS,
@@ -236,6 +237,58 @@ class HPAManager:
             hpa = HPAInfo.from_object(obj)
             if hpa.frozen and self.restore_hpa(hpa):
                 restored.append(hpa.name)
+        return restored
+
+    def set_scale_down_window(self, seconds: int) -> list[str]:
+        """
+        Set every HPA's scale-down stabilisation window (native HPA default 300 s).
+
+        The original ``spec.behavior`` is stored on the HPA first, so
+        :meth:`restore_all_behavior` can put it back even from another process.
+        """
+        changed = []
+        if self.mock or self.config.dry_run:
+            return changed
+        for obj in self.kube.list_items("hpa", self.config.namespace) or []:
+            meta, spec = obj.get("metadata", {}), obj.get("spec", {})
+            annotations = {}
+            if ANNOTATION_ORIGINAL_BEHAVIOR not in (meta.get("annotations") or {}):
+                annotations[ANNOTATION_ORIGINAL_BEHAVIOR] = json.dumps(spec.get("behavior"))
+            patch = {"spec": {"behavior": {"scaleDown": {"stabilizationWindowSeconds": int(seconds)}}}}
+            if annotations:
+                patch["metadata"] = {"annotations": annotations}
+            res = self.kube.patch("hpa", meta["name"], self.config.namespace, patch)
+            if res.ok:
+                changed.append(meta["name"])
+            else:
+                logger.error("[HPA] Failed to set scale-down window on '%s': %s", meta["name"], res.stderr)
+        return changed
+
+    def restore_all_behavior(self) -> list[str]:
+        """Restore the ``spec.behavior`` recorded by :meth:`set_scale_down_window` and drop the marker."""
+        restored = []
+        if self.mock or self.config.dry_run:
+            return restored
+        for obj in self.kube.list_items("hpa", self.config.namespace) or []:
+            meta = obj.get("metadata", {})
+            raw = (meta.get("annotations") or {}).get(ANNOTATION_ORIGINAL_BEHAVIOR)
+            if raw is None:
+                continue
+            try:
+                original = json.loads(raw)
+            except ValueError:
+                original = None
+            # Clear first: a merge patch would otherwise keep fields the original did not have.
+            res = self.kube.patch("hpa", meta["name"], self.config.namespace, {"spec": {"behavior": None}})
+            if res.ok and original:
+                res = self.kube.patch("hpa", meta["name"], self.config.namespace, {"spec": {"behavior": original}})
+            if res.ok:
+                res = self.kube.patch("hpa", meta["name"], self.config.namespace,
+                                      {"metadata": {"annotations": {ANNOTATION_ORIGINAL_BEHAVIOR: None}}})
+            if res.ok:
+                restored.append(meta["name"])
+            else:
+                logger.error("[HPA] Failed to restore behavior of '%s': %s", meta["name"], res.stderr)
         return restored
 
     def _record_original_replicas(self, service_id: str) -> bool:

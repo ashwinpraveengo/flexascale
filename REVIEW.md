@@ -3,6 +3,8 @@
 > **Target Audience**: Senior Software Engineer, ML/RL Engineer, Academic Coordinator, and Defense Committee.  
 > **Repository**: `ashwinpraveengo/flexascale`  
 > **Status**: Verified against repository code at commit `02298da` (`fix:prometheus values`).
+>
+> **Historical.** This guide describes the code at that commit (the 4-service prototype). For the current system (16-service shop, Auto mode, control center) and its measured results, see `docs/FINAL_PROJECT_SUMMARY.md`, `docs/FINAL_VIVA_PREPARATION.md` and `reports/final_readiness_report.md`.
 
 ---
 

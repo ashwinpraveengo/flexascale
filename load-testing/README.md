@@ -1,6 +1,6 @@
 # FlexaScale E-Commerce Load Testing Suite
 
-This directory contains realistic Locust load-generation workloads for evaluating the 7 backend microservices, testing concurrency and locking behavior, measuring SLA latency distributions, and observing Prometheus metrics.
+This directory contains realistic Locust load-generation workloads for evaluating the 16 backend microservices, testing concurrency and locking behavior, measuring SLA latency distributions, and observing Prometheus metrics.
 
 ---
 

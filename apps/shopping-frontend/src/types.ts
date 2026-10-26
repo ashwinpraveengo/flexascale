@@ -84,3 +84,22 @@ export interface SystemStatus {
     error?: string;
   }>;
 }
+
+export interface Review {
+  id: number;
+  product_id: number;
+  user_id: number;
+  rating: number;
+  title: string;
+  body: string | null;
+  created_at: string;
+}
+
+export interface Recommendation {
+  id: number;
+  name: string;
+  price: number;
+  image_url: string | null;
+  rating: number;
+  score: number;
+}

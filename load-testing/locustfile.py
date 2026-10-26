@@ -1,8 +1,10 @@
 """
 FlexaScale E-Commerce Microservices Load Testing Suite.
-Simulates realistic distributed shopping traffic across the 7 backend microservices:
-1. BrowsingUser: Catalog browsing, full-text search, product details, category exploration.
-2. ShoppingCustomerUser: Full customer journey (login, add to cart, update qty, checkout, order history).
+Simulates realistic distributed shopping traffic across the 16 backend microservices:
+1. BrowsingUser: Catalog browsing, ranked search (search -> pricing -> promotion), product details with
+   reviews and recommendations (recommendation -> catalog, review), category exploration.
+2. ShoppingCustomerUser: Full customer journey (login, wishlist, add to cart, shipping quote, checkout with
+   fraud screening and confirmation, order history).
 3. FlashSaleUser: High-concurrency contention on top products to test atomic inventory locking.
 4. FailedCheckoutUser: Evaluates two-phase saga rollback and error propagation.
 5. HighLatencyPaymentUser: Stresses timeouts and downstream queuing by introducing simulated processing delays.
@@ -36,12 +38,14 @@ class BrowsingUser(HttpUser):
     @task(3)
     def search_products(self):
         query = random.choice(SEARCH_QUERIES)
-        self.client.get(f"/api/products?q={query}", name="GET /api/products?q=[search]")
+        self.client.get(f"/api/search?q={query}", name="GET /api/search?q=[search]")
 
     @task(4)
     def view_product_detail(self):
         product_id = random.randint(1, 14)
         self.client.get(f"/api/products/{product_id}", name="GET /api/products/{id}")
+        self.client.get(f"/api/reviews/{product_id}", name="GET /api/reviews/{id}")
+        self.client.get(f"/api/recommendations/{product_id}", name="GET /api/recommendations/{id}")
 
     @task(2)
     def view_categories(self):
@@ -112,6 +116,26 @@ class ShoppingCustomerUser(HttpUser):
             },
             headers=self.get_headers(),
             name="POST /api/orders/checkout [Success]"
+        )
+
+    @task(2)
+    def wishlist(self):
+        self.client.post(
+            f"/api/wishlist/{self.user_id}/items",
+            json={"product_id": random.randint(1, 14)},
+            headers=self.get_headers(),
+            name="POST /api/wishlist/{user_id}/items"
+        )
+        self.client.get(f"/api/wishlist/{self.user_id}", headers=self.get_headers(), name="GET /api/wishlist/{user_id}")
+
+    @task(1)
+    def shipping_quote(self):
+        self.client.post(
+            "/api/shipping/quote",
+            json={"shipping_address": f"{random.randint(1, 999)} Performance Lane, Minikube Cluster",
+                  "items": [{"product_id": random.randint(1, 14), "quantity": 1}]},
+            headers=self.get_headers(),
+            name="POST /api/shipping/quote"
         )
 
     @task(1)

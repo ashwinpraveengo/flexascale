@@ -149,7 +149,7 @@ def test_api_endpoints(lab):
     with TestClient(create_lab_app(lab)) as client:
         assert client.get("/api/lab/health").json()["status"] == "ok"
         sc = client.get("/api/lab/scenarios").json()
-        assert len(sc["scenarios"]) == 6 and sc["controllers"] == ["hpa", "flexascale"]
+        assert len(sc["scenarios"]) == 6 and sc["controllers"] == ["hpa", "flexascale", "auto", "hpa_fast"]
         assert client.get("/api/lab/apps/unknown/live").status_code == 404
         r = client.post("/api/lab/experiments", json={"app": "shopping", "controller": "hpa", "scenario": "flash_sale", "users": 10_000})
         assert r.status_code == 422
@@ -197,7 +197,7 @@ def test_unknown_scenario_is_rejected():
     assert out.returncode != 0
 
 
-@pytest.mark.parametrize("script", ["start_review.sh", "start_demo.sh", "stop_review.sh", "review_status.sh",
+@pytest.mark.parametrize("script", ["start_review.sh", "start_demo.sh", "stop_review.sh", "review_status.sh", "run_live_batch.sh",
                                     "lib/review_common.sh", "lib/keep_port_forward.sh", "teardown_cluster.sh"])
 def test_scripts_parse(script):
     assert subprocess.run(["bash", "-n", str(ROOT / "scripts" / script)]).returncode == 0

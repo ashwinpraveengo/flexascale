@@ -8,12 +8,28 @@ import httpx
 
 from .config import (
     SERVICE_NAME, CATALOG_SERVICE_URL, CART_SERVICE_URL,
-    INVENTORY_SERVICE_URL, PAYMENT_SERVICE_URL, HTTP_TIMEOUT
+    INVENTORY_SERVICE_URL, PAYMENT_SERVICE_URL, HTTP_TIMEOUT,
+    SHIPPING_SERVICE_URL, FRAUD_SERVICE_URL, NOTIFICATION_SERVICE_URL
 )
 from .database import get_db, init_db, engine
 from .models import Order, OrderItem
 from .schemas import CheckoutRequest, OrderOut, OrderItemOut
 from .metrics import setup_metrics, ORDERS_CREATED_TOTAL
+
+
+_http_client: Optional[httpx.AsyncClient] = None
+
+
+@asynccontextmanager
+async def shared_client():
+    """One pooled HTTP client per process. A client per call (the earlier code) built a new
+    connection pool and TLS context every time; under checkout bursts that pushed the pod
+    past its memory limit (OOMKilled)."""
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        _http_client = httpx.AsyncClient(
+            timeout=HTTP_TIMEOUT, limits=httpx.Limits(max_connections=200, max_keepalive_connections=50))
+    yield _http_client
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -90,7 +106,7 @@ async def checkout(
         items_to_order = [{"product_id": it.product_id, "quantity": it.quantity} for it in payload.items]
     else:
         try:
-            async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+            async with shared_client() as client:
                 cart_resp = await client.get(f"{CART_SERVICE_URL}/api/cart/{payload.user_id}")
                 if cart_resp.status_code == 200:
                     cart_data = cart_resp.json()
@@ -108,7 +124,7 @@ async def checkout(
     # Step 2: Validate items & authoritative prices with catalog-service
     total_amount = 0.0
     order_items_data = []
-    async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+    async with shared_client() as client:
         for it in items_to_order:
             try:
                 prod_resp = await client.get(f"{CATALOG_SERVICE_URL}/api/products/{it['product_id']}")
@@ -132,6 +148,28 @@ async def checkout(
                 )
 
     total_amount = round(total_amount, 2)
+
+    # Step 2b: Shipping quote and fraud screening (both required before any reservation)
+    line_items = [{"product_id": it["product_id"], "quantity": it["quantity"]} for it in order_items_data]
+    async with shared_client() as client:
+        try:
+            ship_resp = await client.post(f"{SHIPPING_SERVICE_URL}/api/shipping/quote", json={
+                "shipping_address": payload.shipping_address or "", "items": line_items
+            })
+            fraud_resp = await client.post(f"{FRAUD_SERVICE_URL}/api/fraud/check", json={
+                "user_id": payload.user_id, "amount": total_amount,
+                "card_number": payload.card_number or "", "items": line_items
+            })
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Failed to communicate with Shipping/Fraud Service: {str(e)}"
+            )
+    if ship_resp.status_code != 200 or fraud_resp.status_code != 200:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Shipping or fraud screening unavailable")
+    if not fraud_resp.json().get("approved", False):
+        ORDERS_CREATED_TOTAL.labels(status="rejected").inc()
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Order rejected by fraud screening")
 
     # Step 3: Create Order record in 'pending' status
     order = Order(
@@ -164,7 +202,7 @@ async def checkout(
     }
     reservation_successful = False
     try:
-        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+        async with shared_client() as client:
             inv_resp = await client.post(f"{INVENTORY_SERVICE_URL}/api/inventory/reserve", json=reserve_payload)
             if inv_resp.status_code == 200 and inv_resp.json().get("success"):
                 reservation_successful = True
@@ -194,7 +232,7 @@ async def checkout(
     payment_successful = False
     payment_id = None
     try:
-        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+        async with shared_client() as client:
             pay_resp = await client.post(f"{PAYMENT_SERVICE_URL}/api/payments/process", json=payment_payload)
             if pay_resp.status_code == 200:
                 pay_data = pay_resp.json()
@@ -207,7 +245,7 @@ async def checkout(
         order.failure_reason = f"Payment Service error: {str(e)}"
 
     # Step 6: Coordinate Confirmation or Compensation Rollback
-    async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+    async with shared_client() as client:
         if payment_successful:
             # Confirm reservation
             try:
@@ -229,6 +267,15 @@ async def checkout(
             db.commit()
             db.refresh(order)
             ORDERS_CREATED_TOTAL.labels(status="confirmed").inc()
+
+            # Confirmation message (best effort: never fails a paid order)
+            try:
+                await client.post(f"{NOTIFICATION_SERVICE_URL}/api/notifications/order", json={
+                    "order_id": order.id, "user_id": payload.user_id,
+                    "amount": total_amount, "items": line_items
+                })
+            except Exception as e:
+                print(f"Warning: Failed to send confirmation for order {order.id}: {e}")
             return build_order_out(order)
 
         else:
@@ -251,8 +298,10 @@ async def checkout(
             )
 
 @app.get("/api/orders/user/{user_id}", response_model=List[OrderOut])
-def get_user_orders(user_id: int, db: Session = Depends(get_db)):
-    orders = db.query(Order).filter(Order.user_id == user_id).order_by(Order.id.desc()).all()
+def get_user_orders(user_id: int, limit: int = Query(20, ge=1, le=100), db: Session = Depends(get_db)):
+    # Bounded: load-test users accumulate tens of thousands of orders, and loading
+    # them all per request OOM-killed the pod (see reports/experiments_invalid).
+    orders = db.query(Order).filter(Order.user_id == user_id).order_by(Order.id.desc()).limit(limit).all()
     return [build_order_out(o) for o in orders]
 
 @app.get("/api/orders/{order_id}", response_model=OrderOut)
@@ -273,7 +322,7 @@ async def cancel_order(order_id: int, db: Session = Depends(get_db)):
     # If pending or reserved, release inventory
     if order.status in ("pending", "confirmed"):
         try:
-            async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+            async with shared_client() as client:
                 await client.post(
                     f"{INVENTORY_SERVICE_URL}/api/inventory/release",
                     json={"order_id": order.id}

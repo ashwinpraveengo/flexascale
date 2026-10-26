@@ -2,8 +2,8 @@ apiVersion: v2
 name: flexascale
 description: FlexaScale - GNN + PPO autoscaling operator for Kubernetes microservices (observation-only by default)
 type: application
-version: 0.3.0
-appVersion: "0.3.0"
+version: 0.4.1
+appVersion: "0.4.0"
 keywords:
   - autoscaling
   - reinforcement-learning

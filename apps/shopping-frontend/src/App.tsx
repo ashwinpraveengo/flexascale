@@ -195,6 +195,12 @@ export const App: React.FC = () => {
             product={selectedProduct}
             onAddToCart={handleAddToCart}
             onBack={() => setCurrentView('products')}
+            onSelectProduct={(id) => {
+              api.catalog.getProduct(id).then((p) => {
+                setSelectedProduct(p);
+                window.scrollTo(0, 0);
+              }).catch(() => undefined);
+            }}
           />
         )}
 

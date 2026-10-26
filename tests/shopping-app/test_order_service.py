@@ -41,6 +41,8 @@ def test_order_checkout_saga_success():
 
     def mock_post(url, *args, **kwargs):
         req = httpx.Request("POST", str(url))
+        if "fraud/check" in str(url):
+            return httpx.Response(200, json={"score": 0.01, "approved": True}, request=req)
         if "inventory/reserve" in str(url):
             return httpx.Response(200, json={"success": True, "reservations": [{"reservation_id": "res_123"}]}, request=req)
         elif "payments/process" in str(url):
@@ -84,6 +86,8 @@ def test_order_checkout_saga_payment_failure_rollback():
     def mock_post(url, *args, **kwargs):
         nonlocal released_called
         req = httpx.Request("POST", str(url))
+        if "fraud/check" in str(url):
+            return httpx.Response(200, json={"score": 0.01, "approved": True}, request=req)
         if "inventory/reserve" in str(url):
             return httpx.Response(200, json={"success": True, "reservations": [{"reservation_id": "res_999"}]}, request=req)
         elif "payments/process" in str(url):
@@ -106,3 +110,49 @@ def test_order_checkout_saga_payment_failure_rollback():
 
         assert resp.status_code == 402
         assert released_called is True
+
+
+def test_order_checkout_rejected_by_fraud_screening():
+    """A fraud rejection stops the saga before any inventory is reserved."""
+    calls = []
+
+    def mock_get(url, *args, **kwargs):
+        req = httpx.Request("GET", str(url))
+        return httpx.Response(200, json={"id": 1, "name": "Mechanical Keyboard", "price": 150.00}, request=req)
+
+    def mock_post(url, *args, **kwargs):
+        calls.append(str(url))
+        req = httpx.Request("POST", str(url))
+        if "fraud/check" in str(url):
+            return httpx.Response(200, json={"score": 0.99, "approved": False}, request=req)
+        return httpx.Response(200, json={}, request=req)
+
+    with patch("httpx.AsyncClient.get", new_callable=AsyncMock, side_effect=mock_get), \
+         patch("httpx.AsyncClient.post", new_callable=AsyncMock, side_effect=mock_post):
+        resp = client.post("/api/orders/checkout", json={
+            "user_id": 11,
+            "items": [{"product_id": 1, "quantity": 1}],
+            "shipping_address": "1 Fraud Street",
+            "card_number": "4000000000000001",
+            "idempotency_key": "idemp_order_fraud_1"
+        })
+
+    assert resp.status_code == 403
+    assert not any("inventory/reserve" in c for c in calls)
+
+
+
+def test_user_order_history_is_bounded():
+    """Order history returns only the newest orders (unbounded loads OOM-killed the pod)."""
+    Order = sys.modules["svc_order.models"].Order
+    db = TestingSession()
+    db.add_all([Order(user_id=77, total_amount=1.0, status="confirmed") for _ in range(30)])
+    db.commit()
+    newest = db.query(Order.id).filter(Order.user_id == 77).order_by(Order.id.desc()).first()[0]
+    db.close()
+
+    res = client.get("/api/orders/user/77")
+    assert res.status_code == 200
+    assert len(res.json()) == 20 and res.json()[0]["id"] == newest
+    assert len(client.get("/api/orders/user/77?limit=5").json()) == 5
+    assert client.get("/api/orders/user/77?limit=1000").status_code == 422

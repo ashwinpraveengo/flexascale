@@ -1,0 +1,1 @@
+t,elapsed,users,rps,fail_rps,p50_ms,p95_ms,p99_ms,e2e_slo_violation,service,desired,ready,hpa_desired,hpa_min,hpa_max,frozen,cpu_pct,memory_pct,cpu_cores,memory_bytes,request_rate,latency_ms,latency_p95_ms,stale

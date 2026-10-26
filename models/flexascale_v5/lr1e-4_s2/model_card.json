@@ -1,0 +1,132 @@
+{
+  "model": "PPO (Stable-Baselines3) with GNN dependency feature extractor",
+  "trained_at": "2026-10-25T00:58:05+0530",
+  "git_commit": "d0378cc",
+  "python": "3.14.7",
+  "training_seconds": 590.5,
+  "total_timesteps": 500000,
+  "seed": 2,
+  "num_services": 4,
+  "observation": {
+    "version": 2,
+    "per_service_fields": [
+      "cpu_fraction",
+      "memory_fraction",
+      "replica_fraction",
+      "rps_trend",
+      "latency_slo_ratio"
+    ],
+    "units": {
+      "cpu_fraction": "CPU used / CPU request (clipped to 0-1)",
+      "memory_fraction": "memory used / memory limit (0-1)",
+      "replica_fraction": "replicas / max_replicas (10)",
+      "rps_trend": "request rate now / request rate one minute earlier (0-3, 1 if unknown)",
+      "latency_slo_ratio": "mean latency / the service's latency SLO (0-5)"
+    },
+    "max_replicas": 10,
+    "normalization": "unit-free by construction; clipped to observation-space bounds",
+    "dim": 20,
+    "graph_semantics": "slot i calls slot i+1",
+    "decision_slot": 0
+  },
+  "action": {
+    "per_service": {
+      "0": "scale down by 1",
+      "1": "hold",
+      "2": "scale up by 1"
+    }
+  },
+  "graph": {
+    "type": "chain",
+    "nodes": 4
+  },
+  "environment": {
+    "env_class": "FlexaScaleEnvV2",
+    "dataset_path": "data/processed/alibaba_service_state.csv",
+    "train_split": "train",
+    "eval_split": "val",
+    "split_method": "service",
+    "service_sampling": "random",
+    "demand_model": "normalized",
+    "randomize_initial_replicas": true,
+    "min_replicas": 1,
+    "max_replicas": 10,
+    "latency_target_ms": 100.0,
+    "cpu_target_pct": 70.0,
+    "reward_weights": {
+      "slo": 1.0,
+      "efficiency": 0.3,
+      "stability": 0.1,
+      "cost": 1.0
+    },
+    "peak_replicas": [
+      1,
+      4
+    ],
+    "slo_slack": [
+      1.2,
+      2.0
+    ],
+    "downstream_coupling_high": 1.0,
+    "external_latency_high": 2.0,
+    "bottleneck_probability": 0.4,
+    "traffic_events": true,
+    "slo_penalty_cap": 3.0,
+    "control": "focal",
+    "background_epsilon": 0.2
+  },
+  "ppo": {
+    "n_steps": 256,
+    "batch_size": 256,
+    "ent_coef": 0.001,
+    "n_envs": 8,
+    "learning_rate": 0.0001,
+    "target_kl": 0.02,
+    "clip_range": 0.1,
+    "gamma": 0.95,
+    "extractor": "gnn",
+    "conv_type": "gcn",
+    "hidden_dim": 64,
+    "features_dim": 64
+  },
+  "validation": {
+    "timesteps": [
+      50000,
+      100000,
+      150000,
+      200000,
+      250000,
+      300000,
+      350000,
+      400000,
+      450000,
+      500000
+    ],
+    "mean_reward": [
+      -8.6875,
+      -8.9384,
+      -18.1636,
+      -5.545,
+      -11.1055,
+      -4.7781,
+      -3.7807,
+      -5.9634,
+      -10.8801,
+      -4.0042
+    ],
+    "best_timestep": 350000,
+    "best_mean_reward": -3.7807,
+    "episodes_per_evaluation": 30
+  },
+  "warm_start": {
+    "teacher": "HPA-like rule on cpu_fraction: up > 0.77, down < 0.63",
+    "episodes": 3000,
+    "epsilon": 0.3,
+    "samples": 87000,
+    "epochs": 30,
+    "lr": 0.001,
+    "slot0_agreement_heldout": 0.8616,
+    "value_mse_heldout": 50.2033,
+    "return_var_heldout": 92.1965
+  }
+}
