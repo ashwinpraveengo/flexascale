@@ -6,8 +6,10 @@ Runs are the reports/experiments/*/run.json whose block label is "v7-bNN-<arm>".
 completed >= 95% of its duration from a settled start and was not host-affected (reports/host_load_by_run.csv
 from scripts/check_host_load.py). Pairs are formed within a block; a block without a valid run of an arm is
 missing for that arm's comparisons. Writes reports/v7/evaluation.{md,json}.
+With --study spike: the confirmatory flash-sale study of §3.6 (labels "v7s-bNN-<arm>", one scenario, so the
+"4 of 6 scenarios" check C7 does not apply). Writes reports/v7/spike.{md,json}.
 
-    python scripts/check_host_load.py && python scripts/analyze_v7.py
+    python scripts/check_host_load.py && python scripts/analyze_v7.py [--study spike]
 """
 
 import argparse
@@ -25,6 +27,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from flexascale.lab.benchmark import mean_ci  # noqa: E402
 
 LABEL = re.compile(r"^v7-b(\d+)-(.+)$")
+SPIKE_LABEL = re.compile(r"^v7s-b(\d+)-(.+)$")  # confirmatory flash-sale study (§3.6)
 ARM_TITLES = {"hpa_default": "HPA-default", "hpa_tuned": "HPA-tuned", "rl": "FlexaScale-RL", "auto": "FlexaScale-Auto",
               "heuristic": "FlexaScale-heuristic"}
 PCT = ("replica_hours", "cost", "p50_ms", "p95_ms", "p99_ms", "mean_ms", "throughput")
@@ -75,7 +78,8 @@ def owners(run: dict) -> dict:
     return dict(out)
 
 
-def verdict(st: dict, per_scen_rh: dict) -> tuple:
+def verdict(st: dict, per_scen_rh: dict, multi_scenario: bool = True) -> tuple:
+    """§3.5; with multi_scenario=False (§3.6, one scenario) the "4 of 6 scenarios" check C7 does not apply."""
     def ci(k):
         return (st.get(k) or {}).get("ci95")
     rh, p95, fail = ci("replica_hours"), ci("p95_ms"), ci("failure_pct")
@@ -89,8 +93,9 @@ def verdict(st: dict, per_scen_rh: dict) -> tuple:
         "C4 throughput mean >= -2%": m("throughput") >= -2,
         "C5 e2e SLO violation mean <= +5 s": m("e2e_slo_s") <= 5,
         "C6 oscillations mean <= +5": m("oscillations") <= 5,
-        "C7 replica-h lower in >= 4 of 6 scenarios": sum(1 for v in per_scen_rh.values() if v < 0) >= 4,
     }
+    if multi_scenario:
+        checks["C7 replica-h lower in >= 4 of 6 scenarios"] = sum(1 for v in per_scen_rh.values() if v < 0) >= 4
     if all(checks.values()):
         return "Beats on cost", checks
     perf = (p95[1] < 0 or fail[1] < 0) and rh[0] <= 0 and m("replica_hours") <= 2 and all(
@@ -106,8 +111,13 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--results", default=str(ROOT / "reports" / "experiments"))
     ap.add_argument("--host-load", default=str(ROOT / "reports" / "host_load_by_run.csv"))
-    ap.add_argument("--out", default=str(ROOT / "reports" / "v7" / "evaluation"))
+    ap.add_argument("--out")
+    ap.add_argument("--study", choices=["evaluation", "spike"], default="evaluation",
+                    help="evaluation: the 12-block batch (§3, v7-bNN-<arm>); spike: the confirmatory flash-sale study (§3.6, v7s-bNN-<arm>)")
     args = ap.parse_args()
+    spike = args.study == "spike"
+    label = SPIKE_LABEL if spike else LABEL
+    args.out = args.out or str(ROOT / "reports" / "v7" / ("spike" if spike else "evaluation"))
     flags = {}
     if Path(args.host_load).exists():
         with open(args.host_load) as f:
@@ -117,7 +127,7 @@ def main() -> int:
     excluded, scen_of = [], {}
     for p in sorted(Path(args.results).glob("*/run.json")):
         r = json.loads(p.read_text())
-        mt = LABEL.match(str((r.get("request") or {}).get("block") or ""))
+        mt = label.match(str((r.get("request") or {}).get("block") or ""))
         if not mt:
             continue
         b, arm = int(mt.group(1)), mt.group(2)
@@ -144,7 +154,7 @@ def main() -> int:
     arms = sorted({a for b in blocks.values() for a in b}, key=lambda a: list(ARM_TITLES).index(a) if a in ARM_TITLES else 99)
     result = {"blocks": {b: {a: r["id"] for a, r in v.items()} for b, v in sorted(blocks.items())}, "excluded": excluded,
               "comparisons": {}, "arms": {}}
-    lines = ["# v7 live evaluation (docs/POLICY_V7.md §3)", "",
+    lines = ["# v7 confirmatory flash-sale study (docs/POLICY_V7.md §3.6)" if spike else "# v7 live evaluation (docs/POLICY_V7.md §3)", "",
              f"{sum(len(v) for v in blocks.values())} valid runs in {len(blocks)} blocks; {len(excluded)} excluded. "
              "Pairs are within block; Δ = candidate − reference; 95% t-intervals over pairs; d_z = mean / SD of the paired differences.", ""]
 
@@ -189,7 +199,7 @@ def main() -> int:
             for p in pairs:
                 per_scen[p["scenario"]].append(p)
             per_scen_rh = {s: sum(p["replica_hours"] for p in ps) / len(ps) for s, ps in per_scen.items()}
-            text, checks = verdict(st, per_scen_rh)
+            text, checks = verdict(st, per_scen_rh, multi_scenario=not spike)
             result["comparisons"][f"{cand} vs {ref}"] = {"pairs": pairs, "stats": st, "verdict": text, "checks": checks,
                                                          "per_scenario_replica_hours": per_scen_rh}
             fmt = lambda k, unit="%": (f"{st[k]['mean']:+.1f}{unit} [{st[k]['ci95'][0]:+.1f} … {st[k]['ci95'][1]:+.1f}]"

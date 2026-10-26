@@ -136,3 +136,45 @@ def test_rerun_plan_moves_invalid_runs_and_lists_them_once(tmp_path, monkeypatch
     assert len(json.loads((tmp_path / "plan.reruns.json").read_text())) == 2
     monkeypatch.setattr(sys, "argv", ["x", str(tmp_path / "plan.reruns.json")] + argv[2:])
     assert mod.main() == 2  # reruns are never rerun
+
+
+def test_spike_plan_is_flash_sale_only_with_three_arms_per_block():
+    mod = _load("v7_plan")
+    arms = json.loads((ROOT / "reports" / "v7" / "arms.json").read_text())
+    plan = mod.spike(arms)
+    assert len(plan) == 30 and {p["scenario"] for p in plan} == {"flash_sale"}
+    for b in range(1, 11):
+        names = [p["block"].split("-", 2)[2] for p in plan if p["block"].startswith(f"v7s-b{b:02d}-")]
+        assert sorted(names) == ["heuristic", "hpa_tuned", "rl"]
+    assert plan == mod.spike(arms)  # deterministic (seed 2710 + block)
+
+
+def test_spike_verdict_has_no_six_scenario_check(tmp_path, monkeypatch):
+    mod = _load("analyze_v7")
+    rids = []
+    for b in range(1, 11):
+        rids.append(_run(tmp_path, f"t{b}", "hpa_tuned", "flash_sale", f"v7s-b{b:02d}-hpa_tuned", 700 + 10 * b, rh=1.60 + 0.01 * b))
+        rids.append(_run(tmp_path, f"r{b}", "flexascale", "flash_sale", f"v7s-b{b:02d}-rl", (700 + 10 * b) * (0.70 + 0.02 * (b % 3)),
+                         rh=(1.60 + 0.01 * b) * (1.0 + 0.004 * ((b % 3) - 1))))
+    _host(tmp_path, rids)
+    monkeypatch.setattr(sys, "argv", ["x", "--study", "spike", "--results", str(tmp_path / "runs"),
+                                      "--host-load", str(tmp_path / "host.csv"), "--out", str(tmp_path / "sp")])
+    mod.main()
+    v = json.loads((tmp_path / "sp.json").read_text())["comparisons"]["rl vs hpa_tuned"]
+    assert len(v["pairs"]) == 10 and not any(k.startswith("C7") for k in v["checks"])
+    assert v["verdict"] == "Beats on performance"  # p95 -26 to -30%, replica-hours -0.4..+0.4%
+
+
+def test_spike_verdict_rejects_lower_latency_at_a_consistently_higher_cost(tmp_path, monkeypatch):
+    """§3.5/§3.6: a replica-hours interval entirely above 0 rules out 'beats on performance', however small."""
+    mod = _load("analyze_v7")
+    rids = []
+    for b in range(1, 11):
+        rids.append(_run(tmp_path, f"t{b}", "hpa_tuned", "flash_sale", f"v7s-b{b:02d}-hpa_tuned", 700 + 10 * b, rh=1.60 + 0.01 * b))
+        rids.append(_run(tmp_path, f"r{b}", "flexascale", "flash_sale", f"v7s-b{b:02d}-rl", (700 + 10 * b) * 0.7,
+                         rh=(1.60 + 0.01 * b) * (1.0 + 0.004 * (b % 2))))  # +0 / +0.4%: mean +0.2%, interval > 0
+    _host(tmp_path, rids)
+    monkeypatch.setattr(sys, "argv", ["x", "--study", "spike", "--results", str(tmp_path / "runs"),
+                                      "--host-load", str(tmp_path / "host.csv"), "--out", str(tmp_path / "sp")])
+    mod.main()
+    assert json.loads((tmp_path / "sp.json").read_text())["comparisons"]["rl vs hpa_tuned"]["verdict"] == "Worse"

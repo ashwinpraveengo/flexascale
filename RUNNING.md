@@ -1481,6 +1481,9 @@ python scripts/v7_plan.py evaluation --arms reports/v7/arms.json   # 12 blocks x
 
 # 5. Live evaluation (~11 h) and the pre-registered verdict
 nohup ./scripts/v7_evaluate.sh >> logs/v7_evaluation.out 2>&1 &    # plan, host-load check, reruns, verdict -> reports/v7/evaluation.md
+
+# 6. Confirmatory flash-sale study (POLICY_V7 §3.6; 10 blocks x 3 arms, ~6 h), starts by itself when step 5 has finished
+nohup ./scripts/v7_spike.sh >> logs/v7_spike.out 2>&1 &            # plan, host-load check, reruns, verdict -> reports/v7/spike.md
 ```
 
 * **New lab controller `hpa_tuned`:** it sets every HPA's CPU target (`hpa_cpu_target_pct`) and scale-down window (`hpa_scale_down_window_s`) for one run, and stores the originals on the HPA (`flexascale.io/original-metrics`, `flexascale.io/original-behavior`). Teardown restores them, and so does `procctl safe-state` after a crash. Auto and FlexaScale runs may pass the same two fields to choose the native HPA that takes over on hand-back.

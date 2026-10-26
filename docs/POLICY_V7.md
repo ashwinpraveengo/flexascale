@@ -100,6 +100,21 @@ Invalid runs are moved to `reports/experiments_invalid/` with the reason. The ar
 
 The project states that **FlexaScale beats a fair native HPA only if FlexaScale-RL or FlexaScale-Auto beats HPA-tuned by this table.** Auto's replica changes and saved replica-hours are attributed by owner (FlexaScale or HPA) and by the rule that chose the owner. No other metric, subset of scenarios or exclusion is used for a verdict.
 
+### 3.6 Confirmatory flash-sale study (added 2026-10-27 05:15, before any live v7 outcome was analysed)
+
+**Why.** The twin test set T1 (run once, §5 05:05) puts v7's whole advantage over HPA-tuned in one scenario: flash_sale p95 −385 ms at −1.2% replica-hours, and no difference in four scenarios. The 12 blocks of §3 pool all six scenarios, so they are not powered for an effect in one of them. This study tests that one hypothesis on fresh live runs. It is reported whatever it finds, and it does not replace §3: **the §3.5 verdict of the 12-block batch stays the project's primary result.** A positive result here supports only the narrower claim "FlexaScale beats a calibrated native HPA under flash-sale spikes".
+
+* **Hypothesis:** under the flash_sale scenario, FlexaScale-RL (v7) has a lower end-to-end p95 than HPA-tuned at no more replica-hours.
+* **Arms:** HPA-tuned (250%, 60 s; `reports/v7/arms.json`), FlexaScale-RL (v7) and FlexaScale-heuristic (the rule, for attribution). Same models, rule, settings, comparable start, validity rules and one rerun per invalid run as §3.1–§3.4.
+* **Design:** flash_sale only, 25 users, spawn 5/s, 300 s; 10 blocks, each running the three arms back to back in an order shuffled with `random.Random(2710 + block)`. Block labels `v7s-bNN-<arm>`. It runs after the §3 batch and its reruns.
+* **Power:** live flash_sale p95 varied with SD ≈ 80 ms between HPA runs (paired SD ≈ 113 ms). With 10 blocks the 95% t-interval (df = 9) has a half-width of about 80 ms, so an effect of −100 ms or more is likely to give an interval below 0.
+* **Verdict (RL against HPA-tuned; the heuristic arm is descriptive):**
+  * **beats on performance under flash sales:** p95 interval < 0; replica-hours interval not entirely > 0 and mean Δ ≤ +2%; C3–C6 of §3.5;
+  * **beats on cost under flash sales:** replica-hours interval < 0; p95 interval not entirely > 0 and mean Δ ≤ +10%; C3–C6;
+  * **worse:** the replica-hours, p95 or failure-rate interval lies entirely > 0, without one of the two gains above;
+  * otherwise **on par / inconclusive**.
+* **No other metric, scenario or subset is used for this verdict.**
+
 ## 4. v7 policy: design, training and simulation results
 
 ### 4.1 Application twin (`src/flexascale/simulator/twin*.py`, fitted by `scripts/fit_twin.py`)
@@ -237,3 +252,4 @@ At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a hi
 | 2026-10-27 03:43 | Promotion (`scripts/promote_v7.py`): `models/flexascale_v7/best_model/best_model.zip` (sha256 `5d4fcc20…`, `focal_bc_s2`), `config/apps/shopping_v7.yaml`, `config/apps/shopping_v7_rule.yaml`, lab variants `v7`/`v7_rule` and `reports/v7/arms.json` (HPA-tuned 250%, 60 s). The evaluation plan (`scripts/v7_plan.py`, 60 runs) is committed before its first run. |
 | 2026-10-27 03:44 | Live evaluation started (`scripts/v7_evaluate.sh`, `logs/v7_evaluation.out`): 60 runs, then one rerun of each invalid run, then the verdict (`scripts/analyze_v7.py`). Ablations `focal_bc_nograph_s1` and `focal_bc_v5reward_s1` train meanwhile, frozen in every load window. |
 | 2026-10-27 05:05 | Twin test sets, run once after the ablations (`reports/v7/training_v7.json` → `test`); they decide nothing, since the live arms were fixed at 03:43. **T1** (the six live scenarios in the twin, 5 seeds each), v7 (`focal_bc_s2`) against HPA 250%/60 s: replica-hours 1.352 vs 1.344 (+0.6% [−0.15, +1.26]); p95 344 vs 410 ms (−66 [−144, +12]); SLO-violation 3.5 vs 5.7 s. The whole p95 gain is in flash_sale: −385 ms at −1.2% replica-hours. checkout_heavy: −11 ms at +4.5%. The other four scenarios are identical, with both controllers at the floor. **T2** (60 random shop workloads): +0.4% replica-hours, p95 −37 ms. **T3** (40 unseen synthetic apps): −2.7% replica-hours, p95 −46 ms. Ablations on T1: without the graph p95 396 ms, with the v5 reward 396 ms; the rule 423 ms. **Expectation, stated before any live outcome is analysed:** with the effect in one of six scenarios, 12 pooled blocks are unlikely to give a p95 interval below 0, even if live matches the twin. The likely verdict is "on par / inconclusive", with a large flash-sale improvement. |
+| 2026-10-27 05:30 | §3.6 added: a confirmatory flash-sale study (10 blocks × HPA-tuned, RL, heuristic), to run after the 12-block batch. The hypothesis comes from the twin test set (05:05). When it was fixed, 7 runs of the batch had completed (block 1, steady_browsing, and the first two runs of block 2, checkout_heavy). Their summary lines were visible in the plan log, but no comparison was computed, and no flash_sale run of the batch had started. Code: `scripts/v7_plan.py spike`, `scripts/analyze_v7.py --study spike` (no six-scenario check C7), `scripts/v7_spike.sh`; `v7_resume.sh` resumes it. |
