@@ -17,7 +17,7 @@ Every parameter that produces a decision is trained by PPO.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, Tuple
 
 import torch
 from gymnasium import spaces

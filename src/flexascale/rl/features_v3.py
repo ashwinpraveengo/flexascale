@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict, deque
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, Optional, Sequence
 
 import numpy as np
 
