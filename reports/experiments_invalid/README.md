@@ -53,3 +53,13 @@ The traffic_drop pair is the single "AC-power pair" that was reported earlier as
 ## 2026-10-26 19:20–19:39: rerun of the steady_browsing tuned-HPA pair (invalid; the pair is reported as missing)
 
 The laptop was unplugged from 19:25:29 to 19:33:52 (AC adapter state polled every 20 s by the batch monitor). The default-HPA arm `20261026-192013-shopping-hpa-steady_browsing` ran its whole load window (19:26:22–19:31:31) on battery: p95 240 ms against 74–120 ms in the other steady_browsing runs, 1.77 replica-hours against 1.46–1.52. The pair is therefore host-affected (`docs/POLICY_V6.md` §5.2). Its `hpa_fast` arm `20261026-193135-shopping-hpa_fast-steady_browsing` could no longer make the pair valid, so it was stopped at 19:38:44 (cleanup verified) to let the remaining reruns start earlier. Each invalid pair is rerun only once under the batch rule, so the repeat-1 steady_browsing pair is reported as missing.
+
+## 2026-10-27 01:14–01:38: three HPA-tuned calibration runs (docs/POLICY_V7.md §2.1, §3.4)
+
+| Run | Block | Reason (no outcome metric used) | Rerun (valid) |
+| :--- | :--- | :--- | :--- |
+| 20261027-010839-shopping-hpa_tuned-calibration_steady | cal-150 | on battery for 85 s of its load window (`scripts/check_host_load.py`) | 20261027-022925-shopping-hpa_tuned-calibration_steady (0.89 cores outside Kubernetes) |
+| 20261027-012008-shopping-hpa_tuned-calibration_steady | cal-250 | 2.24 cores outside Kubernetes (limit 2.0) | 20261027-024524-shopping-hpa_tuned-calibration_steady (0.92) |
+| 20261027-013641-shopping-hpa_tuned-calibration_steady | cal-70 | unclean reboot of the laptop at about 01:38 while the run was still settling; it wrote no data | not needed: the plan resumed at 01:44 with the same run in the same position |
+
+Moved by `scripts/rerun_plan.py`, which also wrote the one-time rerun plan `reports/v7/calibration_plan.reruns.json`.

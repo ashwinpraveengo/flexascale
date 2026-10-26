@@ -1,0 +1,694 @@
+22:37:44 plan reports/v7/calibration_plan.json: 8 runs, 0 already done
+22:37:44 on battery: waiting for AC power before the next run
+22:38:44 on battery: waiting for AC power before the next run
+22:39:45 on battery: waiting for AC power before the next run
+22:40:45 on battery: waiting for AC power before the next run
+22:41:45 on battery: waiting for AC power before the next run
+22:42:45 on battery: waiting for AC power before the next run
+22:43:45 on battery: waiting for AC power before the next run
+22:44:45 on battery: waiting for AC power before the next run
+22:45:45 on battery: waiting for AC power before the next run
+22:46:45 on battery: waiting for AC power before the next run
+22:47:45 on battery: waiting for AC power before the next run
+22:48:45 on battery: waiting for AC power before the next run
+22:49:45 on battery: waiting for AC power before the next run
+22:50:45 on battery: waiting for AC power before the next run
+22:51:45 on battery: waiting for AC power before the next run
+22:52:45 on battery: waiting for AC power before the next run
+22:53:45 on battery: waiting for AC power before the next run
+22:54:45 on battery: waiting for AC power before the next run
+22:55:45 on battery: waiting for AC power before the next run
+22:56:45 on battery: waiting for AC power before the next run
+22:57:45 on battery: waiting for AC power before the next run
+22:58:45 on battery: waiting for AC power before the next run
+22:59:45 on battery: waiting for AC power before the next run
+23:00:45 on battery: waiting for AC power before the next run
+23:01:45 on battery: waiting for AC power before the next run
+23:02:45 on battery: waiting for AC power before the next run
+.venv/bin/python terminated by signal TERM.
+23:03:27 plan reports/v7/calibration_plan.json: 8 runs, 0 already done
+23:03:27 on battery: waiting for AC power before the next run
+23:04:27 on battery: waiting for AC power before the next run
+23:05:27 on battery: waiting for AC power before the next run
+23:06:27 on battery: waiting for AC power before the next run
+23:07:27 on battery: waiting for AC power before the next run
+23:08:27 on battery: waiting for AC power before the next run
+23:09:27 on battery: waiting for AC power before the next run
+23:10:27 on battery: waiting for AC power before the next run
+23:11:27 on battery: waiting for AC power before the next run
+23:12:27 on battery: waiting for AC power before the next run
+23:13:27 on battery: waiting for AC power before the next run
+23:14:27 on battery: waiting for AC power before the next run
+23:15:27 on battery: waiting for AC power before the next run
+23:16:27 on battery: waiting for AC power before the next run
+23:17:27 on battery: waiting for AC power before the next run
+23:18:27 on battery: waiting for AC power before the next run
+23:19:27 on battery: waiting for AC power before the next run
+23:20:27 on battery: waiting for AC power before the next run
+.venv/bin/python terminated by signal TERM.
+23:20:38 plan reports/v7/calibration_plan.json: 8 runs, 0 already done
+23:20:38 on battery: waiting for AC power before the next run
+23:21:38 on battery: waiting for AC power before the next run
+23:22:38 on battery: waiting for AC power before the next run
+23:23:38 on battery: waiting for AC power before the next run
+23:24:38 on battery: waiting for AC power before the next run
+23:25:38 on battery: waiting for AC power before the next run
+23:26:39 on battery: waiting for AC power before the next run
+23:27:39 on battery: waiting for AC power before the next run
+23:28:39 on battery: waiting for AC power before the next run
+23:29:39 on battery: waiting for AC power before the next run
+23:30:39 on battery: waiting for AC power before the next run
+23:31:39 on battery: waiting for AC power before the next run
+23:32:39 on battery: waiting for AC power before the next run
+23:33:39 on battery: waiting for AC power before the next run
+23:34:39 on battery: waiting for AC power before the next run
+23:35:39 on battery: waiting for AC power before the next run
+23:36:39 on battery: waiting for AC power before the next run
+23:37:39 on battery: waiting for AC power before the next run
+23:38:39 on battery: waiting for AC power before the next run
+23:39:39 on battery: waiting for AC power before the next run
+23:40:39 on battery: waiting for AC power before the next run
+23:41:39 on battery: waiting for AC power before the next run
+23:42:39 on battery: waiting for AC power before the next run
+23:43:39 on battery: waiting for AC power before the next run
+23:44:39 on battery: waiting for AC power before the next run
+23:45:39 on battery: waiting for AC power before the next run
+23:46:39 on battery: waiting for AC power before the next run
+23:47:39 on battery: waiting for AC power before the next run
+23:48:39 on battery: waiting for AC power before the next run
+23:49:39 on battery: waiting for AC power before the next run
+23:50:39 on battery: waiting for AC power before the next run
+23:51:39 on battery: waiting for AC power before the next run
+23:52:39 on battery: waiting for AC power before the next run
+23:53:39 on battery: waiting for AC power before the next run
+23:54:39 on battery: waiting for AC power before the next run
+23:55:39 on battery: waiting for AC power before the next run
+23:56:39 on battery: waiting for AC power before the next run
+23:57:39 on battery: waiting for AC power before the next run
+23:58:39 on battery: waiting for AC power before the next run
+23:59:39 on battery: waiting for AC power before the next run
+00:00:39 on battery: waiting for AC power before the next run
+00:01:39 on battery: waiting for AC power before the next run
+00:02:39 on battery: waiting for AC power before the next run
+00:03:39 on battery: waiting for AC power before the next run
+00:04:39 on battery: waiting for AC power before the next run
+00:05:39 on battery: waiting for AC power before the next run
+00:06:39 on battery: waiting for AC power before the next run
+00:07:39 on battery: waiting for AC power before the next run
+00:08:39 on battery: waiting for AC power before the next run
+00:09:39 on battery: waiting for AC power before the next run
+00:10:39 on battery: waiting for AC power before the next run
+00:11:39 on battery: waiting for AC power before the next run
+00:12:39 on battery: waiting for AC power before the next run
+00:13:39 on battery: waiting for AC power before the next run
+00:14:39 on battery: waiting for AC power before the next run
+00:15:39 on battery: waiting for AC power before the next run
+00:16:39 on battery: waiting for AC power before the next run
+00:17:40 on battery: waiting for AC power before the next run
+00:18:40 on battery: waiting for AC power before the next run
+00:19:40 on battery: waiting for AC power before the next run
+00:20:40 on battery: waiting for AC power before the next run
+00:21:40 on battery: waiting for AC power before the next run
+00:22:40 on battery: waiting for AC power before the next run
+00:23:40 on battery: waiting for AC power before the next run
+00:24:40 on battery: waiting for AC power before the next run
+00:25:40 on battery: waiting for AC power before the next run
+00:26:40 on battery: waiting for AC power before the next run
+00:27:40 on battery: waiting for AC power before the next run
+00:28:40 on battery: waiting for AC power before the next run
+00:29:40 on battery: waiting for AC power before the next run
+00:30:40 on battery: waiting for AC power before the next run
+00:31:40 on battery: waiting for AC power before the next run
+00:32:40 on battery: waiting for AC power before the next run
+00:33:40 on battery: waiting for AC power before the next run
+00:34:40 on battery: waiting for AC power before the next run
+00:35:40 on battery: waiting for AC power before the next run
+00:36:40 on battery: waiting for AC power before the next run
+00:37:40 on battery: waiting for AC power before the next run
+00:38:40 on battery: waiting for AC power before the next run
+00:39:40 on battery: waiting for AC power before the next run
+00:40:40 on battery: waiting for AC power before the next run
+00:41:40 on battery: waiting for AC power before the next run
+00:42:40 on battery: waiting for AC power before the next run
+00:43:40 on battery: waiting for AC power before the next run
+00:44:40 on battery: waiting for AC power before the next run
+00:45:40 [1/8] started 20261027-004540-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-350)
+00:46:18 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+00:51:47 [1/8] completed 20261027-004540-shopping-hpa_tuned-calibration_steady p95=240.0 mean=70.7 fail%=0.405 replica_h=1.356614 safe=True error=None
+00:51:47 [2/8] started 20261027-005147-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-350)
+01:03:13 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:08:39 [2/8] completed 20261027-005147-shopping-hpa_tuned-calibration_steady p95=220.0 mean=65.3 fail%=0.275 replica_h=1.356782 safe=True error=None
+01:08:39 [3/8] started 20261027-010839-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-150)
+01:14:41 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:20:08 [3/8] completed 20261027-010839-shopping-hpa_tuned-calibration_steady p95=210.0 mean=65.1 fail%=0.304 replica_h=1.413491 safe=True error=None
+01:20:08 [4/8] started 20261027-012008-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-250)
+01:31:15 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:36:41 [4/8] completed 20261027-012008-shopping-hpa_tuned-calibration_steady p95=210.0 mean=60.3 fail%=0.367 replica_h=1.356541 safe=True error=None
+01:36:41 [5/8] started 20261027-013641-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-70)
+01:44:06 unclean reboot at about 01:38 (journal of the previous boot stops at 01:33); run 5 (20261027-013641) was settling, wrote nothing, moved to reports/experiments_invalid/
+01:44:06 plan reports/v7/calibration_plan.json: 8 runs, 4 already done
+01:44:06 [5/8] started 20261027-014406-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-70)
+01:44:42 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:44:44 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:44:46 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:44:48 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:44:50 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:44:52 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:44:54 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:44:56 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:44:58 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:00 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:02 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:04 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:07 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:09 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:11 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:13 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:15 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:17 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:19 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:21 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:23 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:25 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:27 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:29 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:31 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:33 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:35 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:37 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:39 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:41 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:43 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:45 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:47 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:49 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:52 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:54 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:56 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:45:58 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:00 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:02 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:04 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:06 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:08 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:10 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:12 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:14 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:16 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:18 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:20 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:22 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:24 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:26 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:28 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:31 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:33 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:35 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:37 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:39 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:41 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:43 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:45 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:47 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:49 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:51 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:53 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:55 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:57 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:46:59 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:01 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:03 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:05 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:07 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:10 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:12 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:14 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:16 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:18 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:20 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:22 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:24 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:26 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:28 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:30 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:32 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:34 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:36 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:38 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:40 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:42 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:44 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:47 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:49 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:51 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:53 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:55 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:57 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:47:59 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:01 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:03 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:05 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:07 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:09 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:11 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:13 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:15 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:18 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:20 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:22 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:24 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:26 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:28 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:30 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:32 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:34 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:36 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:38 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:40 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:42 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:44 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:46 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:48 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:50 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:53 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:55 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:57 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:48:59 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:01 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:03 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:05 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:07 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:09 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:11 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:13 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:15 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:17 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:19 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:21 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:24 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:26 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:28 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:30 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:32 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:34 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:36 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:38 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:40 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:42 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:44 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:46 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:48 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:50 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:52 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:55 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:57 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:49:59 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:50:01 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:50:03 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+01:50:05 [5/8] completed 20261027-014406-shopping-hpa_tuned-calibration_steady p95=200.0 mean=60.2 fail%=0.325 replica_h=1.560997 safe=True error=None
+01:50:05 [6/8] started 20261027-015005-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-150)
+02:00:58 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:00 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:02 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:04 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:06 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:08 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:10 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:12 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:14 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:17 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:19 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:21 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:23 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:25 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:27 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:29 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:31 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:33 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:35 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:37 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:39 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:41 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:43 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:45 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:47 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:49 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:51 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:53 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:55 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:01:58 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:00 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:02 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:04 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:06 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:08 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:10 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:12 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:14 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:16 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:18 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:20 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:22 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:24 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:26 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:28 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:30 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:32 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:34 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:36 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:38 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:41 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:43 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:45 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:47 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:49 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:51 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:53 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:55 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:57 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:02:59 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:01 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:03 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:05 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:07 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:09 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:11 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:13 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:15 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:18 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:20 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:22 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:24 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:26 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:28 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:30 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:32 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:34 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:36 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:38 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:40 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:42 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:44 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:46 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:48 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:50 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:52 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:54 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:57 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:03:59 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:01 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:03 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:05 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:07 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:09 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:11 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:13 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:15 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:17 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:19 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:21 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:23 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:25 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:27 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:29 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:32 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:34 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:36 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:38 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:40 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:42 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:44 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:46 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:48 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:50 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:52 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:54 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:56 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:04:58 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:00 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:02 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:05 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:07 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:09 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:11 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:13 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:15 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:17 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:19 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:21 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:23 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:25 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:27 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:29 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:31 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:33 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:36 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:38 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:40 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:42 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:44 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:46 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:48 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:50 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:52 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:54 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:56 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:05:58 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:00 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:02 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:05 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:07 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:09 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:11 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:13 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:15 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:17 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:19 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:21 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:06:23 [6/8] completed 20261027-015005-shopping-hpa_tuned-calibration_steady p95=210.0 mean=61.7 fail%=0.191 replica_h=1.356801 safe=True error=None
+02:06:23 [7/8] started 20261027-020623-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-70)
+02:12:24 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:17:46 [7/8] completed 20261027-020623-shopping-hpa_tuned-calibration_steady p95=210.0 mean=60.2 fail%=0.347 replica_h=1.576011 safe=True error=None
+02:17:46 [8/8] started 20261027-021746-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-250)
+02:23:47 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:29:12 [8/8] completed 20261027-021746-shopping-hpa_tuned-calibration_steady p95=210.0 mean=62.9 fail%=0.287 replica_h=1.356332 safe=True error=None
+02:29:12 plan complete
+Wrote reports/host_load_by_run.csv: 167 runs, 61 host-affected, 30 unknown (limit 2.0 cores outside Kubernetes; battery history: /var/lib/upower/history-charge-Primary-41-SerialNumber.dat)
+  20261022-231341-shopping-hpa-steady_browsing           reports/experiments          on battery 67 s
+  20261022-233320-shopping-flexascale-flash_sale         reports/experiments          on battery 99 s
+  20261022-233616-shopping-hpa-flash_sale                reports/experiments          on battery 214 s
+  20261024-181108-shopping-flexascale-flash_sale         reports/experiments          on battery 4 s
+  20261024-182809-shopping-hpa-gradual_ramp              reports/experiments          on battery 307 s
+  20261024-183930-shopping-flexascale-gradual_ramp       reports/experiments          on battery 4 s
+  20261024-185611-shopping-hpa-traffic_drop              reports/experiments          on battery 307 s
+  20261024-191302-shopping-flexascale-traffic_drop       reports/experiments          on battery 308 s
+  20261024-193117-bookstore-flexascale-flash_sale        reports/experiments          on battery 128 s
+  20261025-020024-shopping-hpa-payment_degradation       reports/experiments          on battery 307 s
+  20261025-021715-shopping-flexascale-payment_degradation reports/experiments          on battery 314 s
+  20261025-023426-shopping-hpa-flash_sale                reports/experiments          on battery 307 s
+  20261025-025117-shopping-flexascale-flash_sale         reports/experiments          on battery 309 s
+  20261025-030818-shopping-hpa-gradual_ramp              reports/experiments          on battery 307 s
+  20261025-032459-shopping-flexascale-gradual_ramp       reports/experiments          on battery 314 s
+  20261025-033630-shopping-hpa-traffic_drop              reports/experiments          on battery 307 s
+  20261025-035301-shopping-flexascale-traffic_drop       reports/experiments          on battery 310 s
+  20261025-040612-shopping-hpa-steady_browsing           reports/experiments          on battery 312 s
+  20261025-042313-shopping-flexascale-steady_browsing    reports/experiments          on battery 316 s
+  20261025-043714-shopping-hpa-checkout_heavy            reports/experiments_invalid  on battery 491 s
+  20261025-192442-shopping-auto-flash_sale               reports/experiments          on battery 189 s
+  20261025-192934-shopping-hpa-steady_browsing           reports/experiments_invalid  on battery 312 s
+  20261025-200213-shopping-hpa-steady_browsing           reports/experiments_invalid  on battery 312 s
+  20261025-200814-shopping-auto-steady_browsing          reports/experiments_invalid  on battery 318 s
+  20261025-202445-shopping-hpa-checkout_heavy            reports/experiments_invalid  on battery 313 s
+  20261025-204137-shopping-auto-checkout_heavy           reports/experiments_invalid  on battery 533 s; 3.0 cores outside Kubernetes
+  20261025-205320-shopping-hpa-payment_degradation       reports/experiments_invalid  on battery 615 s
+  20261025-210931-shopping-auto-payment_degradation      reports/experiments_invalid  on battery 634 s; 3.5 cores outside Kubernetes
+  20261025-212644-shopping-hpa-flash_sale                reports/experiments_invalid  on battery 615 s
+  20261025-214335-shopping-auto-flash_sale               reports/experiments_invalid  on battery 629 s; 2.2 cores outside Kubernetes
+  20261025-215507-shopping-hpa-gradual_ramp              reports/experiments_invalid  on battery 614 s
+  20261025-221139-shopping-auto-gradual_ramp             reports/experiments_invalid  on battery 622 s; 2.1 cores outside Kubernetes
+  20261025-222311-shopping-hpa-traffic_drop              reports/experiments_invalid  on battery 28 s
+  20261025-223942-shopping-auto-traffic_drop             reports/experiments_invalid  on battery 327 s; 6.6 cores outside Kubernetes
+  20261025-225706-shopping-hpa-steady_browsing           reports/experiments_invalid  on battery 308 s; 5.0 cores outside Kubernetes
+  20261025-230838-shopping-auto-steady_browsing          reports/experiments_invalid  on battery 318 s; 2.9 cores outside Kubernetes
+  20261025-232041-shopping-hpa-checkout_heavy            reports/experiments_invalid  on battery 310 s; 2.6 cores outside Kubernetes
+  20261025-234242-shopping-auto-checkout_heavy           reports/experiments_invalid  3.6 cores outside Kubernetes
+  20261025-235413-shopping-hpa-payment_degradation       reports/experiments_invalid  3.3 cores outside Kubernetes
+  20261026-001045-shopping-auto-payment_degradation      reports/experiments_invalid  4.4 cores outside Kubernetes
+  20261026-002206-shopping-hpa-flash_sale                reports/experiments_invalid  3.1 cores outside Kubernetes
+  20261026-003838-shopping-auto-flash_sale               reports/experiments_invalid  3.7 cores outside Kubernetes
+  20261026-005249-shopping-hpa-gradual_ramp              reports/experiments_invalid  2.9 cores outside Kubernetes
+  20261026-010940-shopping-auto-gradual_ramp             reports/experiments_invalid  3.5 cores outside Kubernetes
+  20261026-012112-shopping-hpa-traffic_drop              reports/experiments_invalid  2.6 cores outside Kubernetes
+  20261026-013743-shopping-auto-traffic_drop             reports/experiments_invalid  3.8 cores outside Kubernetes
+  20261026-113924-shopping-auto-gradual_ramp             reports/experiments          on battery 218 s; 2.5 cores outside Kubernetes
+  20261026-115546-shopping-hpa-traffic_drop              reports/experiments          on battery 308 s
+  20261026-120718-shopping-auto-traffic_drop             reports/experiments          on battery 314 s
+  20261026-122013-shopping-hpa_fast-traffic_drop         reports/experiments_invalid  on battery 314 s; 3.3 cores outside Kubernetes
+  20261026-123025-shopping-hpa_fast-flash_sale           reports/experiments_invalid  on battery 314 s; 3.7 cores outside Kubernetes
+  20261026-124158-shopping-hpa_fast-checkout_heavy       reports/experiments_invalid  on battery 311 s; 3.5 cores outside Kubernetes
+  20261026-131404-shopping-hpa_fast-traffic_drop         reports/experiments_invalid  5.6 cores outside Kubernetes
+  20261026-133325-shopping-auto-flash_sale               reports/experiments_demo     6.4 cores outside Kubernetes
+  20261026-140550-shopping-hpa-steady_browsing           reports/experiments_invalid  5.5 cores outside Kubernetes
+  20261026-141201-shopping-hpa_fast-steady_browsing      reports/experiments_invalid  5.4 cores outside Kubernetes
+  20261026-142333-shopping-hpa-checkout_heavy            reports/experiments_invalid  4.6 cores outside Kubernetes
+  20261026-143454-shopping-hpa_fast-checkout_heavy       reports/experiments_invalid  3.9 cores outside Kubernetes
+  20261026-192013-shopping-hpa-steady_browsing           reports/experiments_invalid  2.8 cores outside Kubernetes
+  20261027-010839-shopping-hpa_tuned-calibration_steady  reports/experiments          on battery 85 s
+  20261027-012008-shopping-hpa_tuned-calibration_steady  reports/experiments          2.2 cores outside Kubernetes
+  20261022-234747-shopping-flexascale-flash_sale         reports/experiments          unknown (no host CPU data)
+  20261023-001403-shopping-hpa-flash_sale                reports/experiments          unknown (no host CPU data)
+  20261023-002554-shopping-flexascale-flash_sale         reports/experiments          unknown (no host CPU data)
+  20261023-004215-shopping-hpa-gradual_ramp              reports/experiments          unknown (no host CPU data)
+  20261023-005916-shopping-flexascale-gradual_ramp       reports/experiments          unknown (no host CPU data)
+  20261023-011607-shopping-hpa-traffic_drop              reports/experiments          unknown (no host CPU data)
+  20261023-013258-shopping-flexascale-traffic_drop       reports/experiments          unknown (no host CPU data)
+  20261023-014451-bookstore-flexascale-flash_sale        reports/experiments          unknown (no host CPU data)
+  20261024-152728-shopping-hpa-steady_browsing           reports/experiments          unknown (no host CPU data)
+  20261024-153329-shopping-flexascale-steady_browsing    reports/experiments          unknown (no host CPU data)
+  20261024-154539-shopping-hpa-checkout_heavy            reports/experiments_invalid  unknown (no host CPU data)
+  20261024-165144-shopping-hpa-checkout_heavy            reports/experiments          unknown (no host CPU data)
+  20261024-170255-shopping-flexascale-checkout_heavy     reports/experiments          unknown (no host CPU data)
+  20261024-172006-shopping-hpa-payment_degradation       reports/experiments          unknown (no host CPU data)
+  20261024-173657-shopping-flexascale-payment_degradation reports/experiments          unknown (no host CPU data)
+  20261024-175357-shopping-hpa-flash_sale                reports/experiments          unknown (no host CPU data)
+  20261025-010311-shopping-hpa-steady_browsing           reports/experiments          unknown (no host CPU data)
+  20261025-010911-shopping-flexascale-steady_browsing    reports/experiments          unknown (no host CPU data)
+  20261025-012612-shopping-hpa-checkout_heavy            reports/experiments          unknown (no host CPU data)
+  20261025-014313-shopping-flexascale-checkout_heavy     reports/experiments          unknown (no host CPU data)
+  20261025-113620-shopping-hpa-checkout_heavy            reports/experiments          unknown (no host CPU data)
+  20261025-114650-shopping-flexascale-checkout_heavy     reports/experiments          unknown (no host CPU data)
+  20261025-120311-shopping-hpa-payment_degradation       reports/experiments          unknown (no host CPU data)
+  20261025-121432-shopping-flexascale-payment_degradation reports/experiments          unknown (no host CPU data)
+  20261025-122552-shopping-hpa-flash_sale                reports/experiments          unknown (no host CPU data)
+  20261025-123713-shopping-flexascale-flash_sale         reports/experiments          unknown (no host CPU data)
+  20261025-124833-shopping-hpa-gradual_ramp              reports/experiments          unknown (no host CPU data)
+  20261025-125954-shopping-flexascale-gradual_ramp       reports/experiments          unknown (no host CPU data)
+  20261025-131705-shopping-hpa-traffic_drop              reports/experiments          unknown (no host CPU data)
+  20261025-133406-shopping-flexascale-traffic_drop       reports/experiments          unknown (no host CPU data)
+[3/8] 20261027-010839-shopping-hpa_tuned-calibration_steady (cal-150): invalid, host-affected: on battery 85 s; rerun once
+[4/8] 20261027-012008-shopping-hpa_tuned-calibration_steady (cal-250): invalid, host-affected: 2.2 cores outside Kubernetes; rerun once
+2 rerun(s) -> reports/v7/calibration_plan.reruns.json
+02:29:25 plan reports/v7/calibration_plan.reruns.json: 2 runs, 0 already done
+02:29:25 [1/2] started 20261027-022925-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-150)
+02:40:01 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:45:24 [1/2] completed 20261027-022925-shopping-hpa_tuned-calibration_steady p95=210.0 mean=62.6 fail%=0.327 replica_h=1.405431 safe=True error=None
+02:45:24 [2/2] started 20261027-024524-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block cal-250)
+02:51:25 freezing processes matching '^[^ ]*python[^ ]* -u scripts/train_v7\.py' for the load window
+02:56:49 [2/2] completed 20261027-024524-shopping-hpa_tuned-calibration_steady p95=210.0 mean=60.2 fail%=0.311 replica_h=1.356601 safe=True error=None
+02:56:49 plan complete
+Wrote reports/host_load_by_run.csv: 169 runs, 61 host-affected, 30 unknown (limit 2.0 cores outside Kubernetes; battery history: /var/lib/upower/history-charge-Primary-41-SerialNumber.dat)
+  20261022-231341-shopping-hpa-steady_browsing           reports/experiments          on battery 67 s
+  20261022-233320-shopping-flexascale-flash_sale         reports/experiments          on battery 99 s
+  20261022-233616-shopping-hpa-flash_sale                reports/experiments          on battery 214 s
+  20261024-181108-shopping-flexascale-flash_sale         reports/experiments          on battery 4 s
+  20261024-182809-shopping-hpa-gradual_ramp              reports/experiments          on battery 307 s
+  20261024-183930-shopping-flexascale-gradual_ramp       reports/experiments          on battery 4 s
+  20261024-185611-shopping-hpa-traffic_drop              reports/experiments          on battery 307 s
+  20261024-191302-shopping-flexascale-traffic_drop       reports/experiments          on battery 308 s
+  20261024-193117-bookstore-flexascale-flash_sale        reports/experiments          on battery 128 s
+  20261025-020024-shopping-hpa-payment_degradation       reports/experiments          on battery 307 s
+  20261025-021715-shopping-flexascale-payment_degradation reports/experiments          on battery 314 s
+  20261025-023426-shopping-hpa-flash_sale                reports/experiments          on battery 307 s
+  20261025-025117-shopping-flexascale-flash_sale         reports/experiments          on battery 309 s
+  20261025-030818-shopping-hpa-gradual_ramp              reports/experiments          on battery 307 s
+  20261025-032459-shopping-flexascale-gradual_ramp       reports/experiments          on battery 314 s
+  20261025-033630-shopping-hpa-traffic_drop              reports/experiments          on battery 307 s
+  20261025-035301-shopping-flexascale-traffic_drop       reports/experiments          on battery 310 s
+  20261025-040612-shopping-hpa-steady_browsing           reports/experiments          on battery 312 s
+  20261025-042313-shopping-flexascale-steady_browsing    reports/experiments          on battery 316 s
+  20261025-043714-shopping-hpa-checkout_heavy            reports/experiments_invalid  on battery 491 s
+  20261025-192442-shopping-auto-flash_sale               reports/experiments          on battery 189 s
+  20261025-192934-shopping-hpa-steady_browsing           reports/experiments_invalid  on battery 312 s
+  20261025-200213-shopping-hpa-steady_browsing           reports/experiments_invalid  on battery 312 s
+  20261025-200814-shopping-auto-steady_browsing          reports/experiments_invalid  on battery 318 s
+  20261025-202445-shopping-hpa-checkout_heavy            reports/experiments_invalid  on battery 313 s
+  20261025-204137-shopping-auto-checkout_heavy           reports/experiments_invalid  on battery 533 s; 3.0 cores outside Kubernetes
+  20261025-205320-shopping-hpa-payment_degradation       reports/experiments_invalid  on battery 615 s
+  20261025-210931-shopping-auto-payment_degradation      reports/experiments_invalid  on battery 634 s; 3.5 cores outside Kubernetes
+  20261025-212644-shopping-hpa-flash_sale                reports/experiments_invalid  on battery 615 s
+  20261025-214335-shopping-auto-flash_sale               reports/experiments_invalid  on battery 629 s; 2.2 cores outside Kubernetes
+  20261025-215507-shopping-hpa-gradual_ramp              reports/experiments_invalid  on battery 614 s
+  20261025-221139-shopping-auto-gradual_ramp             reports/experiments_invalid  on battery 622 s; 2.1 cores outside Kubernetes
+  20261025-222311-shopping-hpa-traffic_drop              reports/experiments_invalid  on battery 28 s
+  20261025-223942-shopping-auto-traffic_drop             reports/experiments_invalid  on battery 327 s; 6.6 cores outside Kubernetes
+  20261025-225706-shopping-hpa-steady_browsing           reports/experiments_invalid  on battery 308 s; 5.0 cores outside Kubernetes
+  20261025-230838-shopping-auto-steady_browsing          reports/experiments_invalid  on battery 318 s; 2.9 cores outside Kubernetes
+  20261025-232041-shopping-hpa-checkout_heavy            reports/experiments_invalid  on battery 310 s; 2.6 cores outside Kubernetes
+  20261025-234242-shopping-auto-checkout_heavy           reports/experiments_invalid  3.6 cores outside Kubernetes
+  20261025-235413-shopping-hpa-payment_degradation       reports/experiments_invalid  3.3 cores outside Kubernetes
+  20261026-001045-shopping-auto-payment_degradation      reports/experiments_invalid  4.4 cores outside Kubernetes
+  20261026-002206-shopping-hpa-flash_sale                reports/experiments_invalid  3.1 cores outside Kubernetes
+  20261026-003838-shopping-auto-flash_sale               reports/experiments_invalid  3.7 cores outside Kubernetes
+  20261026-005249-shopping-hpa-gradual_ramp              reports/experiments_invalid  2.9 cores outside Kubernetes
+  20261026-010940-shopping-auto-gradual_ramp             reports/experiments_invalid  3.5 cores outside Kubernetes
+  20261026-012112-shopping-hpa-traffic_drop              reports/experiments_invalid  2.6 cores outside Kubernetes
+  20261026-013743-shopping-auto-traffic_drop             reports/experiments_invalid  3.8 cores outside Kubernetes
+  20261026-113924-shopping-auto-gradual_ramp             reports/experiments          on battery 218 s; 2.5 cores outside Kubernetes
+  20261026-115546-shopping-hpa-traffic_drop              reports/experiments          on battery 308 s
+  20261026-120718-shopping-auto-traffic_drop             reports/experiments          on battery 314 s
+  20261026-122013-shopping-hpa_fast-traffic_drop         reports/experiments_invalid  on battery 314 s; 3.3 cores outside Kubernetes
+  20261026-123025-shopping-hpa_fast-flash_sale           reports/experiments_invalid  on battery 314 s; 3.7 cores outside Kubernetes
+  20261026-124158-shopping-hpa_fast-checkout_heavy       reports/experiments_invalid  on battery 311 s; 3.5 cores outside Kubernetes
+  20261026-131404-shopping-hpa_fast-traffic_drop         reports/experiments_invalid  5.6 cores outside Kubernetes
+  20261026-133325-shopping-auto-flash_sale               reports/experiments_demo     6.4 cores outside Kubernetes
+  20261026-140550-shopping-hpa-steady_browsing           reports/experiments_invalid  5.5 cores outside Kubernetes
+  20261026-141201-shopping-hpa_fast-steady_browsing      reports/experiments_invalid  5.4 cores outside Kubernetes
+  20261026-142333-shopping-hpa-checkout_heavy            reports/experiments_invalid  4.6 cores outside Kubernetes
+  20261026-143454-shopping-hpa_fast-checkout_heavy       reports/experiments_invalid  3.9 cores outside Kubernetes
+  20261026-192013-shopping-hpa-steady_browsing           reports/experiments_invalid  2.8 cores outside Kubernetes
+  20261027-010839-shopping-hpa_tuned-calibration_steady  reports/experiments_invalid  on battery 85 s
+  20261027-012008-shopping-hpa_tuned-calibration_steady  reports/experiments_invalid  2.2 cores outside Kubernetes
+  20261022-234747-shopping-flexascale-flash_sale         reports/experiments          unknown (no host CPU data)
+  20261023-001403-shopping-hpa-flash_sale                reports/experiments          unknown (no host CPU data)
+  20261023-002554-shopping-flexascale-flash_sale         reports/experiments          unknown (no host CPU data)
+  20261023-004215-shopping-hpa-gradual_ramp              reports/experiments          unknown (no host CPU data)
+  20261023-005916-shopping-flexascale-gradual_ramp       reports/experiments          unknown (no host CPU data)
+  20261023-011607-shopping-hpa-traffic_drop              reports/experiments          unknown (no host CPU data)
+  20261023-013258-shopping-flexascale-traffic_drop       reports/experiments          unknown (no host CPU data)
+  20261023-014451-bookstore-flexascale-flash_sale        reports/experiments          unknown (no host CPU data)
+  20261024-152728-shopping-hpa-steady_browsing           reports/experiments          unknown (no host CPU data)
+  20261024-153329-shopping-flexascale-steady_browsing    reports/experiments          unknown (no host CPU data)
+  20261024-154539-shopping-hpa-checkout_heavy            reports/experiments_invalid  unknown (no host CPU data)
+  20261024-165144-shopping-hpa-checkout_heavy            reports/experiments          unknown (no host CPU data)
+  20261024-170255-shopping-flexascale-checkout_heavy     reports/experiments          unknown (no host CPU data)
+  20261024-172006-shopping-hpa-payment_degradation       reports/experiments          unknown (no host CPU data)
+  20261024-173657-shopping-flexascale-payment_degradation reports/experiments          unknown (no host CPU data)
+  20261024-175357-shopping-hpa-flash_sale                reports/experiments          unknown (no host CPU data)
+  20261025-010311-shopping-hpa-steady_browsing           reports/experiments          unknown (no host CPU data)
+  20261025-010911-shopping-flexascale-steady_browsing    reports/experiments          unknown (no host CPU data)
+  20261025-012612-shopping-hpa-checkout_heavy            reports/experiments          unknown (no host CPU data)
+  20261025-014313-shopping-flexascale-checkout_heavy     reports/experiments          unknown (no host CPU data)
+  20261025-113620-shopping-hpa-checkout_heavy            reports/experiments          unknown (no host CPU data)
+  20261025-114650-shopping-flexascale-checkout_heavy     reports/experiments          unknown (no host CPU data)
+  20261025-120311-shopping-hpa-payment_degradation       reports/experiments          unknown (no host CPU data)
+  20261025-121432-shopping-flexascale-payment_degradation reports/experiments          unknown (no host CPU data)
+  20261025-122552-shopping-hpa-flash_sale                reports/experiments          unknown (no host CPU data)
+  20261025-123713-shopping-flexascale-flash_sale         reports/experiments          unknown (no host CPU data)
+  20261025-124833-shopping-hpa-gradual_ramp              reports/experiments          unknown (no host CPU data)
+  20261025-125954-shopping-flexascale-gradual_ramp       reports/experiments          unknown (no host CPU data)
+  20261025-131705-shopping-hpa-traffic_drop              reports/experiments          unknown (no host CPU data)
+  20261025-133406-shopping-flexascale-traffic_drop       reports/experiments          unknown (no host CPU data)
+# HPA-tuned calibration (docs/POLICY_V7.md §2.1)
+
+Rule, fixed before any calibration run: HPA-tuned's CPU target is the highest grid value T for which T and every lower value meet, on the mean of their valid runs, p95 ≤ 1.10 × p95(70%), mean latency ≤ 1.10 × mean(70%) and failure rate ≤ failure(70%) + 0.10 pp. Scale-down window 60 s for every value.
+
+| CPU target (% of request) | valid runs | p95 ms | mean ms | failures % | replica-h | throughput req/s | meets rule |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | :--- |
+| 70 | 2 | 205 | 60.2 | 0.336 | 1.569 | 17.36 | yes |
+| 150 | 2 | 210 | 62.2 | 0.259 | 1.381 | 17.35 | yes |
+| 250 | 2 | 210 | 61.5 | 0.299 | 1.356 | 17.26 | yes |
+| 350 | 2 | 230 | 68.0 | 0.340 | 1.357 | 17.10 | no |
+
+**Selected HPA-tuned CPU target: 250% of request** (scale-down window 60 s).
+
+Runs used:
+
+* `20261027-014406-shopping-hpa_tuned-calibration_steady` (70%)
+* `20261027-020623-shopping-hpa_tuned-calibration_steady` (70%)
+* `20261027-015005-shopping-hpa_tuned-calibration_steady` (150%)
+* `20261027-022925-shopping-hpa_tuned-calibration_steady` (150%)
+* `20261027-021746-shopping-hpa_tuned-calibration_steady` (250%)
+* `20261027-024524-shopping-hpa_tuned-calibration_steady` (250%)
+* `20261027-004540-shopping-hpa_tuned-calibration_steady` (350%)
+* `20261027-005147-shopping-hpa_tuned-calibration_steady` (350%)
+02:56:52 calibration finished: reports/v7/calibration.md

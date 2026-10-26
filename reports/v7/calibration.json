@@ -1,0 +1,122 @@
+{
+ "selected_cpu_target_pct": 250,
+ "scale_down_window_s": 60,
+ "means": {
+  "70": {
+   "p95_ms": 205.0,
+   "mean_ms": 60.22941246169228,
+   "failure_pct": 0.33558590304288816,
+   "replica_hours": 1.568504,
+   "throughput_rps": 17.3585441370747,
+   "n": 2
+  },
+  "150": {
+   "p95_ms": 210.0,
+   "mean_ms": 62.15070337522618,
+   "failure_pct": 0.2590113642748241,
+   "replica_hours": 1.381116,
+   "throughput_rps": 17.3530106331957,
+   "n": 2
+  },
+  "250": {
+   "p95_ms": 210.0,
+   "mean_ms": 61.54909300043769,
+   "failure_pct": 0.2990454965705962,
+   "replica_hours": 1.3564665,
+   "throughput_rps": 17.260931995699274,
+   "n": 2
+  },
+  "350": {
+   "p95_ms": 230.0,
+   "mean_ms": 68.02239398152835,
+   "failure_pct": 0.34004384098299834,
+   "replica_hours": 1.356698,
+   "throughput_rps": 17.098216107230577,
+   "n": 2
+  }
+ },
+ "runs": {
+  "70": [
+   {
+    "run": "20261027-014406-shopping-hpa_tuned-calibration_steady",
+    "target": 70,
+    "p95_ms": 200.0,
+    "mean_ms": 60.23171875276942,
+    "failure_pct": 0.3245513554791905,
+    "replica_hours": 1.560997,
+    "throughput_rps": 17.433983722729742
+   },
+   {
+    "run": "20261027-020623-shopping-hpa_tuned-calibration_steady",
+    "target": 70,
+    "p95_ms": 210.0,
+    "mean_ms": 60.22710617061513,
+    "failure_pct": 0.3466204506065858,
+    "replica_hours": 1.576011,
+    "throughput_rps": 17.283104551419655
+   }
+  ],
+  "150": [
+   {
+    "run": "20261027-015005-shopping-hpa_tuned-calibration_steady",
+    "target": 150,
+    "p95_ms": 210.0,
+    "mean_ms": 61.74006930099369,
+    "failure_pct": 0.19135093761959435,
+    "replica_hours": 1.356801,
+    "throughput_rps": 17.39037344038904
+   },
+   {
+    "run": "20261027-022925-shopping-hpa_tuned-calibration_steady",
+    "target": 150,
+    "p95_ms": 210.0,
+    "mean_ms": 62.56133744945867,
+    "failure_pct": 0.32667179093005383,
+    "replica_hours": 1.405431,
+    "throughput_rps": 17.31564782600236
+   }
+  ],
+  "250": [
+   {
+    "run": "20261027-021746-shopping-hpa_tuned-calibration_steady",
+    "target": 250,
+    "p95_ms": 210.0,
+    "mean_ms": 62.94170526825316,
+    "failure_pct": 0.28741138149070705,
+    "replica_hours": 1.356332,
+    "throughput_rps": 17.367457691787536
+   },
+   {
+    "run": "20261027-024524-shopping-hpa_tuned-calibration_steady",
+    "target": 250,
+    "p95_ms": 210.0,
+    "mean_ms": 60.15648073262222,
+    "failure_pct": 0.3106796116504854,
+    "replica_hours": 1.356601,
+    "throughput_rps": 17.154406299611015
+   }
+  ],
+  "350": [
+   {
+    "run": "20261027-004540-shopping-hpa_tuned-calibration_steady",
+    "target": 350,
+    "p95_ms": 240.0,
+    "mean_ms": 70.72101987378792,
+    "failure_pct": 0.4050925925925926,
+    "replica_hours": 1.356614,
+    "throughput_rps": 17.250968321563104
+   },
+   {
+    "run": "20261027-005147-shopping-hpa_tuned-calibration_steady",
+    "target": 350,
+    "p95_ms": 220.0,
+    "mean_ms": 65.3237680892688,
+    "failure_pct": 0.27499508937340406,
+    "replica_hours": 1.356782,
+    "throughput_rps": 16.945463892898054
+   }
+  ]
+ },
+ "excluded": [],
+ "incomplete_targets": []
+}

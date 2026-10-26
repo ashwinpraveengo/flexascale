@@ -158,3 +158,13 @@ run,folder,controller,scenario,load_start,load_end,host_cores,k8s_cores,outside_
 20261026-195537-shopping-hpa_fast-checkout_heavy,reports/experiments,hpa_fast,checkout_heavy,2026-10-26 20:01:55,20:07:05,3.1,1.64,1.46,0,False,
 20261026-200708-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 20:18:30,20:23:38,1.81,0.59,1.22,0,False,
 20261026-202339-shopping-hpa_fast-traffic_drop,reports/experiments,hpa_fast,traffic_drop,2026-10-26 20:29:56,20:35:06,1.35,0.59,0.76,0,False,
+20261027-004540-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 00:46:36,00:51:46,2.36,0.91,1.45,0,False,
+20261027-005147-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 01:03:27,01:08:37,2.21,0.88,1.33,0,False,
+20261027-010839-shopping-hpa_tuned-calibration_steady,reports/experiments_invalid,hpa_tuned,calibration_steady,2026-10-27 01:14:57,01:20:06,2.25,0.94,1.31,85,True,on battery 85 s
+20261027-012008-shopping-hpa_tuned-calibration_steady,reports/experiments_invalid,hpa_tuned,calibration_steady,2026-10-27 01:31:28,01:36:39,3.04,0.79,2.24,0,True,2.2 cores outside Kubernetes
+20261027-014406-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 01:44:55,01:50:04,1.68,0.89,0.79,0,False,
+20261027-015005-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:01:12,02:06:21,1.82,0.86,0.96,0,False,
+20261027-020623-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:12:36,02:17:45,2.06,0.92,1.15,0,False,
+20261027-021746-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:24:01,02:29:10,1.97,0.86,1.1,0,False,
+20261027-022925-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:40:14,02:45:24,1.79,0.9,0.89,0,False,
+20261027-024524-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:51:38,02:56:47,1.77,0.85,0.92,0,False,

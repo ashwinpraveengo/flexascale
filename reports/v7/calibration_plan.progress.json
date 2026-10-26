@@ -1,0 +1,42 @@
+{
+ "0": {
+  "id": "20261027-004540-shopping-hpa_tuned-calibration_steady",
+  "state": "completed",
+  "block": "cal-350"
+ },
+ "1": {
+  "id": "20261027-005147-shopping-hpa_tuned-calibration_steady",
+  "state": "completed",
+  "block": "cal-350"
+ },
+ "2": {
+  "id": "20261027-010839-shopping-hpa_tuned-calibration_steady",
+  "state": "completed",
+  "block": "cal-150"
+ },
+ "3": {
+  "id": "20261027-012008-shopping-hpa_tuned-calibration_steady",
+  "state": "completed",
+  "block": "cal-250"
+ },
+ "4": {
+  "id": "20261027-014406-shopping-hpa_tuned-calibration_steady",
+  "state": "completed",
+  "block": "cal-70"
+ },
+ "5": {
+  "id": "20261027-015005-shopping-hpa_tuned-calibration_steady",
+  "state": "completed",
+  "block": "cal-150"
+ },
+ "6": {
+  "id": "20261027-020623-shopping-hpa_tuned-calibration_steady",
+  "state": "completed",
+  "block": "cal-70"
+ },
+ "7": {
+  "id": "20261027-021746-shopping-hpa_tuned-calibration_steady",
+  "state": "completed",
+  "block": "cal-250"
+ }
+}
