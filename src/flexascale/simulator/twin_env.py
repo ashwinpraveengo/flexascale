@@ -54,7 +54,7 @@ class RewardConfig:
     replica: float = 1.0
     p95_inflation: float = 6.0
     p95_inflation_cap: float = 4.0
-    """Per-step cap on the inflation (amended 2026-10-26 23:31, POLICY_V7 §4.2): uncapped, rare overload episodes
+    """Per-step cap on the inflation (amended 2026-10-26 23:30, POLICY_V7 §4.2): uncapped, rare overload episodes
     (inflation up to 620 when holding the minimum) dominated the gradient and taught 'scale everything up'."""
     slo: float = 10.0
     failure_pct: float = 5.0
