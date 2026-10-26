@@ -47,7 +47,8 @@ class GraphExtractor(BaseFeaturesExtractor):
         self.caller_w = nn.ModuleList([nn.Linear(hidden, hidden, bias=False) for _ in range(rounds)])
         self.norm = nn.ModuleList([nn.LayerNorm(hidden) for _ in range(rounds)])
 
-    def forward(self, obs: torch.Tensor) -> torch.Tensor:
+    def embed(self, obs: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Node embeddings (B, N, H), node mask (B, N) and the masked mean embedding (B, H)."""
         x, adj, mask = _unpack(obs, self.n_max)
         m = mask.unsqueeze(-1)
         h = torch.relu(self.inp(x)) * m
@@ -60,7 +61,30 @@ class GraphExtractor(BaseFeaturesExtractor):
                 z = z + self.callee_w[k](torch.bmm(adj, h) / deg_out) + self.caller_w[k](torch.bmm(adj.transpose(1, 2), h) / deg_in)
             h = (h + torch.relu(self.norm[k](z))) * m
         pooled = (h * m).sum(1) / m.sum(1).clamp(min=1.0)
+        return h, mask, pooled
+
+    def forward(self, obs: torch.Tensor) -> torch.Tensor:
+        h, mask, pooled = self.embed(obs)
         return torch.cat([h.reshape(h.shape[0], -1), mask, pooled], dim=1)
+
+
+class GraphFocalExtractor(GraphExtractor):
+    """
+    Per-service decisions with per-service credit (amendment 2): the observation is the packed application
+    plus a one-hot of the deciding ("focal") service. Features = that service's embedding after message
+    passing over the call graph, and the mean embedding of the application.
+    """
+
+    def __init__(self, observation_space: spaces.Box, n_max: int, hidden: int = 64, rounds: int = 2,
+                 use_graph: bool = True) -> None:
+        super().__init__(observation_space, n_max, hidden, rounds, use_graph)
+        self._features_dim = 2 * hidden
+
+    def forward(self, obs: torch.Tensor) -> torch.Tensor:
+        graph, focal = obs[:, :-self.n_max], obs[:, -self.n_max:]
+        h, _, pooled = self.embed(graph)
+        own = (h * focal.unsqueeze(-1)).sum(1)
+        return torch.cat([own, pooled], dim=1)
 
 
 class _Split(nn.Module):

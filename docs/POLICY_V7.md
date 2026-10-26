@@ -156,6 +156,22 @@ At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a hi
   * the action head starts biased toward "hold" (logit +1.5), because uniform exploration over −1…+3 drifts upward by one replica per decision. This bias only changes where training starts, not the objective.
 
   The training runs were restarted from scratch with these changes. No test-set or live data was used.
+
+  **Amendment 2 (2026-10-26 23:43, before any test or live v7 result): per-service credit.** With the capped reward, the restarted run held every service at its minimum through 200k steps. Its validation reward, −6.92, is exactly that of holding (the best simple rule scores −4.23).
+
+  The cause is structural. One global reward judged 16 simultaneous per-service decisions, so a good scale-up of one service is buried in the noise of the other 15 actions. The fix keeps the objective and changes who gets credit:
+  * **Agents:** every service is an agent (shared network parameters). It decides from the whole application, i.e. message passing over the call graph, plus a one-hot of itself.
+  * **Rewards:** each agent receives its own share of the step's reward. It pays its own replicas and replica changes, plus the share of the end-to-end latency penalty that its own queueing causes: share ∝ (fraction of requests reaching it) × (its own excess latency).
+  * **Consistency with the objective:** the shares sum exactly to the global reward (`tests/test_v7.py`).
+
+  This matches how the policy is used live: one decision per service.
+
+  Implementation:
+  * `TwinAgentsVecEnv` (4 simulations × 20 agent slots) and `GraphFocalExtractor`;
+  * SB3 actor-critic with 64-unit heads; PPO 64 steps per slot, batch 512, other settings as §4.3;
+  * 4M agent-steps per run, validated every 250k.
+
+  The joint-reward run was stopped; it is not a candidate because it never finished. No test-set or live data was used.
 * **Training episodes**:
   * 75%: the shop with every fitted parameter perturbed by ±30%, under randomised scenario shapes: peak 8–45 users, stage timings, mixes, extra spikes and drops, 300–600 s;
   * 25%: synthetic applications with random call DAGs of 5–18 services, sometimes one serial service. This forces the policy to read features and the graph rather than memorise service identities.
@@ -164,7 +180,8 @@ At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a hi
 
 ### 4.3 Training and selection protocol (fixed 2026-10-26 23:25, before the first training run)
 
-* **Runs** (`scripts/train_v7.py`, PPO settings chosen once: 8 environments × 128 steps, batch 256, 10 epochs, lr 3e-4, γ 0.97, GAE 0.95, clip 0.2, entropy 0.01):
+* **Runs after amendment 2:** focal design, v7 reward, seeds 1 and 2; ablations (seed 1): `focal_nograph_s1`, and `focal_v5reward_s1`, which uses the v4–v6 *per-service* reward structure (SLO term + 0.3 × |CPU% of request − 70| + 0.1 × stability + replica cost). Selection, the heuristic arm and the test sets are unchanged. **v7** is the best of the finished main runs (v7 reward, graph) on validation.
+* **Runs as first fixed** (joint design; superseded by amendment 2. `scripts/train_v7.py`, PPO settings chosen once: 8 environments × 128 steps, batch 256, 10 epochs, lr 3e-4, γ 0.97, GAE 0.95, clip 0.2, entropy 0.01):
   * graph policy with the v7 reward, seeds 1 and 2;
   * ablation without the graph (`use_graph=False`), seed 1;
   * ablation with the v4–v6 reward structure transplanted to the twin (`kind="v5"`: SLO term + 0.3 × |CPU% of request − 70| + stability + replica cost), seed 1.
@@ -188,4 +205,5 @@ At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a hi
 | 2026-10-26 23:05 | §4.2–§4.3 fixed; training starts (`logs/train_v7.out`). |
 | 2026-10-26 23:14 | Training restarted twice, with no change to the protocol. First restart: the validation score had counted churn per scaling action, while the training reward counted it per replica changed; both now count per replica (`twin.replica_changes`). Second restart (23:18): the 8 environments now step in one process (`DummyVecEnv`) instead of 8 subprocesses. That saves about 4 GB of RAM on a laptop that was swapping; the environments, seeds and settings are the same. Logs of the aborted starts: `logs/train_v7.aborted_*.out`. |
 | 2026-10-26 23:20 | The plan runner freezes the training process (SIGSTOP) during each run's settle and load window and resumes it afterwards. Training cannot become host load in a measured window, and calibration can proceed during training once the laptop is back on AC. |
+| 2026-10-26 23:43 | Amendment 2 (§4.2): per-service credit (focal multi-agent design). The joint run was stopped at 200k steps without learning beyond "hold". |
 | 2026-10-26 23:30 | Reward amendment (§4.2): latency penalty capped, hold-biased start. Training restarted from scratch (`logs/train_v7.aborted_2330.out` holds the collapsed first run). |

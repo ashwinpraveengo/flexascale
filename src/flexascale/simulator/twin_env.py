@@ -210,3 +210,129 @@ def episode_reward(sim, cfg: RewardConfig) -> float:
 def load_shop(path: str | Path = "config/twin/shopping.json") -> Tuple[AppSpec, Dict[str, Any]]:
     d = json.loads(Path(path).read_text())
     return AppSpec.from_json(d), d["scenarios"]
+
+
+# ---------------------------------------------------------------------------
+# Per-service credit (amendment 2, POLICY_V7 §4.2): every service is an agent
+# ---------------------------------------------------------------------------
+
+
+def per_service_rewards(sim, start: int, end: int, floor: np.ndarray, cfg: RewardConfig) -> np.ndarray:
+    """
+    Split the step's v7 penalty among the services, so that the per-service rewards sum to the global reward:
+    each service pays for its own replicas and replica changes, and for the share of the end-to-end latency
+    penalty (p95 inflation, SLO, failures) that its own queueing causes: share_i ~ (fraction of requests that
+    reach i) x (i's own excess latency). With no excess anywhere the latency penalty is split equally.
+    """
+    log = sim.log
+    d = np.array(log["desired"][start:end])
+    prev = np.array(log["desired"][start - 1]) if start > 0 else d[0]
+    churn = np.abs(np.diff(np.vstack([prev, d]), axis=0)).sum(axis=0)
+    repl = (d - floor).mean(axis=0)
+    comps = components_from_log(sim, start, end, floor, cfg.p95_inflation_cap)
+    penalty = (cfg.p95_inflation * comps["p95_inflation"] + cfg.slo * comps["slo_fraction"]
+               + cfg.failure_pct * comps["failure_pct"])
+    own = np.maximum(0.0, np.array(log["own_excess"][start:end]))
+    lam = np.array(log["lam"][start:end])
+    e2e = np.maximum(np.array(log["rps"][start:end]), 1e-9)[:, None]
+    contrib = (np.minimum(1.0, lam / e2e) * own).mean(axis=0)
+    share = contrib / contrib.sum() if contrib.sum() > 0 else np.full(sim.n, 1.0 / sim.n)
+    return -cfg.scale * (cfg.replica * repl + cfg.scaling_event * churn + share * penalty)
+
+
+def per_service_rewards_v5(sim, start: int, end: int, floor: np.ndarray) -> np.ndarray:
+    """The v4-v6 per-service reward structure (ablation): slo + 0.3 efficiency + 0.1 stability + 1.0 cost."""
+    log = sim.log
+    p95 = np.array(log["e2e_p95"][start:end])
+    d = np.array(log["desired"][start:end])
+    prev = np.array(log["desired"][start - 1]) if start > 0 else d[0]
+    churn = np.abs(np.diff(np.vstack([prev, d]), axis=0)).sum(axis=0)
+    ready = np.maximum(np.array(log["ready"][start:end]), 1)
+    cpu_pct = np.minimum(100.0 * np.array(log["cpu"][start:end]) / ready / sim.request, 100.0)
+    slo = float(np.where(p95 <= E2E_SLO_MS, 1.0, -np.minimum(3.0, p95 / E2E_SLO_MS - 1.0)).mean())
+    eff = -(np.abs(cpu_pct - 70.0) / 100.0).mean(axis=0)
+    cost = -(d / sim.hi).mean(axis=0)
+    return slo + 0.3 * eff + 0.1 * (-churn) + 1.0 * cost
+
+
+from stable_baselines3.common.vec_env.base_vec_env import VecEnv as _VecEnv  # noqa: E402
+
+
+class TwinAgentsVecEnv(_VecEnv):
+    """
+    Shared-parameter multi-agent view of ``n_sims`` twin environments for SB3: agent slot (k, j) is service j of
+    simulation k. Its observation is the whole application (``features_v3.pack``) plus a one-hot of its own node,
+    its action is one replica change, and its reward is its own share (``per_service_rewards``). Padded slots
+    (no service) get reward 0 and their actions are ignored. All agents of a simulation end together.
+    """
+
+    def __init__(self, app: AppSpec, cal: Dict[str, Any], n_sims: int = 4, n_max: int = N_MAX,
+                 reward: Optional[RewardConfig] = None, seed: int = 0, random_app_prob: float = 0.25) -> None:
+        self.n_sims, self.n_max = n_sims, n_max
+        self.cfg = reward or RewardConfig()
+        self.envs = [TwinEnv(app, cal, n_max=n_max, reward=self.cfg, random_app_prob=random_app_prob,
+                             seed=seed * 1000 + k) for k in range(n_sims)]
+        obs_space = spaces.Box(low=-1.0, high=4.0, shape=(fv.obs_dim(n_max) + n_max,), dtype=np.float32)
+        act_space = spaces.Discrete(len(ACTION_DELTAS))
+        _VecEnv.__init__(self, n_sims * n_max, obs_space, act_space)
+        self._base = [None] * n_sims
+        self._actions = None
+        self._eye = np.eye(n_max, dtype=np.float32)
+
+    # SB3 VecEnv interface -------------------------------------------------------
+
+    def _agent_obs(self, k: int) -> np.ndarray:
+        return np.concatenate([np.repeat(self._base[k][None, :], self.n_max, axis=0), self._eye], axis=1)
+
+    def reset(self):
+        for k, env in enumerate(self.envs):
+            self._base[k], _ = env.reset()
+        return np.concatenate([self._agent_obs(k) for k in range(self.n_sims)])
+
+    def step_async(self, actions):
+        self._actions = np.asarray(actions).reshape(self.n_sims, self.n_max)
+
+    def step_wait(self):
+        obs, rews, dones, infos = [], [], [], []
+        for k, env in enumerate(self.envs):
+            n = len(env.app.services)
+            start = len(env.sim.log["desired"])
+            base, _, done, _, info = env.step(self._actions[k])
+            end = len(env.sim.log["desired"])
+            r = np.zeros(self.n_max, dtype=np.float32)
+            if self.cfg.kind == "v5":
+                r[:n] = per_service_rewards_v5(env.sim, start, end, env.floor)
+            else:
+                r[:n] = per_service_rewards(env.sim, start, end, env.floor, self.cfg)
+            self._base[k] = base
+            agent_infos = [{} for _ in range(self.n_max)]
+            if done:
+                terminal = self._agent_obs(k)
+                for j in range(self.n_max):
+                    agent_infos[j] = {"terminal_observation": terminal[j], "TimeLimit.truncated": False}
+                if "summary" in info:
+                    agent_infos[0]["episode_summary"] = info["summary"]
+                self._base[k], _ = env.reset()
+            obs.append(self._agent_obs(k))
+            rews.append(r)
+            dones.append(np.full(self.n_max, done))
+            infos.extend(agent_infos)
+        return np.concatenate(obs), np.concatenate(rews), np.concatenate(dones), infos
+
+    def close(self):
+        pass
+
+    def get_attr(self, attr_name, indices=None):
+        return [getattr(self, attr_name, None)] * (len(indices) if indices is not None else self.num_envs)
+
+    def set_attr(self, attr_name, value, indices=None):
+        pass
+
+    def env_method(self, method_name, *method_args, indices=None, **method_kwargs):
+        return [None] * (len(indices) if indices is not None else self.num_envs)
+
+    def env_is_wrapped(self, wrapper_class, indices=None):
+        return [False] * (len(indices) if indices is not None else self.num_envs)
+
+    def seed(self, seed=None):
+        return [None] * self.num_envs

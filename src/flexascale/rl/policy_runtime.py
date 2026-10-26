@@ -187,16 +187,21 @@ class PolicyRuntime:
         self.field_names = list(obs_card.get("per_service_fields") or features_v3.FEATURES)
         if tuple(self.field_names) != features_v3.FEATURES:
             raise ValueError(f"Model features {self.field_names} differ from this operator's {features_v3.FEATURES}")
-        if self.model.observation_space.shape != (features_v3.obs_dim(self.n_max),):
+        dim = features_v3.obs_dim(self.n_max)
+        # joint models decide for all services in one output; focal models decide for one service per row
+        # (the packed application + a one-hot of that service), see rl/graph_policy.py
+        self.focal = self.model.observation_space.shape == (dim + self.n_max,)
+        if self.model.observation_space.shape != (dim,) and not self.focal:
             raise ValueError(f"Model observation shape {self.model.observation_space.shape} does not match n_max={self.n_max}")
         self.num_slots = self.n_max
         self.max_replicas = int(obs_card.get("max_replicas") or 10)
         self.decision_slot = None
         self.callees_first = False
         self.action_deltas = [int(d) for d in self.card["action"]["deltas"]]
-        if len(self.action_deltas) != int(self.model.action_space.nvec[0]):
-            raise ValueError(f"Model has {int(self.model.action_space.nvec[0])} actions per service but its card lists "
-                             f"deltas {self.action_deltas}")
+        space = self.model.action_space
+        n_actions = int(space.nvec[0]) if hasattr(space, "nvec") else int(space.n)
+        if len(self.action_deltas) != n_actions:
+            raise ValueError(f"Model has {n_actions} actions per service but its card lists deltas {self.action_deltas}")
 
     def predict_graph(self, features: Dict[str, np.ndarray], edges: Sequence[Tuple[str, str]] = ()) -> PolicyOutput:
         """Observation-version-3 decision for every service at once (sorted-name order, as ``predict``)."""
@@ -206,7 +211,13 @@ class PolicyRuntime:
         if not services:
             return PolicyOutput([], [], mode="ppo_graph")
         obs = features_v3.pack(features, services, edges, self.n_max)
-        probs = self._distribution_probs(obs[None, :])
+        if self.focal:
+            batch = np.concatenate([np.repeat(obs[None, :], len(services), axis=0),
+                                    np.eye(self.n_max, dtype=np.float32)[: len(services)]], axis=1)
+            rows = self._distribution_probs(batch)[0]          # (services, actions)
+            probs = [rows[i: i + 1] for i in range(len(services))]
+        else:
+            probs = self._distribution_probs(obs[None, :])
         neigh = {s: set() for s in services}
         for u, v in edges:
             if u in neigh and v in neigh:
@@ -238,6 +249,7 @@ class PolicyRuntime:
             "max_replicas": self.max_replicas,
             "decision_slot": self.decision_slot,
             "action_deltas": list(self.action_deltas),
+            "decision": ("focal" if getattr(self, "focal", False) else "joint") if getattr(self, "graph", False) else None,
             "num_timesteps": int(getattr(self.model, "num_timesteps", 0)),
             "model_card": bool(self.card),
             "trained_at": card.get("trained_at"),

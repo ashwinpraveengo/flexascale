@@ -198,7 +198,8 @@ class TwinSim:
         self.ms_cpu = MetricView(self.n, MS_RESOLUTION_TICKS, MS_RESOLUTION_TICKS, idle=idle_cpu,
                                  phase=int(self.rng.integers(0, MS_RESOLUTION_TICKS)))
         self.log: Dict[str, List[Any]] = {k: [] for k in ("desired", "ready", "cpu", "lat", "e2e_p95", "e2e_mean",
-                                                          "fail_frac", "rps", "u", "e2e_p95_base", "events", "replica_changes")}
+                                                          "fail_frac", "rps", "u", "e2e_p95_base", "events", "replica_changes",
+                                                          "own_excess", "lam")}
         self._p95_base = float("nan")
         self.events = 0
         self.replica_changes = 0                   # replicas added or removed (the reward's churn unit)
@@ -293,7 +294,7 @@ class TwinSim:
         for k, v in (("desired", np.array([len(p) for p in self.pods])), ("ready", ready), ("cpu", cpu_used), ("lat", lat),
                      ("e2e_p95", e2e_p95), ("e2e_mean", e2e_mean), ("fail_frac", fail_frac), ("rps", float(self.wl.e2e_rps[t]) * self._throttle),
                      ("u", u), ("e2e_p95_base", self._p95_base), ("events", self.events),
-                     ("replica_changes", self.replica_changes)):
+                     ("replica_changes", self.replica_changes), ("own_excess", own - self.base), ("lam", lam.copy())):
             self.log[k].append(v)
         self.t += 1
         return {"u": u, "lat": lat, "e2e_p95": e2e_p95}

@@ -58,11 +58,21 @@ REPORT = ROOT / "reports" / "v7"
 PPO_KW = dict(n_steps=128, batch_size=256, n_epochs=10, learning_rate=3e-4, gamma=0.97, gae_lambda=0.95,
               clip_range=0.2, ent_coef=0.01, vf_coef=0.5, max_grad_norm=0.5)
 RUNS = {
-    "graph_s1": {"use_graph": True, "reward": "v7", "seed": 1},
-    "graph_s2": {"use_graph": True, "reward": "v7", "seed": 2},
-    "nograph_s1": {"use_graph": False, "reward": "v7", "seed": 1},
-    "v5reward_s1": {"use_graph": True, "reward": "v5", "seed": 1},
+    # joint design: one global reward for all services' decisions (POLICY_V7 §4.3, first protocol)
+    "graph_s1": {"use_graph": True, "reward": "v7", "seed": 1, "design": "joint"},
+    "graph_s2": {"use_graph": True, "reward": "v7", "seed": 2, "design": "joint"},
+    "nograph_s1": {"use_graph": False, "reward": "v7", "seed": 1, "design": "joint"},
+    "v5reward_s1": {"use_graph": True, "reward": "v5", "seed": 1, "design": "joint"},
+    # focal design: every service is an agent with its own share of the reward (amendment 2, POLICY_V7 §4.2)
+    "focal_s1": {"use_graph": True, "reward": "v7", "seed": 1, "design": "focal"},
+    "focal_s2": {"use_graph": True, "reward": "v7", "seed": 2, "design": "focal"},
+    "focal_nograph_s1": {"use_graph": False, "reward": "v7", "seed": 1, "design": "focal"},
+    "focal_v5reward_s1": {"use_graph": True, "reward": "v5", "seed": 1, "design": "focal"},
 }
+DEFAULT_RUNS = "focal_s1,focal_s2,focal_nograph_s1,focal_v5reward_s1"
+MAIN_RUNS = ("graph_s1", "graph_s2", "focal_s1", "focal_s2")  # v7 reward, with graph: candidates for "v7"
+FOCAL_PPO_KW = dict(n_steps=64, batch_size=512, n_epochs=10, learning_rate=3e-4, gamma=0.97, gae_lambda=0.95,
+                    clip_range=0.2, ent_coef=0.01, vf_coef=0.5, max_grad_norm=0.5)
 RULES = {f"limit_target({t}/{d})": (t, d) for t in (0.4, 0.5, 0.6, 0.7) for d in (0.2, 0.3)}
 
 
@@ -136,6 +146,7 @@ class ModelPolicy:
     def __call__(self, sim, obs, loop) -> np.ndarray:
         if sim.t == 0:  # TwinEnv's first decision is after the first 10 s
             return np.zeros(sim.n, dtype=int)
+        focal = self.model.observation_space.shape[0] == fv.obs_dim(self.n_max) + self.n_max
         now = sim.t * TICK_S
         feats = {}
         for i, s in enumerate(sim.app.services):
@@ -145,7 +156,11 @@ class ModelPolicy:
                                                 desired=int(obs["desired"][i]), cpu_limit=s.cpu_limit, rps=float(obs["rps"][i]),
                                                 latency_ms=float(obs["latency_ms"][i]) or None)
         x = fv.pack(feats, sim.app.names, sim.app.edges, self.n_max)
-        a, _ = self.model.predict(x, deterministic=True)
+        if focal:  # one decision per service from its own focal view
+            batch = np.concatenate([np.repeat(x[None, :], sim.n, axis=0), np.eye(self.n_max, dtype=np.float32)[: sim.n]], axis=1)
+            a, _ = self.model.predict(batch, deterministic=True)
+        else:
+            a, _ = self.model.predict(x, deterministic=True)
         return np.array([ACTION_DELTAS[int(k)] for k in np.asarray(a).ravel()[: sim.n]])
 
 
@@ -216,19 +231,32 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
     import torch
     from stable_baselines3 import PPO
     from stable_baselines3.common.callbacks import BaseCallback
+    from stable_baselines3.common.policies import ActorCriticPolicy
     from stable_baselines3.common.vec_env import DummyVecEnv
 
-    from flexascale.rl.graph_policy import GraphPolicy
+    from flexascale.rl.graph_policy import GraphFocalExtractor, GraphPolicy
+    from flexascale.simulator.twin_env import TwinAgentsVecEnv
 
     torch.set_num_threads(2)
     run_dir = OUT / name
     run_dir.mkdir(parents=True, exist_ok=True)
-    # The 8 environments step in this process (DummyVecEnv): a twin step costs ~1 ms, and subprocesses each load
-    # PyTorch (~0.5 GB apiece), which the laptop running Minikube cannot spare. Same environments, seeds and settings.
-    venv = DummyVecEnv([make_env(app, cal, spec["reward"], r, spec["seed"]) for r in range(n_envs)])
-    model = PPO(GraphPolicy, venv, seed=spec["seed"], verbose=0, device="cpu",
-                policy_kwargs={"n_max": N_MAX, "hidden": 64, "rounds": 2, "use_graph": spec["use_graph"],
-                               "hold_index": HOLD_INDEX, "hold_bias": 1.5}, **PPO_KW)
+    if spec.get("design") == "focal":
+        # 4 simulations x 20 agent slots; each service decides from its own focal view and gets its own reward
+        venv = TwinAgentsVecEnv(app, cal, n_sims=4, n_max=N_MAX, reward=RewardConfig(kind=spec["reward"]), seed=spec["seed"])
+        model = PPO(ActorCriticPolicy, venv, seed=spec["seed"], verbose=0, device="cpu",
+                    policy_kwargs={"features_extractor_class": GraphFocalExtractor,
+                                   "features_extractor_kwargs": {"n_max": N_MAX, "hidden": 64, "rounds": 2,
+                                                                 "use_graph": spec["use_graph"]},
+                                   "net_arch": {"pi": [64], "vf": [64]}, "ortho_init": False}, **FOCAL_PPO_KW)
+        with torch.no_grad():  # start near "hold" (amendment 1)
+            model.policy.action_net.bias[HOLD_INDEX] += 1.5
+    else:
+        # The 8 environments step in this process (DummyVecEnv): a twin step costs ~1 ms, and subprocesses each load
+        # PyTorch (~0.5 GB apiece), which the laptop running Minikube cannot spare. Same environments, seeds and settings.
+        venv = DummyVecEnv([make_env(app, cal, spec["reward"], r, spec["seed"]) for r in range(n_envs)])
+        model = PPO(GraphPolicy, venv, seed=spec["seed"], verbose=0, device="cpu",
+                    policy_kwargs={"n_max": N_MAX, "hidden": 64, "rounds": 2, "use_graph": spec["use_graph"],
+                                   "hold_index": HOLD_INDEX, "hold_bias": 1.5}, **PPO_KW)
     history = []
     stopped_early: List[int] = []
     cfg = RewardConfig()
@@ -274,8 +302,10 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--steps", type=int, default=1_500_000)
     ap.add_argument("--eval-every", type=int, default=100_000)
+    ap.add_argument("--focal-steps", type=int, default=4_000_000, help="agent-steps per focal run (one per service decision)")
+    ap.add_argument("--focal-eval-every", type=int, default=250_000)
     ap.add_argument("--n-envs", type=int, default=8)
-    ap.add_argument("--runs", default=",".join(RUNS))
+    ap.add_argument("--runs", default=DEFAULT_RUNS)
     ap.add_argument("--only-test", action="store_true")
     ap.add_argument("--pause-live-runs", action="store_true", help="create .runtime/pause_live_runs while training")
     args = ap.parse_args()
@@ -289,8 +319,10 @@ def main() -> int:
     if not args.only_test:
         for name in args.runs.split(","):
             wait_for_power()
-            print(f"=== training {name} {RUNS[name]} ({args.steps} steps)", flush=True)
-            summary["runs"][name] = train_run(name, RUNS[name], app, cal, args.steps, args.eval_every, args.n_envs, val)
+            focal = RUNS[name].get("design") == "focal"
+            print(f"=== training {name} {RUNS[name]} ({args.focal_steps if focal else args.steps} steps)", flush=True)
+            summary["runs"][name] = train_run(name, RUNS[name], app, cal, args.focal_steps if focal else args.steps,
+                                              args.focal_eval_every if focal else args.eval_every, args.n_envs, val)
             summary_path.write_text(json.dumps(summary, indent=1))
 
     from stable_baselines3 import PPO
@@ -298,10 +330,12 @@ def main() -> int:
     models = {}
     for name in RUNS:
         p = OUT / name / "best_model.zip"
+        if name not in summary["runs"]:
+            continue
         if p.exists():
             models[name] = PPO.load(str(p), device="cpu")
     # selection among the main runs (v7 reward, with graph): highest validation reward
-    main_runs = [n for n in ("graph_s1", "graph_s2") if n in summary["runs"] and summary["runs"][n].get("best")]
+    main_runs = [n for n in MAIN_RUNS if n in summary["runs"] and summary["runs"][n].get("best")]
     chosen = max(main_runs, key=lambda n: summary["runs"][n]["best"]["reward"]) if main_runs else None
     summary["selected"] = chosen
     # heuristic arm: best rule of the fixed family on the same validation set

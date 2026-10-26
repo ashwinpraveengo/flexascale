@@ -281,3 +281,57 @@ def test_hold_bias_starts_exploration_near_hold():
     latent = torch.cat([torch.zeros(1, 12), torch.ones(1, 3)], dim=1)
     p = torch.softmax(head(latent).reshape(3, -1), dim=-1)
     assert torch.all(p[:, HOLD_INDEX] > 0.5)
+
+
+# ---------------------------------------------------------------- focal (per-service credit) design
+
+
+def test_per_service_rewards_sum_to_the_global_reward_and_blame_the_queueing_service():
+    from flexascale.simulator.twin_env import components_from_log, per_service_rewards, reward_v7
+
+    app = _tiny_app()
+    env = TwinEnv(app, {}, workloads=[_flat(10, 60, ticks=30)], seed=0)   # "work" overloaded at one replica
+    env.reset(seed=0)
+    for _ in range(6):
+        env.step(np.full(N_MAX, HOLD_INDEX))
+    sim, cfg = env.sim, RewardConfig()
+    T = len(sim.log["desired"])
+    r = per_service_rewards(sim, T - 2, T, env.floor, cfg)
+    g = reward_v7(components_from_log(sim, T - 2, T, env.floor), cfg)
+    assert r.sum() == pytest.approx(g, rel=1e-9)
+    assert r[1] < r[0] <= 0     # the overloaded service carries most of the latency penalty
+
+
+def test_focal_vec_env_and_runtime_decide_per_service(tmp_path):
+    from stable_baselines3 import PPO
+    from stable_baselines3.common.policies import ActorCriticPolicy
+
+    from flexascale.rl.graph_policy import GraphFocalExtractor
+    from flexascale.rl.policy_runtime import PolicyRuntime
+    from flexascale.simulator.twin_env import TwinAgentsVecEnv
+
+    app, cal = load_shop(ROOT / "config" / "twin" / "shopping.json")
+    venv = TwinAgentsVecEnv(app, cal, n_sims=1, seed=2)
+    obs = venv.reset()
+    assert obs.shape == (N_MAX, fv.obs_dim(N_MAX) + N_MAX)
+    _, rew, done, infos = venv.step(np.full(N_MAX, HOLD_INDEX))
+    assert rew.shape == (N_MAX,) and (rew[16:] == 0).all() and not done.any()
+    model = PPO(ActorCriticPolicy, venv, n_steps=16, batch_size=64, n_epochs=1, seed=0, device="cpu",
+                policy_kwargs={"features_extractor_class": GraphFocalExtractor,
+                               "features_extractor_kwargs": {"n_max": N_MAX, "hidden": 16}, "net_arch": {"pi": [16], "vf": [16]}})
+    model.learn(32)
+    d = tmp_path / "best_model"
+    d.mkdir()
+    model.save(d / "best_model")
+    (d / "model_card.json").write_text(json.dumps({
+        "observation": {"version": 3, "n_max": N_MAX, "per_service_fields": list(fv.FEATURES)},
+        "action": {"deltas": list(ACTION_DELTAS)}}))
+    rt = PolicyRuntime(d / "best_model.zip")
+    assert rt.focal and rt.info()["decision"] == "focal"
+    feats = {s: np.full(fv.F, 0.1 * i, dtype=np.float32) for i, s in enumerate(["a", "b", "c"])}
+    out = rt.predict_graph(feats, [("a", "b")])
+    assert len(out.actions) == 3 and all(len(p) == len(ACTION_DELTAS) for p in out.probabilities)
+    x = fv.pack(feats, ["a", "b", "c"], [("a", "b")], N_MAX)
+    row_b = np.concatenate([x, np.eye(N_MAX, dtype=np.float32)[1]])
+    a_b, _ = model.predict(row_b, deterministic=True)
+    assert out.actions[1] == int(a_b)
