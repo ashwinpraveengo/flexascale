@@ -7,10 +7,14 @@ grafana_url: http://localhost:3000
 results_dir: reports/experiments
 sample_interval_seconds: 5
 e2e_p95_slo_ms: 1000                           # end-to-end SLO on Locust p95 (10 s window)
+hpa_tuned: {cpu_target_pct: 250, scale_down_window_s: 60}              # docs/POLICY_V7.md §2.1 calibration
 apps:
   shopping:
     title: E-commerce shop (16 services)
     policy: config/apps/shopping.yaml
+    variants:                                  # docs/POLICY_V7.md §3.2
+      v7: config/apps/shopping_v7.yaml
+      v7_rule: config/apps/shopping_v7_rule.yaml
     url: minikube-ingress
     locustfile: load-testing/scenarios.py
     reset_requests:                            # same data at the start of every run

@@ -350,6 +350,8 @@ def main() -> int:
     ap.add_argument("--n-envs", type=int, default=8)
     ap.add_argument("--runs", default=DEFAULT_RUNS)
     ap.add_argument("--only-test", action="store_true")
+    ap.add_argument("--select-only", action="store_true",
+                    help="select the model and rule from the finished runs and stop before the test sets (they run once, later)")
     ap.add_argument("--pause-live-runs", action="store_true", help="create .runtime/pause_live_runs while training")
     ap.add_argument("--retrain", action="store_true", help="train runs again even if training_v7.json has them")
     args = ap.parse_args()
@@ -399,6 +401,10 @@ def main() -> int:
     summary["rules_validation"] = rule_val
     summary["selected_rule"] = max(rule_val, key=lambda n: rule_val[n]["reward"])
     print("selected model:", chosen, "| selected rule:", summary["selected_rule"], flush=True)
+    if args.select_only:
+        summary_path.write_text(json.dumps(summary, indent=1))
+        print("wrote", summary_path, "(selection only; test sets not run)")
+        return 0
 
     tests = episodes_test(app, cal)
     named = {f"v7 ({n})": m for n, m in models.items()}

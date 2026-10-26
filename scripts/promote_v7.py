@@ -120,8 +120,8 @@ def main() -> int:
                             "    policy: config/apps/shopping.yaml\n    variants:                                  # docs/POLICY_V7.md §3.2\n"
                             "      v7: config/apps/shopping_v7.yaml\n      v7_rule: config/apps/shopping_v7_rule.yaml\n", 1)
     text = re.sub(r"\nhpa_tuned:.*\n", "\n", text)
-    text = text.replace("e2e_p95_slo_ms: 1000", f"e2e_p95_slo_ms: 1000\nhpa_tuned: {{cpu_target_pct: {target}, scale_down_window_s: 60}}"
-                        "              # docs/POLICY_V7.md §2.1 calibration", 1)
+    text = re.sub(r"^(e2e_p95_slo_ms: 1000.*)$", lambda m: m.group(1) + f"\nhpa_tuned: {{cpu_target_pct: {target}, scale_down_window_s: 60}}"
+                  "              # docs/POLICY_V7.md §2.1 calibration", text, count=1, flags=re.M)
     lab_path.write_text(text)
 
     hpa_fields = {"hpa_cpu_target_pct": target, "hpa_scale_down_window_s": 60}

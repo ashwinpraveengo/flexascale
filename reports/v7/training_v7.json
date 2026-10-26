@@ -1,0 +1,421 @@
+{
+ "runs": {
+  "focal_bc_s1": {
+   "name": "focal_bc_s1",
+   "use_graph": true,
+   "reward": "v7",
+   "seed": 1,
+   "design": "focal",
+   "warm_start": true,
+   "steps": 2000000,
+   "minutes": 28.5,
+   "best": {
+    "timesteps": 1000000,
+    "reward": -3.562667825130126,
+    "replica_hours": 1.9777430555555555,
+    "p95_ms": 287.22508969170286,
+    "mean_latency_ms": 86.84264299571934,
+    "failure_pct": 0.0,
+    "slo_violation_s": 2.375,
+    "scaling_events": 1.7,
+    "oscillations": 0.725,
+    "n": 40
+   },
+   "history": [
+    {
+     "timesteps": 0,
+     "reward": -4.166860070985426,
+     "replica_hours": 1.973263888888889,
+     "p95_ms": 311.5913358101976,
+     "mean_latency_ms": 93.16706940272745,
+     "failure_pct": 0.0,
+     "slo_violation_s": 4.5,
+     "scaling_events": 0.925,
+     "oscillations": 0.25,
+     "n": 40
+    },
+    {
+     "timesteps": 250000,
+     "reward": -4.221236328048472,
+     "replica_hours": 1.965069444444444,
+     "p95_ms": 344.2039314272909,
+     "mean_latency_ms": 94.31771214031323,
+     "failure_pct": 0.0,
+     "slo_violation_s": 5.25,
+     "scaling_events": 1.55,
+     "oscillations": 0.85,
+     "n": 40
+    },
+    {
+     "timesteps": 500000,
+     "reward": -4.457040949543344,
+     "replica_hours": 1.949861111111111,
+     "p95_ms": 360.92099117073184,
+     "mean_latency_ms": 99.74295505651315,
+     "failure_pct": 0.0,
+     "slo_violation_s": 7.25,
+     "scaling_events": 0.775,
+     "oscillations": 0.325,
+     "n": 40
+    },
+    {
+     "timesteps": 750000,
+     "reward": -3.821593812500036,
+     "replica_hours": 1.9619097222222224,
+     "p95_ms": 308.4138829450411,
+     "mean_latency_ms": 92.60921557126338,
+     "failure_pct": 0.0,
+     "slo_violation_s": 4.375,
+     "scaling_events": 1.45,
+     "oscillations": 0.75,
+     "n": 40
+    },
+    {
+     "timesteps": 1000000,
+     "reward": -3.562667825130126,
+     "replica_hours": 1.9777430555555555,
+     "p95_ms": 287.22508969170286,
+     "mean_latency_ms": 86.84264299571934,
+     "failure_pct": 0.0,
+     "slo_violation_s": 2.375,
+     "scaling_events": 1.7,
+     "oscillations": 0.725,
+     "n": 40
+    },
+    {
+     "timesteps": 1250000,
+     "reward": -3.5774151011073263,
+     "replica_hours": 1.972152777777778,
+     "p95_ms": 296.81625597822386,
+     "mean_latency_ms": 89.004068094622,
+     "failure_pct": 0.0,
+     "slo_violation_s": 2.875,
+     "scaling_events": 1.6,
+     "oscillations": 0.725,
+     "n": 40
+    },
+    {
+     "timesteps": 1500000,
+     "reward": -4.143894323658418,
+     "replica_hours": 1.9557638888888889,
+     "p95_ms": 324.62262791090154,
+     "mean_latency_ms": 96.35007270732234,
+     "failure_pct": 0.0,
+     "slo_violation_s": 5.625,
+     "scaling_events": 1.35,
+     "oscillations": 0.75,
+     "n": 40
+    },
+    {
+     "timesteps": 1750000,
+     "reward": -3.773851272802059,
+     "replica_hours": 1.9680555555555554,
+     "p95_ms": 300.30309691752154,
+     "mean_latency_ms": 90.98173413217789,
+     "failure_pct": 0.0,
+     "slo_violation_s": 3.875,
+     "scaling_events": 1.275,
+     "oscillations": 0.45,
+     "n": 40
+    },
+    {
+     "timesteps": 2000000,
+     "reward": -4.090346289260363,
+     "replica_hours": 1.9623958333333333,
+     "p95_ms": 306.53968625041836,
+     "mean_latency_ms": 92.5335887560522,
+     "failure_pct": 0.0,
+     "slo_violation_s": 4.5,
+     "scaling_events": 3.95,
+     "oscillations": 3.0,
+     "n": 40
+    }
+   ],
+   "paused_at": [],
+   "warm_start_info": {
+    "teacher": "limit_target(0.6/0.3 of limit)",
+    "episodes": 400,
+    "epsilon": 0.2,
+    "samples": 248838,
+    "label_counts": {
+     "-1": 119637,
+     "0": 128959,
+     "1": 231,
+     "2": 11,
+     "3": 0
+    },
+    "agreement_heldout": 0.9889,
+    "recall_per_action_heldout": {
+     "-1": 0.998,
+     "0": 0.98,
+     "1": 1.0
+    },
+    "recall_per_action_augmented_heldout": {
+     "-1": 0.998,
+     "0": 0.981,
+     "1": 0.983,
+     "2": 0.776,
+     "3": 0.947
+    },
+    "value_mse_heldout": 5.3631,
+    "return_var_heldout": 11.96
+   },
+   "teacher_rule": "limit_target(0.6/0.3)"
+  },
+  "focal_bc_s2": {
+   "name": "focal_bc_s2",
+   "use_graph": true,
+   "reward": "v7",
+   "seed": 2,
+   "design": "focal",
+   "warm_start": true,
+   "steps": 2000000,
+   "minutes": 20.2,
+   "best": {
+    "timesteps": 250000,
+    "reward": -3.3512049549819722,
+    "replica_hours": 1.9754513888888892,
+    "p95_ms": 275.9731602478711,
+    "mean_latency_ms": 85.3910064394469,
+    "failure_pct": 0.0,
+    "slo_violation_s": 1.875,
+    "scaling_events": 0.85,
+    "oscillations": 0.25,
+    "n": 40
+   },
+   "history": [
+    {
+     "timesteps": 0,
+     "reward": -4.0734899957747315,
+     "replica_hours": 1.9866666666666668,
+     "p95_ms": 301.19537930486393,
+     "mean_latency_ms": 89.5410809401201,
+     "failure_pct": 0.0,
+     "slo_violation_s": 3.0,
+     "scaling_events": 1.325,
+     "oscillations": 0.375,
+     "n": 40
+    },
+    {
+     "timesteps": 250000,
+     "reward": -3.3512049549819722,
+     "replica_hours": 1.9754513888888892,
+     "p95_ms": 275.9731602478711,
+     "mean_latency_ms": 85.3910064394469,
+     "failure_pct": 0.0,
+     "slo_violation_s": 1.875,
+     "scaling_events": 0.85,
+     "oscillations": 0.25,
+     "n": 40
+    },
+    {
+     "timesteps": 500000,
+     "reward": -4.04760756601933,
+     "replica_hours": 1.9965972222222224,
+     "p95_ms": 272.12340973652624,
+     "mean_latency_ms": 84.64732844032629,
+     "failure_pct": 0.0,
+     "slo_violation_s": 1.875,
+     "scaling_events": 1.45,
+     "oscillations": 0.5,
+     "n": 40
+    },
+    {
+     "timesteps": 750000,
+     "reward": -4.814086087387553,
+     "replica_hours": 1.9773263888888888,
+     "p95_ms": 355.5935155691655,
+     "mean_latency_ms": 96.88891477343516,
+     "failure_pct": 0.0,
+     "slo_violation_s": 6.375,
+     "scaling_events": 0.825,
+     "oscillations": 0.35,
+     "n": 40
+    },
+    {
+     "timesteps": 1000000,
+     "reward": -4.289796678484064,
+     "replica_hours": 1.9649652777777777,
+     "p95_ms": 326.9601292968895,
+     "mean_latency_ms": 92.63366636269502,
+     "failure_pct": 0.0,
+     "slo_violation_s": 5.875,
+     "scaling_events": 0.625,
+     "oscillations": 0.175,
+     "n": 40
+    },
+    {
+     "timesteps": 1250000,
+     "reward": -4.142133510500949,
+     "replica_hours": 1.9627430555555556,
+     "p95_ms": 323.2654378599558,
+     "mean_latency_ms": 91.24971109169154,
+     "failure_pct": 0.0,
+     "slo_violation_s": 5.375,
+     "scaling_events": 0.725,
+     "oscillations": 0.225,
+     "n": 40
+    },
+    {
+     "timesteps": 1500000,
+     "reward": -4.356594812221212,
+     "replica_hours": 1.9628124999999996,
+     "p95_ms": 351.34292422947703,
+     "mean_latency_ms": 96.16766673558985,
+     "failure_pct": 0.0,
+     "slo_violation_s": 6.125,
+     "scaling_events": 1.25,
+     "oscillations": 0.6,
+     "n": 40
+    },
+    {
+     "timesteps": 1750000,
+     "reward": -5.2463592110899055,
+     "replica_hours": 1.945208333333333,
+     "p95_ms": 412.54099868725626,
+     "mean_latency_ms": 105.89749024756028,
+     "failure_pct": 0.0,
+     "slo_violation_s": 10.0,
+     "scaling_events": 0.575,
+     "oscillations": 0.325,
+     "n": 40
+    },
+    {
+     "timesteps": 2000000,
+     "reward": -5.417956403844776,
+     "replica_hours": 1.9621875,
+     "p95_ms": 366.6690346717587,
+     "mean_latency_ms": 100.2315179078144,
+     "failure_pct": 0.0,
+     "slo_violation_s": 8.75,
+     "scaling_events": 2.15,
+     "oscillations": 1.375,
+     "n": 40
+    }
+   ],
+   "paused_at": [],
+   "warm_start_info": {
+    "teacher": "limit_target(0.6/0.3 of limit)",
+    "episodes": 400,
+    "epsilon": 0.2,
+    "samples": 266142,
+    "label_counts": {
+     "-1": 130717,
+     "0": 135153,
+     "1": 252,
+     "2": 10,
+     "3": 10
+    },
+    "agreement_heldout": 0.9906,
+    "recall_per_action_heldout": {
+     "-1": 0.994,
+     "0": 0.987,
+     "1": 0.9,
+     "2": 1.0
+    },
+    "recall_per_action_augmented_heldout": {
+     "-1": 0.993,
+     "0": 0.983,
+     "1": 0.946,
+     "2": 0.989,
+     "3": 0.932
+    },
+    "value_mse_heldout": 5.7512,
+    "return_var_heldout": 12.9581
+   },
+   "teacher_rule": "limit_target(0.6/0.3)"
+  }
+ },
+ "selected": "focal_bc_s2",
+ "rules_validation": {
+  "limit_target(0.4/0.2)": {
+   "reward": -5.13097004711441,
+   "replica_hours": 2.027986111111111,
+   "p95_ms": 280.32652828292584,
+   "mean_latency_ms": 85.35330825227317,
+   "failure_pct": 0.0,
+   "slo_violation_s": 2.0,
+   "scaling_events": 1.775,
+   "oscillations": 0.4,
+   "n": 40
+  },
+  "limit_target(0.4/0.3)": {
+   "reward": -4.722593043906994,
+   "replica_hours": 2.0160416666666667,
+   "p95_ms": 280.32652828292584,
+   "mean_latency_ms": 85.38166042003238,
+   "failure_pct": 0.0,
+   "slo_violation_s": 2.0,
+   "scaling_events": 2.0,
+   "oscillations": 0.575,
+   "n": 40
+  },
+  "limit_target(0.5/0.2)": {
+   "reward": -4.632696186688042,
+   "replica_hours": 2.0031944444444445,
+   "p95_ms": 300.57983719981866,
+   "mean_latency_ms": 89.29169223938105,
+   "failure_pct": 0.0,
+   "slo_violation_s": 3.0,
+   "scaling_events": 1.275,
+   "oscillations": 0.275,
+   "n": 40
+  },
+  "limit_target(0.5/0.3)": {
+   "reward": -4.274488287395153,
+   "replica_hours": 1.992638888888889,
+   "p95_ms": 300.57983719981866,
+   "mean_latency_ms": 89.31693660902215,
+   "failure_pct": 0.0,
+   "slo_violation_s": 3.0,
+   "scaling_events": 1.45,
+   "oscillations": 0.4,
+   "n": 40
+  },
+  "limit_target(0.6/0.2)": {
+   "reward": -4.39267410440911,
+   "replica_hours": 1.979756944444444,
+   "p95_ms": 312.11876059069584,
+   "mean_latency_ms": 93.24058724129341,
+   "failure_pct": 0.0,
+   "slo_violation_s": 4.5,
+   "scaling_events": 0.675,
+   "oscillations": 0.1,
+   "n": 40
+  },
+  "limit_target(0.6/0.3)": {
+   "reward": -4.175360858734464,
+   "replica_hours": 1.973298611111111,
+   "p95_ms": 312.11876059069584,
+   "mean_latency_ms": 93.25912856180996,
+   "failure_pct": 0.0,
+   "slo_violation_s": 4.5,
+   "scaling_events": 0.775,
+   "oscillations": 0.175,
+   "n": 40
+  },
+  "limit_target(0.7/0.2)": {
+   "reward": -4.694321545144581,
+   "replica_hours": 1.9667708333333334,
+   "p95_ms": 327.86537374138226,
+   "mean_latency_ms": 98.53861159422455,
+   "failure_pct": 0.0,
+   "slo_violation_s": 6.5,
+   "scaling_events": 0.5,
+   "oscillations": 0.075,
+   "n": 40
+  },
+  "limit_target(0.7/0.3)": {
+   "reward": -4.463427403384463,
+   "replica_hours": 1.9598958333333336,
+   "p95_ms": 327.86537374138226,
+   "mean_latency_ms": 98.5597926042059,
+   "failure_pct": 0.0,
+   "slo_violation_s": 6.5,
+   "scaling_events": 0.6,
+   "oscillations": 0.15,
+   "n": 40
+  }
+ },
+ "selected_rule": "limit_target(0.6/0.3)"
+}

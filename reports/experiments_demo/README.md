@@ -11,3 +11,10 @@ Runs started from the dashboard to rehearse or give the live demo (`docs/FINAL_D
 Completed with a settled start and verified cleanup. Result for reference: 13.7 req/s, 0.39% failures, p95 700 ms, 1.94 replica-hours, peak 32 replicas.
 
 In `reports/experiments/` it would have been paired with `20261026-110001-shopping-hpa-flash_sale` (2.5 h earlier, already the baseline of repeat 3): replica-hours +3.5%, p95 +55.6% (450 → 700 ms), failures −0.01 pp. As a 19th Auto pair, the pooled result would be replica-hours −3.5% [−6.1 … −0.9], p95 +5.6% [−6.2 … +17.3], failures −0.07 pp [−0.12 … −0.02]: still *Beats HPA on cost* under `docs/POLICY_V6.md` §3.1, against −3.9% [−6.5 … −1.3] for the 18 planned pairs.
+
+## 2026-10-27 02:58–03:41: live plumbing smoke test of the v7 arms (docs/POLICY_V7.md §5)
+
+`calibration_steady` at 45 users for 180 s (not an evaluation condition), with a provisional snapshot of `focal_bc_s1`
+and temporary lab variants: `20261027-025811-shopping-flexascale-calibration_steady` (v7 model alone),
+`20261027-031135-shopping-auto-calibration_steady` (Auto with the v7 model), `20261027-032629-shopping-flexascale-calibration_steady`
+(the rule `limit_target(0.6/0.3)`). Only the plumbing was checked; the outcomes are not used anywhere.

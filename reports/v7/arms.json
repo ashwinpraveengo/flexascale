@@ -1,0 +1,28 @@
+{
+ "hpa_default": {
+  "controller": "hpa"
+ },
+ "hpa_tuned": {
+  "controller": "hpa_tuned",
+  "hpa_cpu_target_pct": 250,
+  "hpa_scale_down_window_s": 60
+ },
+ "rl": {
+  "controller": "flexascale",
+  "policy_variant": "v7",
+  "hpa_cpu_target_pct": 250,
+  "hpa_scale_down_window_s": 60
+ },
+ "auto": {
+  "controller": "auto",
+  "policy_variant": "v7",
+  "hpa_cpu_target_pct": 250,
+  "hpa_scale_down_window_s": 60
+ },
+ "heuristic": {
+  "controller": "flexascale",
+  "policy_variant": "v7_rule",
+  "hpa_cpu_target_pct": 250,
+  "hpa_scale_down_window_s": 60
+ }
+}
