@@ -85,9 +85,9 @@ def build(app: AppSpec, cal: Dict[str, Any], scenario: str, peak: int = 25, spaw
     rates = e2e[:, None] * ratios[None, :]
     mix = MIXES[scenario]
     shopper = mix.get("Shopper", 0) / sum(mix.values())
-    if "user-service" in names:  # logins: one per shopper at start (the measured ratio is ~0)
-        k = names.index("user-service")
-        rates[:, k] = started * shopper / TICK_S
+    for k, spec in enumerate(app.services):  # serial (login-like) services: one request per shopper at start
+        if spec.serial and sc["ratios"].get(spec.name, 0.0) < 0.02:
+            rates[:, k] = started * shopper / TICK_S
     classes = dict(sc.get("classes") or {})
     think = None
     if classes:  # measured cycle per user = think time + mean response time
@@ -142,3 +142,47 @@ def _overlay(st: List[Tuple[float, int, float]], a: float, b: float, mult: float
             r = max(r, u / 5.0)
         out.append((hi, u, r))
     return out
+
+
+def random_app(rng: np.random.Generator, n_lo: int = 5, n_hi: int = 18):
+    """
+    A synthetic application for generalisation (application-agnostic training): a random call DAG from an
+    entry service, per-service CPU cost, idle CPU and latency drawn around the shop's ranges, sometimes one
+    serial (CPU-heavy, blocking) service. Returns (AppSpec, cal) with the same scenario shapes as the shop.
+    """
+    from flexascale.simulator.twin import ServiceSpec
+
+    n = int(rng.integers(n_lo, n_hi + 1))
+    names = [f"svc-{i}" for i in range(n)]
+    services = []
+    serial_i = int(rng.integers(1, n)) if rng.random() < 0.35 else -1
+    for i, name in enumerate(names):
+        if i == serial_i:
+            c = float(rng.uniform(0.08, 0.3))
+            services.append(ServiceSpec(name, cpu_per_req=c, idle_cores=float(rng.uniform(0.002, 0.008)),
+                                        base_latency_ms=1000 * c / 0.5 + 30, serial=True))
+        else:
+            services.append(ServiceSpec(name, cpu_per_req=float(np.exp(rng.uniform(np.log(0.0006), np.log(0.03)))),
+                                        idle_cores=float(rng.uniform(0.001, 0.02)),
+                                        base_latency_ms=float(np.exp(rng.uniform(np.log(1.0), np.log(200.0))))))
+    edges, fanout = [], {}
+    for i in range(1, n):
+        parents = rng.choice(i, size=min(i, int(rng.integers(1, 3))), replace=False)
+        for p_ in parents:
+            edges.append((names[int(p_)], names[i]))
+            fanout[f"{names[int(p_)]}->{names[i]}"] = float(rng.uniform(0.1, 1.0))
+    # request rate per service relative to the entry: through the strongest path
+    ratio = np.zeros(n)
+    ratio[0] = float(rng.uniform(1.0, 2.0))
+    for i in range(1, n):
+        ratio[i] = max(ratio[names.index(u)] * fanout[f"{u}->{v}"] for u, v in edges if v == names[i]) * float(rng.uniform(0.5, 1.5))
+    entry_base = services[0].base_latency_ms
+    cal = {}
+    for sc in MIXES:
+        r = {names[i]: float(ratio[i]) for i in range(n)}
+        if serial_i >= 0:
+            r[names[serial_i]] = 0.0  # spawn-driven, like logins
+        cal[sc] = {"rps_per_user": float(rng.uniform(0.5, 1.3)), "ratios": r,
+                   "classes": {"all": {"share": 1.0, "base_ms": float(max(5.0, entry_base)), "sigma": 0.6, "services": [names[0]]}}}
+    app = AppSpec(name=f"random-{n}", services=services, edges=edges, fanout=fanout, classes={}, entry=names[0])
+    return app, cal

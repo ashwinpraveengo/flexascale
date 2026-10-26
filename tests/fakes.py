@@ -11,14 +11,15 @@ from flexascale.k8s.kube import Kube, KubeResult
 
 def deployment(name: str, replicas: int = 1, ready: Optional[int] = None, image: str = "app:1",
                cpu: str = "100m", mem_req: str = "64Mi", mem_lim: str = "128Mi",
-               labels: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+               labels: Optional[Dict[str, str]] = None, cpu_lim: Optional[str] = None) -> Dict[str, Any]:
+    limits = {"memory": mem_lim, **({"cpu": cpu_lim} if cpu_lim else {})}
     return {
         "metadata": {"name": name, "labels": labels or {"app": name}},
         "spec": {
             "replicas": replicas,
             "template": {"spec": {"containers": [{
                 "name": name, "image": image,
-                "resources": {"requests": {"cpu": cpu, "memory": mem_req}, "limits": {"memory": mem_lim}},
+                "resources": {"requests": {"cpu": cpu, "memory": mem_req}, "limits": limits},
             }]}},
         },
         "status": {"readyReplicas": replicas if ready is None else ready,

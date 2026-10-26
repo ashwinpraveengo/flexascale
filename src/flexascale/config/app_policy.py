@@ -145,6 +145,11 @@ class AppPolicy:
     auto: Dict[str, Any] = field(default_factory=dict)
     """Auto-mode rule parameters (``operator/auto_mode.py`` AutoConfig); used only when the operator runs with --auto."""
 
+    controller_rule: Dict[str, Any] = field(default_factory=dict)
+    """Optional hand-written rule used *instead of* the trained model (attribution arm, docs/POLICY_V7.md §3.2):
+    ``{type: limit_target, target: 0.6, down: 0.3}`` = scale to ceil(CPU / (target x CPU limit)) when above target,
+    one replica down when the remaining replicas would stay below ``down`` of their limit. Empty = use the model."""
+
     # ------------------------------------------------------------------
     # Loading
     # ------------------------------------------------------------------
@@ -245,6 +250,12 @@ class AppPolicy:
                 errors.append(f"cost.{label} must be non-negative")
         if (cost.cpu_per_vcpu_hour is None) != (cost.memory_per_gib_hour is None):
             errors.append("cost: set both cpu_per_vcpu_hour and memory_per_gib_hour, or neither")
+        if self.controller_rule:
+            r = self.controller_rule
+            if r.get("type") != "limit_target" or set(r) - {"type", "target", "down"}:
+                errors.append("controller_rule must be {type: limit_target, target: <0-1.5>, down: <below target>}")
+            elif not (0.0 < float(r.get("down", 0)) < float(r.get("target", 0)) <= 1.5):
+                errors.append("controller_rule needs 0 < down < target <= 1.5 (fractions of the CPU limit)")
         try:
             from flexascale.operator.auto_mode import AutoConfig
 

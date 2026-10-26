@@ -30,7 +30,7 @@ its neighbours' features through message passing over the application's call gra
 from __future__ import annotations
 
 import math
-from collections import deque
+from collections import defaultdict, deque
 from typing import Dict, List, Optional, Sequence
 
 import numpy as np
@@ -52,8 +52,8 @@ class FeatureTracker:
     def __init__(self, services: Sequence[str], max_replicas: int = 10) -> None:
         self.services = list(services)
         self.max_replicas = max_replicas
-        self.rps_hist: Dict[str, deque] = {s: deque() for s in self.services}
-        self.lat_hist: Dict[str, deque] = {s: deque() for s in self.services}
+        self.rps_hist: Dict[str, deque] = defaultdict(deque)   # services may appear later (live discovery)
+        self.lat_hist: Dict[str, deque] = defaultdict(deque)
         self.prev_cpu: Dict[str, float] = {}
         self.cpr: Dict[str, float] = {}
         self.last_up: Dict[str, float] = {}

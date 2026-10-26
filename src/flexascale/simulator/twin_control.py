@@ -69,6 +69,12 @@ class Guards:
     slo_ms: Optional[Dict[str, float]] = None
 
 
+V7_GUARDS = Guards(max_step=3, max_scale_down_step=1, scale_up_cooldown_s=20.0, scale_down_cooldown_s=30.0,
+                   scale_down_block_cpu_pct=400.0, scale_down_block_slo_ratio=None)
+"""Operator guards for v7 (config/apps/shopping_v7.yaml): scale-down never at >= 80% of the 500m limit (400% of
+request), one replica down per 30 s, up to +3 per decision, 20 s between scale-ups; no single latency SLO."""
+
+
 def observation(sim: TwinSim) -> Dict[str, np.ndarray]:
     """Per-service live inputs: what the operator can compute from Prometheus and the Kubernetes API."""
     prom = sim.prometheus()
@@ -98,10 +104,14 @@ class OperatorLoop:
         if sim.t % SYNC_TICKS_OPERATOR:
             return
         obs = observation(sim)
-        deltas = np.asarray(self.policy(sim, obs, self), dtype=int)
+        self.apply(sim, np.asarray(self.policy(sim, obs, self), dtype=int), obs)
+
+    def apply(self, sim: TwinSim, deltas: np.ndarray, obs: Dict[str, np.ndarray]) -> np.ndarray:
+        """The operator's guards (``AppOperator._decide``) on proposed replica changes; returns the applied changes."""
         now = sim.t * TICK_S
         ready = sim.ready()
         names = sim.app.names
+        applied = np.zeros(sim.n, dtype=int)
         for i in range(sim.n):
             cur = len(sim.pods[i])
             d = int(np.clip(deltas[i], -self.g.max_scale_down_step, self.g.max_step))
@@ -119,10 +129,12 @@ class OperatorLoop:
                     prop = cur
             if prop != cur:
                 sim.set_desired(i, prop)
+                applied[i] = prop - cur
                 if prop > cur:
                     self.last_up[i] = now
                 else:
                     self.last_down[i] = now
+        return applied
 
 
 def threshold_policy(target_pct: float = 70.0):

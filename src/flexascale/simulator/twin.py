@@ -199,9 +199,10 @@ class TwinSim:
         self.ms_cpu = MetricView(self.n, MS_RESOLUTION_TICKS, MS_RESOLUTION_TICKS, idle=idle_cpu,
                                  phase=int(self.rng.integers(0, MS_RESOLUTION_TICKS)))
         self.log: Dict[str, List[Any]] = {k: [] for k in ("desired", "ready", "cpu", "lat", "e2e_p95", "e2e_mean",
-                                                          "fail_frac", "rps", "u", "e2e_p95_base")}
+                                                          "fail_frac", "rps", "u", "e2e_p95_base", "events", "replica_changes")}
         self._p95_base = float("nan")
         self.events = 0
+        self.replica_changes = 0                   # replicas added or removed (the reward's churn unit)
         self.direction = np.zeros(self.n)          # last scaling direction per service (oscillation count)
         self.oscillations = 0
         self.agg_cdf = np.zeros_like(LAT_GRID)     # request-weighted end-to-end latency CDF over the run
@@ -242,6 +243,7 @@ class TwinSim:
             self.oscillations += 1
         self.direction[i] = d
         self.events += 1
+        self.replica_changes += abs(replicas - cur)
         if replicas > cur:
             for _ in range(replicas - cur):
                 delay = self.startup[1] if self.rng.random() < self.startup[2] else self.startup[0]
@@ -291,7 +293,8 @@ class TwinSim:
         self.ms_cpu.update(cpu_used)
         for k, v in (("desired", np.array([len(p) for p in self.pods])), ("ready", ready), ("cpu", cpu_used), ("lat", lat),
                      ("e2e_p95", e2e_p95), ("e2e_mean", e2e_mean), ("fail_frac", fail_frac), ("rps", float(self.wl.e2e_rps[t]) * self._throttle),
-                     ("u", u), ("e2e_p95_base", self._p95_base)):
+                     ("u", u), ("e2e_p95_base", self._p95_base), ("events", self.events),
+                     ("replica_changes", self.replica_changes)):
             self.log[k].append(v)
         self.t += 1
         return {"u": u, "lat": lat, "e2e_p95": e2e_p95}
@@ -303,8 +306,17 @@ class TwinSim:
         entry = idx.get(self.app.entry)
         tot = float(self.wl.e2e_rps[min(self.t, self.wl.ticks - 1)])
         if not self.app.classes or entry is None or tot <= 0:
-            m = float(lat[entry]) if entry is not None else float(lat.mean())
-            return m, m * math.exp(1.645 * LOGNORMAL_SIGMA - LOGNORMAL_SIGMA ** 2 / 2), 0.0  # no request mix known
+            # no request mix known: one lognormal class around the entry service's latency
+            m = max(float(lat[entry]) if entry is not None else float(lat.mean()), 0.1)
+            z = (np.log(LAT_GRID) - (math.log(m) - LOGNORMAL_SIGMA ** 2 / 2)) / (LOGNORMAL_SIGMA * math.sqrt(2))
+            cdf = 0.5 * (1.0 + _erf(z))
+            w_tot = max(tot, 1e-9)
+            self.agg_cdf += w_tot * cdf
+            self.agg_weight += w_tot
+            self._p95_base = float(self.base[entry]) * math.exp(1.645 * LOGNORMAL_SIGMA - LOGNORMAL_SIGMA ** 2 / 2) \
+                if entry is not None else float("nan")
+            f = float(fail[entry]) if entry is not None else 0.0
+            return m, m * math.exp(1.645 * LOGNORMAL_SIGMA - LOGNORMAL_SIGMA ** 2 / 2), f
         gw_own = float(lat[entry] - sum(f * max(0.0, lat[j] - self.base[j]) for j, f in self.callees[entry]))
         weights, means, fails = [], [], []
         used = 0.0

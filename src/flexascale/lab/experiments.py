@@ -169,7 +169,14 @@ class ExperimentRequest:
             if window is None or not HPA_WINDOW_LIMITS[0] <= window <= HPA_WINDOW_LIMITS[1]:
                 errors.append(f"hpa_tuned needs a scale-down window between {HPA_WINDOW_LIMITS[0]} and {HPA_WINDOW_LIMITS[1]} s")
         elif self.hpa_cpu_target_pct is not None or self.hpa_scale_down_window_s is not None:
-            errors.append("hpa_cpu_target_pct / hpa_scale_down_window_s apply only to the hpa_tuned controller")
+            if self.controller not in ("auto", "flexascale"):
+                errors.append("hpa_cpu_target_pct / hpa_scale_down_window_s apply only to hpa_tuned, auto and flexascale")
+            # auto / flexascale: the native HPA settings in force whenever HPA owns a service during the run
+            if self.hpa_cpu_target_pct is not None and not HPA_TARGET_LIMITS[0] <= self.hpa_cpu_target_pct <= HPA_TARGET_LIMITS[1]:
+                errors.append(f"hpa_cpu_target_pct must be between {HPA_TARGET_LIMITS[0]} and {HPA_TARGET_LIMITS[1]}")
+            if (self.hpa_scale_down_window_s is not None
+                    and not HPA_WINDOW_LIMITS[0] <= self.hpa_scale_down_window_s <= HPA_WINDOW_LIMITS[1]):
+                errors.append(f"hpa_scale_down_window_s must be between {HPA_WINDOW_LIMITS[0]} and {HPA_WINDOW_LIMITS[1]}")
         if self.scenario not in SCENARIOS:
             errors.append(f"scenario must be one of {sorted(SCENARIOS)}")
         for key, (lo, hi) in LIMITS.items():
@@ -467,6 +474,18 @@ class Experiment:
             if self.req.shadow:
                 self._start_operator("observe")
         else:
+            # FlexaScale runs may set the native HPA that takes over on hand-back (Auto: "v7 or HPA-tuned")
+            if self.req.hpa_scale_down_window_s is not None:
+                if not hpa_mgr.set_scale_down_window(self.req.hpa_scale_down_window_s) and any(w.hpa for w in workloads):
+                    raise RuntimeError("could not set the HPA scale-down window for this run")
+            if self.req.hpa_cpu_target_pct is not None:
+                if not hpa_mgr.set_cpu_target(self.req.hpa_cpu_target_pct) and any(w.hpa for w in workloads):
+                    raise RuntimeError("could not set the HPA CPU target for this run")
+            if self.req.hpa_scale_down_window_s is not None or self.req.hpa_cpu_target_pct is not None:
+                self.event("ownership", f"Native HPA used on hand-back: CPU target {self.req.hpa_cpu_target_pct or 'unchanged'}"
+                                        f"{'%' if self.req.hpa_cpu_target_pct else ''}, scale-down window "
+                                        f"{self.req.hpa_scale_down_window_s if self.req.hpa_scale_down_window_s is not None else 'unchanged'}"
+                                        f"{' s' if self.req.hpa_scale_down_window_s is not None else ''}; restored after the run")
             self._start_operator("live", auto=self.req.controller == "auto")
 
     def _reset_app_data(self) -> None:

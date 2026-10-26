@@ -95,7 +95,7 @@ def test_request_validation(tmp_path, monkeypatch):
     ok = ExperimentRequest("shopping", "hpa_tuned", "calibration_steady", hpa_cpu_target_pct=250, hpa_scale_down_window_s=60)
     assert ok.validate(lab.cfg) == []
     assert any("CPU target" in e for e in ExperimentRequest("shopping", "hpa_tuned", "flash_sale").validate(lab.cfg))
-    assert any("only to the hpa_tuned" in e for e in
+    assert any("apply only to hpa_tuned" in e for e in
                ExperimentRequest("shopping", "hpa", "flash_sale", hpa_cpu_target_pct=150).validate(lab.cfg))
     assert any("variant" in e for e in ExperimentRequest("shopping", "auto", "flash_sale", policy_variant="nope").validate(lab.cfg))
     assert ExperimentRequest("shopping", "auto", "flash_sale", policy_variant="alt").validate(lab.cfg) == []
@@ -150,3 +150,22 @@ def test_block_runs_pair_inside_their_block_whatever_the_order():
     assert models["Native HPA, tuned (150% CPU, 60 s scale-down)"]["pairs"][0]["baseline"] == "hpa1"
     assert models["v7 (Auto mode)"]["pairs"][0]["baseline"] == "hpa1"   # same block, even though it ran later
     assert models["v7"]["pairs"][0]["baseline"] == "hpa-old"            # unlabelled runs keep the old rule
+
+
+def test_auto_run_can_set_the_hand_back_hpa_and_restores_it(tmp_path, monkeypatch):
+    """docs/POLICY_V7.md §3.2: Auto chooses between FlexaScale and HPA-tuned, so the run applies HPA-tuned's settings."""
+    from flexascale.lab.experiments import Experiment, ExperimentRequest
+
+    lab, c = _lab(tmp_path, monkeypatch)
+    started = []
+    exp = Experiment(lab, ExperimentRequest("shopping", "auto", "flash_sale", users=5, duration=30, reset_replicas=False,
+                                            hpa_cpu_target_pct=250, hpa_scale_down_window_s=60))
+    monkeypatch.setattr(exp, "_start_operator", lambda mode, auto=False: started.append((mode, auto)))
+    exp._prepare()
+    h = c.hpas["api-gateway-hpa"]
+    assert started == [("live", True)]
+    assert h["spec"]["metrics"][0]["resource"]["target"]["averageUtilization"] == 250
+    assert h["spec"]["behavior"]["scaleDown"]["stabilizationWindowSeconds"] == 60
+    assert any("Native HPA used on hand-back" in e["message"] for e in exp.events)
+    exp._teardown()
+    assert h["spec"]["metrics"] == CPU70 and "behavior" not in h["spec"]

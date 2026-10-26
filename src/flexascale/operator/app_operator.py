@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 import threading
 import time
@@ -40,6 +41,7 @@ from flexascale.discovery.workloads import WorkloadDiscovery, WorkloadInfo
 from flexascale.k8s.kube import Kube
 from flexascale.metrics.workload_metrics import WorkloadMetrics, WorkloadMetricsClient
 from flexascale.operator.auto_mode import AutoArbiter, AutoConfig
+from flexascale.rl.features_v3 import FeatureTracker
 from flexascale.rl.policy_runtime import PolicyOutput, PolicyRuntime
 from flexascale.safety.hpa_manager import HPAManager
 from flexascale.safety.lease import ControllerLease
@@ -113,7 +115,10 @@ class AppOperator:
         )
         self.runtime = runtime
         self.model_error: Optional[str] = None
-        if self.runtime is None and load_model:
+        self.rule: Dict[str, Any] = dict(policy.controller_rule or {})
+        """A hand-written rule replaces the model (attribution arm, docs/POLICY_V7.md §3.2)."""
+        self.tracker: Optional[FeatureTracker] = None
+        if self.runtime is None and load_model and not self.rule:
             try:
                 self.runtime = PolicyRuntime(policy.model_path)
             except Exception as exc:
@@ -161,9 +166,9 @@ class AppOperator:
         event: Dict[str, Any] = {"type": "event", "event": "operator_start", "ts": time.time(),
                                  "app": self.policy.name, "requested_mode": self.policy.mode,
                                  "model": self.runtime.info() if self.runtime else None,
-                                 "model_error": self.model_error}
+                                 "model_error": self.model_error, "controller_rule": self.rule or None}
         if self.policy.live:
-            if self.runtime is None:
+            if self.runtime is None and not self.rule:
                 event["result"] = "refused_live_without_model"
                 self.effective_mode = "observe"
             elif not self.lease.acquire():
@@ -276,7 +281,11 @@ class AppOperator:
         self._planned_total = sum(w.desired_replicas for w in workloads)
         policy_inputs = self._policy_inputs(names, telemetry, by_name, features, now)
 
-        if self.runtime is not None:
+        if self.rule:
+            output = self._rule_output(names, telemetry, by_name)
+        elif self.runtime is not None and getattr(self.runtime, "graph", False):
+            output = self.runtime.predict_graph(policy_inputs, edges)
+        elif self.runtime is not None:
             output = self.runtime.predict(policy_inputs, edges)
         else:
             output = heuristic_actions(features, self.policy.cpu_target_pct)
@@ -307,6 +316,30 @@ class AppOperator:
             return 1.0 if rps <= 0.0 else 3.0
         return float(rps) / prev
 
+    def _rule_output(self, names: Sequence[str], telemetry: Dict[str, WorkloadMetrics],
+                     by_name: Dict[str, WorkloadInfo]) -> PolicyOutput:
+        """``controller_rule`` limit_target, exactly as ``simulator.twin_control.limit_target_policy``."""
+        target, down = float(self.rule["target"]), float(self.rule["down"])
+        deltas: List[int] = []
+        for n in names:
+            m, w = telemetry[n], by_name[n]
+            cores = m.cpu_cores
+            lo, _ = self.policy.bounds_for(n)
+            cur = max(1, int(w.desired_replicas))
+            limit = w.cpu_limit_cores or 1.0  # no CPU limit: one core, what a single-threaded worker can use
+            if cores is None:
+                deltas.append(0)
+                continue
+            need = math.ceil(cores / (target * limit) - 1e-9)
+            if need > cur:
+                deltas.append(min(need - cur, self.policy.max_step))
+            elif cur > lo and cores / (max(cur - 1, 1) * limit) < down:
+                deltas.append(-1)
+            else:
+                deltas.append(0)
+        return PolicyOutput(actions=[1] * len(names), confidences=[1.0] * len(names), mode="rule_limit_target",
+                            windows=[[n] for n in names], deltas=deltas)
+
     def _policy_inputs(
         self,
         names: Sequence[str],
@@ -315,6 +348,14 @@ class AppOperator:
         features: Dict[str, np.ndarray],
         now: float,
     ) -> Dict[str, np.ndarray]:
+        if self.runtime is not None and getattr(self.runtime, "graph", False):
+            if self.tracker is None:
+                self.tracker = FeatureTracker(names, max_replicas=int(getattr(self.runtime, "max_replicas", 10)))
+            return {n: self.tracker.update(now, n, cpu_cores=telemetry[n].cpu_cores, ready=by_name[n].ready_replicas,
+                                           desired=by_name[n].desired_replicas,
+                                           cpu_limit=by_name[n].cpu_limit_cores or 1.0,
+                                           rps=telemetry[n].request_rate, latency_ms=telemetry[n].latency_mean_ms)
+                    for n in names}
         if self.runtime is None or getattr(self.runtime, "observation_version", 1) < 2:
             return features
         out: Dict[str, np.ndarray] = {}
@@ -332,8 +373,10 @@ class AppOperator:
             )
         return out
 
-    def _delta(self, action: int, output: PolicyOutput) -> int:
-        """Replica change requested by an action index (the model's own deltas for PPO output)."""
+    def _delta(self, action: int, output: PolicyOutput, idx: Optional[int] = None) -> int:
+        """Replica change requested by an action index (the model's own deltas for PPO output, a rule's own deltas)."""
+        if output.deltas is not None and idx is not None:
+            return int(output.deltas[idx])
         deltas = HEURISTIC_DELTAS
         if self.runtime is not None and output.mode.startswith("ppo"):
             deltas = getattr(self.runtime, "action_deltas", HEURISTIC_DELTAS)
@@ -343,7 +386,7 @@ class AppOperator:
               proposed: int, m: WorkloadMetrics, lo: int, hi: int, live: bool):
         p = self.policy
         dec = self.arbiter.decide(
-            name, model_available=self.runtime is not None, telemetry_ok=owner_hint,
+            name, model_available=self.runtime is not None or bool(self.rule), telemetry_ok=owner_hint,
             lease_held=(self.effective_mode == "live") if live else True,
             confidence=confidence, activation=p.confidence_threshold, deactivation=p.deactivation_threshold,
             current=current, flexascale_proposal=int(proposed), cpu_pct=m.cpu_pct, latency_ms=m.latency_mean_ms,
@@ -383,8 +426,8 @@ class AppOperator:
             "policy": {
                 "mode": output.mode,
                 "action": int(action),
-                "action_label": action_label(self._delta(action, output)),
-                "delta": self._delta(action, output),
+                "action_label": action_label(self._delta(action, output, idx)),
+                "delta": self._delta(action, output, idx),
                 "confidence": round(float(confidence), 4),
                 "probabilities": output.probabilities[idx] if output.probabilities else None,
                 "window": output.windows[idx] if output.windows else None,
@@ -404,7 +447,7 @@ class AppOperator:
                 self._auto(record, name, owner_hint=False, confidence=confidence, current=current, proposed=current,
                            m=m, lo=lo, hi=hi, live=live)
         else:
-            delta = max(-p.max_scale_down_step, min(p.max_step, self._delta(action, output)))
+            delta = max(-p.max_scale_down_step, min(p.max_step, self._delta(action, output, idx)))
             proposed = max(lo, min(hi, current + delta))
             if current < lo or current > hi:
                 proposed = max(lo, min(hi, current))
@@ -491,6 +534,8 @@ class AppOperator:
                         self._last_scale_down[name] = now
                     else:
                         self._last_scale_up[name] = now
+                    if self.tracker is not None:
+                        self.tracker.note_scale(name, 1 if proposed > current else -1, now)
                 else:
                     record["apply_error"] = "scale_request_failed"
         else:

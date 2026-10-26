@@ -5,7 +5,9 @@ Execute a pre-registered run plan (JSON list of POST /api/lab/experiments bodies
 One run at a time, in plan order. Progress is kept in <plan>.progress.json, so an interrupted batch
 resumes where it stopped. Before each run the script waits while the laptop is on battery (on battery
 the CPU slows down ~4x and the run would be invalid anyway, docs/POLICY_V6.md §5.2). Validity is
-checked afterwards with scripts/check_host_load.py; nothing here looks at outcomes.
+checked afterwards with scripts/check_host_load.py; nothing here looks at outcomes. With
+``--pause-file``, no new run starts while that file exists (CPU-heavy work such as model training
+creates it, so it cannot overlap a run and count as host load).
 
     systemd-inhibit --what=sleep:idle:handle-lid-switch python scripts/run_plan.py reports/v7/calibration_plan.json
 """
@@ -58,6 +60,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("plan")
     ap.add_argument("--base-url", default=BASE)
+    ap.add_argument("--pause-file", default=".runtime/pause_live_runs",
+                    help="do not start a run while this file exists (default: %(default)s)")
     args = ap.parse_args()
     BASE = args.base_url.rstrip("/")
     plan = json.loads(Path(args.plan).read_text())
@@ -68,8 +72,9 @@ def main() -> int:
         key = str(i)
         if key in progress:
             continue
-        while on_battery():
-            log("on battery: waiting for AC power before the next run")
+        while on_battery() or Path(args.pause_file).exists():
+            log("on battery: waiting for AC power before the next run" if on_battery()
+                else f"paused by {args.pause_file} (CPU-heavy work running); waiting")
             time.sleep(60)
         while True:
             try:

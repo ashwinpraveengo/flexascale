@@ -18,6 +18,11 @@ Observation versions (read from the model card next to the model):
 * 2: ``[cpu/req, mem/limit, replicas/max, rps trend, latency/SLO]``, unit-free
   (v4+, ``simulator/dependency_env.py``). Trained with "slot i calls slot
   i+1", so neighbourhood windows list callees before callers.
+* 3: graph policies (v7+, ``rl/graph_policy.py``): ten unit-free features per
+  service (``rl/features_v3.py``) for *every* service at once, plus the
+  application's call graph; one forward pass decides for all services
+  (``ppo_graph``). The model card gives ``n_max`` (services the network
+  accepts) and the replica change of each action.
 
 No untrained parameters are ever used to make a decision. The GNN encoder's
 experimental ``node_policy_head`` is *not* trained by PPO and is deliberately
@@ -62,6 +67,8 @@ class PolicyOutput:
     clipped: List[List[str]] = field(default_factory=list)
     """Per-service features clipped to the trained observation bounds."""
     probabilities: List[List[float]] = field(default_factory=list)
+    deltas: Optional[List[int]] = None
+    """Replica change per service when the output comes from a rule rather than action indices."""
 
 
 def _sha256(path: Path) -> str:
@@ -118,6 +125,17 @@ class PolicyRuntime:
             raise FileNotFoundError(f"PPO model not found: {self.model_path}")
         self.model = PPO.load(str(self.model_path), device=device)
         self.model.policy.set_training_mode(False)
+        self.sha256 = _sha256(self.model_path)
+        self.card = None
+        for card_path in (self.model_path.parent / "model_card.json", self.model_path.parent.parent / "model_card.json"):
+            if card_path.is_file():
+                self.card = json.loads(card_path.read_text())
+                break
+        self.extractor = type(self.model.policy.features_extractor).__name__
+        if int(((self.card or {}).get("observation") or {}).get("version", 0)) >= 3:
+            self._init_graph()
+            return
+        self.graph = False
 
         space = self.model.action_space
         if hasattr(space, "nvec"):
@@ -134,14 +152,6 @@ class PolicyRuntime:
             )
         self.obs_low = obs_space.low.astype(np.float32)
         self.obs_high = obs_space.high.astype(np.float32)
-        self.sha256 = _sha256(self.model_path)
-
-        self.card: Optional[Dict[str, Any]] = None
-        for card_path in (self.model_path.parent / "model_card.json", self.model_path.parent.parent / "model_card.json"):
-            if card_path.is_file():
-                self.card = json.loads(card_path.read_text())
-                break
-        self.extractor = type(self.model.policy.features_extractor).__name__
         obs_card = (self.card or {}).get("observation") or {}
         # Unit-free (v2) models have every feature bounded by a small constant; raw-unit
         # (v1) models have a CPU bound of 100. The bounds are stored inside the model zip,
@@ -167,6 +177,52 @@ class PolicyRuntime:
         if len(self.action_deltas) != n_actions:
             raise ValueError(f"Model has {n_actions} actions per service but its card lists deltas {self.action_deltas}")
 
+    def _init_graph(self) -> None:
+        from flexascale.rl import features_v3
+
+        obs_card = self.card["observation"]
+        self.graph = True
+        self.observation_version = int(obs_card["version"])
+        self.n_max = int(obs_card["n_max"])
+        self.field_names = list(obs_card.get("per_service_fields") or features_v3.FEATURES)
+        if tuple(self.field_names) != features_v3.FEATURES:
+            raise ValueError(f"Model features {self.field_names} differ from this operator's {features_v3.FEATURES}")
+        if self.model.observation_space.shape != (features_v3.obs_dim(self.n_max),):
+            raise ValueError(f"Model observation shape {self.model.observation_space.shape} does not match n_max={self.n_max}")
+        self.num_slots = self.n_max
+        self.max_replicas = int(obs_card.get("max_replicas") or 10)
+        self.decision_slot = None
+        self.callees_first = False
+        self.action_deltas = [int(d) for d in self.card["action"]["deltas"]]
+        if len(self.action_deltas) != int(self.model.action_space.nvec[0]):
+            raise ValueError(f"Model has {int(self.model.action_space.nvec[0])} actions per service but its card lists "
+                             f"deltas {self.action_deltas}")
+
+    def predict_graph(self, features: Dict[str, np.ndarray], edges: Sequence[Tuple[str, str]] = ()) -> PolicyOutput:
+        """Observation-version-3 decision for every service at once (sorted-name order, as ``predict``)."""
+        from flexascale.rl import features_v3
+
+        services = sorted(features)
+        if not services:
+            return PolicyOutput([], [], mode="ppo_graph")
+        obs = features_v3.pack(features, services, edges, self.n_max)
+        probs = self._distribution_probs(obs[None, :])
+        neigh = {s: set() for s in services}
+        for u, v in edges:
+            if u in neigh and v in neigh:
+                neigh[u].add(v)
+                neigh[v].add(u)
+        actions, confs, prob_rows = [], [], []
+        for i, s in enumerate(services):
+            p = probs[i][0]
+            a = int(torch.argmax(p).item())
+            actions.append(a)
+            confs.append(float(p[a].item()))
+            prob_rows.append([round(float(x), 4) for x in p.tolist()])
+        return PolicyOutput(actions=actions, confidences=confs, mode="ppo_graph",
+                            windows=[[s] + sorted(neigh[s]) for s in services], clipped=[[] for _ in services],
+                            probabilities=prob_rows)
+
     # ------------------------------------------------------------------
 
     def info(self) -> Dict[str, Any]:
@@ -176,7 +232,7 @@ class PolicyRuntime:
             "sha256": self.sha256,
             "extractor": self.extractor,
             "trained_services": self.num_slots,
-            "observation_dim": int(self.num_slots * VECTOR_DIM),
+            "observation_dim": int(self.model.observation_space.shape[0]),
             "observation_version": self.observation_version,
             "observation_fields": list(self.field_names),
             "max_replicas": self.max_replicas,

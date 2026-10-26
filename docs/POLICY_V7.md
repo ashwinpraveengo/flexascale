@@ -102,7 +102,74 @@ The project states that **FlexaScale beats a fair native HPA only if FlexaScale-
 
 ## 4. v7 policy: design, training and simulation results
 
-*Written as the work proceeds; see §5 for the running record.*
+### 4.1 Application twin (`src/flexascale/simulator/twin*.py`, fitted by `scripts/fit_twin.py`)
+
+The twin is fitted from the 61 completed runs of the 16-service shop. All controllers are pooled, because the fitted quantities belong to the application, not the controller.
+* **CPU demand** per service is `cpu_per_req × rate + idle × replicas`. The least-squares fit has R² 0.75–0.95. For example, order-service costs 16.0 CPU-ms per request, catalog 2.4 and user-service 211.8 (bcrypt).
+* **Capacity** per replica is the 500m CPU *limit*; work beyond it queues. user-service is *serial* (one login at a time per replica).
+* **Latency** per service is its low-load latency plus processor-sharing delay, plus queue wait, plus the excess latency of its callees.
+* **End-to-end latency** uses the Locust request classes (browse, cart, checkout, orders, login). Each class gets its measured share, mean and spread per scenario, and the p95 comes from the mixture.
+* **Users** are closed-loop: the load drops when responses slow down.
+* **Timing and metric lag** match the cluster: pods are ready after 10 s (15 s with probability 0.3); Prometheus uses `rate[1m]` scraped every 30 s; metrics-server has 60 s resolution.
+
+**Validation against live runs** (`scripts/analysis/validate_twin.py`, 5 seeds per scenario): replica-hours are within 3.8% of live on average for native HPA (default) and 3.3% for the 60 s window. p95 matches within the live run-to-run spread in 5 of 6 scenarios. flash_sale is too high in the twin: 699 ms against 448–670 ms live.
+
+**Headroom at the live evaluation load** (25 users, six scenarios; `scripts/analysis/twin_headroom.py`, before any v7 training):
+
+| Controller (twin) | Replica-h vs HPA-default | p95 (mean of scenarios) | flash_sale p95 |
+| :--- | ---: | ---: | ---: |
+| HPA-default (70%, 300 s) | 0 | 271 ms | 684 ms |
+| HPA 70%, 60 s | −0.4% | 271 ms | 684 ms |
+| HPA 150%, 60 s | −13.8% | 378 ms | 1310 ms |
+| HPA 350%, 60 s | −16.3% | 467 ms | 1835 ms |
+| hold every service at 1 replica | −16.6% | 515 ms | 2119 ms |
+
+At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a higher target reaches −14 to −16%, and the only latency it gives up is in flash_sale. This was written before the v7 live results: **if the calibration (§2.1) selects a high target, HPA-tuned is close to the floor, and no controller can beat it on cost by more than about 1–3%. FlexaScale's remaining room is the flash-sale spike: keeping headroom only where spikes hurt.** The evaluation design in §3 is unchanged.
+
+### 4.2 Policy, observation and reward
+
+* **Observation (version 3, `rl/features_v3.py`)**: 10 unit-free features per service, computed the same way by the twin environment and by the live operator:
+  * CPU per replica as a fraction of the *limit*, and its trend;
+  * request-rate trend;
+  * log₂ latency inflation over the service's own low-load latency;
+  * replica fraction and ready fraction;
+  * log CPU-ms per request;
+  * burstiness (peak/mean rate over 5 minutes);
+  * time since the last scale-up and scale-down.
+* **Policy (`rl/graph_policy.py`)**: two rounds of message passing over the application's *real* call graph, with separate weights for callees and callers, then one shared head per service. Actions are −1, 0, +1, +2 or +3 replicas. The critic is the mean of the node embeddings. Padded nodes hold, with zero entropy. Every decision-making parameter is trained by PPO.
+* **Guards (`twin_control.V7_GUARDS`, the same in live)**:
+  * at most +3 replicas per decision and 20 s between scale-ups;
+  * one replica down per 30 s;
+  * no scale-down while a pod is at ≥ 80% of its limit (400% of request);
+  * no single latency SLO.
+* **Reward (`simulator/twin_env.py`)**, in replica-equivalents per 10 s decision. Each term states how many replicas avoiding it is worth:
+  * −1 per replica above each service's minimum;
+  * −6 per 100% of end-to-end p95 above the p95 the same requests would have with ample capacity;
+  * −10 while the end-to-end p95 is above the 1000 ms SLO;
+  * −5 per 1% of failed requests;
+  * −0.25 per replica change.
+
+  The p95 term charges under-provisioning only when it actually slows requests, the replica term charges over-provisioning, and the change term charges churn. The components are logged separately (`info["reward_components"]`).
+* **Training episodes**:
+  * 75%: the shop with every fitted parameter perturbed by ±30%, under randomised scenario shapes: peak 8–45 users, stage timings, mixes, extra spikes and drops, 300–600 s;
+  * 25%: synthetic applications with random call DAGs of 5–18 services, sometimes one serial service. This forces the policy to read features and the graph rather than memorise service identities.
+
+  The exact live evaluation conditions are only in the test set.
+
+### 4.3 Training and selection protocol (fixed 2026-10-26 23:25, before the first training run)
+
+* **Runs** (`scripts/train_v7.py`, PPO settings chosen once: 8 environments × 128 steps, batch 256, 10 epochs, lr 3e-4, γ 0.97, GAE 0.95, clip 0.2, entropy 0.01):
+  * graph policy with the v7 reward, seeds 1 and 2;
+  * ablation without the graph (`use_graph=False`), seed 1;
+  * ablation with the v4–v6 reward structure transplanted to the twin (`kind="v5"`: SLO term + 0.3 × |CPU% of request − 70| + stability + replica cost), seed 1.
+* **Selection**: every 100k steps the deterministic policy runs the validation set: the unperturbed shop, 40 random workloads, seeds 10000–10039. Each run keeps its best checkpoint by mean v7 episode reward. **v7** is the better of the two graph runs on validation.
+* **Heuristic arm (§3.2)**: the best rule on the same validation set from a fixed family. The family is "scale to ⌈CPU / (t × limit)⌉ when above t; one replica down when the rest would stay below d", with t ∈ {0.4, 0.5, 0.6, 0.7} and d ∈ {0.2, 0.3}, under the same guards.
+* **Test (once, after selection, every controller on the same episodes)**:
+  * T1: the six live scenarios at 25 users, 5 seeds each;
+  * T2: 60 random shop workloads;
+  * T3: 40 random synthetic applications.
+
+  The controllers are native HPA (default; 60 s window at 70, 150, 250 and 350%), the v5-era threshold rule, the rule family, v7, and both ablations. The live arms use the selected model and rule **whatever these results are**.
 
 ## 5. Running record
 
@@ -110,3 +177,6 @@ The project states that **FlexaScale beats a fair native HPA only if FlexaScale-
 | :--- | :--- |
 | 2026-10-26 22:30 | Diagnosis (§1) from code, model cards and the 61 runs of the 16-service shop. Scripts: `scripts/analysis/svc_stats.py`, `scripts/analysis/latency_knee.py`. |
 | 2026-10-26 23:00 | §2–§3 fixed before any calibration or v7 run. |
+| 2026-10-26 22:37 | Lab restarted with `hpa_tuned`; calibration plan launched. It waits: the laptop has been on battery since about 22:35. |
+| 2026-10-26 23:10 | Twin fitted and validated (§4.1); headroom check (§4.1). Checkpoint commit `ca9b7b5` on branch `flexascale-v7`. |
+| 2026-10-26 23:25 | §4.2–§4.3 fixed; training starts. Live runs are paused while training (`.runtime/pause_live_runs`). |

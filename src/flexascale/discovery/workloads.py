@@ -88,6 +88,8 @@ class WorkloadInfo:
     """Sum of container CPU requests for one pod."""
     memory_request_bytes: float = 0.0
     memory_limit_bytes: float = 0.0
+    cpu_limit_cores: float = 0.0
+    """Sum of container CPU limits for one pod (0 = no limit set)."""
     hpa: Optional[HPAInfo] = None
     eligible: bool = True
     reason: str = "eligible"
@@ -98,8 +100,9 @@ class WorkloadInfo:
         return data
 
 
-def _pod_resources(template_spec: Dict[str, Any]) -> tuple[float, float, float]:
-    cpu = mem_req = mem_lim = 0.0
+def _pod_resources(template_spec: Dict[str, Any]) -> tuple[float, float, float, float]:
+    """(CPU request cores, memory request bytes, memory limit bytes, CPU limit cores) of one pod."""
+    cpu = mem_req = mem_lim = cpu_lim = 0.0
     for c in template_spec.get("containers", []) or []:
         res = c.get("resources", {}) or {}
         req = res.get("requests", {}) or {}
@@ -107,7 +110,8 @@ def _pod_resources(template_spec: Dict[str, Any]) -> tuple[float, float, float]:
         cpu += parse_cpu(req.get("cpu"))
         mem_req += parse_memory(req.get("memory"))
         mem_lim += parse_memory(lim.get("memory"))
-    return cpu, mem_req, mem_lim
+        cpu_lim += parse_cpu(lim.get("cpu"))
+    return cpu, mem_req, mem_lim, cpu_lim
 
 
 class WorkloadDiscovery:
@@ -169,7 +173,7 @@ class WorkloadDiscovery:
             template = spec.get("template", {}).get("spec", {})
             images = [c.get("image", "") for c in template.get("containers", []) or []]
             labels = meta.get("labels", {}) or {}
-            cpu, mem_req, mem_lim = _pod_resources(template)
+            cpu, mem_req, mem_lim, cpu_lim = _pod_resources(template)
             eligible, reason = self._eligibility(name, labels, images)
             workloads.append(
                 WorkloadInfo(
@@ -183,6 +187,7 @@ class WorkloadDiscovery:
                     cpu_request_cores=cpu,
                     memory_request_bytes=mem_req,
                     memory_limit_bytes=mem_lim,
+                    cpu_limit_cores=cpu_lim,
                     hpa=hpa_by_target.get(name),
                     eligible=eligible,
                     reason=reason,
