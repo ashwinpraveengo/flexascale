@@ -212,6 +212,17 @@ def main() -> int:
                              + " / ".join(f"{p['p95_ms']:+.1f}" if p['p95_ms'] is not None else "–" for p in ps))
             lines.append("")
 
+    lines += ["## Recovery after load decreases (descriptive, flash_sale and traffic_drop)", "",
+              "Seconds from the phase change that lowers users until total desired replicas are within 1 of the run's minimum.", "",
+              "| Arm | runs | mean s | values |", "| :--- | ---: | ---: | :--- |"]
+    for a in arms:
+        rec = [metrics(v[a])["recovery_s"] for v in blocks.values() if a in v]
+        rec = [x for x in rec if x is not None]
+        result["arms"][a]["recovery_s"] = rec
+        lines.append(f"| {ARM_TITLES.get(a, a)} | {len(rec)} | {(sum(rec) / len(rec)) if rec else float('nan'):.0f} | "
+                     f"{', '.join(f'{x:.0f}' for x in rec) or '–'} |")
+    lines += [""]
+
     lines += ["## Attribution (replica changes by owner during the runs)", "", "| Arm | changes by owner (sum over runs) | Auto rule decisions |", "| :--- | :--- | :--- |"]
     for a in arms:
         tot, rules = defaultdict(int), defaultdict(int)
