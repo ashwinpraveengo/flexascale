@@ -169,3 +169,12 @@ def test_auto_run_can_set_the_hand_back_hpa_and_restores_it(tmp_path, monkeypatc
     assert any("Native HPA used on hand-back" in e["message"] for e in exp.events)
     exp._teardown()
     assert h["spec"]["metrics"] == CPU70 and "behavior" not in h["spec"]
+
+
+def test_rule_runs_are_labelled_by_their_rule_not_a_model():
+    from flexascale.lab.benchmark import model_tag
+
+    run = _run("r1", "flexascale", 5, "b1")
+    run["model"] = None
+    run["policy"] = {"controller_rule": {"type": "limit_target", "target": 0.6, "down": 0.3}}
+    assert model_tag(run) == "Rule limit_target(0.6/0.3)"

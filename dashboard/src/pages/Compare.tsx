@@ -169,7 +169,7 @@ function ManualCompare({ runs, error }: { runs: Json[]; error: string | null }) 
       <Card eyebrow="Experiment history" title={`${runs.length} recorded runs`} pad={false}
         actions={<select className="field !w-auto text-sm" value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Filter">
           <option value="">All runs</option>
-          <optgroup label="Controller">{['hpa', 'flexascale', 'auto', 'hpa_fast'].map((c) => <option key={c} value={c}>{CONTROLLER_LABEL[c]}</option>)}</optgroup>
+          <optgroup label="Controller">{['hpa', 'flexascale', 'auto', 'hpa_fast', 'hpa_tuned'].map((c) => <option key={c} value={c}>{CONTROLLER_LABEL[c]}</option>)}</optgroup>
           <optgroup label="Scenario">{scen.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}</optgroup>
         </select>}>
         <ErrorNote error={error} />

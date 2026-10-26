@@ -72,13 +72,15 @@ export const CONTROLLER_LABEL: Record<string, string> = {
   flexascale: 'FlexaScale',
   auto: 'Auto',
   hpa_fast: 'Native HPA, 60 s scale-down',
+  hpa_tuned: 'Native HPA, tuned',
 };
 
 /** Native HPA in charge: the default HPA, or the tuned-HPA reference (shorter scale-down window). */
 /** Failure-rate differences are fractions of a percentage point: show them with two decimals. */
 export const deltaDigits = (unit: string) => (unit.trim() === 'pp' ? 2 : 1);
 
-export const isNativeHpa = (controller: string | undefined) => controller === 'hpa' || controller === 'hpa_fast';
+export const isNativeHpa = (controller: string | undefined) =>
+  controller === 'hpa' || controller === 'hpa_fast' || controller === 'hpa_tuned';
 
 export function fmt(v: number | null | undefined, digits = 0, suffix = ''): string {
   if (v === null || v === undefined || Number.isNaN(v)) return '—';

@@ -7,14 +7,21 @@ resumes where it stopped. Before each run the script waits while the laptop is o
 the CPU slows down ~4x and the run would be invalid anyway, docs/POLICY_V6.md §5.2). Validity is
 checked afterwards with scripts/check_host_load.py; nothing here looks at outcomes. With
 ``--pause-file``, no new run starts while that file exists (CPU-heavy work such as model training
-creates it, so it cannot overlap a run and count as host load).
+creates it, so it cannot overlap a run and count as host load). With ``--suspend``, processes whose
+command line matches the pattern are frozen (SIGSTOP) while a run's load is on and resumed (SIGCONT)
+when it ends, so CPU-heavy work can use the 5.5-minute settle waits between runs without becoming
+host load in the measured window.
 
     systemd-inhibit --what=sleep:idle:handle-lid-switch python scripts/run_plan.py reports/v7/calibration_plan.json
 """
 
 import argparse
+import atexit
 import glob
 import json
+import os
+import signal
+import subprocess
 import sys
 import time
 import urllib.error
@@ -45,13 +52,57 @@ def log(msg):
     print(f"{time.strftime('%H:%M:%S')} {msg}", flush=True)
 
 
-def wait_for(run_id, timeout):
+FROZEN = set()
+
+
+def matching_pids(pattern):
+    if not pattern:
+        return []
+    out = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True).stdout.split()
+    return [int(x) for x in out if int(x) != os.getpid()]
+
+
+def freeze(pattern):
+    for pid in matching_pids(pattern):
+        try:
+            os.kill(pid, signal.SIGSTOP)
+            FROZEN.add(pid)
+        except ProcessLookupError:
+            pass
+
+
+def thaw():
+    for pid in list(FROZEN):
+        try:
+            os.kill(pid, signal.SIGCONT)
+        except ProcessLookupError:
+            pass
+        FROZEN.discard(pid)
+
+
+atexit.register(thaw)
+
+
+def wait_for(run_id, timeout, suspend=None):
     deadline = time.time() + timeout
     while time.time() < deadline:
         active = (call("GET", "/api/lab/experiments/active") or {}).get("active") or {}
-        if active.get("id") == run_id and active.get("state") in ("completed", "stopped", "failed", "interrupted"):
+        state = active.get("state")
+        if active.get("id") == run_id and state in ("completed", "stopped", "failed", "interrupted"):
+            thaw()
             return active
-        time.sleep(10)
+        if suspend and active.get("id") == run_id:
+            # freeze from the end of the replica reset (last 15 s of preparation) until the run ends
+            events = active.get("events") or []
+            settling = any("Comparable start" in (e.get("message") or "") or "start not fully settled" in (e.get("message") or "")
+                           for e in events)
+            if state in ("running", "stopping") or settling:
+                if not FROZEN:
+                    log(f"freezing processes matching '{suspend}' for the load window")
+                freeze(suspend)
+            elif FROZEN:
+                thaw()
+        time.sleep(2 if suspend else 10)
     raise TimeoutError(run_id)
 
 
@@ -62,7 +113,11 @@ def main() -> int:
     ap.add_argument("--base-url", default=BASE)
     ap.add_argument("--pause-file", default=".runtime/pause_live_runs",
                     help="do not start a run while this file exists (default: %(default)s)")
+    ap.add_argument("--suspend", default=None,
+                    help="command-line pattern of processes to freeze while a run's load is on (e.g. scripts/train_v7.py)")
     args = ap.parse_args()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(sig, lambda *_: sys.exit(1))  # atexit resumes anything frozen
     BASE = args.base_url.rstrip("/")
     plan = json.loads(Path(args.plan).read_text())
     prog_path = Path(args.plan).with_suffix(".progress.json")
@@ -89,7 +144,7 @@ def main() -> int:
                 log(f"run {i + 1} refused ({exc.code}): {text}")
                 return 1
         log(f"[{i + 1}/{len(plan)}] started {started['id']} ({body['controller']}, {body['scenario']}, block {body.get('block')})")
-        final = wait_for(started["id"], timeout=body.get("duration", 300) + 1200)
+        final = wait_for(started["id"], timeout=body.get("duration", 300) + 1200, suspend=args.suspend)
         s = final.get("summary") or {}
         w, r = s.get("workload") or {}, s.get("resources") or {}
         progress[key] = {"id": started["id"], "state": final["state"], "block": body.get("block")}

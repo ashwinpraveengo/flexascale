@@ -68,6 +68,10 @@ def mean_ci(values: List[float]) -> Optional[Dict[str, Any]]:
 
 
 def model_tag(run: Dict[str, Any]) -> str:
+    rule = (run.get("policy") or {}).get("controller_rule") or {}
+    if rule:  # a hand-written rule in place of the model (docs/POLICY_V7.md §3.2 attribution arm)
+        tag = f"Rule {rule.get('type')}({rule.get('target')}/{rule.get('down')})"
+        return f"{tag} (Auto mode)" if run["request"]["controller"] == "auto" else tag
     path = ((run.get("model") or {}).get("model_path") or "")
     tag = next((p for p in Path(path).parts if p.startswith("flexascale_")), path or "unknown")
     tag = tag.replace("flexascale_", "")

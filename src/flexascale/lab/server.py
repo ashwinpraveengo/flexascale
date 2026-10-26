@@ -90,7 +90,8 @@ def create_lab_app(lab: Optional[Lab] = None) -> FastAPI:
 
     @app.get("/api/lab/scenarios")
     def scenarios():
-        return {"scenarios": SCENARIOS, "controllers": list(CONTROLLERS), "limits": LIMITS}
+        return {"scenarios": SCENARIOS, "controllers": list(CONTROLLERS), "limits": LIMITS,
+                "variants": {name: sorted(spec.variants) for name, spec in L().cfg.apps.items()}}
 
     @app.get("/api/lab/apps/{app_name}/live")
     def live(app_name: str):

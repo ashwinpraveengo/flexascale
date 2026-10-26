@@ -13,6 +13,8 @@ const CONTROLLER_HELP: Record<string, string> = {
   hpa: 'Kubernetes native HPA scales every service (CPU 70% target). FlexaScale can run in shadow mode and only log what it would do.',
   flexascale: 'FlexaScale takes the controller Lease, freezes each HPA at the current size, then scales with the trained policy. Hands a service back to its HPA when unsure.',
   auto: 'Per service and per step, explainable rules choose FlexaScale or native HPA (health → confidence → SLA risk → efficiency). One owner per Deployment at any time.',
+  hpa_fast: 'Native HPA with only its scale-down stabilisation window shortened to 60 s (the earlier tuned reference). Restored after the run.',
+  hpa_tuned: 'Native HPA with the calibrated settings of docs/POLICY_V7.md §2: 60 s scale-down window and the CPU target chosen on a separate calibration workload. Restored after the run.',
 };
 
 export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, prometheus, reloadActive }: {
@@ -20,11 +22,13 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
 }) {
   const scenarios: Record<string, Json> = meta?.scenarios || {};
   const controllers: string[] = meta?.controllers || ['hpa', 'flexascale'];
+  const variants: string[] = meta?.variants?.[app] || [];
   const limits = meta?.limits || { users: [1, 500], spawn_rate: [0.1, 100], duration: [30, 3600] };
   const exp = active && active.request?.app === app ? active : null;
   const running = !!exp && !TERMINAL.includes(exp.state);
 
   const [controller, setController] = useState('hpa');
+  const [variant, setVariant] = useState('');
   const [scenario, setScenario] = useState('flash_sale');
   const [users, setUsers] = useState(25);
   const [spawn, setSpawn] = useState(5);
@@ -45,7 +49,8 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
     setBusy(true);
     setActionErr(null);
     try {
-      const res = await api.start({ app, controller, scenario, users, spawn_rate: spawn, duration, reset_replicas: reset, shadow });
+      const res = await api.start({ app, controller, scenario, users, spawn_rate: spawn, duration, reset_replicas: reset, shadow,
+        ...(variant ? { policy_variant: variant } : {}) });
       setStartedHere(res?.id || null);
       reloadActive();
     } catch (e: unknown) {
@@ -105,6 +110,16 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
               </div>
               <p className="text-xs ink2 mt-2 leading-relaxed">{CONTROLLER_HELP[controller]}</p>
             </div>
+            {variants.length > 0 && (
+              <label className="block">
+                <span className="eyebrow">FlexaScale policy</span>
+                <select className="field mt-1.5" value={variant} disabled={running} onChange={(e) => setVariant(e.target.value)}>
+                  <option value="">Default policy of this application</option>
+                  {variants.map((v) => <option key={v} value={v}>{v}</option>)}
+                </select>
+                <span className="text-xs ink2 block mt-1.5">Used by FlexaScale and Auto runs, and by shadow mode in native-HPA runs (config/lab.yaml variants).</span>
+              </label>
+            )}
             <label className="block">
               <span className="eyebrow">Workload scenario (Locust)</span>
               <select className="field mt-1.5" value={scenario} disabled={running} onChange={(e) => setScenario(e.target.value)}>
@@ -130,7 +145,7 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
               <input type="checkbox" className="mt-1" checked={reset} disabled={running} onChange={(e) => setReset(e.target.checked)} />
               <span>Comparable start <span className="block text-xs muted">reset application data and scale every service to its minimum first</span></span>
             </label>
-            {controller === 'hpa' && (
+            {isNativeHpa(controller) && (
               <label className="flex items-start gap-2 text-sm">
                 <input type="checkbox" className="mt-1" checked={shadow} disabled={running} onChange={(e) => setShadow(e.target.checked)} />
                 <span>FlexaScale shadow mode <span className="block text-xs muted">log proposals only, change nothing</span></span>
