@@ -90,7 +90,9 @@ def main() -> int:
         "validation": runs[run].get("best"),
         "protocol": "docs/POLICY_V7.md §4.3",
     }
-    (dst_dir / "model_card.json").write_text(json.dumps(card, indent=1, default=str) + "\n")
+    text = json.dumps(card, indent=1, default=str) + "\n"
+    (dst_dir / "model_card.json").write_text(text)
+    (dst_dir.parent / "model_card.json").write_text(text)  # where the dashboard's Models page and Dockerfile look
 
     base = yaml.safe_load((ROOT / "config" / "apps" / "shopping.yaml").read_text())
     pol = dict(base)
