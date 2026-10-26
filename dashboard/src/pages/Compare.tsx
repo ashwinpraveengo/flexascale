@@ -4,9 +4,10 @@ import { Card, Empty, ErrorNote, Icon, Skeleton, StatusBadge, usePoll } from '..
 import { LineChart } from '../LineChart';
 import { MIN_PAIRS } from './Overview';
 
-/** The tuned-HPA reference group ("Native HPA, 60 s scale-down") is a baseline variant, not a FlexaScale model. */
+/** Native-HPA groups (default, 60 s window, calibrated "tuned") are baseline variants, not FlexaScale models. */
 const isReference = (model: string) => model.startsWith('Native HPA');
-const candidateName = (model: string) => (isReference(model) ? `${model} (tuned reference)` : `FlexaScale ${model}`);
+const candidateName = (model: string) => (isReference(model) ? model : model.startsWith('Rule') ? `${model} (hand-written rule)` : `FlexaScale ${model}`);
+const REFERENCE_OPTIONS: [string, string][] = [['hpa', 'Native HPA (default)'], ['hpa_tuned', 'Native HPA, tuned (fair baseline)']];
 
 const METRICS: [string, string, string][] = [
   ['replica_hours_pct', 'Replica-hours', '%'],
@@ -17,7 +18,8 @@ const METRICS: [string, string, string][] = [
 ];
 
 export function Compare({ app }: { app: string }) {
-  const bench = usePoll<Json>(() => api.benchmark(app), 30000, [app]);
+  const [reference, setReference] = useState('hpa');
+  const bench = usePoll<Json>(() => api.benchmark(app, reference), 30000, [app, reference]);
   const runs = usePoll<Json>(api.runs, 20000);
   const models: Json[] = bench.data?.models || [];
   const [model, setModel] = useState<string | null>(null);
@@ -25,14 +27,23 @@ export function Compare({ app }: { app: string }) {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-2 text-sm">
+        <span className="eyebrow">Compared with</span>
+        <div className="seg" role="group" aria-label="Reference controller">
+          {REFERENCE_OPTIONS.map(([k, label]) => <button key={k} aria-pressed={reference === k} onClick={() => { setReference(k); setModel(null); }}>{label}</button>)}
+        </div>
+        {reference === 'hpa_tuned' && <span className="text-xs muted">pre-registered v7 evaluation (docs/POLICY_V7.md): runs paired within their block</span>}
+      </div>
       <ErrorNote error={bench.error} what="Benchmark" />
       {bench.loading && !bench.data ? (
         <div className="card p-5 space-y-3"><Skeleton h={14} w="30%" /><Skeleton h={120} /></div>
       ) : !models.length ? (
-        <Card title="No paired benchmark yet"><Empty icon="compare">Paired runs appear here once the same scenario has been run with native HPA and then with FlexaScale (same users, spawn rate and duration).</Empty></Card>
+        <Card title="No paired benchmark yet"><Empty icon="compare">{reference === 'hpa_tuned'
+          ? 'Pairs against the tuned HPA appear here once runs of the pre-registered v7 evaluation (block-labelled) have completed.'
+          : 'Paired runs appear here once the same scenario has been run with native HPA and then with FlexaScale (same users, spawn rate and duration).'}</Empty></Card>
       ) : (
         <>
-          <Card eyebrow="Paired benchmark" title={`${candidateName(current.model)} vs native HPA (default)`}
+          <Card eyebrow="Paired benchmark" title={`${candidateName(current.model)} vs ${bench.data?.reference_label || 'native HPA (default)'}`}
             actions={models.length > 1 && (
               <div className="seg" role="group" aria-label="Model">
                 {models.map((m) => <button key={m.model} aria-pressed={m.model === current.model} onClick={() => setModel(m.model)}>{m.model}</button>)}

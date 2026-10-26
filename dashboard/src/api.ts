@@ -28,7 +28,8 @@ export const api = {
   run: (id: string) => request(`/api/lab/experiments/${encodeURIComponent(id)}`),
   compare: (a: string, b: string) =>
     request(`/api/lab/compare?baseline=${encodeURIComponent(a)}&candidate=${encodeURIComponent(b)}`),
-  benchmark: (app: string) => request(`/api/lab/benchmark?app=${encodeURIComponent(app)}`),
+  benchmark: (app: string, reference = 'hpa') =>
+    request(`/api/lab/benchmark?app=${encodeURIComponent(app)}&reference=${encodeURIComponent(reference)}`),
   models: () => request('/api/lab/models'),
   start: (body: Json) => request('/api/lab/experiments', { method: 'POST', body: JSON.stringify(body) }),
   stop: () => request('/api/lab/experiments/stop', { method: 'POST' }),

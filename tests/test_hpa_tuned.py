@@ -178,3 +178,17 @@ def test_rule_runs_are_labelled_by_their_rule_not_a_model():
     run["model"] = None
     run["policy"] = {"controller_rule": {"type": "limit_target", "target": 0.6, "down": 0.3}}
     assert model_tag(run) == "Rule limit_target(0.6/0.3)"
+
+
+def test_benchmark_against_the_tuned_hpa_pairs_within_blocks_and_uses_the_v7_rule():
+    from flexascale.lab.benchmark import VERDICT_RULE_V7
+
+    runs = [_run("t1", "hpa_tuned", 1, "v7-b01-hpa_tuned", hpa_cpu_target_pct=350, hpa_scale_down_window_s=60),
+            _run("d1", "hpa", 2, "v7-b01-hpa_default"), _run("r1", "flexascale", 3, "v7-b01-rl"),
+            _run("old", "hpa_tuned", 0)]                     # unlabelled: never paired against the tuned reference
+    out = benchmark(runs, _compare, reference="hpa_tuned")
+    models = {m["model"]: m for m in out["models"]}
+    assert set(models) == {"Native HPA (default)", "v7"} and out["reference_label"] == "native HPA, tuned"
+    assert models["v7"]["pairs"][0]["baseline"] == "t1" and models["v7"]["verdict_rule"] == VERDICT_RULE_V7
+    default = benchmark(runs, _compare)                      # default reference: block pairing against the default HPA
+    assert {m["model"]: m for m in default["models"]}["v7"]["pairs"][0]["baseline"] == "d1"

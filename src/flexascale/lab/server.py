@@ -142,8 +142,11 @@ def create_lab_app(lab: Optional[Lab] = None) -> FastAPI:
             raise HTTPException(404, "unknown run")
 
     @app.get("/api/lab/benchmark")
-    def bench(app: Optional[str] = None):
-        return L().benchmark(app)
+    def bench(app: Optional[str] = None, reference: str = "hpa"):
+        try:
+            return L().benchmark(app, reference)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
 
     @app.get("/api/lab/models")
     def models():

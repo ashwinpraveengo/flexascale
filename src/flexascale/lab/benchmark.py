@@ -24,6 +24,13 @@ _T95 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8
         11: 2.201, 12: 2.179, 13: 2.160, 14: 2.145, 15: 2.131, 16: 2.120, 17: 2.110, 18: 2.101, 19: 2.093,
         20: 2.086, 25: 2.060, 30: 2.042, 40: 2.021, 60: 2.000, 120: 1.980}
 
+REFERENCES = {"hpa": "native HPA (default)", "hpa_tuned": "native HPA, tuned"}
+VERDICT_RULE_V7 = ("Verdict rule (docs/POLICY_V7.md §3.5, fixed before the v7 runs): beats on cost = replica-hours interval below 0, "
+                   "p95 interval not entirely above 0 with mean <= +10%, failure interval not entirely above 0 with mean <= +0.10 pp, "
+                   "throughput mean >= -2%, end-to-end SLO-violation mean <= +5 s, oscillations mean <= +5, and replica-hours lower "
+                   "in at least 4 of 6 scenarios; beats on performance = p95 or failure interval below 0 with the replica-hours "
+                   "interval not entirely above 0 and mean <= +2% (and the same failure, throughput, SLO and oscillation checks); "
+                   "worse = a replica-hours, p95 or failure interval entirely above 0 without such a gain; otherwise on par.")
 VERDICT_RULE = ("Verdict rule (docs/POLICY_V6.md §3.1, fixed before the v6 results): beats on cost = replica-hours interval "
                 "below 0 and the failure and p95 intervals include or lie below 0; beats on performance = p95 or failure "
                 "interval below 0 and the replica-hours interval includes or lies below 0; worse = an interval above 0 "
@@ -76,6 +83,8 @@ def model_tag(run: Dict[str, Any]) -> str:
     tag = next((p for p in Path(path).parts if p.startswith("flexascale_")), path or "unknown")
     tag = tag.replace("flexascale_", "")
     controller = run["request"]["controller"]
+    if controller == "hpa":
+        return "Native HPA (default)"
     if controller == "hpa_fast":
         return "Native HPA, 60 s scale-down"
     if controller == "hpa_tuned":
@@ -104,7 +113,37 @@ def verdict(pooled: Dict[str, Any]) -> tuple[str, str]:
     return "On par with HPA", "warning"
 
 
-def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str, Any]], app: Optional[str] = None) -> Dict[str, Any]:
+def verdict_v7(pooled: Dict[str, Any], per_scenario_rh: Dict[str, float]) -> tuple[str, str]:
+    """docs/POLICY_V7.md §3.5 (the same table as scripts/analyze_v7.py)."""
+    def iv(key):
+        x = pooled.get(key)
+        return x["ci95"] if x and x.get("ci95") else None
+
+    def mean(key):
+        x = pooled.get(key)
+        return x["mean"] if x else None
+
+    rh, p95, fail = iv("replica_hours_pct"), iv("p95_pct"), iv("failure_pp")
+    if not (rh and p95 and fail):
+        return "Not enough pairs", "unknown"
+    guards = (fail[0] <= 0 and mean("failure_pp") <= 0.10 and (mean("throughput_pct") or 0) >= -2
+              and (mean("e2e_slo_s") or 0) <= 5 and (mean("oscillations") or 0) <= 5)
+    if rh[1] < 0 and p95[0] <= 0 and mean("p95_pct") <= 10 and guards and \
+            sum(1 for v in per_scenario_rh.values() if v < 0) >= 4:
+        return "Beats on cost", "good"
+    if (p95[1] < 0 or fail[1] < 0) and rh[0] <= 0 and mean("replica_hours_pct") <= 2 and guards:
+        return "Beats on performance", "good"
+    if rh[0] > 0 or p95[0] > 0 or fail[0] > 0:
+        return "Worse", "critical"
+    return "On par / inconclusive", "warning"
+
+
+def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str, Any]], app: Optional[str] = None,
+              reference: str = "hpa") -> Dict[str, Any]:
+    """Paired candidates against ``reference``: 'hpa' (default HPA; the dashboard's original rule) or 'hpa_tuned'
+    (POLICY_V7's fair baseline; block-labelled runs only, verdict table §3.5)."""
+    if reference not in REFERENCES:
+        raise ValueError(f"reference must be one of {sorted(REFERENCES)}")
     complete = [r for r in runs if (r.get("summary") or {}).get("complete") and (app is None or r["request"]["app"] == app)]
     keyed: Dict[tuple, List[Dict[str, Any]]] = {}
     for r in complete:
@@ -113,13 +152,16 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
     groups: Dict[str, List[Dict[str, Any]]] = {}
     for k, group in keyed.items():
         group.sort(key=lambda r: r.get("started_at") or 0)
-        for cand in (r for r in group if r["request"]["controller"] in ("flexascale", "auto", "hpa_fast", "hpa_tuned")):
+        for cand in (r for r in group if r["request"]["controller"] in {"hpa", "flexascale", "auto", "hpa_fast", "hpa_tuned"} - {reference}):
             block = cand["request"].get("block")
-            if block:  # block designs (docs/POLICY_V7.md §3.3): the default-HPA run of the same block, in any order
-                hpa = [r for r in group if r["request"]["controller"] == "hpa" and r["request"].get("block") == block]
-            else:
+            if block:  # block designs (docs/POLICY_V7.md §3.3): the reference run of the same block, in any order
+                hpa = [r for r in group if r["request"]["controller"] == reference
+                       and _block_id(r["request"].get("block")) == _block_id(block)]
+            elif reference == "hpa":
                 hpa = [r for r in group if r["request"]["controller"] == "hpa" and not r["request"].get("block")
                        and (r.get("started_at") or 0) < (cand.get("started_at") or 0)]
+            else:
+                hpa = []
             if not hpa:
                 continue
             cmp = compare(hpa[-1]["id"], cand["id"])
@@ -135,23 +177,41 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
                 "p95_pct": pct("p95 latency (ms)"),
                 "failure_pp": (row.get("Failure rate (%)") or {}).get("delta"),
                 "throughput_pct": pct("Throughput (req/s)"),
+                "e2e_slo_s": (row.get("E2E p95 SLO violation (s)") or {}).get("delta"),
+                "oscillations": (row.get("Oscillations (reversals)") or {}).get("delta"),
             })
     models = []
     for tag, pairs in groups.items():
         pairs.sort(key=lambda p: p["started_at"] or 0)
-        pooled = {k: mean_ci([p[k] for p in pairs if p[k] is not None])
-                  for k in ("replica_hours_pct", "cost_pct", "p95_pct", "failure_pp", "throughput_pct")}
-        text, level = verdict(pooled)
+        pooled = {k: mean_ci([p[k] for p in pairs if p.get(k) is not None])
+                  for k in ("replica_hours_pct", "cost_pct", "p95_pct", "failure_pp", "throughput_pct", "e2e_slo_s", "oscillations")}
+        if reference == "hpa_tuned":
+            by_scen: Dict[str, List[float]] = {}
+            for p in pairs:
+                if p["replica_hours_pct"] is not None:
+                    by_scen.setdefault(p["scenario"], []).append(p["replica_hours_pct"])
+            text, level = verdict_v7(pooled, {k: sum(v) / len(v) for k, v in by_scen.items()})
+        else:
+            text, level = verdict(pooled)
         bases = sorted({p["cost_basis"] for p in pairs})
         models.append({"model": tag, "n_pairs": len(pairs), "scenarios": len({p["scenario"] for p in pairs}),
-                       "pooled": pooled, "cost_basis": " + ".join(bases), "verdict": text, "verdict_level": level, "verdict_rule": VERDICT_RULE,
+                       "pooled": pooled, "cost_basis": " + ".join(bases), "verdict": text, "verdict_level": level,
+                       "verdict_rule": VERDICT_RULE_V7 if reference == "hpa_tuned" else VERDICT_RULE,
                        "pairs": pairs, "latest": max(p["started_at"] or 0 for p in pairs)})
     models.sort(key=lambda m: -m["latest"])
     recent = [{"id": r["id"], "controller": r["request"]["controller"], "scenario": r["request"]["scenario"],
                "replica_hours": ((r.get("summary") or {}).get("resources") or {}).get("replica_hours"),
                "p95_ms": ((r.get("summary") or {}).get("workload") or {}).get("p95_ms")}
               for r in sorted(complete, key=lambda r: r.get("started_at") or 0)]
-    return {"models": models, "recent": recent[-40:]}
+    return {"models": models, "recent": recent[-40:], "reference": reference, "reference_label": REFERENCES[reference]}
+
+
+def _block_id(label: Optional[str]) -> Optional[str]:
+    """'v7-b03-rl' -> 'v7-b03': arms of one block share the prefix before the arm name."""
+    if not label:
+        return None
+    parts = str(label).split("-")
+    return "-".join(parts[:2]) if len(parts) >= 3 and parts[1].startswith("b") else str(label)
 
 
 def load_runs(results_dir: Path) -> List[Dict[str, Any]]:

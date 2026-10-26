@@ -1135,10 +1135,10 @@ class Lab:
             raise KeyError(run_id)
         return json.loads(path.read_text())
 
-    def benchmark(self, app: Optional[str] = None) -> Dict[str, Any]:
+    def benchmark(self, app: Optional[str] = None, reference: str = "hpa") -> Dict[str, Any]:
         from flexascale.lab.benchmark import benchmark, load_runs
 
-        return benchmark(load_runs(ROOT / self.cfg.results_dir), self.compare, app)
+        return benchmark(load_runs(ROOT / self.cfg.results_dir), self.compare, app, reference)
 
     def compare(self, baseline_id: str, candidate_id: str) -> Dict[str, Any]:
         a, b = self.run(baseline_id), self.run(candidate_id)
