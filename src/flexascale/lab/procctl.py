@@ -48,6 +48,7 @@ def _ownership(config: str, force_release: bool = False, restore: bool = False) 
         if restore:
             hpa = HPAManager(SafetyConfig(namespace=policy.namespace, dry_run=False), kube=kube)
             restored = hpa.restore_all_frozen() + hpa.restore_unmanaged_replicas()
+            restored += hpa.restore_all_behavior() + hpa.restore_all_metrics()  # lab per-run HPA overrides
         workloads = WorkloadDiscovery(policy, kube=kube).list_all(force_refresh=True)
         lease = ControllerLease(policy.namespace, policy.name, kube=kube)
         st = lease.status()

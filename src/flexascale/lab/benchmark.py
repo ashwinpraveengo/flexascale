@@ -4,8 +4,10 @@ Pooled paired benchmark of recorded live runs (dashboard "Comparison" page, Over
 Pairing is the same as ``scripts/build_live_report.py``: every complete
 FlexaScale (or Auto) run is paired with the most recent complete native-HPA run
 with identical app, scenario, users and duration that started before it, and
-the pair is checked with ``Lab.compare``. Pairs are grouped by controller and
-model. For each group the paired differences (candidate - HPA) are averaged and
+the pair is checked with ``Lab.compare``. Runs labelled with a ``block``
+(pre-registered block designs, docs/POLICY_V7.md §3.3) are paired with the
+default-HPA run of the same block instead, whatever their order inside the
+block. Pairs are grouped by controller and model. For each group the paired differences (candidate - HPA) are averaged and
 given a 95% t-interval, and the verdict follows the rule fixed in
 docs/POLICY_V6.md section 3.1 before any v6 result was seen.
 """
@@ -72,6 +74,9 @@ def model_tag(run: Dict[str, Any]) -> str:
     controller = run["request"]["controller"]
     if controller == "hpa_fast":
         return "Native HPA, 60 s scale-down"
+    if controller == "hpa_tuned":
+        req = run["request"]
+        return f"Native HPA, tuned ({req.get('hpa_cpu_target_pct')}% CPU, {req.get('hpa_scale_down_window_s')} s scale-down)"
     return f"{tag} (Auto mode)" if controller == "auto" else tag
 
 
@@ -104,8 +109,13 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
     groups: Dict[str, List[Dict[str, Any]]] = {}
     for k, group in keyed.items():
         group.sort(key=lambda r: r.get("started_at") or 0)
-        for cand in (r for r in group if r["request"]["controller"] in ("flexascale", "auto", "hpa_fast")):
-            hpa = [r for r in group if r["request"]["controller"] == "hpa" and (r.get("started_at") or 0) < (cand.get("started_at") or 0)]
+        for cand in (r for r in group if r["request"]["controller"] in ("flexascale", "auto", "hpa_fast", "hpa_tuned")):
+            block = cand["request"].get("block")
+            if block:  # block designs (docs/POLICY_V7.md §3.3): the default-HPA run of the same block, in any order
+                hpa = [r for r in group if r["request"]["controller"] == "hpa" and r["request"].get("block") == block]
+            else:
+                hpa = [r for r in group if r["request"]["controller"] == "hpa" and not r["request"].get("block")
+                       and (r.get("started_at") or 0) < (cand.get("started_at") or 0)]
             if not hpa:
                 continue
             cmp = compare(hpa[-1]["id"], cand["id"])

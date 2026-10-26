@@ -4,7 +4,8 @@ FlexaScale Live Autoscaling Lab: reproducible Locust workload scenarios.
 Selected with environment variables (set by the lab backend):
 
     FLEXASCALE_SCENARIO     steady_browsing | gradual_ramp | flash_sale |
-                            checkout_heavy | traffic_drop | payment_degradation
+                            checkout_heavy | traffic_drop | payment_degradation |
+                            calibration_steady (HPA-tuned calibration only)
     FLEXASCALE_USERS        peak concurrent users            (default 40)
     FLEXASCALE_SPAWN_RATE   users started per second         (default 5)
     FLEXASCALE_DURATION     total scenario length in seconds (default 300)
@@ -42,6 +43,8 @@ MIXES = {
     "checkout_heavy": {"Browsing": 2, "Shopper": 7, "FlashSale": 1},
     "traffic_drop": {"Browsing": 6, "Shopper": 4},
     "payment_degradation": {"Browsing": 3, "Shopper": 3, "SlowPayment": 3, "DeclinedPayment": 1},
+    # HPA-tuned calibration only (docs/POLICY_V7.md §2.1); not one of the evaluation scenarios.
+    "calibration_steady": {"Browsing": 5, "Shopper": 5},
 }
 if SCENARIO not in MIXES:
     raise SystemExit(f"Unknown FLEXASCALE_SCENARIO '{SCENARIO}'. Choose from {sorted(MIXES)}")

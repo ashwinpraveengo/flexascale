@@ -33,6 +33,10 @@ class StartBody(BaseModel):
     duration: int = Field(300, ge=LIMITS["duration"][0], le=LIMITS["duration"][1])
     reset_replicas: bool = True
     shadow: bool = True
+    policy_variant: Optional[str] = None
+    hpa_cpu_target_pct: Optional[int] = None
+    hpa_scale_down_window_s: Optional[int] = None
+    block: Optional[str] = Field(None, max_length=64)
 
 
 def _model_cards() -> Dict[str, Any]:

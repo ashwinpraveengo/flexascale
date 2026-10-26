@@ -30,6 +30,8 @@ ANNOTATION_FROZEN_BY = "flexascale.io/frozen-by"
 ANNOTATION_ORIGINAL_REPLICAS = "flexascale.io/original-replicas"
 # Set on an HPA whose spec.behavior the lab changed for one run (JSON, "null" = unset); consumed on restore.
 ANNOTATION_ORIGINAL_BEHAVIOR = "flexascale.io/original-behavior"
+# Set on an HPA whose spec.metrics (CPU target) the lab changed for one run (JSON list); consumed on restore.
+ANNOTATION_ORIGINAL_METRICS = "flexascale.io/original-metrics"
 LABEL_EXCLUDE = "flexascale.io/exclude"
 
 

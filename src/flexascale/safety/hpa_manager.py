@@ -19,6 +19,7 @@ from flexascale.discovery.workloads import (
     ANNOTATION_FROZEN_BY,
     ANNOTATION_ORIGINAL_BEHAVIOR,
     ANNOTATION_ORIGINAL_MAX,
+    ANNOTATION_ORIGINAL_METRICS,
     ANNOTATION_ORIGINAL_MIN,
     ANNOTATION_ORIGINAL_REPLICAS,
     HPAInfo,
@@ -289,6 +290,66 @@ class HPAManager:
                 restored.append(meta["name"])
             else:
                 logger.error("[HPA] Failed to restore behavior of '%s': %s", meta["name"], res.stderr)
+        return restored
+
+    def set_cpu_target(self, pct: int) -> list[str]:
+        """
+        Set every HPA's CPU utilisation target (percent of the CPU request) for one run.
+
+        The original ``spec.metrics`` is stored on the HPA first, so :meth:`restore_all_metrics`
+        can put it back even from another process. HPAs without a CPU resource metric are left alone.
+        """
+        changed = []
+        if self.mock or self.config.dry_run:
+            return changed
+        for obj in self.kube.list_items("hpa", self.config.namespace) or []:
+            meta, spec = obj.get("metadata", {}), obj.get("spec", {})
+            metrics = spec.get("metrics") or []
+            new_metrics, found = [], False
+            for m in metrics:
+                m = json.loads(json.dumps(m))
+                res = m.get("resource") or {}
+                if m.get("type") == "Resource" and res.get("name") == "cpu":
+                    res["target"] = {"type": "Utilization", "averageUtilization": int(pct)}
+                    found = True
+                new_metrics.append(m)
+            if not found:
+                continue
+            patch: dict[str, Any] = {"spec": {"metrics": new_metrics}}  # a merge patch replaces the whole list
+            if ANNOTATION_ORIGINAL_METRICS not in (meta.get("annotations") or {}):
+                patch["metadata"] = {"annotations": {ANNOTATION_ORIGINAL_METRICS: json.dumps(metrics)}}
+            res = self.kube.patch("hpa", meta["name"], self.config.namespace, patch)
+            if res.ok:
+                changed.append(meta["name"])
+            else:
+                logger.error("[HPA] Failed to set the CPU target on '%s': %s", meta["name"], res.stderr)
+        return changed
+
+    def restore_all_metrics(self) -> list[str]:
+        """Restore the ``spec.metrics`` recorded by :meth:`set_cpu_target` and drop the marker."""
+        restored = []
+        if self.mock or self.config.dry_run:
+            return restored
+        for obj in self.kube.list_items("hpa", self.config.namespace) or []:
+            meta = obj.get("metadata", {})
+            raw = (meta.get("annotations") or {}).get(ANNOTATION_ORIGINAL_METRICS)
+            if raw is None:
+                continue
+            try:
+                original = json.loads(raw)
+            except ValueError:
+                logger.error("[HPA] Unreadable original metrics on '%s'; left for manual repair", meta["name"])
+                continue
+            if not isinstance(original, list) or not original:
+                logger.error("[HPA] Original metrics on '%s' are empty; left for manual repair", meta["name"])
+                continue
+            res = self.kube.patch("hpa", meta["name"], self.config.namespace,
+                                  {"spec": {"metrics": original},
+                                   "metadata": {"annotations": {ANNOTATION_ORIGINAL_METRICS: None}}})
+            if res.ok:
+                restored.append(meta["name"])
+            else:
+                logger.error("[HPA] Failed to restore metrics of '%s': %s", meta["name"], res.stderr)
         return restored
 
     def _record_original_replicas(self, service_id: str) -> bool:

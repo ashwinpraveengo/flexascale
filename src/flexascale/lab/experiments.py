@@ -28,13 +28,18 @@ import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
 
 from flexascale.config.app_policy import AppPolicy
 from flexascale.config.safety_config import SafetyConfig
-from flexascale.discovery.workloads import ANNOTATION_ORIGINAL_BEHAVIOR, WorkloadDiscovery, WorkloadInfo
+from flexascale.discovery.workloads import (
+    ANNOTATION_ORIGINAL_BEHAVIOR,
+    ANNOTATION_ORIGINAL_METRICS,
+    WorkloadDiscovery,
+    WorkloadInfo,
+)
 from flexascale.evaluation.cost import percent_change, scaling_stability, summarize_resources
 from flexascale.k8s.kube import Kube
 from flexascale.lab.processes import ProcessManager
@@ -53,12 +58,18 @@ SCENARIOS: Dict[str, Dict[str, str]] = {
     "checkout_heavy": {"title": "Checkout-heavy", "description": "Mostly authenticated cart and checkout journeys."},
     "traffic_drop": {"title": "Traffic drop", "description": "Peak load, then a drop to 10% (tests scale-down)."},
     "payment_degradation": {"title": "Payment latency & failures", "description": "300 ms payment delays plus declined cards."},
+    "calibration_steady": {"title": "Calibration (steady mix)", "description": "HPA-tuned calibration only (docs/POLICY_V7.md §2.1): "
+                           "browsing and shopping 5:5 at constant load. Not an evaluation scenario."},
 }
-CONTROLLERS = ("hpa", "flexascale", "auto", "hpa_fast")
+CONTROLLERS = ("hpa", "flexascale", "auto", "hpa_fast", "hpa_tuned")
 # "hpa_fast": native HPA with only its scale-down stabilisation window shortened (default 300 s), restored after
 # the run. A tuned-HPA reference; never used as the baseline of a pair.
 HPA_FAST_SCALE_DOWN_S = 60
-NATIVE_HPA_CONTROLLERS = ("hpa", "hpa_fast")
+# "hpa_tuned": native HPA with a scale-down window and a CPU target (percent of request) set for the run and
+# restored afterwards (docs/POLICY_V7.md §2). Values come from the request or the lab config's `hpa_tuned` block.
+NATIVE_HPA_CONTROLLERS = ("hpa", "hpa_fast", "hpa_tuned")
+HPA_TARGET_LIMITS = (10, 1000)
+HPA_WINDOW_LIMITS = (0, 3600)
 LIMITS = {"users": (1, 500), "spawn_rate": (0.1, 100.0), "duration": (30, 3600)}
 TERMINAL_STATES = ("completed", "stopped", "failed", "interrupted")
 HPA_DOWNSCALE_WINDOW_S = 330  # Kubernetes default scale-down stabilisation (300 s) + margin
@@ -78,6 +89,8 @@ class LabApp:
     locustfile: str
     reset_requests: List[Dict[str, Any]] = field(default_factory=list)
     """HTTP calls made before every run so each starts from the same data (e.g. restock, empty carts)."""
+    variants: Dict[str, str] = field(default_factory=dict)
+    """Alternative policy files for the same application (e.g. another model), selected per run."""
 
 
 @dataclass
@@ -88,6 +101,8 @@ class LabConfig:
     results_dir: str = "reports/experiments"
     sample_interval_seconds: float = 5.0
     e2e_p95_slo_ms: float = 1000.0
+    hpa_tuned: Dict[str, Any] = field(default_factory=dict)
+    """Default settings of the `hpa_tuned` controller: cpu_target_pct, scale_down_window_s."""
     apps: Dict[str, LabApp] = field(default_factory=dict)
 
     @classmethod
@@ -101,6 +116,7 @@ class LabConfig:
                 url=spec.get("url", ""),
                 locustfile=spec.get("locustfile", "load-testing/scenarios.py"),
                 reset_requests=list(spec.get("reset_requests") or []),
+                variants=dict(spec.get("variants") or {}),
             )
             for name, spec in (data.pop("apps", {}) or {}).items()
         }
@@ -123,13 +139,37 @@ class ExperimentRequest:
     reset_replicas: bool = True
     shadow: bool = True
     """HPA runs only: also run FlexaScale in observe-only mode to log its proposals."""
+    policy_variant: Optional[str] = None
+    """One of the app's `variants` in the lab config (another policy file / model); None = the app's policy."""
+    hpa_cpu_target_pct: Optional[int] = None
+    """hpa_tuned only: CPU target in percent of request (default: lab config `hpa_tuned.cpu_target_pct`)."""
+    hpa_scale_down_window_s: Optional[int] = None
+    """hpa_tuned only: scale-down stabilisation window (default: lab config `hpa_tuned.scale_down_window_s`)."""
+    block: Optional[str] = None
+    """Free label recorded with the run, e.g. the block of a pre-registered design (docs/POLICY_V7.md §3.3)."""
+
+    def hpa_tuned_settings(self, cfg: LabConfig) -> Tuple[Optional[int], Optional[int]]:
+        target = self.hpa_cpu_target_pct if self.hpa_cpu_target_pct is not None else cfg.hpa_tuned.get("cpu_target_pct")
+        window = (self.hpa_scale_down_window_s if self.hpa_scale_down_window_s is not None
+                  else cfg.hpa_tuned.get("scale_down_window_s"))
+        return (None if target is None else int(target)), (None if window is None else int(window))
 
     def validate(self, cfg: LabConfig) -> List[str]:
         errors = []
         if self.app not in cfg.apps:
             errors.append(f"unknown app '{self.app}'")
+        elif self.policy_variant is not None and self.policy_variant not in cfg.apps[self.app].variants:
+            errors.append(f"unknown policy variant '{self.policy_variant}' for app '{self.app}'")
         if self.controller not in CONTROLLERS:
             errors.append(f"controller must be one of {CONTROLLERS}")
+        if self.controller == "hpa_tuned":
+            target, window = self.hpa_tuned_settings(cfg)
+            if target is None or not HPA_TARGET_LIMITS[0] <= target <= HPA_TARGET_LIMITS[1]:
+                errors.append(f"hpa_tuned needs a CPU target between {HPA_TARGET_LIMITS[0]} and {HPA_TARGET_LIMITS[1]}%")
+            if window is None or not HPA_WINDOW_LIMITS[0] <= window <= HPA_WINDOW_LIMITS[1]:
+                errors.append(f"hpa_tuned needs a scale-down window between {HPA_WINDOW_LIMITS[0]} and {HPA_WINDOW_LIMITS[1]} s")
+        elif self.hpa_cpu_target_pct is not None or self.hpa_scale_down_window_s is not None:
+            errors.append("hpa_cpu_target_pct / hpa_scale_down_window_s apply only to the hpa_tuned controller")
         if self.scenario not in SCENARIOS:
             errors.append(f"scenario must be one of {sorted(SCENARIOS)}")
         for key, (lo, hi) in LIMITS.items():
@@ -253,7 +293,8 @@ class Experiment:
         self.lab = lab
         self.req = req
         self.app = lab.cfg.apps[req.app]
-        self.policy = lab.policy(req.app)
+        self.policy = lab.policy(req.app, req.policy_variant)
+        self.policy_path = lab.policy_path(req.app, req.policy_variant)
         stamp = time.strftime("%Y%m%d-%H%M%S")
         self.id = f"{stamp}-{req.app}-{req.controller}-{req.scenario}"
         self.dir = ROOT / lab.cfg.results_dir / self.id
@@ -384,6 +425,9 @@ class Experiment:
         restored = hpa_mgr.restore_all_behavior()
         if restored:
             self.event("ownership", f"Restored HPA scale-down behaviour left by an earlier run: {', '.join(restored)}")
+        restored = hpa_mgr.restore_all_metrics()
+        if restored:
+            self.event("ownership", f"Restored HPA CPU targets left by an earlier run: {', '.join(restored)}")
         lease = ControllerLease(policy.namespace, policy.name, kube=lab.kube)
         st = lease.status()
         if st.holder and not st.expired:
@@ -405,6 +449,18 @@ class Experiment:
                     raise RuntimeError(f"could not set the HPA scale-down window on {', '.join(missing)}")
                 self.event("ownership", f"Native HPA scale-down stabilisation window set to {HPA_FAST_SCALE_DOWN_S} s "
                                         f"(default 300 s) on {len(changed)} HPAs; restored after the run")
+            elif self.req.controller == "hpa_tuned":
+                target, window = self.req.hpa_tuned_settings(lab.cfg)
+                with_hpa = [w.hpa.name for w in workloads if w.hpa]
+                changed = hpa_mgr.set_scale_down_window(window)
+                missing = [n for n in with_hpa if n not in changed]
+                changed_t = hpa_mgr.set_cpu_target(target)
+                missing += [n for n in with_hpa if n not in changed_t]
+                if missing:
+                    raise RuntimeError(f"could not apply the tuned HPA settings to {', '.join(sorted(set(missing)))}")
+                self.event("ownership", f"Tuned native HPA: CPU target {target}% of request, scale-down stabilisation "
+                                        f"{window} s, on {len(changed_t)} HPAs; restored after the run",
+                           hpa_cpu_target_pct=target, hpa_scale_down_window_s=window)
             if without_hpa:
                 self.event("ownership", f"No HPA for {', '.join(without_hpa)}: replicas stay fixed under 'HPA' mode")
             self.event("ownership", "Native HPA owns scaling; FlexaScale scaling disabled (lease free, no HPA frozen)")
@@ -504,7 +560,7 @@ class Experiment:
         status_file.unlink(missing_ok=True)
         cmd = [
             sys.executable, str(ROOT / "scripts" / "run_operator.py"),
-            "--policy", str(ROOT / self.app.policy_path),
+            "--policy", str(ROOT / self.policy_path),
             "--mode", mode,
             "--prometheus-url", lab.cfg.prometheus_url,
             "--decision-log", str(self.dir / "decisions.jsonl"),
@@ -588,12 +644,13 @@ class Experiment:
         deadline = time.time() + 180
         while True:
             restored += (hpa_mgr.restore_all_frozen() + hpa_mgr.restore_unmanaged_replicas()
-                         + hpa_mgr.restore_all_behavior())
+                         + hpa_mgr.restore_all_behavior() + hpa_mgr.restore_all_metrics())
             listed = lab.discovery(self.req.app).list_all(force_refresh=True)
             if lab.discovery(self.req.app).last_error is None:
                 frozen_left = [w.hpa.name for w in listed if w.hpa and w.hpa.frozen]
                 frozen_left += [o["metadata"]["name"] for o in lab.kube.list_items("hpa", self.policy.namespace) or []
-                                if ANNOTATION_ORIGINAL_BEHAVIOR in (o["metadata"].get("annotations") or {})]
+                                if {ANNOTATION_ORIGINAL_BEHAVIOR, ANNOTATION_ORIGINAL_METRICS}
+                                & set(o["metadata"].get("annotations") or {})]
             if not frozen_left or time.time() > deadline:
                 break
             self.event("warning", "HPA restore incomplete (Kubernetes API slow?); retrying")
@@ -890,9 +947,12 @@ class Lab:
 
     # -- configuration ------------------------------------------------------
 
-    def policy(self, app: str) -> AppPolicy:
+    def policy_path(self, app: str, variant: Optional[str] = None) -> str:
         spec = self.cfg.apps[app]
-        policy = AppPolicy.load(ROOT / spec.policy_path)
+        return spec.variants[variant] if variant else spec.policy_path
+
+    def policy(self, app: str, variant: Optional[str] = None) -> AppPolicy:
+        policy = AppPolicy.load(ROOT / self.policy_path(app, variant))
         return dataclasses.replace(policy, prometheus_url=self.cfg.prometheus_url)
 
     def discovery(self, app: str) -> WorkloadDiscovery:
@@ -1005,6 +1065,9 @@ class Lab:
         errors = req.validate(self.cfg)
         if errors:
             raise ValueError("; ".join(errors))
+        if req.controller == "hpa_tuned":  # record the settings actually used, even when they came from the config
+            target, window = req.hpa_tuned_settings(self.cfg)
+            req = dataclasses.replace(req, hpa_cpu_target_pct=target, hpa_scale_down_window_s=window)
         with self._lock:
             if self.active is not None and self.active.state not in TERMINAL_STATES:
                 raise RuntimeError(f"experiment {self.active.id} is still {self.active.state}")
