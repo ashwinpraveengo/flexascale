@@ -198,7 +198,7 @@ def test_unknown_scenario_is_rejected():
     assert out.returncode != 0
 
 
-@pytest.mark.parametrize("script", ["start_review.sh", "start_demo.sh", "stop_review.sh", "review_status.sh", "run_live_batch.sh",
+@pytest.mark.parametrize("script", ["start_review.sh", "start_demo.sh", "stop_review.sh", "review_status.sh", "run_live_batch.sh", "v7_resume.sh",
                                     "lib/review_common.sh", "lib/keep_port_forward.sh", "teardown_cluster.sh"])
 def test_scripts_parse(script):
     assert subprocess.run(["bash", "-n", str(ROOT / "scripts" / script)]).returncode == 0

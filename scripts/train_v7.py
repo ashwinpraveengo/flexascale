@@ -311,6 +311,7 @@ def main() -> int:
     ap.add_argument("--runs", default=DEFAULT_RUNS)
     ap.add_argument("--only-test", action="store_true")
     ap.add_argument("--pause-live-runs", action="store_true", help="create .runtime/pause_live_runs while training")
+    ap.add_argument("--retrain", action="store_true", help="train runs again even if training_v7.json has them")
     args = ap.parse_args()
 
     app, cal = load_shop(ROOT / "config" / "twin" / "shopping.json")
@@ -321,6 +322,11 @@ def main() -> int:
     summary = json.loads(summary_path.read_text()) if summary_path.exists() else {"runs": {}}
     if not args.only_test:
         for name in args.runs.split(","):
+            done = summary["runs"].get(name) or {}
+            if done.get("best") and not args.retrain:
+                print(f"=== {name}: already trained ({done.get('steps')} steps, best validation reward "
+                      f"{done['best']['reward']:.2f}); skipped (use --retrain to train again)", flush=True)
+                continue
             wait_for_power()
             focal = RUNS[name].get("design") == "focal"
             print(f"=== training {name} {RUNS[name]} ({args.focal_steps if focal else args.steps} steps)", flush=True)
