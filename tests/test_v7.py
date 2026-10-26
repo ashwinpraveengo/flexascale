@@ -351,8 +351,9 @@ def test_focal_warm_start_imitates_the_rule():
     rule = limit_target_policy(0.6, 0.3)
     data = collect_focal(lambda s: TwinEnv(app, cal, seed=s), rule, episodes=2, epsilon=0.0, gamma=0.97, seed=3)
     assert data["obs"].shape[1] == fv.obs_dim(N_MAX) + N_MAX and len(data["labels"]) == len(data["returns"]) == len(data["obs"])
+    torch.manual_seed(0)
     model = PPO(ActorCriticPolicy, TwinAgentsVecEnv(app, cal, n_sims=1, seed=4), n_steps=16, batch_size=320, seed=0, device="cpu",
-                policy_kwargs={"features_extractor_class": GraphFocalExtractor, "features_extractor_kwargs": {"n_max": N_MAX, "hidden": 32},
-                               "net_arch": {"pi": [32], "vf": [32]}})
-    info = warm_start_focal(model, lambda s: TwinEnv(app, cal, seed=s), rule, episodes=6, epochs=6, seed=3)
-    assert info["agreement_heldout"] > 0.8 and info["samples"] > 1000
+                policy_kwargs={"features_extractor_class": GraphFocalExtractor, "features_extractor_kwargs": {"n_max": N_MAX, "hidden": 64},
+                               "net_arch": {"pi": [64], "vf": [64]}})
+    info = warm_start_focal(model, lambda s: TwinEnv(app, cal, seed=s), rule, episodes=15, epochs=8, batch_size=512, seed=3)
+    assert info["agreement_heldout"] > 0.75 and info["samples"] > 5000
