@@ -10,7 +10,7 @@ Reward (docs/POLICY_V7.md §4.2), in replica-equivalents per step, so every trad
 is explicit ("how many replicas is avoiding this worth?"):
 
     − replica        x replicas above each service's minimum (requested, averaged over the step)
-    − p95_inflation  x (end-to-end p95 / the p95 with ample capacity − 1), floored at 0
+    − p95_inflation  x min(cap, end-to-end p95 / the p95 with ample capacity − 1), floored at 0
     − slo            x fraction of the step with end-to-end p95 above the SLO (1000 ms)
     − failure_pct    x percent of requests failing
     − scaling_event  x replica changes applied
@@ -53,6 +53,9 @@ N_MAX = 20
 class RewardConfig:
     replica: float = 1.0
     p95_inflation: float = 6.0
+    p95_inflation_cap: float = 4.0
+    """Per-step cap on the inflation (amended 2026-10-26 23:31, POLICY_V7 §4.2): uncapped, rare overload episodes
+    (inflation up to 620 when holding the minimum) dominated the gradient and taught 'scale everything up'."""
     slo: float = 10.0
     failure_pct: float = 5.0
     scaling_event: float = 0.25
@@ -169,6 +172,7 @@ class TwinEnv(gym.Env):
         base = np.array(log["e2e_p95_base"][start:])
         fail = np.array(log["fail_frac"][start:])
         infl = np.where(np.isfinite(base) & (base > 0), np.maximum(0.0, p95 / np.maximum(base, 1e-6) - 1.0), 0.0)
+        infl = np.minimum(infl, self.reward_cfg.p95_inflation_cap)
         return {"replicas_above_min": float((d - self.floor).sum(axis=1).mean()), "p95_inflation": float(infl.mean()),
                 "slo_fraction": float((p95 > E2E_SLO_MS).mean()), "failure_pct": float(100.0 * fail.mean()),
                 "scaling_events": float(events)}
@@ -180,7 +184,7 @@ def reward_v7(comps: Dict[str, float], cfg: RewardConfig) -> float:
                          + cfg.scaling_event * comps["scaling_events"])
 
 
-def components_from_log(sim, start: int, end: int, floor: np.ndarray) -> Dict[str, float]:
+def components_from_log(sim, start: int, end: int, floor: np.ndarray, cap: float = RewardConfig.p95_inflation_cap) -> Dict[str, float]:
     """The env's reward components for ticks [start, end) of any simulated run (events from the log)."""
     log = sim.log
     d = np.array(log["desired"][start:end])
@@ -189,6 +193,7 @@ def components_from_log(sim, start: int, end: int, floor: np.ndarray) -> Dict[st
     fail = np.array(log["fail_frac"][start:end])
     ev = log["replica_changes"][end - 1] - (log["replica_changes"][start - 1] if start > 0 else 0)
     infl = np.where(np.isfinite(base) & (base > 0), np.maximum(0.0, p95 / np.maximum(base, 1e-6) - 1.0), 0.0)
+    infl = np.minimum(infl, cap)
     return {"replicas_above_min": float((d - floor).sum(axis=1).mean()), "p95_inflation": float(infl.mean()),
             "slo_fraction": float((p95 > E2E_SLO_MS).mean()), "failure_pct": float(100.0 * fail.mean()),
             "scaling_events": float(ev)}
@@ -198,7 +203,7 @@ def episode_reward(sim, cfg: RewardConfig) -> float:
     """Total v7 reward of a finished run, charged per 10 s decision window from tick 2 on, as in the env."""
     floor = sim.lo
     T = len(sim.log["desired"])
-    return float(sum(reward_v7(components_from_log(sim, k, min(k + SYNC_TICKS_OPERATOR, T), floor), cfg)
+    return float(sum(reward_v7(components_from_log(sim, k, min(k + SYNC_TICKS_OPERATOR, T), floor, cfg.p95_inflation_cap), cfg)
                      for k in range(SYNC_TICKS_OPERATOR, T, SYNC_TICKS_OPERATOR)))
 
 

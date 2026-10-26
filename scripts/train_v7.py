@@ -18,8 +18,9 @@ Protocol (written into POLICY_V7 §4.3 before the first training run):
   T3 = 40 random synthetic applications (seeds 60000–60039). Every controller sees the
   same episodes; results are reported for every controller, whichever wins.
 
-While it trains, ``.runtime/pause_live_runs`` exists so that no live run starts
-(training load would count as host noise), and training waits for an active run to end.
+Training waits for an active live run to end before it starts. Live runs started while it
+trains must freeze it during their load windows (``scripts/run_plan.py --suspend``), or pass
+``--pause-live-runs`` here to create ``.runtime/pause_live_runs`` (the runner then starts no run).
 
     python scripts/train_v7.py --steps 1500000
     python scripts/train_v7.py --only-test          # re-test saved models
@@ -105,10 +106,11 @@ def lab_busy() -> bool:
         return False
 
 
-def hold_live_runs() -> None:
-    PAUSE.parent.mkdir(parents=True, exist_ok=True)
-    PAUSE.write_text(f"train_v7.py pid {os.getpid()} since {time.strftime('%F %T')}\n")
-    atexit.register(lambda: PAUSE.unlink(missing_ok=True))
+def hold_live_runs(create_pause_file: bool) -> None:
+    if create_pause_file:
+        PAUSE.parent.mkdir(parents=True, exist_ok=True)
+        PAUSE.write_text(f"train_v7.py pid {os.getpid()} since {time.strftime('%F %T')}\n")
+        atexit.register(lambda: PAUSE.unlink(missing_ok=True))
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, lambda *_: sys.exit(1))
     while lab_busy():
@@ -226,7 +228,7 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
     venv = DummyVecEnv([make_env(app, cal, spec["reward"], r, spec["seed"]) for r in range(n_envs)])
     model = PPO(GraphPolicy, venv, seed=spec["seed"], verbose=0, device="cpu",
                 policy_kwargs={"n_max": N_MAX, "hidden": 64, "rounds": 2, "use_graph": spec["use_graph"],
-                               "hold_index": HOLD_INDEX}, **PPO_KW)
+                               "hold_index": HOLD_INDEX, "hold_bias": 1.5}, **PPO_KW)
     history = []
     stopped_early: List[int] = []
     cfg = RewardConfig()
@@ -275,12 +277,13 @@ def main() -> int:
     ap.add_argument("--n-envs", type=int, default=8)
     ap.add_argument("--runs", default=",".join(RUNS))
     ap.add_argument("--only-test", action="store_true")
+    ap.add_argument("--pause-live-runs", action="store_true", help="create .runtime/pause_live_runs while training")
     args = ap.parse_args()
 
     app, cal = load_shop(ROOT / "config" / "twin" / "shopping.json")
     val = episodes_validation(app, cal)
     REPORT.mkdir(parents=True, exist_ok=True)
-    hold_live_runs()
+    hold_live_runs(args.pause_live_runs)
     summary_path = REPORT / "training_v7.json"
     summary = json.loads(summary_path.read_text()) if summary_path.exists() else {"runs": {}}
     if not args.only_test:

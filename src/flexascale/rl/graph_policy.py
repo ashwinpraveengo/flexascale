@@ -83,12 +83,14 @@ class _Split(nn.Module):
 
 
 class PerNodeHead(nn.Module):
-    def __init__(self, n_max: int, hidden: int, n_actions: int, hold_index: int) -> None:
+    def __init__(self, n_max: int, hidden: int, n_actions: int, hold_index: int, hold_bias: float = 0.0) -> None:
         super().__init__()
         self.n_max, self.hidden, self.n_actions = n_max, hidden, n_actions
         self.lin = nn.Linear(hidden, n_actions)
         nn.init.orthogonal_(self.lin.weight, gain=0.01)
         nn.init.zeros_(self.lin.bias)
+        with torch.no_grad():  # start near "hold": with deltas -1..+3, uniform exploration drifts upward by +1 per decision
+            self.lin.bias[hold_index] = hold_bias
         hold = torch.full((n_actions,), -30.0)
         hold[hold_index] = 30.0
         self.register_buffer("hold", hold)
@@ -105,8 +107,8 @@ class PerNodeHead(nn.Module):
 class GraphPolicy(ActorCriticPolicy):
     def __init__(self, observation_space: spaces.Space, action_space: spaces.MultiDiscrete, lr_schedule,
                  n_max: int = 20, hidden: int = 64, rounds: int = 2, use_graph: bool = True, hold_index: int = 1,
-                 **kwargs: Any) -> None:
-        self._n_max, self._hidden, self._hold = n_max, hidden, hold_index
+                 hold_bias: float = 0.0, **kwargs: Any) -> None:
+        self._n_max, self._hidden, self._hold, self._hold_bias = n_max, hidden, hold_index, hold_bias
         kwargs.setdefault("ortho_init", False)
         super().__init__(observation_space, action_space, lr_schedule,
                          features_extractor_class=GraphExtractor,
@@ -119,7 +121,7 @@ class GraphPolicy(ActorCriticPolicy):
     def _build(self, lr_schedule) -> None:
         super()._build(lr_schedule)
         n_actions = int(self.action_space.nvec[0])
-        self.action_net = PerNodeHead(self._n_max, self._hidden, n_actions, self._hold)
+        self.action_net = PerNodeHead(self._n_max, self._hidden, n_actions, self._hold, self._hold_bias)
         self.optimizer = self.optimizer_class(self.parameters(), lr=lr_schedule(1), **self.optimizer_kwargs)
 
     def _get_constructor_parameters(self) -> Dict[str, Any]:
@@ -128,5 +130,6 @@ class GraphPolicy(ActorCriticPolicy):
         for k in ("features_extractor_class", "share_features_extractor", "net_arch"):
             data.pop(k, None)
         data.update(n_max=fe.get("n_max", self._n_max), hidden=fe.get("hidden", self._hidden),
-                    rounds=fe.get("rounds", 2), use_graph=fe.get("use_graph", True), hold_index=self._hold)
+                    rounds=fe.get("rounds", 2), use_graph=fe.get("use_graph", True), hold_index=self._hold,
+                    hold_bias=self._hold_bias)
         return data
