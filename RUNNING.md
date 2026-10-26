@@ -1465,14 +1465,14 @@ python scripts/fit_twin.py                        # -> config/twin/shopping.json
 python scripts/analysis/validate_twin.py          # twin vs live replica-hours / p95 per scenario
 python scripts/analysis/twin_headroom.py          # what HPA settings and simple rules can reach
 
-# 2. Train and select the v7 graph policy on the twin (~1 h per run on AC; pauses live runs while it trains)
-python scripts/train_v7.py --steps 1500000        # -> models/flexascale_v7/<run>/, reports/v7/training_v7.json
+# 2. Train and select the v7 graph policy on the twin (~45 min per run on AC; live runs freeze it in their load windows)
+nohup nice -n 5 python -u scripts/train_v7.py >> logs/train_v7.out 2>&1 &     # 4 runs, then selection and the twin test sets
+#    or select as soon as the two main runs are done, and train the ablations later (the test sets then run once, after them):
+python -u scripts/train_v7.py --runs focal_bc_s1,focal_bc_s2 --select-only    # -> reports/v7/training_v7.json "selected"
 
-# 3. Calibrate HPA-tuned on the separate calibration workload (8 live runs, ~90 min, needs AC power)
+# 3. Calibrate HPA-tuned on the separate calibration workload (8 live runs + one rerun per invalid run, ~2 h, needs AC power)
 python scripts/v7_plan.py calibration             # -> reports/v7/calibration_plan.json (order: seed 7)
-systemd-inhibit --what=sleep:idle:handle-lid-switch python scripts/run_plan.py reports/v7/calibration_plan.json \
-    --suspend '^[^ ]*python[^ ]* -u scripts/train_v7\.py'
-python scripts/check_host_load.py && python scripts/analyze_v7_calibration.py   # -> reports/v7/calibration.md
+nohup ./scripts/v7_calibrate.sh >> logs/v7_calibration.out 2>&1 &   # plan, host-load check, reruns, rule -> reports/v7/calibration.md
 
 # 4. Promote the selected model/rule, write the policies and the five evaluation arms
 python scripts/promote_v7.py                      # models/flexascale_v7/best_model, config/apps/shopping_v7*.yaml, reports/v7/arms.json
@@ -1480,12 +1480,13 @@ python scripts/v7_plan.py evaluation --arms reports/v7/arms.json   # 12 blocks x
 ./scripts/stop_review.sh && ./scripts/start_review.sh             # reload config/lab.yaml (variants, hpa_tuned)
 
 # 5. Live evaluation (~11 h) and the pre-registered verdict
-systemd-inhibit --what=sleep:idle:handle-lid-switch python scripts/run_plan.py reports/v7/evaluation_plan.json
-python scripts/check_host_load.py && python scripts/analyze_v7.py               # -> reports/v7/evaluation.md
+nohup ./scripts/v7_evaluate.sh >> logs/v7_evaluation.out 2>&1 &    # plan, host-load check, reruns, verdict -> reports/v7/evaluation.md
 ```
 
 * **New lab controller `hpa_tuned`:** it sets every HPA's CPU target (`hpa_cpu_target_pct`) and scale-down window (`hpa_scale_down_window_s`) for one run, and stores the originals on the HPA (`flexascale.io/original-metrics`, `flexascale.io/original-behavior`). Teardown restores them, and so does `procctl safe-state` after a crash. Auto and FlexaScale runs may pass the same two fields to choose the native HPA that takes over on hand-back.
 * **Policy variants:** `config/lab.yaml` → `apps.<app>.variants` maps a name to another policy file (e.g. `v7`, `v7_rule`). Pass it as `policy_variant` in the API, or pick it in the dashboard's "FlexaScale policy" selector.
 * **Rule arm:** a policy with `controller_rule: {type: limit_target, target: t, down: d}` makes the operator use that hand-written rule instead of a model, under the same guards. It separates the learned policy's contribution from the operator's (POLICY_V7 §3.2).
-* **After a reboot or a dead battery:** `./scripts/v7_resume.sh` brings the environment back (`start_review.sh`), resumes the calibration plan from its progress file, and resumes training. Training runs already recorded in `reports/v7/training_v7.json` are skipped. Live runs need AC power; training pauses below 35% battery.
+* **After a reboot or a dead battery:** `./scripts/v7_resume.sh` brings the environment back (`start_review.sh`) and resumes whatever is unfinished: the calibration (`v7_calibrate.sh`), the evaluation once promoted (`v7_evaluate.sh`), and training until a model is selected. Plans resume from their progress files; training runs already recorded in `reports/v7/training_v7.json` are skipped. Live runs need AC power; training pauses below 35% battery.
+* **Invalid runs (POLICY_V7 §3.4):** `scripts/rerun_plan.py <plan>` reads the host-load flags of `scripts/check_host_load.py`, moves each invalid run (host-affected, incomplete, not settled) to `reports/experiments_invalid/` and writes `<plan>.reruns.json`, which is run once. Reruns are never rerun. `v7_calibrate.sh` and `v7_evaluate.sh` do this automatically.
+* **CPU-heavy work next to live runs:** `python scripts/lab_quiet.py -- <command>` (e.g. `-- python -m pytest -q`) runs the command in its own process group and keeps it stopped during every lab load window, so it cannot make a run host-affected (more than 2.0 cores outside Kubernetes).
 * **Plan runner (`scripts/run_plan.py`):** runs one at a time, resumable through `<plan>.progress.json`. It waits while the laptop is on battery or while `.runtime/pause_live_runs` exists. With `--suspend <pattern>` it freezes matching processes (e.g. training) during each run's settle and load window.
