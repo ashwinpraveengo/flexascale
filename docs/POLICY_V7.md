@@ -179,6 +179,15 @@ At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a hi
   * **Learnability:** in the same diagnostic the policy now learns within 50k decisions to scale the overloaded service (83% probability of +1…+3) and to hold the idle one (99%).
 
   Training restarted from scratch on the fixed twin. No test-set or live data was used.
+
+  **Amendment 4 (2026-10-27 01:25, before any test or live v7 result): warm start, then fine-tune.** On the fixed twin, PPO from scratch was still at the level of holding after 500k agent-steps: validation −6.86, against −4.18 for the best rule. The diagnostic shows it *can* learn the basic behaviour, but not fast enough for the time available. The main runs therefore use the recipe of v5/v6:
+  * **Imitation:** the focal policy first imitates the rule that the §4.3 protocol already selects on validation. It runs 400 training-distribution episodes with 20% random deviations, cross-entropy on the rule's actions, and the critic fitted to the rule's per-service returns.
+  * **Fine-tuning:** PPO then fine-tunes with small steps (lr 1e-4, clip 0.1, target KL 0.02) for 2M agent-steps.
+  * **Checkpoint 0:** the warm start is evaluated and saved as checkpoint 0, so the selected checkpoint can never be worse on validation than the imitation.
+
+  The runs are `focal_bc_s1` and `focal_bc_s2` (main), plus the ablations `focal_bc_nograph_s1` and `focal_bc_v5reward_s1`.
+
+  What this means for attribution: if v7 ends at the rule's level, the learned policy adds nothing beyond the rule. The live rule arm (§3.2) measures exactly that.
 * **Training episodes**:
   * 75%: the shop with every fitted parameter perturbed by ±30%, under randomised scenario shapes: peak 8–45 users, stage timings, mixes, extra spikes and drops, 300–600 s;
   * 25%: synthetic applications with random call DAGs of 5–18 services, sometimes one serial service. This forces the policy to read features and the graph rather than memorise service identities.
@@ -217,3 +226,4 @@ At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a hi
 | 2026-10-27 00:25 | Still on battery (17%; unplugged since about 22:35). Training paused itself at 34% after 250k agent-steps of `focal_s1` (validation still equal to holding). No calibration or evaluation run has started; they need AC power. After the charger is back (or after a shutdown), `./scripts/v7_resume.sh` resumes both. |
 | 2026-10-27 00:45 | AC power back. Calibration started (run 1 at 00:45:40); training resumed. The runner froze training during each settle and load window as designed. |
 | 2026-10-27 01:10 | Amendment 3 (§4.2): closed-loop queue bound in the twin. Training restarted on the fixed twin (`logs/train_v7.unbounded_queue_0110.out` holds the stopped run). |
+| 2026-10-27 01:25 | Amendment 4 (§4.2): warm start from the validation-selected rule, then small-step PPO fine-tuning. The from-scratch focal run was stopped at 500k agent-steps (`logs/train_v7.focal_scratch_0125.out`). |

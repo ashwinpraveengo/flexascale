@@ -337,3 +337,22 @@ def test_focal_vec_env_and_runtime_decide_per_service(tmp_path):
     row_b = np.concatenate([x, np.eye(N_MAX, dtype=np.float32)[1]])
     a_b, _ = model.predict(row_b, deterministic=True)
     assert out.actions[1] == int(a_b)
+
+
+def test_focal_warm_start_imitates_the_rule():
+    from stable_baselines3 import PPO
+    from stable_baselines3.common.policies import ActorCriticPolicy
+
+    from flexascale.rl.graph_policy import GraphFocalExtractor
+    from flexascale.rl.imitation_v7 import collect_focal, warm_start_focal
+    from flexascale.simulator.twin_env import TwinAgentsVecEnv
+
+    app, cal = load_shop(ROOT / "config" / "twin" / "shopping.json")
+    rule = limit_target_policy(0.6, 0.3)
+    data = collect_focal(lambda s: TwinEnv(app, cal, seed=s), rule, episodes=2, epsilon=0.0, gamma=0.97, seed=3)
+    assert data["obs"].shape[1] == fv.obs_dim(N_MAX) + N_MAX and len(data["labels"]) == len(data["returns"]) == len(data["obs"])
+    model = PPO(ActorCriticPolicy, TwinAgentsVecEnv(app, cal, n_sims=1, seed=4), n_steps=16, batch_size=320, seed=0, device="cpu",
+                policy_kwargs={"features_extractor_class": GraphFocalExtractor, "features_extractor_kwargs": {"n_max": N_MAX, "hidden": 32},
+                               "net_arch": {"pi": [32], "vf": [32]}})
+    info = warm_start_focal(model, lambda s: TwinEnv(app, cal, seed=s), rule, episodes=6, epochs=6, seed=3)
+    assert info["agreement_heldout"] > 0.8 and info["samples"] > 1000

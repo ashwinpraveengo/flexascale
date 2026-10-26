@@ -68,9 +68,15 @@ RUNS = {
     "focal_s2": {"use_graph": True, "reward": "v7", "seed": 2, "design": "focal"},
     "focal_nograph_s1": {"use_graph": False, "reward": "v7", "seed": 1, "design": "focal"},
     "focal_v5reward_s1": {"use_graph": True, "reward": "v5", "seed": 1, "design": "focal"},
+    # focal + warm start (amendment 4): imitate the validation-selected rule, then fine-tune with small PPO steps
+    "focal_bc_s1": {"use_graph": True, "reward": "v7", "seed": 1, "design": "focal", "warm_start": True},
+    "focal_bc_s2": {"use_graph": True, "reward": "v7", "seed": 2, "design": "focal", "warm_start": True},
+    "focal_bc_nograph_s1": {"use_graph": False, "reward": "v7", "seed": 1, "design": "focal", "warm_start": True},
+    "focal_bc_v5reward_s1": {"use_graph": True, "reward": "v5", "seed": 1, "design": "focal", "warm_start": True},
 }
-DEFAULT_RUNS = "focal_s1,focal_s2,focal_nograph_s1,focal_v5reward_s1"
-MAIN_RUNS = ("graph_s1", "graph_s2", "focal_s1", "focal_s2")  # v7 reward, with graph: candidates for "v7"
+DEFAULT_RUNS = "focal_bc_s1,focal_bc_s2,focal_bc_nograph_s1,focal_bc_v5reward_s1"
+MAIN_RUNS = ("graph_s1", "graph_s2", "focal_s1", "focal_s2", "focal_bc_s1", "focal_bc_s2")  # v7 reward + graph
+FINETUNE_KW = dict(learning_rate=1e-4, clip_range=0.1, target_kl=0.02)  # small steps after the warm start (as v5/v6)
 FOCAL_PPO_KW = dict(n_steps=64, batch_size=512, n_epochs=10, learning_rate=3e-4, gamma=0.97, gae_lambda=0.95,
                     clip_range=0.2, ent_coef=0.01, vf_coef=0.5, max_grad_norm=0.5)
 RULES = {f"limit_target({t}/{d})": (t, d) for t in (0.4, 0.5, 0.6, 0.7) for d in (0.2, 0.3)}
@@ -230,7 +236,15 @@ def make_env(app, cal, reward_kind, rank, seed):
     return f
 
 
-def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every: int, n_envs: int, val) -> Dict[str, Any]:
+def best_rule(val, cfg: RewardConfig) -> str:
+    """The rule-family member with the highest validation reward (the heuristic arm and the warm-start teacher)."""
+    scores = {n: agg(run_set(val, (lambda t=t, d=d: OperatorLoop(limit_target_policy(t, d), V7_GUARDS)), cfg))["reward"]
+              for n, (t, d) in RULES.items()}
+    return max(scores, key=scores.get)
+
+
+def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every: int, n_envs: int, val,
+              teacher_rule: str = None) -> Dict[str, Any]:
     import torch
     from stable_baselines3 import PPO
     from stable_baselines3.common.callbacks import BaseCallback
@@ -246,13 +260,24 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
     if spec.get("design") == "focal":
         # 4 simulations x 20 agent slots; each service decides from its own focal view and gets its own reward
         venv = TwinAgentsVecEnv(app, cal, n_sims=4, n_max=N_MAX, reward=RewardConfig(kind=spec["reward"]), seed=spec["seed"])
+        kw = {**FOCAL_PPO_KW, **(FINETUNE_KW if spec.get("warm_start") else {})}
         model = PPO(ActorCriticPolicy, venv, seed=spec["seed"], verbose=0, device="cpu",
                     policy_kwargs={"features_extractor_class": GraphFocalExtractor,
                                    "features_extractor_kwargs": {"n_max": N_MAX, "hidden": 64, "rounds": 2,
                                                                  "use_graph": spec["use_graph"]},
-                                   "net_arch": {"pi": [64], "vf": [64]}, "ortho_init": False}, **FOCAL_PPO_KW)
-        with torch.no_grad():  # start near "hold" (amendment 1)
-            model.policy.action_net.bias[HOLD_INDEX] += 1.5
+                                   "net_arch": {"pi": [64], "vf": [64]}, "ortho_init": False}, **kw)
+        if spec.get("warm_start"):
+            from flexascale.rl.imitation_v7 import warm_start_focal
+            from flexascale.simulator.twin_env import RewardConfig as _RC
+
+            t, d = RULES[teacher_rule]
+            teacher = limit_target_policy(t, d)
+            bc = warm_start_focal(model, lambda sd: TwinEnv(app, cal, reward=_RC(kind=spec["reward"]), seed=sd),
+                                  teacher, episodes=400, epochs=15, seed=spec["seed"] * 7919)
+            print(f"{time.strftime('%H:%M:%S')} {name} warm start from {teacher_rule}: {bc}", flush=True)
+        else:
+            with torch.no_grad():  # start near "hold" (amendment 1)
+                model.policy.action_net.bias[HOLD_INDEX] += 1.5
     else:
         # The 8 environments step in this process (DummyVecEnv): a twin step costs ~1 ms, and subprocesses each load
         # PyTorch (~0.5 GB apiece), which the laptop running Minikube cannot spare. Same environments, seeds and settings.
@@ -263,12 +288,20 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
     history = []
     paused: List[int] = []
     cfg = RewardConfig()
+    best_seen = [-1e18]
+    if spec.get("warm_start"):  # checkpoint 0 = the warm start: selection can always fall back to it
+        a = agg(run_set(val, lambda: OperatorLoop(ModelPolicy(model), V7_GUARDS), cfg))
+        history.append({"timesteps": 0, **a})
+        best_seen[0] = a["reward"]
+        model.save(run_dir / "best_model")
+        print(f"{time.strftime('%H:%M:%S')} {name}        0 val reward {a['reward']:9.2f} repl-h {a['replica_hours']:.3f} "
+              f"p95 {a['p95_ms']:6.0f} slo {a['slo_violation_s']:5.1f} *best* (warm start)", flush=True)
 
     class Eval(BaseCallback):
         def __init__(self):
             super().__init__()
             self.next = eval_every
-            self.best = -1e18
+            self.best = best_seen[0]
 
         def _on_step(self) -> bool:
             if self.num_timesteps % 8192 < self.training_env.num_envs:
@@ -300,15 +333,19 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
     venv.close()
     (run_dir / "history.json").write_text(json.dumps(history, indent=1))
     best = max(history, key=lambda h: h["reward"]) if history else None
-    return {"name": name, **spec, "steps": steps, "minutes": round((time.time() - t0) / 60, 1), "best": best,
-            "history": history, "paused_at": paused}
+    out = {"name": name, **spec, "steps": steps, "minutes": round((time.time() - t0) / 60, 1), "best": best,
+           "history": history, "paused_at": paused}
+    if spec.get("warm_start"):
+        out["warm_start_info"] = bc
+        out["teacher_rule"] = teacher_rule
+    return out
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--steps", type=int, default=1_500_000)
     ap.add_argument("--eval-every", type=int, default=100_000)
-    ap.add_argument("--focal-steps", type=int, default=4_000_000, help="agent-steps per focal run (one per service decision)")
+    ap.add_argument("--focal-steps", type=int, default=2_000_000, help="agent-steps per focal run (one per service decision)")
     ap.add_argument("--focal-eval-every", type=int, default=250_000)
     ap.add_argument("--n-envs", type=int, default=8)
     ap.add_argument("--runs", default=DEFAULT_RUNS)
@@ -324,6 +361,7 @@ def main() -> int:
     summary_path = REPORT / "training_v7.json"
     summary = json.loads(summary_path.read_text()) if summary_path.exists() else {"runs": {}}
     if not args.only_test:
+        teacher_rule = None
         for name in args.runs.split(","):
             done = summary["runs"].get(name) or {}
             if done.get("best") and not args.retrain:
@@ -332,9 +370,13 @@ def main() -> int:
                 continue
             wait_for_power()
             focal = RUNS[name].get("design") == "focal"
+            if RUNS[name].get("warm_start") and teacher_rule is None:
+                teacher_rule = best_rule(val, RewardConfig())
+                print(f"teacher rule (best on validation): {teacher_rule}", flush=True)
             print(f"=== training {name} {RUNS[name]} ({args.focal_steps if focal else args.steps} steps)", flush=True)
             summary["runs"][name] = train_run(name, RUNS[name], app, cal, args.focal_steps if focal else args.steps,
-                                              args.focal_eval_every if focal else args.eval_every, args.n_envs, val)
+                                              args.focal_eval_every if focal else args.eval_every, args.n_envs, val,
+                                              teacher_rule)
             summary_path.write_text(json.dumps(summary, indent=1))
 
     from stable_baselines3 import PPO
