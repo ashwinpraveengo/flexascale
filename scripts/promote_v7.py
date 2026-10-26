@@ -85,7 +85,7 @@ def main() -> int:
                   | {"hidden": 64, "rounds": 2, "use_graph": runs[run]["use_graph"]},
         "training": {"simulator": "application twin (config/twin/shopping.json, src/flexascale/simulator/twin*.py)",
                      "reward": {**RewardConfig().__dict__}, "guards": V7_GUARDS.__dict__,
-                     "runs": {k: {kk: v.get(kk) for kk in ("design", "use_graph", "reward", "seed", "steps", "minutes", "best", "stopped_early_at")}
+                     "runs": {k: {kk: v.get(kk) for kk in ("design", "use_graph", "reward", "seed", "steps", "minutes", "best", "paused_at")}
                               for k, v in runs.items()}},
         "validation": runs[run].get("best"),
         "protocol": "docs/POLICY_V7.md §4.3",

@@ -258,7 +258,7 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
                     policy_kwargs={"n_max": N_MAX, "hidden": 64, "rounds": 2, "use_graph": spec["use_graph"],
                                    "hold_index": HOLD_INDEX, "hold_bias": 1.5}, **PPO_KW)
     history = []
-    stopped_early: List[int] = []
+    paused: List[int] = []
     cfg = RewardConfig()
 
     class Eval(BaseCallback):
@@ -271,9 +271,12 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
             if self.num_timesteps % 8192 < self.training_env.num_envs:
                 on_bat, cap = battery()
                 if on_bat and cap < LOW_BATTERY:
-                    print(time.strftime("%H:%M:%S"), f"{name}: battery {cap}% - stopping this run early (best checkpoint kept)", flush=True)
-                    stopped_early.append(int(self.num_timesteps))
-                    return False
+                    # pause in place (no CPU) until the charger is back: a dead battery takes Minikube down with the
+                    # laptop, and stopping the run early would leave it unfinished
+                    print(time.strftime("%H:%M:%S"), f"{name}: battery {cap}% - paused until AC power", flush=True)
+                    paused.append(int(self.num_timesteps))
+                    wait_for_power()
+                    print(time.strftime("%H:%M:%S"), f"{name}: AC power back - resuming", flush=True)
             if self.num_timesteps >= self.next:
                 self.next += eval_every
                 rows = run_set(val, lambda: OperatorLoop(ModelPolicy(self.model), V7_GUARDS), cfg)
@@ -295,7 +298,7 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
     (run_dir / "history.json").write_text(json.dumps(history, indent=1))
     best = max(history, key=lambda h: h["reward"]) if history else None
     return {"name": name, **spec, "steps": steps, "minutes": round((time.time() - t0) / 60, 1), "best": best,
-            "history": history, "stopped_early_at": stopped_early[0] if stopped_early else None}
+            "history": history, "paused_at": paused}
 
 
 def main() -> int:
