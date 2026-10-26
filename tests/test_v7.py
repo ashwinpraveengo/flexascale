@@ -258,3 +258,26 @@ def test_limit_target_rule_in_the_twin_is_lean_at_low_load():
     app, cal = load_shop(ROOT / "config" / "twin" / "shopping.json")
     out = simulate(app, build(app, cal, "steady_browsing"), OperatorLoop(limit_target_policy(0.6, 0.3), V7_GUARDS), seed=0)
     assert out["avg_replicas"] < 16.5
+
+
+def test_latency_penalty_is_capped_per_step():
+    """POLICY_V7 §4.2 amendment: rare overload episodes must not dominate the gradient."""
+    app = _tiny_app()
+    env = TwinEnv(app, {}, workloads=[_flat(10, 200, ticks=40)], seed=0)   # far beyond what 10 replicas can serve
+    env.reset(seed=0)
+    done, seen = False, []
+    while not done:
+        _, _, done, _, info = env.step(np.full(N_MAX, HOLD_INDEX))
+        seen.append(info["reward_components"]["p95_inflation"])
+    assert max(seen) <= RewardConfig().p95_inflation_cap + 1e-9
+
+
+def test_hold_bias_starts_exploration_near_hold():
+    from gymnasium import spaces
+
+    from flexascale.rl.graph_policy import PerNodeHead
+
+    head = PerNodeHead(n_max=3, hidden=4, n_actions=len(ACTION_DELTAS), hold_index=HOLD_INDEX, hold_bias=1.5)
+    latent = torch.cat([torch.zeros(1, 12), torch.ones(1, 3)], dim=1)
+    p = torch.softmax(head(latent).reshape(3, -1), dim=-1)
+    assert torch.all(p[:, HOLD_INDEX] > 0.5)
