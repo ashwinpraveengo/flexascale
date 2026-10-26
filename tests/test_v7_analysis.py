@@ -111,3 +111,28 @@ def test_invalid_runs_leave_their_block_missing(tmp_path, monkeypatch):
     out = json.loads((tmp_path / "ev.json").read_text())
     assert len(out["comparisons"]["rl vs hpa_tuned"]["pairs"]) == 11
     assert any(e["run"] == "r3" for e in out["excluded"])
+
+
+def test_rerun_plan_moves_invalid_runs_and_lists_them_once(tmp_path, monkeypatch):
+    mod = _load("rerun_plan")
+    plan = [{"controller": "hpa_tuned", "block": f"cal-{t}", "hpa_cpu_target_pct": t} for t in (350, 150, 250, 70)]
+    rids = [_run(tmp_path, f"r{i}", "hpa_tuned", "calibration_steady", b["block"], 100, target=b["hpa_cpu_target_pct"])
+            for i, b in enumerate(plan)]
+    j = json.loads((tmp_path / "runs" / "r3" / "run.json").read_text())
+    j["summary"]["settled_start"] = False
+    (tmp_path / "runs" / "r3" / "run.json").write_text(json.dumps(j))
+    _host(tmp_path, rids, affected=("r1",))
+    (tmp_path / "plan.json").write_text(json.dumps(plan))
+    (tmp_path / "plan.progress.json").write_text(json.dumps({str(i): {"id": r} for i, r in enumerate(rids)}))
+    argv = ["x", str(tmp_path / "plan.json"), "--results", str(tmp_path / "runs"), "--invalid", str(tmp_path / "invalid"),
+            "--host-load", str(tmp_path / "host.csv")]
+    monkeypatch.setattr(sys, "argv", argv)
+    assert mod.main() == 0
+    reruns = json.loads((tmp_path / "plan.reruns.json").read_text())
+    assert [(r["block"], r["rerun_of"]) for r in reruns] == [("cal-150", "r1"), ("cal-70", "r3")]
+    assert sorted(p.name for p in (tmp_path / "invalid").iterdir()) == ["r1", "r3"]
+    assert (tmp_path / "runs" / "r0").exists() and (tmp_path / "runs" / "r2").exists()
+    assert mod.main() == 0  # idempotent: the moved runs are still found and listed once
+    assert len(json.loads((tmp_path / "plan.reruns.json").read_text())) == 2
+    monkeypatch.setattr(sys, "argv", ["x", str(tmp_path / "plan.reruns.json")] + argv[2:])
+    assert mod.main() == 2  # reruns are never rerun

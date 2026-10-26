@@ -1,0 +1,3 @@
+=== training graph_s1 {'use_graph': True, 'reward': 'v7', 'seed': 1} (1500000 steps)
+23:22:06 graph_s1   100000 val reward    -13.76 repl-h 1.933 p95    569 slo  12.1 *best*
+23:26:32 graph_s1   200000 val reward   -308.76 repl-h 9.776 p95    237 slo   0.1

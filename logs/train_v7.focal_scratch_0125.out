@@ -1,0 +1,4 @@
+=== training focal_s1 {'use_graph': True, 'reward': 'v7', 'seed': 1, 'design': 'focal'} (4000000 steps)
+01:13:38 focal_s1   250000 val reward     -6.87 repl-h 1.934 p95    451 slo  12.1 *best*
+01:21:39 focal_s1   500000 val reward     -6.86 repl-h 1.933 p95    451 slo  12.1 *best*
+01:24:02 focal_s1   750000 val reward     -5.47 repl-h 1.952 p95    323 slo   5.9 *best*

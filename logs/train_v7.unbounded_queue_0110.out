@@ -1,0 +1,67 @@
+=== training focal_s1 {'use_graph': True, 'reward': 'v7', 'seed': 1, 'design': 'focal'} (4000000 steps)
+23:47:44 focal_s1   250000 val reward     -6.92 repl-h 1.933 p95    569 slo  12.1 *best*
+23:47:48 focal_s1: battery 34% - paused until AC power
+23:47:48 battery 34% and discharging: training waits for the charger
+23:48:48 battery 34% and discharging: training waits for the charger
+23:49:48 battery 33% and discharging: training waits for the charger
+23:50:48 battery 33% and discharging: training waits for the charger
+23:51:48 battery 32% and discharging: training waits for the charger
+23:52:48 battery 31% and discharging: training waits for the charger
+23:53:48 battery 31% and discharging: training waits for the charger
+23:54:48 battery 30% and discharging: training waits for the charger
+23:55:48 battery 29% and discharging: training waits for the charger
+23:56:48 battery 29% and discharging: training waits for the charger
+23:57:48 battery 28% and discharging: training waits for the charger
+23:58:48 battery 28% and discharging: training waits for the charger
+23:59:48 battery 27% and discharging: training waits for the charger
+00:00:48 battery 27% and discharging: training waits for the charger
+00:01:48 battery 26% and discharging: training waits for the charger
+00:02:48 battery 26% and discharging: training waits for the charger
+00:03:48 battery 25% and discharging: training waits for the charger
+00:04:48 battery 25% and discharging: training waits for the charger
+00:05:48 battery 24% and discharging: training waits for the charger
+00:06:48 battery 24% and discharging: training waits for the charger
+00:07:48 battery 24% and discharging: training waits for the charger
+00:08:48 battery 23% and discharging: training waits for the charger
+00:09:48 battery 23% and discharging: training waits for the charger
+00:10:48 battery 22% and discharging: training waits for the charger
+00:11:48 battery 22% and discharging: training waits for the charger
+00:12:48 battery 22% and discharging: training waits for the charger
+00:13:48 battery 21% and discharging: training waits for the charger
+00:14:48 battery 21% and discharging: training waits for the charger
+00:15:48 battery 21% and discharging: training waits for the charger
+00:16:48 battery 20% and discharging: training waits for the charger
+00:17:49 battery 20% and discharging: training waits for the charger
+00:18:49 battery 19% and discharging: training waits for the charger
+00:19:49 battery 19% and discharging: training waits for the charger
+00:20:49 battery 19% and discharging: training waits for the charger
+00:21:49 battery 18% and discharging: training waits for the charger
+00:22:49 battery 18% and discharging: training waits for the charger
+00:23:49 battery 18% and discharging: training waits for the charger
+00:24:49 battery 17% and discharging: training waits for the charger
+00:25:49 battery 17% and discharging: training waits for the charger
+00:26:49 battery 16% and discharging: training waits for the charger
+00:27:49 battery 16% and discharging: training waits for the charger
+00:28:49 battery 16% and discharging: training waits for the charger
+00:29:49 battery 15% and discharging: training waits for the charger
+00:30:49 battery 15% and discharging: training waits for the charger
+00:31:49 battery 15% and discharging: training waits for the charger
+00:32:49 battery 14% and discharging: training waits for the charger
+00:33:49 battery 14% and discharging: training waits for the charger
+00:34:49 battery 14% and discharging: training waits for the charger
+00:35:49 battery 13% and discharging: training waits for the charger
+00:36:49 battery 13% and discharging: training waits for the charger
+00:37:49 battery 12% and discharging: training waits for the charger
+00:38:49 battery 12% and discharging: training waits for the charger
+00:39:49 battery 12% and discharging: training waits for the charger
+00:40:49 battery 11% and discharging: training waits for the charger
+00:41:49 battery 11% and discharging: training waits for the charger
+00:42:49 battery 10% and discharging: training waits for the charger
+00:43:49 battery 10% and discharging: training waits for the charger
+00:44:49 battery 9% and discharging: training waits for the charger
+00:45:49 focal_s1: AC power back - resuming
+00:53:33 focal_s1   500000 val reward     -6.92 repl-h 1.933 p95    569 slo  12.1
+00:56:07 focal_s1   750000 val reward     -6.92 repl-h 1.933 p95    569 slo  12.1
+00:58:31 focal_s1  1000000 val reward     -8.12 repl-h 1.978 p95    526 slo  10.8
+01:00:50 focal_s1  1250000 val reward     -6.92 repl-h 1.933 p95    569 slo  12.1
+01:03:06 focal_s1  1500000 val reward     -6.92 repl-h 1.933 p95    569 slo  12.1

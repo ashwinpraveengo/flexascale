@@ -273,7 +273,7 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
             t, d = RULES[teacher_rule]
             teacher = limit_target_policy(t, d)
             bc = warm_start_focal(model, lambda sd: TwinEnv(app, cal, reward=_RC(kind=spec["reward"]), seed=sd),
-                                  teacher, episodes=400, epochs=15, seed=spec["seed"] * 7919)
+                                  teacher, episodes=400, epochs=15, seed=spec["seed"] * 7919, target=t, down=d)
             print(f"{time.strftime('%H:%M:%S')} {name} warm start from {teacher_rule}: {bc}", flush=True)
         else:
             with torch.no_grad():  # start near "hold" (amendment 1)

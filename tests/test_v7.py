@@ -357,3 +357,60 @@ def test_focal_warm_start_imitates_the_rule():
                                "net_arch": {"pi": [64], "vf": [64]}})
     info = warm_start_focal(model, lambda s: TwinEnv(app, cal, seed=s), rule, episodes=15, epochs=8, batch_size=512, seed=3)
     assert info["agreement_heldout"] > 0.75 and info["samples"] > 5000
+
+
+def test_feature_relabelling_matches_the_rule_itself():
+    """imitation_v7.limit_target_label (used to augment scale-up examples) must equal limit_target_policy."""
+    from flexascale.rl.imitation_v7 import limit_target_label
+
+    rule = limit_target_policy(0.6, 0.3)
+    app, cal = load_shop(ROOT / "config" / "twin" / "shopping.json")
+    checked = 0
+    for k in range(3):
+        env = TwinEnv(app, cal, seed=k)
+        obs, _ = env.reset(seed=k)
+        done = False
+        while not done:
+            want = rule(env.sim, env._last_obs, env.loop)
+            x, _, _ = fv.unpack(obs, N_MAX)
+            lab = limit_target_label(x[: len(env.app.services)], 0.6, 0.3)
+            # same decision wherever the features are not clipped (cpu feature < 2) and readiness is complete
+            ok = (x[: len(want), 0] < fv.HIGH[0]) & (x[: len(want), 5] == 1.0)
+            assert (np.array(ACTION_DELTAS)[lab][ok] == np.clip(want, -1, 3)[ok]).all()
+            checked += int(ok.sum())
+            idx = np.abs(np.clip(want, -1, 3)[:, None] - np.array(ACTION_DELTAS)[None, :]).argmin(axis=1)
+            obs, _, done, _, _ = env.step(np.concatenate([idx, np.full(N_MAX - len(idx), HOLD_INDEX)]))  # follow the rule
+    assert checked > 500
+
+
+def test_focal_rows_find_the_focal_services_own_features():
+    from flexascale.rl.imitation_v7 import _focal_rows, collect_focal
+
+    app, cal = load_shop(ROOT / "config" / "twin" / "shopping.json")
+    data = collect_focal(lambda s: TwinEnv(app, cal, seed=s), limit_target_policy(0.6, 0.3), episodes=1, epsilon=0.0, gamma=0.97, seed=5)
+    cpu_col, rows = _focal_rows(data["obs"])
+    for i in range(0, len(data["obs"]), 97):
+        x, _, _ = fv.unpack(data["obs"][i, : fv.obs_dim(N_MAX)], N_MAX)
+        k = int(data["obs"][i, -N_MAX:].argmax())
+        assert cpu_col[i] == k * fv.F and np.array_equal(rows[i], x[k])
+
+
+def test_augmented_warm_start_learns_the_rules_scale_ups():
+    """The rule's own data has almost no +1 labels; rescaled, relabelled copies must teach them."""
+    from stable_baselines3 import PPO
+    from stable_baselines3.common.policies import ActorCriticPolicy
+
+    from flexascale.rl.graph_policy import GraphFocalExtractor
+    from flexascale.rl.imitation_v7 import warm_start_focal
+    from flexascale.simulator.twin_env import TwinAgentsVecEnv
+
+    app, cal = load_shop(ROOT / "config" / "twin" / "shopping.json")
+    torch.manual_seed(0)
+    model = PPO(ActorCriticPolicy, TwinAgentsVecEnv(app, cal, n_sims=1, seed=4), n_steps=16, batch_size=320, seed=0, device="cpu",
+                policy_kwargs={"features_extractor_class": GraphFocalExtractor, "features_extractor_kwargs": {"n_max": N_MAX, "hidden": 64},
+                               "net_arch": {"pi": [64], "vf": [64]}})
+    info = warm_start_focal(model, lambda s: TwinEnv(app, cal, seed=s), limit_target_policy(0.6, 0.3), episodes=10, epochs=6,
+                            batch_size=512, seed=3, target=0.6, down=0.3)
+    print(info)
+    rec = info["recall_per_action_augmented_heldout"]
+    assert rec.get("1", 0.0) > 0.5 and info["agreement_heldout"] > 0.75
