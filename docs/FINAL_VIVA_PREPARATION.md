@@ -65,6 +65,49 @@ Every invalid run is kept with its reason in `reports/experiments_invalid/README
 
 ---
 
+## FlexaScale v7: the attempt to beat a *fairly tuned* HPA (`docs/POLICY_V7.md`)
+
+**Why did v4–v6 lose to HPA? Give the root causes, not the symptoms.**
+Four causes, each with evidence (§1 of POLICY_V7):
+* **The reward made HPA's rule optimal.** Its efficiency term rewarded running at 70% of the CPU request, HPA's own target, and the simulator's SLO was defined at that operating point. The best policy was therefore HPA's rule. v5 even started by imitating it, and in v6 PPO only drifted away from the imitation.
+* **The simulator had the wrong capacity.** It treated the 100m CPU *request* as the saturation point. Real pods can burst to their 500m *limit*, and live CPU reached 337% of request, while the policy's CPU input was capped at 1.0.
+* **The graph was wrong.** The GNN was trained on a 4-service chain and used on a 16-service call graph in 4-node windows.
+* **The baselines were not comparable.** The "+8% worse" RL-only result came from the old 7-service shop. Auto's −3.9% saving comes from scaling down, which default HPA cannot do inside a 300 s run.
+
+**What is a fair HPA baseline, and how did you avoid tuning it to lose?**
+HPA-tuned has the 60 s scale-down window fixed earlier, plus one CPU target chosen by a rule written before any calibration run (POLICY_V7 §2.1):
+* the candidates are 70, 150, 250 and 350% of request;
+* each is run twice on a separate steady workload that is not an evaluation scenario;
+* the chosen target is the highest one whose p95 and mean latency stay within 10%, and whose failures stay within +0.1 pp, of the 70% setting.
+
+If the rule picks a high target, HPA-tuned becomes much cheaper and *harder* to beat. That was expected (the simulator predicted 350%) and accepted.
+
+**What is the "twin", and why trust it?**
+A simulator fitted to 61 live runs of the shop. Per service it uses CPU cost per request (least squares, R² 0.75–0.95), the real 500m capacity, a serial queue for bcrypt login, closed-loop Locust users, the measured pod start-up delay and both controllers' metric lag. Before any policy was trained it was checked against live native HPA: replica-hours within 3.8% per scenario on average (3.3% for the 60 s window), and p95 within the live spread in 5 of 6 scenarios. The final verdict still comes only from live runs.
+
+**How is the v7 reward different, and why?**
+It is stated in replica-equivalents, so each trade-off says how many replicas avoiding it is worth:
+* −1 per replica above minimum;
+* −6 per 100% of end-to-end p95 above what the same requests would take with ample capacity, capped at 4 per step;
+* −10 while the p95 is above the 1 s SLO;
+* −5 per 1% failures;
+* −0.25 per replica change.
+
+It penalises over-provisioning and under-provisioning symmetrically in their real effect: no CPU target appears anywhere. The cap was added after the first training run collapsed to "scale everything up". Rare overload episodes (inflation up to 620) had dominated the gradient.
+
+**Why is every service an agent?**
+With one global reward for 16 simultaneous decisions, a good decision for one service is buried in the noise of the other 15: the policy stayed at "hold" for 200k steps. Each service now gets its own share of the reward: its own replicas and changes, plus the part of the latency penalty its own queueing causes. The shares add up exactly to the global reward. The network parameters are shared, and each decision still sees the whole application through message passing over the real call graph. This is also how the policy is used live: one decision per service.
+
+**How do you separate the learned policy's contribution from the rest of the system?**
+* Five live arms: HPA-default, HPA-tuned, FlexaScale-RL (v7 alone), Auto (v7 + rules) and a hand-written rule under the same operator and guards. If the rule matches v7, the learning added nothing.
+* In simulation, ablations without the graph and with the old reward structure.
+* Auto's replica changes are attributed by owner and rule.
+
+**Did you change any rule after seeing results?**
+* The evaluation design and verdict rule (§2–3) and the training protocol (§4.3) were written before the respective runs.
+* Both training amendments (penalty cap, per-service credit) are dated, explained and based only on training/validation behaviour. No test or live result existed at the time.
+* Invalid runs are defined by host conditions only (battery, CPU outside Kubernetes), never by outcomes.
+
 ### Likely follow-ups
 
 * *"Why did the earlier report show FlexaScale better?"* That run used an untrained network head (GNN `node_policy_head`) and a model trained on wrongly scaled data. We found this in the final audit, removed that path and withdrew the result.
