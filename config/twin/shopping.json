@@ -307,35 +307,6 @@
   "recommendation-service->review-service": 0.1593,
   "wishlist-service->catalog-service": 0.6855
  },
- "classes": {
-  "checkout": {
-   "services": [
-    "order-service"
-   ],
-   "share_of": "order-service"
-  },
-  "login": {
-   "services": [
-    "user-service"
-   ],
-   "share_of": "user-service"
-  },
-  "cart": {
-   "services": [
-    "cart-service"
-   ],
-   "share_of": "cart-service"
-  },
-  "browse": {
-   "services": [
-    "catalog-service",
-    "search-service",
-    "review-service",
-    "recommendation-service"
-   ],
-   "share_of": "rest"
-  }
- },
  "entry": "api-gateway",
  "scenarios": {
   "checkout_heavy": {

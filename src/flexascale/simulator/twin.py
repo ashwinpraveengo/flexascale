@@ -20,9 +20,10 @@ what the live runs measured instead (``scripts/fit_twin.py``):
 * Controllers see what they see live: FlexaScale a 1-minute Prometheus rate scraped
   every 30 s, native HPA a metrics-server value with 60 s resolution.
 
-End-to-end latency is reported per request class (browse, cart, checkout, login),
-each lognormal around its path latency; the run's p95 is the 95th percentile of
-the traffic-weighted mixture, the analogue of Locust's aggregated p95.
+End-to-end latency is reported per Locust request class (browse, cart, checkout,
+orders, login; ``Workload.classes``), each lognormal around its fitted base latency
+plus the excess latency on its path; the run's p95 is the 95th percentile of the
+traffic-weighted mixture of all requests, the analogue of Locust's aggregated p95.
 
 The simulator is deterministic given its seed. One tick is 5 s (the lab's
 sampling interval).
@@ -77,8 +78,6 @@ class AppSpec:
     edges: List[Tuple[str, str]]                       # caller -> callee
     fanout: Dict[str, float] = field(default_factory=dict)
     """'caller->callee' -> fraction of the caller's requests that call the callee (excess-latency weight)."""
-    classes: Dict[str, Dict[str, Any]] = field(default_factory=dict)
-    """Request classes for end-to-end latency: name -> {services: [...], share_of: service (or 'rest')}."""
     entry: str = "api-gateway"
 
     def index(self) -> Dict[str, int]:
@@ -97,7 +96,7 @@ class AppSpec:
     def from_json(cls, d: Dict[str, Any]) -> "AppSpec":
         return cls(name=d["name"], services=[ServiceSpec(**s) for s in d["services"]],
                    edges=[tuple(e) for e in d["edges"]], fanout=dict(d.get("fanout") or {}),
-                   classes=dict(d.get("classes") or {}), entry=d.get("entry", "api-gateway"))
+                   entry=d.get("entry", "api-gateway"))
 
     @classmethod
     def load(cls, path: str | Path) -> "AppSpec":
@@ -302,51 +301,17 @@ class TwinSim:
     def _e2e(self, lat: np.ndarray, fail: np.ndarray, lam: np.ndarray) -> Tuple[float, float, float]:
         if self.wl.classes:
             return self._e2e_classes(lat, fail)
-        idx = self.app.index()
-        entry = idx.get(self.app.entry)
+        # no request mix known: one lognormal class around the entry service's latency
+        entry = self.app.index().get(self.app.entry)
         tot = float(self.wl.e2e_rps[min(self.t, self.wl.ticks - 1)])
-        if not self.app.classes or entry is None or tot <= 0:
-            # no request mix known: one lognormal class around the entry service's latency
-            m = max(float(lat[entry]) if entry is not None else float(lat.mean()), 0.1)
-            z = (np.log(LAT_GRID) - (math.log(m) - LOGNORMAL_SIGMA ** 2 / 2)) / (LOGNORMAL_SIGMA * math.sqrt(2))
-            cdf = 0.5 * (1.0 + _erf(z))
-            w_tot = max(tot, 1e-9)
-            self.agg_cdf += w_tot * cdf
-            self.agg_weight += w_tot
-            self._p95_base = float(self.base[entry]) * math.exp(1.645 * LOGNORMAL_SIGMA - LOGNORMAL_SIGMA ** 2 / 2) \
-                if entry is not None else float("nan")
-            f = float(fail[entry]) if entry is not None else 0.0
-            return m, m * math.exp(1.645 * LOGNORMAL_SIGMA - LOGNORMAL_SIGMA ** 2 / 2), f
-        gw_own = float(lat[entry] - sum(f * max(0.0, lat[j] - self.base[j]) for j, f in self.callees[entry]))
-        weights, means, fails = [], [], []
-        used = 0.0
-        for name, spec in self.app.classes.items():
-            if spec.get("share_of") == "rest":
-                continue
-            k = idx[spec["share_of"]]
-            share = min(1.0, float(lam[k]) / tot) if tot > 0 else 0.0
-            used += share
-            path = [idx[s] for s in spec["services"] if s in idx]
-            weights.append(share)
-            means.append(self.base[entry] * 0.25 + sum(float(lat[j]) for j in path))
-            fails.append(max([fail[j] for j in path] + [fail[entry]]))
-        rest = [c for c in self.app.classes.values() if c.get("share_of") == "rest"]
-        if rest:
-            path = [idx[s] for s in rest[0]["services"] if s in idx]
-            weights.append(max(0.0, 1.0 - used))
-            means.append(max(gw_own, 1.0) + (np.mean([float(lat[j]) for j in path]) if path else 0.0))
-            fails.append(max([fail[j] for j in path] + [fail[entry]]))
-        w = np.array(weights)
-        if w.sum() <= 0:
-            return float(lat[entry]), float(lat[entry]), 0.0
-        w = w / w.sum()
-        mu = np.log(np.maximum(np.array(means), 0.1)) - LOGNORMAL_SIGMA ** 2 / 2
-        z = (np.log(LAT_GRID)[None, :] - mu[:, None]) / (LOGNORMAL_SIGMA * math.sqrt(2))
-        cdf = (w[:, None] * 0.5 * (1.0 + _erf(z))).sum(axis=0)
-        self.agg_cdf += tot * cdf
-        self.agg_weight += tot
-        p95 = float(LAT_GRID[min(len(LAT_GRID) - 1, int(np.searchsorted(cdf, 0.95)))])
-        return float((w * np.array(means)).sum()), p95, float((w * np.array(fails)).sum())
+        m = max(float(lat[entry]) if entry is not None else float(lat.mean()), 0.1)
+        z = (np.log(LAT_GRID) - (math.log(m) - LOGNORMAL_SIGMA ** 2 / 2)) / (LOGNORMAL_SIGMA * math.sqrt(2))
+        w_tot = max(tot, 1e-9)
+        self.agg_cdf += w_tot * 0.5 * (1.0 + _erf(z))
+        self.agg_weight += w_tot
+        q95 = math.exp(1.645 * LOGNORMAL_SIGMA - LOGNORMAL_SIGMA ** 2 / 2)
+        self._p95_base = float(self.base[entry]) * q95 if entry is not None else float("nan")
+        return m, m * q95, float(fail[entry]) if entry is not None else 0.0
 
     def _e2e_classes(self, lat: np.ndarray, fail: np.ndarray) -> Tuple[float, float, float]:
         """Locust request classes: fitted base latency plus the *excess* latency of the services on their path."""

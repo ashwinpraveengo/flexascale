@@ -184,5 +184,5 @@ def random_app(rng: np.random.Generator, n_lo: int = 5, n_hi: int = 18):
             r[names[serial_i]] = 0.0  # spawn-driven, like logins
         cal[sc] = {"rps_per_user": float(rng.uniform(0.5, 1.3)), "ratios": r,
                    "classes": {"all": {"share": 1.0, "base_ms": float(max(5.0, entry_base)), "sigma": 0.6, "services": [names[0]]}}}
-    app = AppSpec(name=f"random-{n}", services=services, edges=edges, fanout=fanout, classes={}, entry=names[0])
+    app = AppSpec(name=f"random-{n}", services=services, edges=edges, fanout=fanout, entry=names[0])
     return app, cal

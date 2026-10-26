@@ -74,12 +74,6 @@ def locust_classes(run_dir: Path):
     return {k: (v[0], v[1] / v[0], v[2] / v[0]) for k, v in out.items() if v[0] > 0}
 
 
-CLASSES = {
-    "checkout": {"services": ["order-service"], "share_of": "order-service"},
-    "login": {"services": ["user-service"], "share_of": "user-service"},
-    "cart": {"services": ["cart-service"], "share_of": "cart-service"},
-    "browse": {"services": ["catalog-service", "search-service", "review-service", "recommendation-service"], "share_of": "rest"},
-}
 
 
 def main() -> int:
@@ -174,7 +168,7 @@ def main() -> int:
             "classes": g["classes"],
             "samples": 0, "note": "approximated from gradual_ramp and traffic_drop (same 6:4 mix family); no live samples"}
 
-    app = AppSpec(name="shopping", services=services, edges=edges, fanout=fanout, classes=CLASSES, entry="api-gateway")
+    app = AppSpec(name="shopping", services=services, edges=edges, fanout=fanout, entry="api-gateway")
     out = app.to_json()
     out["scenarios"] = scenarios
     out["fit"] = {"runs": n_runs, "services": fit_report, "source": "reports/experiments (16-service runs, 2026-10-25/26)"}
