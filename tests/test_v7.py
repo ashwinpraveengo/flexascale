@@ -201,7 +201,9 @@ def test_twin_is_deterministic_and_queues_only_above_the_limit():
     assert light["p95_ms"] == again["p95_ms"] and light["replica_hours"] == again["replica_hours"]
     heavy = simulate(app, _flat(10, 40), NativeHPA(10_000, 60), seed=1)      # 0.8 cores on one 0.5-core pod
     lat_w = np.array(heavy["sim"].log["lat"])[:, 1]
-    assert lat_w[-1] > 5 * lat_w[0] and np.array(light["sim"].log["lat"])[-1, 1] < 1.5 * 50 + 50
+    assert np.array(light["sim"].log["lat"])[-1, 1] < 1.5 * 50 + 50
+    # queueing, but bounded by the closed loop: at most 10 users' requests (10 x 20 ms of CPU) wait on one 0.5-core pod
+    assert lat_w[-1] > 5 * 50 and lat_w.max() <= 50 + 1000 * 10 * 0.02 / 0.5 + 1000 * 0.02 * 19 + 1
 
 
 def test_hpa_scales_on_cpu_relative_to_the_request_with_a_lagged_metric():

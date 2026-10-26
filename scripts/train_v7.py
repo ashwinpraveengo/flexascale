@@ -18,9 +18,9 @@ Protocol (written into POLICY_V7 §4.3 before the first training run):
   T3 = 40 random synthetic applications (seeds 60000–60039). Every controller sees the
   same episodes; results are reported for every controller, whichever wins.
 
-Training waits for an active live run to end before it starts. Live runs started while it
-trains must freeze it during their load windows (``scripts/run_plan.py --suspend``), or pass
-``--pause-live-runs`` here to create ``.runtime/pause_live_runs`` (the runner then starts no run).
+Live runs that overlap training must freeze it during their load windows (``scripts/run_plan.py
+--suspend``). Alternatively pass ``--pause-live-runs``: training then waits for an active run to end
+and creates ``.runtime/pause_live_runs``, so the runner starts no new run.
 
     python scripts/train_v7.py --steps 1500000
     python scripts/train_v7.py --only-test          # re-test saved models
@@ -117,12 +117,15 @@ def lab_busy() -> bool:
 
 
 def hold_live_runs(create_pause_file: bool) -> None:
-    if create_pause_file:
-        PAUSE.parent.mkdir(parents=True, exist_ok=True)
-        PAUSE.write_text(f"train_v7.py pid {os.getpid()} since {time.strftime('%F %T')}\n")
-        atexit.register(lambda: PAUSE.unlink(missing_ok=True))
+    """With --pause-live-runs: block new live runs and wait for an active one to end. Without it, live runs must
+    freeze this process during their load windows (scripts/run_plan.py --suspend)."""
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, lambda *_: sys.exit(1))
+    if not create_pause_file:
+        return
+    PAUSE.parent.mkdir(parents=True, exist_ok=True)
+    PAUSE.write_text(f"train_v7.py pid {os.getpid()} since {time.strftime('%F %T')}\n")
+    atexit.register(lambda: PAUSE.unlink(missing_ok=True))
     while lab_busy():
         print(time.strftime("%H:%M:%S"), "a live run is active; waiting for it to finish before training", flush=True)
         time.sleep(30)

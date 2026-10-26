@@ -15,6 +15,9 @@ what the live runs measured instead (``scripts/fit_twin.py``):
 * Latency per service = its measured low-load latency, plus CPU queueing
   (processor sharing, ``S/(1-u)``), plus the queue wait, plus the *excess* latency
   of the services it calls (weighted by the fraction of its requests that call them).
+* Queues are bounded by the closed-loop population: a Locust user waits for each response, so a
+  service can hold at most the requests of the users currently waiting on it
+  (``users x fraction of requests reaching it``); work beyond that never arrives.
 * Pods are ready 10 s after creation (15 s with probability 0.3; live median 10 s,
   p90 15 s over 510 scale-ups).
 * Controllers see what they see live: FlexaScale a 1-minute Prometheus rate scraped
@@ -269,7 +272,11 @@ class TwinSim:
         cap = ready * self.limit                       # cores
         work = self.c * lam * TICK_S + self.idle * ready * TICK_S + self.backlog
         served = np.minimum(work, cap * TICK_S)
-        self.backlog = work - served
+        # finite population (closed loop): at most one outstanding request per user waiting on this service
+        e2e_now = max(float(self.wl.e2e_rps[t]), 1e-9)
+        outstanding = float(self.wl.users[t]) * np.minimum(1.0, lam / e2e_now)
+        outstanding = np.where(self.serial, np.maximum(outstanding, lam * TICK_S), outstanding)  # spawn bursts queue in full
+        self.backlog = np.minimum(work - served, outstanding * self.c)
         u = np.where(cap > 0, served / np.maximum(cap * TICK_S, 1e-9), 1.0)
         cpu_used = served / TICK_S
         # own latency: low-load latency + CPU queueing (processor sharing) + backlog wait

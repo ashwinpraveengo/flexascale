@@ -172,6 +172,13 @@ At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a hi
   * 4M agent-steps per run, validated every 250k.
 
   The joint-reward run was stopped; it is not a candidate because it never finished. No test-set or live data was used.
+
+  **Amendment 3 (2026-10-27 01:10, before any test or live v7 result): bounded queues in the twin.** The focal run still equalled holding after 1.5M agent-steps, so a diagnostic was run on a two-service app with one clearly overloaded service. The policy did not learn to scale it up. The twin's queues were unbounded: one overload built a backlog of CPU-seconds that kept the latency penalty at its cap for minutes, whatever was done. Locust is closed-loop: each user has at most one outstanding request, so a service can only hold the requests of the users waiting on it.
+  * **Change:** the backlog is now capped at `users × (fraction of requests reaching the service) × CPU per request`; spawn-driven login bursts still queue in full.
+  * **Re-validation:** against live native HPA, replica-hours are unchanged (3.8% and 3.3% mean error). flash_sale p95 is 673 ms, closer to live (448–670 ms).
+  * **Learnability:** in the same diagnostic the policy now learns within 50k decisions to scale the overloaded service (83% probability of +1…+3) and to hold the idle one (99%).
+
+  Training restarted from scratch on the fixed twin. No test-set or live data was used.
 * **Training episodes**:
   * 75%: the shop with every fitted parameter perturbed by ±30%, under randomised scenario shapes: peak 8–45 users, stage timings, mixes, extra spikes and drops, 300–600 s;
   * 25%: synthetic applications with random call DAGs of 5–18 services, sometimes one serial service. This forces the policy to read features and the graph rather than memorise service identities.
@@ -208,3 +215,5 @@ At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a hi
 | 2026-10-26 23:30 | Reward amendment (§4.2): latency penalty capped, hold-biased start. Training restarted from scratch (`logs/train_v7.aborted_2330.out` holds the collapsed first run). |
 | 2026-10-26 23:43 | Amendment 2 (§4.2): per-service credit (focal multi-agent design). The joint run was stopped at 200k steps without learning beyond "hold". |
 | 2026-10-27 00:25 | Still on battery (17%; unplugged since about 22:35). Training paused itself at 34% after 250k agent-steps of `focal_s1` (validation still equal to holding). No calibration or evaluation run has started; they need AC power. After the charger is back (or after a shutdown), `./scripts/v7_resume.sh` resumes both. |
+| 2026-10-27 00:45 | AC power back. Calibration started (run 1 at 00:45:40); training resumed. The runner froze training during each settle and load window as designed. |
+| 2026-10-27 01:10 | Amendment 3 (§4.2): closed-loop queue bound in the twin. Training restarted on the fixed twin (`logs/train_v7.unbounded_queue_0110.out` holds the stopped run). |
