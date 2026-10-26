@@ -7,5 +7,9 @@ metadata:
   labels:
     {{- include "flexascale.labels" . | nindent 4 }}
 data:
+  # Helm deletes a key that a values override sets to null, and the operator would then use its built-in
+  # default (100 ms) instead of "no latency SLO". Keys defined in values.yaml that went missing were nulled.
+  {{- $policy := deepCopy .Values.policy }}
+  {{- if not (hasKey $policy "slo_latency_ms") }}{{- $_ := set $policy "slo_latency_ms" nil }}{{- end }}
   policy.yaml: |
-    {{- toYaml .Values.policy | nindent 4 }}
+    {{- toYaml $policy | nindent 4 }}

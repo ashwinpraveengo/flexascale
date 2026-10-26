@@ -96,3 +96,18 @@ def test_handback_hook_only_touches_the_operator_deployment():
             assert rule["resourceNames"] == ["t-operator"]
         assert "delete" not in rule["verbs"]
     assert not any(d["kind"] == "Job" for d in render("helm/flexascale", "ops", "operator.handbackHook=false"))
+
+
+def test_null_latency_slo_reaches_the_operator_as_null():
+    """Helm drops keys set to null; the template must keep 'no SLO' instead of the operator's 100 ms default."""
+    for args in (["policy.slo_latency_ms=null"], []):
+        docs = render("helm/flexascale", "ops", *args)
+        policy = yaml.safe_load(next(d for d in docs if d["kind"] == "ConfigMap")["data"]["policy.yaml"])
+        assert ("slo_latency_ms" in policy) and (policy["slo_latency_ms"] is None) == bool(args)
+    v7 = ROOT / "helm" / "flexascale" / "values-v7.yaml"
+    if v7.exists():
+        out = subprocess.run(["helm", "template", "t", str(ROOT / "helm/flexascale"), "-n", "ops", "-f", str(v7)],
+                             capture_output=True, text=True, timeout=60, check=True).stdout
+        cm = next(d for d in yaml.safe_load_all(out) if d and d["kind"] == "ConfigMap")
+        policy = yaml.safe_load(cm["data"]["policy.yaml"])
+        assert policy["slo_latency_ms"] is None and policy["max_step"] == 3
