@@ -182,10 +182,10 @@ At 25 users the replica floor is 16.6% below HPA-default. A native HPA with a hi
 | Time (IST) | Step |
 | :--- | :--- |
 | 2026-10-26 22:30 | Diagnosis (§1) from code, model cards and the 61 runs of the 16-service shop. Scripts: `scripts/analysis/svc_stats.py`, `scripts/analysis/latency_knee.py`. |
-| 2026-10-26 23:00 | §2–§3 fixed before any calibration or v7 run. |
+| 2026-10-26 22:35 | §2–§3 fixed before any calibration or v7 run. The calibration plan file is time-stamped 22:36:50. |
 | 2026-10-26 22:37 | Lab restarted with `hpa_tuned`; calibration plan launched. It waits: the laptop has been on battery since about 22:35. |
-| 2026-10-26 23:10 | Twin fitted and validated (§4.1); headroom check (§4.1). Checkpoint commit `ca9b7b5` on branch `flexascale-v7`. |
+| 2026-10-26 22:55 | Twin fitted and validated (§4.1); headroom check (§4.1). Checkpoint commit `ca9b7b5` (23:00) on branch `flexascale-v7`. |
 | 2026-10-26 23:05 | §4.2–§4.3 fixed; training starts (`logs/train_v7.out`). |
 | 2026-10-26 23:14 | Training restarted twice, with no change to the protocol. First restart: the validation score had counted churn per scaling action, while the training reward counted it per replica changed; both now count per replica (`twin.replica_changes`). Second restart (23:18): the 8 environments now step in one process (`DummyVecEnv`) instead of 8 subprocesses. That saves about 4 GB of RAM on a laptop that was swapping; the environments, seeds and settings are the same. Logs of the aborted starts: `logs/train_v7.aborted_*.out`. |
-| 2026-10-26 23:30 | Reward amendment (§4.2): latency penalty capped, hold-biased start. Training restarted from scratch (`logs/train_v7.aborted_2330.out` holds the collapsed first run). |
 | 2026-10-26 23:20 | The plan runner freezes the training process (SIGSTOP) during each run's settle and load window and resumes it afterwards. Training cannot become host load in a measured window, and calibration can proceed during training once the laptop is back on AC. |
+| 2026-10-26 23:30 | Reward amendment (§4.2): latency penalty capped, hold-biased start. Training restarted from scratch (`logs/train_v7.aborted_2330.out` holds the collapsed first run). |
