@@ -1,0 +1,3521 @@
+{
+ "blocks": {
+  "1": {
+   "hpa_tuned": "20261027-034420-shopping-hpa_tuned-steady_browsing",
+   "hpa_default": "20261027-035524-shopping-hpa-steady_browsing",
+   "heuristic": "20261027-040643-shopping-flexascale-steady_browsing",
+   "rl": "20261027-041820-shopping-flexascale-steady_browsing",
+   "auto": "20261027-042957-shopping-auto-steady_browsing"
+  },
+  "2": {
+   "heuristic": "20261027-044632-shopping-flexascale-checkout_heavy",
+   "rl": "20261027-045807-shopping-flexascale-checkout_heavy",
+   "hpa_default": "20261027-051443-shopping-hpa-checkout_heavy",
+   "auto": "20261027-053125-shopping-auto-checkout_heavy",
+   "hpa_tuned": "20261027-054255-shopping-hpa_tuned-checkout_heavy"
+  },
+  "3": {
+   "heuristic": "20261027-055933-shopping-flexascale-payment_degradation",
+   "hpa_tuned": "20261027-061627-shopping-hpa_tuned-payment_degradation",
+   "hpa_default": "20261027-062753-shopping-hpa-payment_degradation",
+   "auto": "20261027-064413-shopping-auto-payment_degradation",
+   "rl": "20261027-065544-shopping-flexascale-payment_degradation"
+  },
+  "4": {
+   "heuristic": "20261027-071234-shopping-flexascale-flash_sale",
+   "rl": "20261027-072409-shopping-flexascale-flash_sale",
+   "hpa_default": "20261027-074033-shopping-hpa-flash_sale",
+   "auto": "20261027-075152-shopping-auto-flash_sale",
+   "hpa_tuned": "20261027-080826-shopping-hpa_tuned-flash_sale"
+  },
+  "5": {
+   "auto": "20261027-081950-shopping-auto-gradual_ramp",
+   "hpa_default": "20261027-083628-shopping-hpa-gradual_ramp",
+   "hpa_tuned": "20261027-084748-shopping-hpa_tuned-gradual_ramp",
+   "rl": "20261027-090424-shopping-flexascale-gradual_ramp",
+   "heuristic": "20261027-091600-shopping-flexascale-gradual_ramp"
+  },
+  "6": {
+   "heuristic": "20261027-093242-shopping-flexascale-traffic_drop",
+   "hpa_tuned": "20261027-094417-shopping-hpa_tuned-traffic_drop",
+   "rl": "20261027-095541-shopping-flexascale-traffic_drop",
+   "hpa_default": "20261027-100716-shopping-hpa-traffic_drop",
+   "auto": "20261027-101834-shopping-auto-traffic_drop"
+  },
+  "7": {
+   "rl": "20261027-103005-shopping-flexascale-steady_browsing",
+   "auto": "20261027-104140-shopping-auto-steady_browsing",
+   "heuristic": "20261027-105308-shopping-flexascale-steady_browsing",
+   "hpa_tuned": "20261027-110932-shopping-hpa_tuned-steady_browsing",
+   "hpa_default": "20261027-112056-shopping-hpa-steady_browsing"
+  },
+  "8": {
+   "hpa_default": "20261027-113714-shopping-hpa-checkout_heavy",
+   "rl": "20261027-114841-shopping-flexascale-checkout_heavy",
+   "heuristic": "20261027-120019-shopping-flexascale-checkout_heavy",
+   "hpa_tuned": "20261027-121155-shopping-hpa_tuned-checkout_heavy",
+   "auto": "20261027-122820-shopping-auto-checkout_heavy"
+  },
+  "9": {
+   "hpa_default": "20261027-123948-shopping-hpa-payment_degradation",
+   "rl": "20261027-125616-shopping-flexascale-payment_degradation",
+   "hpa_tuned": "20261027-130756-shopping-hpa_tuned-payment_degradation",
+   "auto": "20261027-132422-shopping-auto-payment_degradation",
+   "heuristic": "20261027-133552-shopping-flexascale-payment_degradation"
+  },
+  "10": {
+   "heuristic": "20261027-135240-shopping-flexascale-flash_sale",
+   "hpa_tuned": "20261027-140418-shopping-hpa_tuned-flash_sale",
+   "rl": "20261027-141542-shopping-flexascale-flash_sale",
+   "hpa_default": "20261027-143242-shopping-hpa-flash_sale",
+   "auto": "20261027-144925-shopping-auto-flash_sale"
+  },
+  "11": {
+   "hpa_tuned": "20261027-150056-shopping-hpa_tuned-gradual_ramp",
+   "heuristic": "20261027-172740-shopping-flexascale-gradual_ramp",
+   "hpa_default": "20261027-173350-shopping-hpa-gradual_ramp",
+   "rl": "20261027-175019-shopping-flexascale-gradual_ramp",
+   "auto": "20261027-180157-shopping-auto-gradual_ramp"
+  },
+  "12": {
+   "auto": "20261027-181829-shopping-auto-traffic_drop",
+   "hpa_tuned": "20261027-182956-shopping-hpa_tuned-traffic_drop",
+   "hpa_default": "20261027-184120-shopping-hpa-traffic_drop",
+   "heuristic": "20261027-185240-shopping-flexascale-traffic_drop",
+   "rl": "20261027-190417-shopping-flexascale-traffic_drop"
+  }
+ },
+ "excluded": [],
+ "comparisons": {
+  "hpa_default vs hpa_tuned": {
+   "pairs": [
+    {
+     "block": 1,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-035524-shopping-hpa-steady_browsing",
+     "reference": "20261027-034420-shopping-hpa_tuned-steady_browsing",
+     "replica_hours": 8.002806864434648,
+     "cost": 8.127035830618897,
+     "p50_ms": 0.0,
+     "p95_ms": 1.4285714285714286,
+     "p99_ms": 0.0,
+     "mean_ms": -2.6670015882732576,
+     "throughput": 3.171693534974418,
+     "failure_pct": -0.018743686520844148,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -25.200000000000003,
+     "events": 2,
+     "oscillations": 0,
+     "avg_replicas": 1.370000000000001,
+     "peak_replicas": 2,
+     "cpu_pct": -3.1900000000000013
+    },
+    {
+     "block": 2,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-051443-shopping-hpa-checkout_heavy",
+     "reference": "20261027-054255-shopping-hpa_tuned-checkout_heavy",
+     "replica_hours": 31.383518262423365,
+     "cost": 31.92702394526796,
+     "p50_ms": -6.153846153846154,
+     "p95_ms": -13.432835820895523,
+     "p99_ms": -26.08695652173913,
+     "mean_ms": -11.646216525188077,
+     "throughput": 2.937858854008084,
+     "failure_pct": -0.27181992451274106,
+     "e2e_slo_s": -20.0,
+     "svc_slo_s": 0.0,
+     "events": 7,
+     "oscillations": 0,
+     "avg_replicas": 5.43,
+     "peak_replicas": 9,
+     "cpu_pct": -11.839999999999996
+    },
+    {
+     "block": 3,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-062753-shopping-hpa-payment_degradation",
+     "reference": "20261027-061627-shopping-hpa_tuned-payment_degradation",
+     "replica_hours": 16.380724795568018,
+     "cost": 16.661237785016294,
+     "p50_ms": -4.878048780487805,
+     "p95_ms": 0.0,
+     "p99_ms": -3.7735849056603774,
+     "mean_ms": -3.2207481363072556,
+     "throughput": -1.119540461252758,
+     "failure_pct": 0.08823176008468778,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": 15.0,
+     "events": 3,
+     "oscillations": 0,
+     "avg_replicas": 2.789999999999999,
+     "peak_replicas": 4,
+     "cpu_pct": -11.189999999999998
+    },
+    {
+     "block": 4,
+     "scenario": "flash_sale",
+     "candidate": "20261027-074033-shopping-hpa-flash_sale",
+     "reference": "20261027-080826-shopping-hpa_tuned-flash_sale",
+     "replica_hours": 19.83079669303989,
+     "cost": 20.16460905349794,
+     "p50_ms": 0.0,
+     "p95_ms": 6.666666666666667,
+     "p99_ms": -7.142857142857143,
+     "mean_ms": 2.9688825987423715,
+     "throughput": -2.48012409765483,
+     "failure_pct": -0.07251158963328691,
+     "e2e_slo_s": 5.0,
+     "svc_slo_s": -10.0,
+     "events": 4,
+     "oscillations": 0,
+     "avg_replicas": 3.5699999999999967,
+     "peak_replicas": 6,
+     "cpu_pct": -6.850000000000001
+    },
+    {
+     "block": 5,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-083628-shopping-hpa-gradual_ramp",
+     "reference": "20261027-084748-shopping-hpa_tuned-gradual_ramp",
+     "replica_hours": 3.6812149247526755,
+     "cost": 3.745928338762218,
+     "p50_ms": 11.538461538461538,
+     "p95_ms": 34.78260869565217,
+     "p99_ms": 30.76923076923077,
+     "mean_ms": 29.967958202505926,
+     "throughput": -2.30810876630993,
+     "failure_pct": 0.0026118969704197886,
+     "e2e_slo_s": -5.0,
+     "svc_slo_s": -5.100000000000023,
+     "events": 3,
+     "oscillations": 0,
+     "avg_replicas": 0.7600000000000016,
+     "peak_replicas": 3,
+     "cpu_pct": -1.9699999999999989
+    },
+    {
+     "block": 6,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-100716-shopping-hpa-traffic_drop",
+     "reference": "20261027-094417-shopping-hpa_tuned-traffic_drop",
+     "replica_hours": 19.6952339670155,
+     "cost": 20.035836455448756,
+     "p50_ms": 0.0,
+     "p95_ms": 16.0,
+     "p99_ms": 21.428571428571427,
+     "mean_ms": 7.05886081589015,
+     "throughput": 0.2068423315152043,
+     "failure_pct": -0.07678928551559358,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -14.899999999999977,
+     "events": 4,
+     "oscillations": 0,
+     "avg_replicas": 3.370000000000001,
+     "peak_replicas": 5,
+     "cpu_pct": -0.8200000000000003
+    },
+    {
+     "block": 7,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-112056-shopping-hpa-steady_browsing",
+     "reference": "20261027-110932-shopping-hpa_tuned-steady_browsing",
+     "replica_hours": 9.446393819661504,
+     "cost": 9.610685779442896,
+     "p50_ms": 0.0,
+     "p95_ms": 10.0,
+     "p99_ms": 116.27906976744185,
+     "mean_ms": 14.772765161924012,
+     "throughput": -1.9515793007338917,
+     "failure_pct": 0.0003603314659939606,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -4.899999999999977,
+     "events": 2,
+     "oscillations": 0,
+     "avg_replicas": 1.5899999999999999,
+     "peak_replicas": 2,
+     "cpu_pct": -3.8900000000000006
+    },
+    {
+     "block": 8,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-113714-shopping-hpa-checkout_heavy",
+     "reference": "20261027-121155-shopping-hpa_tuned-checkout_heavy",
+     "replica_hours": 30.015612860043024,
+     "cost": 30.509855025248406,
+     "p50_ms": 30.76923076923077,
+     "p95_ms": 56.0,
+     "p99_ms": 0.0,
+     "mean_ms": 34.16779219790941,
+     "throughput": -10.423665775233722,
+     "failure_pct": 2.1649434912703502,
+     "e2e_slo_s": -15.0,
+     "svc_slo_s": 5.0,
+     "events": 7,
+     "oscillations": 0,
+     "avg_replicas": 4.940000000000001,
+     "peak_replicas": 8,
+     "cpu_pct": -10.559999999999995
+    },
+    {
+     "block": 9,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-123948-shopping-hpa-payment_degradation",
+     "reference": "20261027-130756-shopping-hpa_tuned-payment_degradation",
+     "replica_hours": 16.408413119181922,
+     "cost": 16.696530379540636,
+     "p50_ms": 36.206896551724135,
+     "p95_ms": 15.384615384615385,
+     "p99_ms": 20.0,
+     "mean_ms": 18.86411347394667,
+     "throughput": -2.1009367450962295,
+     "failure_pct": -0.08104348618495949,
+     "e2e_slo_s": 25.0,
+     "svc_slo_s": -10.0,
+     "events": 4,
+     "oscillations": 0,
+     "avg_replicas": 2.789999999999999,
+     "peak_replicas": 4,
+     "cpu_pct": -8.29
+    },
+    {
+     "block": 10,
+     "scenario": "flash_sale",
+     "candidate": "20261027-143242-shopping-hpa-flash_sale",
+     "reference": "20261027-140418-shopping-hpa_tuned-flash_sale",
+     "replica_hours": 14.19023605042366,
+     "cost": 14.430700919758964,
+     "p50_ms": 6.666666666666667,
+     "p95_ms": 17.647058823529413,
+     "p99_ms": 26.923076923076923,
+     "mean_ms": 22.587688970721786,
+     "throughput": -7.231187134086252,
+     "failure_pct": 0.04490509335570536,
+     "e2e_slo_s": 25.0,
+     "svc_slo_s": -5.0,
+     "events": 5,
+     "oscillations": 0,
+     "avg_replicas": 2.5700000000000003,
+     "peak_replicas": 5,
+     "cpu_pct": -4.609999999999999
+    },
+    {
+     "block": 11,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-173350-shopping-hpa-gradual_ramp",
+     "reference": "20261027-150056-shopping-hpa_tuned-gradual_ramp",
+     "replica_hours": 3.230503069582106,
+     "cost": 3.288830999674372,
+     "p50_ms": -37.2093023255814,
+     "p95_ms": -30.434782608695652,
+     "p99_ms": -20.0,
+     "mean_ms": -23.472203264635855,
+     "throughput": 1.3782469045620864,
+     "failure_pct": 0.05528871363550561,
+     "e2e_slo_s": 5.0,
+     "svc_slo_s": -0.19999999999998863,
+     "events": 3,
+     "oscillations": 0,
+     "avg_replicas": 0.6700000000000017,
+     "peak_replicas": 3,
+     "cpu_pct": -9.659999999999998
+    },
+    {
+     "block": 12,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-184120-shopping-hpa-traffic_drop",
+     "reference": "20261027-182956-shopping-hpa_tuned-traffic_drop",
+     "replica_hours": 16.810363892091434,
+     "cost": 17.103762827822116,
+     "p50_ms": -3.225806451612903,
+     "p95_ms": 11.11111111111111,
+     "p99_ms": -18.181818181818183,
+     "mean_ms": 4.4088804292397015,
+     "throughput": -1.913094836019184,
+     "failure_pct": 0.24428477117525932,
+     "e2e_slo_s": -29.8,
+     "svc_slo_s": -15.0,
+     "events": 3,
+     "oscillations": 0,
+     "avg_replicas": 2.8599999999999994,
+     "peak_replicas": 4,
+     "cpu_pct": -1.1899999999999995
+    }
+   ],
+   "stats": {
+    "replica_hours": {
+     "mean": 15.756318193184812,
+     "n": 12,
+     "ci95": [
+      10.051869692239206,
+      21.46076669413042
+     ],
+     "dz": 1.7549732390283723
+    },
+    "cost": {
+     "mean": 16.02516977834162,
+     "n": 12,
+     "ci95": [
+      10.224044730776948,
+      21.826294825906295
+     ],
+     "dz": 1.755172605042461
+    },
+    "p50_ms": {
+     "mean": 2.8095209845462374,
+     "n": 12,
+     "ci95": [
+      -8.99536576656241,
+      14.614407735654884
+     ],
+     "dz": 0.1512167412427362
+    },
+    "p95_ms": {
+     "mean": 10.429417806712918,
+     "n": 12,
+     "ci95": [
+      -3.413360819233814,
+      24.272196432659648
+     ],
+     "dz": 0.4787030688466531
+    },
+    "p99_ms": {
+     "mean": 11.684561011353845,
+     "n": 12,
+     "ci95": [
+      -12.463923809356368,
+      35.83304583206406
+     ],
+     "dz": 0.30743402690218197
+    },
+    "mean_ms": {
+     "mean": 7.815897694706298,
+     "n": 12,
+     "ci95": [
+      -3.019206496933026,
+      18.65100188634562
+     ],
+     "dz": 0.45832673772974913
+    },
+    "throughput": {
+     "mean": -1.819466290943917,
+     "n": 12,
+     "ci95": [
+      -4.29115692702313,
+      0.652224345135296
+     ],
+     "dz": -0.46771287067460193
+    },
+    "failure_pct": {
+     "mean": 0.17330984046587472,
+     "n": 12,
+     "ci95": [
+      -0.2326721534893873,
+      0.5792918344211367
+     ],
+     "dz": 0.2712350873483809
+    },
+    "e2e_slo_s": {
+     "mean": -0.8166666666666668,
+     "n": 12,
+     "ci95": [
+      -11.007955452013613,
+      9.37462211868028
+     ],
+     "dz": -0.05091492882902036
+    },
+    "svc_slo_s": {
+     "mean": -5.858333333333331,
+     "n": 12,
+     "ci95": [
+      -12.481503833308105,
+      0.7648371666414437
+     ],
+     "dz": -0.5620016146165179
+    },
+    "events": {
+     "mean": 3.9166666666666665,
+     "n": 12,
+     "ci95": [
+      2.8514709565345617,
+      4.981862376798771
+     ],
+     "dz": 2.3362355202568112
+    },
+    "oscillations": {
+     "mean": 0.0,
+     "n": 12,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "dz": null
+    },
+    "avg_replicas": {
+     "mean": 2.7258333333333336,
+     "n": 12,
+     "ci95": [
+      1.7754236160929548,
+      3.6762430505737123
+     ],
+     "dz": 1.822291500739153
+    },
+    "peak_replicas": {
+     "mean": 4.583333333333333,
+     "n": 12,
+     "ci95": [
+      3.1897616388911327,
+      5.976905027775533
+     ],
+     "dz": 2.0896884696677795
+    },
+    "cpu_pct": {
+     "mean": -6.171666666666666,
+     "n": 12,
+     "ci95": [
+      -8.751384339282374,
+      -3.5919489940509575
+     ],
+     "dz": -1.5200564002855224
+    }
+   },
+   "verdict": "Worse",
+   "checks": {
+    "C1 replica-h interval < 0": false,
+    "C2 p95 not worse (interval not > 0, mean <= +10%)": false,
+    "C3 failures not worse (interval not > 0, mean <= +0.10 pp)": false,
+    "C4 throughput mean >= -2%": true,
+    "C5 e2e SLO violation mean <= +5 s": true,
+    "C6 oscillations mean <= +5": true,
+    "C7 replica-h lower in >= 4 of 6 scenarios": false
+   },
+   "per_scenario_replica_hours": {
+    "steady_browsing": 8.724600342048076,
+    "checkout_heavy": 30.699565561233193,
+    "payment_degradation": 16.39456895737497,
+    "flash_sale": 17.010516371731775,
+    "gradual_ramp": 3.4558589971673905,
+    "traffic_drop": 18.252798929553467
+   }
+  },
+  "rl vs hpa_tuned": {
+   "pairs": [
+    {
+     "block": 1,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-041820-shopping-flexascale-steady_browsing",
+     "reference": "20261027-034420-shopping-hpa_tuned-steady_browsing",
+     "replica_hours": -0.017321773690657096,
+     "cost": -0.016286644951128103,
+     "p50_ms": -5.882352941176471,
+     "p95_ms": -8.571428571428571,
+     "p99_ms": 4.166666666666667,
+     "mean_ms": -10.724797422388306,
+     "throughput": 0.5537060645145478,
+     "failure_pct": -0.01827738014292589,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -90.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -1.8599999999999994
+    },
+    {
+     "block": 2,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-045807-shopping-flexascale-checkout_heavy",
+     "reference": "20261027-054255-shopping-hpa_tuned-checkout_heavy",
+     "replica_hours": -0.0029486434765715534,
+     "cost": 0.0,
+     "p50_ms": -23.076923076923077,
+     "p95_ms": -34.32835820895522,
+     "p99_ms": -43.47826086956522,
+     "mean_ms": -26.868729117703165,
+     "throughput": 7.111746440228069,
+     "failure_pct": -0.40474048176045674,
+     "e2e_slo_s": -45.2,
+     "svc_slo_s": -250.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -5.140000000000001
+    },
+    {
+     "block": 3,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-065544-shopping-flexascale-payment_degradation",
+     "reference": "20261027-061627-shopping-hpa_tuned-payment_degradation",
+     "replica_hours": -0.027198629601843292,
+     "cost": -0.032573289902270326,
+     "p50_ms": 7.317073170731708,
+     "p95_ms": 172.0,
+     "p99_ms": 201.88679245283018,
+     "mean_ms": 60.52982791843493,
+     "throughput": -4.612567910105441,
+     "failure_pct": 0.38842191846253804,
+     "e2e_slo_s": 60.0,
+     "svc_slo_s": -45.0,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -6.339999999999996
+    },
+    {
+     "block": 4,
+     "scenario": "flash_sale",
+     "candidate": "20261027-072409-shopping-flexascale-flash_sale",
+     "reference": "20261027-080826-shopping-hpa_tuned-flash_sale",
+     "replica_hours": -0.21211324267403667,
+     "cost": -0.20576131687242785,
+     "p50_ms": -12.5,
+     "p95_ms": -39.333333333333336,
+     "p99_ms": -28.571428571428573,
+     "mean_ms": -22.94031011030764,
+     "throughput": 12.782751530321415,
+     "failure_pct": -0.16521356418018196,
+     "e2e_slo_s": -35.0,
+     "svc_slo_s": -215.0,
+     "events": 1,
+     "oscillations": 1,
+     "avg_replicas": -0.07000000000000028,
+     "peak_replicas": 0,
+     "cpu_pct": -0.7600000000000016
+    },
+    {
+     "block": 5,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-090424-shopping-flexascale-gradual_ramp",
+     "reference": "20261027-084748-shopping-hpa_tuned-gradual_ramp",
+     "replica_hours": -0.0069284439157234765,
+     "cost": -0.016286644951128103,
+     "p50_ms": -15.384615384615385,
+     "p95_ms": 4.3478260869565215,
+     "p99_ms": 0.0,
+     "mean_ms": 0.3893670650026042,
+     "throughput": -0.05692273272090098,
+     "failure_pct": -0.027631534298074772,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -295.3,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -1.6899999999999977
+    },
+    {
+     "block": 6,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-095541-shopping-flexascale-traffic_drop",
+     "reference": "20261027-094417-shopping-hpa_tuned-traffic_drop",
+     "replica_hours": 0.004423095636170085,
+     "cost": 0.0,
+     "p50_ms": -17.24137931034483,
+     "p95_ms": 20.0,
+     "p99_ms": 7.142857142857143,
+     "mean_ms": 5.160554835320907,
+     "throughput": -3.006327589935457,
+     "failure_pct": -0.18900493287754416,
+     "e2e_slo_s": 20.0,
+     "svc_slo_s": -265.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -2.219999999999999
+    },
+    {
+     "block": 7,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-103005-shopping-flexascale-steady_browsing",
+     "reference": "20261027-110932-shopping-hpa_tuned-steady_browsing",
+     "replica_hours": -0.01231055021525242,
+     "cost": -0.016289297931261323,
+     "p50_ms": -11.11111111111111,
+     "p95_ms": 0.0,
+     "p99_ms": 37.2093023255814,
+     "mean_ms": -3.810013318453813,
+     "throughput": -1.635420468802691,
+     "failure_pct": -0.01783803068141277,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -295.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -2.41
+    },
+    {
+     "block": 8,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-114841-shopping-flexascale-checkout_heavy",
+     "reference": "20261027-121155-shopping-hpa_tuned-checkout_heavy",
+     "replica_hours": -0.016954475023106184,
+     "cost": -0.016289297931261323,
+     "p50_ms": -7.6923076923076925,
+     "p95_ms": 0.0,
+     "p99_ms": 0.0,
+     "mean_ms": -4.34539762155551,
+     "throughput": 1.372976104486056,
+     "failure_pct": -0.006723223485261887,
+     "e2e_slo_s": -15.199999999999989,
+     "svc_slo_s": -295.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -3.4399999999999977
+    },
+    {
+     "block": 9,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-125616-shopping-flexascale-payment_degradation",
+     "reference": "20261027-130756-shopping-hpa_tuned-payment_degradation",
+     "replica_hours": -0.006781919991034669,
+     "cost": 0.0,
+     "p50_ms": -27.586206896551722,
+     "p95_ms": -29.23076923076923,
+     "p99_ms": -23.333333333333332,
+     "mean_ms": -25.600002417640802,
+     "throughput": 3.0124493226775324,
+     "failure_pct": -0.018226314020387324,
+     "e2e_slo_s": -70.0,
+     "svc_slo_s": -300.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -4.0
+    },
+    {
+     "block": 10,
+     "scenario": "flash_sale",
+     "candidate": "20261027-141542-shopping-flexascale-flash_sale",
+     "reference": "20261027-140418-shopping-hpa_tuned-flash_sale",
+     "replica_hours": 0.8878993824120262,
+     "cost": 0.9039010466222607,
+     "p50_ms": -6.666666666666667,
+     "p95_ms": -29.41176470588235,
+     "p99_ms": 3.8461538461538463,
+     "mean_ms": -15.767322854189688,
+     "throughput": 8.476176214318805,
+     "failure_pct": -0.36491814560963165,
+     "e2e_slo_s": -10.0,
+     "svc_slo_s": -225.0,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.14000000000000057,
+     "peak_replicas": 0,
+     "cpu_pct": -4.009999999999998
+    },
+    {
+     "block": 11,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-175019-shopping-flexascale-gradual_ramp",
+     "reference": "20261027-150056-shopping-hpa_tuned-gradual_ramp",
+     "replica_hours": -0.049366778957680914,
+     "cost": -0.04884402474763157,
+     "p50_ms": -53.48837209302326,
+     "p95_ms": -54.34782608695652,
+     "p99_ms": -45.0,
+     "mean_ms": -51.06390867839728,
+     "throughput": 4.865262962943789,
+     "failure_pct": -0.0913849248972772,
+     "e2e_slo_s": -25.0,
+     "svc_slo_s": -300.4,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -9.839999999999998
+    },
+    {
+     "block": 12,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-190417-shopping-flexascale-traffic_drop",
+     "reference": "20261027-182956-shopping-hpa_tuned-traffic_drop",
+     "replica_hours": -0.012679166949249495,
+     "cost": -0.016289297931261323,
+     "p50_ms": -25.806451612903224,
+     "p95_ms": -30.555555555555557,
+     "p99_ms": -13.636363636363637,
+     "mean_ms": -19.33224788394249,
+     "throughput": 0.4598477435368616,
+     "failure_pct": 0.03927545467086983,
+     "e2e_slo_s": -35.0,
+     "svc_slo_s": -285.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -2.24
+    }
+   ],
+   "stats": {
+    "replica_hours": {
+     "mean": 0.04397657112942004,
+     "n": 12,
+     "ci95": [
+      -0.12890088230584246,
+      0.21685402456468256
+     ],
+     "dz": 0.16162644743388258
+    },
+    "cost": {
+     "mean": 0.04460676928365756,
+     "n": 12,
+     "ci95": [
+      -0.13100060556494833,
+      0.22021414413226345
+     ],
+     "dz": 0.1613940198611821
+    },
+    "p50_ms": {
+     "mean": -16.59327613457431,
+     "n": 12,
+     "ci95": [
+      -26.21375507727947,
+      -6.972797191869152
+     ],
+     "dz": -1.0958847076478995
+    },
+    "p95_ms": {
+     "mean": -2.452600800493689,
+     "n": 12,
+     "ci95": [
+      -39.96195785405328,
+      35.0567562530659
+     ],
+     "dz": -0.041544799295246855
+    },
+    "p99_ms": {
+     "mean": 8.352698835283206,
+     "n": 12,
+     "ci95": [
+      -33.113271151173734,
+      49.81866882174015
+     ],
+     "dz": 0.12798657384128556
+    },
+    "mean_ms": {
+     "mean": -9.531081633818355,
+     "n": 12,
+     "ci95": [
+      -26.539413285259798,
+      7.477250017623087
+     ],
+     "dz": -0.35604910064232614
+    },
+    "throughput": {
+     "mean": 2.4436398067885485,
+     "n": 12,
+     "ci95": [
+      -0.7751487247760367,
+      5.662428338353134
+     ],
+     "dz": 0.48236319755136775
+    },
+    "failure_pct": {
+     "mean": -0.07302176323497887,
+     "n": 12,
+     "ci95": [
+      -0.20275053634603496,
+      0.0567070098760772
+     ],
+     "dz": -0.35763945484992726
+    },
+    "e2e_slo_s": {
+     "mean": -12.949999999999998,
+     "n": 12,
+     "ci95": [
+      -34.22804381186085,
+      8.328043811860857
+     ],
+     "dz": -0.3866940495259578
+    },
+    "svc_slo_s": {
+     "mean": -238.50833333333333,
+     "n": 12,
+     "ci95": [
+      -292.8605259314795,
+      -184.15614073518714
+     ],
+     "dz": -2.7881485489466993
+    },
+    "events": {
+     "mean": 0.08333333333333333,
+     "n": 12,
+     "ci95": [
+      -0.10008333333333334,
+      0.26675
+     ],
+     "dz": 0.28867513459481287
+    },
+    "oscillations": {
+     "mean": 0.08333333333333333,
+     "n": 12,
+     "ci95": [
+      -0.10008333333333334,
+      0.26675
+     ],
+     "dz": 0.28867513459481287
+    },
+    "avg_replicas": {
+     "mean": 0.005833333333333357,
+     "n": 12,
+     "ci95": [
+      -0.023901567863396728,
+      0.03556823453006344
+     ],
+     "dz": 0.12464639250231757
+    },
+    "peak_replicas": {
+     "mean": 0.0,
+     "n": 12,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "dz": null
+    },
+    "cpu_pct": {
+     "mean": -3.662499999999999,
+     "n": 12,
+     "ci95": [
+      -5.254224203652319,
+      -2.070775796347679
+     ],
+     "dz": -1.4619725982293705
+    }
+   },
+   "verdict": "On par / inconclusive",
+   "checks": {
+    "C1 replica-h interval < 0": false,
+    "C2 p95 not worse (interval not > 0, mean <= +10%)": true,
+    "C3 failures not worse (interval not > 0, mean <= +0.10 pp)": true,
+    "C4 throughput mean >= -2%": true,
+    "C5 e2e SLO violation mean <= +5 s": true,
+    "C6 oscillations mean <= +5": true,
+    "C7 replica-h lower in >= 4 of 6 scenarios": true
+   },
+   "per_scenario_replica_hours": {
+    "steady_browsing": -0.014816161952954758,
+    "checkout_heavy": -0.009951559249838869,
+    "payment_degradation": -0.01699027479643898,
+    "flash_sale": 0.33789306986899476,
+    "gradual_ramp": -0.028147611436702195,
+    "traffic_drop": -0.004128035656539705
+   }
+  },
+  "auto vs hpa_tuned": {
+   "pairs": [
+    {
+     "block": 1,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-042957-shopping-auto-steady_browsing",
+     "reference": "20261027-034420-shopping-hpa_tuned-steady_browsing",
+     "replica_hours": -0.0016216128561442537,
+     "cost": 0.0,
+     "p50_ms": -5.882352941176471,
+     "p95_ms": -5.714285714285714,
+     "p99_ms": -4.166666666666667,
+     "mean_ms": -11.46925524083494,
+     "throughput": -0.17867704317082844,
+     "failure_pct": -0.01814529112774229,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -90.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -2.5500000000000007
+    },
+    {
+     "block": 2,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-053125-shopping-auto-checkout_heavy",
+     "reference": "20261027-054255-shopping-hpa_tuned-checkout_heavy",
+     "replica_hours": 2.659160403256467,
+     "cost": 2.704023456589012,
+     "p50_ms": -21.53846153846154,
+     "p95_ms": -25.37313432835821,
+     "p99_ms": -30.434782608695652,
+     "mean_ms": -22.577406078907863,
+     "throughput": 4.260497441162312,
+     "failure_pct": -0.44262524892699173,
+     "e2e_slo_s": -30.200000000000003,
+     "svc_slo_s": -250.2,
+     "events": 2,
+     "oscillations": 1,
+     "avg_replicas": 0.4400000000000013,
+     "peak_replicas": 1,
+     "cpu_pct": -9.019999999999996
+    },
+    {
+     "block": 3,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-064413-shopping-auto-payment_degradation",
+     "reference": "20261027-061627-shopping-hpa_tuned-payment_degradation",
+     "replica_hours": -0.008107992564237745,
+     "cost": -0.016286644951128103,
+     "p50_ms": -17.073170731707318,
+     "p95_ms": -12.0,
+     "p99_ms": 60.37735849056604,
+     "mean_ms": 2.595025767365894,
+     "throughput": -1.6141056667414888,
+     "failure_pct": 0.21984346064935287,
+     "e2e_slo_s": 10.2,
+     "svc_slo_s": -45.0,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -7.599999999999998
+    },
+    {
+     "block": 4,
+     "scenario": "flash_sale",
+     "candidate": "20261027-075152-shopping-auto-flash_sale",
+     "reference": "20261027-080826-shopping-hpa_tuned-flash_sale",
+     "replica_hours": 0.00014331975856765597,
+     "cost": 0.0,
+     "p50_ms": -6.25,
+     "p95_ms": -41.333333333333336,
+     "p99_ms": -14.285714285714286,
+     "mean_ms": -18.21804973943645,
+     "throughput": 10.272262895234052,
+     "failure_pct": -0.1815550643494681,
+     "e2e_slo_s": -30.0,
+     "svc_slo_s": -215.0,
+     "events": 1,
+     "oscillations": 1,
+     "avg_replicas": -0.030000000000001137,
+     "peak_replicas": 0,
+     "cpu_pct": 0.019999999999999574
+    },
+    {
+     "block": 5,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-081950-shopping-auto-gradual_ramp",
+     "reference": "20261027-084748-shopping-hpa_tuned-gradual_ramp",
+     "replica_hours": -0.003685342508369819,
+     "cost": 0.0,
+     "p50_ms": -19.23076923076923,
+     "p95_ms": 4.3478260869565215,
+     "p99_ms": 0.0,
+     "mean_ms": -5.989797119300941,
+     "throughput": 0.9143794585725041,
+     "failure_pct": -0.028364531903234166,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -295.3,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -1.8599999999999994
+    },
+    {
+     "block": 6,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-101834-shopping-auto-traffic_drop",
+     "reference": "20261027-094417-shopping-hpa_tuned-traffic_drop",
+     "replica_hours": 0.008109008666322734,
+     "cost": 0.0,
+     "p50_ms": -17.24137931034483,
+     "p95_ms": -8.0,
+     "p99_ms": -7.142857142857143,
+     "mean_ms": -13.266536176451565,
+     "throughput": -1.3468964665465728,
+     "failure_pct": -0.033435625793983875,
+     "e2e_slo_s": 5.0,
+     "svc_slo_s": -265.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -1.2799999999999994
+    },
+    {
+     "block": 7,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-104140-shopping-auto-steady_browsing",
+     "reference": "20261027-110932-shopping-hpa_tuned-steady_browsing",
+     "replica_hours": -0.005897269564197677,
+     "cost": 0.0,
+     "p50_ms": -11.11111111111111,
+     "p95_ms": -5.0,
+     "p99_ms": 23.25581395348837,
+     "mean_ms": -5.399701304254093,
+     "throughput": -0.5717155347683048,
+     "failure_pct": -0.01783803068141277,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -295.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -2.6700000000000017
+    },
+    {
+     "block": 8,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-122820-shopping-auto-checkout_heavy",
+     "reference": "20261027-121155-shopping-hpa_tuned-checkout_heavy",
+     "replica_hours": 0.014300731106451067,
+     "cost": 0.016289297931247195,
+     "p50_ms": -7.6923076923076925,
+     "p95_ms": -12.0,
+     "p99_ms": 0.0,
+     "mean_ms": -5.231777207528329,
+     "throughput": 1.718479812398987,
+     "failure_pct": 0.26822976803456466,
+     "e2e_slo_s": -34.89999999999998,
+     "svc_slo_s": -295.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -5.189999999999998
+    },
+    {
+     "block": 9,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-132422-shopping-auto-payment_degradation",
+     "reference": "20261027-130756-shopping-hpa_tuned-payment_degradation",
+     "replica_hours": 0.014669587806685659,
+     "cost": 0.016289297931247195,
+     "p50_ms": -18.96551724137931,
+     "p95_ms": -40.76923076923077,
+     "p99_ms": -46.666666666666664,
+     "mean_ms": -35.63507985218155,
+     "throughput": 4.485473951821984,
+     "failure_pct": -0.38338869196978886,
+     "e2e_slo_s": -70.0,
+     "svc_slo_s": -300.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -1.25
+    },
+    {
+     "block": 10,
+     "scenario": "flash_sale",
+     "candidate": "20261027-144925-shopping-auto-flash_sale",
+     "reference": "20261027-140418-shopping-hpa_tuned-flash_sale",
+     "replica_hours": -0.2056233388233217,
+     "cost": -0.2061528702822707,
+     "p50_ms": 0.0,
+     "p95_ms": -47.05882352941177,
+     "p99_ms": -3.8461538461538463,
+     "mean_ms": -19.92692117266553,
+     "throughput": 10.447809115210452,
+     "failure_pct": -0.08050222713729543,
+     "e2e_slo_s": -20.0,
+     "svc_slo_s": -225.0,
+     "events": 1,
+     "oscillations": 1,
+     "avg_replicas": -0.07000000000000028,
+     "peak_replicas": 0,
+     "cpu_pct": -1.3999999999999986
+    },
+    {
+     "block": 11,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-180157-shopping-auto-gradual_ramp",
+     "reference": "20261027-150056-shopping-hpa_tuned-gradual_ramp",
+     "replica_hours": -0.059682225307030226,
+     "cost": -0.06512536633018014,
+     "p50_ms": -53.48837209302326,
+     "p95_ms": -50.0,
+     "p99_ms": -45.0,
+     "mean_ms": -48.79315178759446,
+     "throughput": 8.608031504467549,
+     "failure_pct": -0.06740023198219379,
+     "e2e_slo_s": -15.0,
+     "svc_slo_s": -300.4,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -9.739999999999998
+    },
+    {
+     "block": 12,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-181829-shopping-auto-traffic_drop",
+     "reference": "20261027-182956-shopping-hpa_tuned-traffic_drop",
+     "replica_hours": 0.0041281008671838065,
+     "cost": 0.0,
+     "p50_ms": -25.806451612903224,
+     "p95_ms": -16.666666666666668,
+     "p99_ms": -27.272727272727273,
+     "mean_ms": -20.691154806631168,
+     "throughput": 0.9065074008505256,
+     "failure_pct": -0.0403334730566811,
+     "e2e_slo_s": -35.0,
+     "svc_slo_s": -285.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -2.0700000000000003
+    }
+   ],
+   "stats": {
+    "replica_hours": {
+     "mean": 0.20132444748653136,
+     "n": 12,
+     "ci95": [
+      -0.29199668998219996,
+      0.6946455849552626
+     ],
+     "dz": 0.2592962352357443
+    },
+    "cost": {
+     "mean": 0.20408643090732728,
+     "n": 12,
+     "ci95": [
+      -0.2976529191958577,
+      0.7058257810105122
+     ],
+     "dz": 0.25844336517709565
+    },
+    "p50_ms": {
+     "mean": -17.023324458598665,
+     "n": 12,
+     "ci95": [
+      -25.777003528147624,
+      -8.269645389049705
+     ],
+     "dz": -1.2356150115951596
+    },
+    "p95_ms": {
+     "mean": -21.630637354527494,
+     "n": 12,
+     "ci95": [
+      -33.471960640123854,
+      -9.789314068931136
+     ],
+     "dz": -1.1606425755797711
+    },
+    "p99_ms": {
+     "mean": -7.931866337118927,
+     "n": 12,
+     "ci95": [
+      -26.693643865850454,
+      10.829911191612602
+     ],
+     "dz": -0.26861534874654835
+    },
+    "mean_ms": {
+     "mean": -17.050317059868416,
+     "n": 12,
+     "ci95": [
+      -26.108268174028893,
+      -7.99236594570794
+     ],
+     "dz": -1.1960020014181831
+    },
+    "throughput": {
+     "mean": 3.1585039057075974,
+     "n": 12,
+     "ci95": [
+      0.33827926038836287,
+      5.9787285510268315
+     ],
+     "dz": 0.711585572832755
+    },
+    "failure_pct": {
+     "mean": -0.06712626568707288,
+     "n": 12,
+     "ci95": [
+      -0.19667422862306877,
+      0.062421697248923005
+     ],
+     "dz": -0.32922387228421496
+    },
+    "e2e_slo_s": {
+     "mean": -18.325,
+     "n": 12,
+     "ci95": [
+      -33.01427671095754,
+      -3.6357232890424616
+     ],
+     "dz": -0.792634535527948
+    },
+    "svc_slo_s": {
+     "mean": -238.50833333333333,
+     "n": 12,
+     "ci95": [
+      -292.8605259314795,
+      -184.15614073518714
+     ],
+     "dz": -2.7881485489466993
+    },
+    "events": {
+     "mean": 0.3333333333333333,
+     "n": 12,
+     "ci95": [
+      -0.08051048022463453,
+      0.7471771468913011
+     ],
+     "dz": 0.511766315719159
+    },
+    "oscillations": {
+     "mean": 0.25,
+     "n": 12,
+     "ci95": [
+      -0.03735869056886826,
+      0.5373586905688683
+     ],
+     "dz": 0.5527707983925666
+    },
+    "avg_replicas": {
+     "mean": 0.02833333333333332,
+     "n": 12,
+     "ci95": [
+      -0.05511987573793592,
+      0.11178654240460256
+     ],
+     "dz": 0.2157168396386396
+    },
+    "peak_replicas": {
+     "mean": 0.08333333333333333,
+     "n": 12,
+     "ci95": [
+      -0.10008333333333334,
+      0.26675
+     ],
+     "dz": 0.28867513459481287
+    },
+    "cpu_pct": {
+     "mean": -3.7174999999999994,
+     "n": 12,
+     "ci95": [
+      -5.830220511305528,
+      -1.6047794886944704
+     ],
+     "dz": -1.1179911045768014
+    }
+   },
+   "verdict": "Beats on performance",
+   "checks": {
+    "C1 replica-h interval < 0": false,
+    "C2 p95 not worse (interval not > 0, mean <= +10%)": true,
+    "C3 failures not worse (interval not > 0, mean <= +0.10 pp)": true,
+    "C4 throughput mean >= -2%": true,
+    "C5 e2e SLO violation mean <= +5 s": true,
+    "C6 oscillations mean <= +5": true,
+    "C7 replica-h lower in >= 4 of 6 scenarios": false
+   },
+   "per_scenario_replica_hours": {
+    "steady_browsing": -0.0037594412101709654,
+    "checkout_heavy": 1.3367305671814589,
+    "payment_degradation": 0.003280797621223957,
+    "flash_sale": -0.10274000953237702,
+    "gradual_ramp": -0.03168378390770002,
+    "traffic_drop": 0.00611855476675327
+   }
+  },
+  "heuristic vs hpa_tuned": {
+   "pairs": [
+    {
+     "block": 1,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-040643-shopping-flexascale-steady_browsing",
+     "reference": "20261027-034420-shopping-hpa_tuned-steady_browsing",
+     "replica_hours": -0.01953306394903711,
+     "cost": -0.032573289902270326,
+     "p50_ms": -5.882352941176471,
+     "p95_ms": -7.142857142857143,
+     "p99_ms": -8.333333333333334,
+     "mean_ms": -11.628144333771704,
+     "throughput": 3.9194149338753745,
+     "failure_pct": -0.001344939502581459,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -90.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -1.4600000000000009
+    },
+    {
+     "block": 2,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-044632-shopping-flexascale-checkout_heavy",
+     "reference": "20261027-054255-shopping-hpa_tuned-checkout_heavy",
+     "replica_hours": -0.010172819994175951,
+     "cost": -0.016289297931261323,
+     "p50_ms": -23.076923076923077,
+     "p95_ms": -37.3134328358209,
+     "p99_ms": -43.47826086956522,
+     "mean_ms": -28.09927623669144,
+     "throughput": 5.798679249479028,
+     "failure_pct": -0.4924580739028275,
+     "e2e_slo_s": -45.2,
+     "svc_slo_s": -250.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -4.8799999999999955
+    },
+    {
+     "block": 3,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-055933-shopping-flexascale-payment_degradation",
+     "reference": "20261027-061627-shopping-hpa_tuned-payment_degradation",
+     "replica_hours": -0.02793571983496028,
+     "cost": -0.032573289902270326,
+     "p50_ms": -17.073170731707318,
+     "p95_ms": -12.0,
+     "p99_ms": -13.20754716981132,
+     "mean_ms": -11.241695343352422,
+     "throughput": -0.41535227509152756,
+     "failure_pct": 0.1722940586430545,
+     "e2e_slo_s": 10.0,
+     "svc_slo_s": -45.0,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -7.1299999999999955
+    },
+    {
+     "block": 4,
+     "scenario": "flash_sale",
+     "candidate": "20261027-071234-shopping-flexascale-flash_sale",
+     "reference": "20261027-080826-shopping-hpa_tuned-flash_sale",
+     "replica_hours": -0.608750674498608,
+     "cost": -0.6172839506172835,
+     "p50_ms": -6.25,
+     "p95_ms": -56.0,
+     "p99_ms": -53.57142857142857,
+     "mean_ms": -32.229107376555625,
+     "throughput": 16.62427096762555,
+     "failure_pct": -0.2027621247858034,
+     "e2e_slo_s": -80.0,
+     "svc_slo_s": -215.0,
+     "events": 1,
+     "oscillations": 1,
+     "avg_replicas": -0.13000000000000256,
+     "peak_replicas": 0,
+     "cpu_pct": 1.5899999999999999
+    },
+    {
+     "block": 5,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-091600-shopping-flexascale-gradual_ramp",
+     "reference": "20261027-084748-shopping-hpa_tuned-gradual_ramp",
+     "replica_hours": -0.020343090646170632,
+     "cost": -0.016286644951128103,
+     "p50_ms": -26.923076923076923,
+     "p95_ms": -17.391304347826086,
+     "p99_ms": -25.384615384615383,
+     "mean_ms": -28.360572904811935,
+     "throughput": 0.28225333695975985,
+     "failure_pct": -0.08323296372007558,
+     "e2e_slo_s": -10.0,
+     "svc_slo_s": -295.3,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -2.639999999999999
+    },
+    {
+     "block": 6,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-093242-shopping-flexascale-traffic_drop",
+     "reference": "20261027-094417-shopping-hpa_tuned-traffic_drop",
+     "replica_hours": -0.0003685913030169018,
+     "cost": 0.0,
+     "p50_ms": -17.24137931034483,
+     "p95_ms": 8.0,
+     "p99_ms": 28.571428571428573,
+     "mean_ms": 0.023256928028554738,
+     "throughput": -3.7138450593393033,
+     "failure_pct": -0.22813735788527306,
+     "e2e_slo_s": 20.0,
+     "svc_slo_s": -265.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -2.4800000000000004
+    },
+    {
+     "block": 7,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-105308-shopping-flexascale-steady_browsing",
+     "reference": "20261027-110932-shopping-hpa_tuned-steady_browsing",
+     "replica_hours": -0.006118417172853044,
+     "cost": 0.0,
+     "p50_ms": -11.11111111111111,
+     "p95_ms": -3.0,
+     "p99_ms": 18.6046511627907,
+     "mean_ms": -7.868777782244577,
+     "throughput": -0.7988996566993943,
+     "failure_pct": -0.01783803068141277,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -295.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -2.530000000000001
+    },
+    {
+     "block": 8,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-120019-shopping-flexascale-checkout_heavy",
+     "reference": "20261027-121155-shopping-hpa_tuned-checkout_heavy",
+     "replica_hours": -0.018133916763845428,
+     "cost": -0.016289297931261323,
+     "p50_ms": -7.6923076923076925,
+     "p95_ms": -8.0,
+     "p99_ms": 0.0,
+     "mean_ms": -11.2824356806062,
+     "throughput": 4.150973400253643,
+     "failure_pct": -0.05747685221306886,
+     "e2e_slo_s": -40.0,
+     "svc_slo_s": -295.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -3.3999999999999986
+    },
+    {
+     "block": 9,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-133552-shopping-flexascale-payment_degradation",
+     "reference": "20261027-130756-shopping-hpa_tuned-payment_degradation",
+     "replica_hours": -0.0019166295626901158,
+     "cost": 0.0,
+     "p50_ms": -8.620689655172415,
+     "p95_ms": -23.076923076923077,
+     "p99_ms": -16.666666666666668,
+     "mean_ms": -14.252145460754916,
+     "throughput": 1.1076239402637682,
+     "failure_pct": -0.5586913244866746,
+     "e2e_slo_s": -35.0,
+     "svc_slo_s": -300.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -1.8299999999999983
+    },
+    {
+     "block": 10,
+     "scenario": "flash_sale",
+     "candidate": "20261027-135240-shopping-flexascale-flash_sale",
+     "reference": "20261027-140418-shopping-hpa_tuned-flash_sale",
+     "replica_hours": -0.6218239307083832,
+     "cost": -0.6343165239454505,
+     "p50_ms": -6.666666666666667,
+     "p95_ms": -41.1764705882353,
+     "p99_ms": -19.23076923076923,
+     "mean_ms": -18.286093380293106,
+     "throughput": 10.002006523940745,
+     "failure_pct": -0.025468091406907534,
+     "e2e_slo_s": -10.0,
+     "svc_slo_s": -225.0,
+     "events": 1,
+     "oscillations": 1,
+     "avg_replicas": -0.129999999999999,
+     "peak_replicas": 0,
+     "cpu_pct": -1.509999999999998
+    },
+    {
+     "block": 11,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-172740-shopping-flexascale-gradual_ramp",
+     "reference": "20261027-150056-shopping-hpa_tuned-gradual_ramp",
+     "replica_hours": -0.05850331715281607,
+     "cost": -0.06512536633018014,
+     "p50_ms": -48.83720930232558,
+     "p95_ms": -47.82608695652174,
+     "p99_ms": -30.0,
+     "mean_ms": -40.64745893820114,
+     "throughput": 3.6101518893493147,
+     "failure_pct": -0.11852553445840505,
+     "e2e_slo_s": -25.0,
+     "svc_slo_s": -300.4,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -10.059999999999999
+    },
+    {
+     "block": 12,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-185240-shopping-flexascale-traffic_drop",
+     "reference": "20261027-182956-shopping-hpa_tuned-traffic_drop",
+     "replica_hours": -0.007592756952177888,
+     "cost": 0.0,
+     "p50_ms": -19.35483870967742,
+     "p95_ms": 0.0,
+     "p99_ms": 9.090909090909092,
+     "mean_ms": -3.919468985674417,
+     "throughput": 1.2217953167127074,
+     "failure_pct": -0.040517584259847805,
+     "e2e_slo_s": -10.0,
+     "svc_slo_s": -285.2,
+     "events": 0,
+     "oscillations": 0,
+     "avg_replicas": 0.0,
+     "peak_replicas": 0,
+     "cpu_pct": -1.8200000000000003
+    }
+   ],
+   "stats": {
+    "replica_hours": {
+     "mean": -0.11676607737822788,
+     "n": 12,
+     "ci95": [
+      -0.2650535847921623,
+      0.03152143003570655
+     ],
+     "dz": -0.5003127207688292
+    },
+    "cost": {
+     "mean": -0.11922813845925878,
+     "n": 12,
+     "ci95": [
+      -0.27006904196582426,
+      0.03161276504730673
+     ],
+     "dz": -0.5022142804487648
+    },
+    "p50_ms": {
+     "mean": -16.560810510040792,
+     "n": 12,
+     "ci95": [
+      -24.43573414320923,
+      -8.685886876872354
+     ],
+     "dz": -1.3361790451467355
+    },
+    "p95_ms": {
+     "mean": -20.410589579015355,
+     "n": 12,
+     "ci95": [
+      -33.514824818746774,
+      -7.3063543392839385
+     ],
+     "dz": -0.9896309947881793
+    },
+    "p99_ms": {
+     "mean": -12.800469366755115,
+     "n": 12,
+     "ci95": [
+      -28.21580405112189,
+      2.6148653176116596
+     ],
+     "dz": -0.5275970468276602
+    },
+    "mean_ms": {
+     "mean": -17.315993291244077,
+     "n": 12,
+     "ci95": [
+      -25.19231818371736,
+      -9.43966839877079
+     ],
+     "dz": -1.3968610454339994
+    },
+    "throughput": {
+     "mean": 3.4824227139441386,
+     "n": 12,
+     "ci95": [
+      0.015372608211007943,
+      6.949472819677269
+     ],
+     "dz": 0.6381911659272873
+    },
+    "failure_pct": {
+     "mean": -0.13784656822165192,
+     "n": 12,
+     "ci95": [
+      -0.27006836623662667,
+      -0.005624770206677149
+     ],
+     "dz": -0.6624030438862737
+    },
+    "e2e_slo_s": {
+     "mean": -18.766666666666666,
+     "n": 12,
+     "ci95": [
+      -36.39423413381851,
+      -1.139099199514824
+     ],
+     "dz": -0.676432045953965
+    },
+    "svc_slo_s": {
+     "mean": -238.50833333333333,
+     "n": 12,
+     "ci95": [
+      -292.8605259314795,
+      -184.15614073518714
+     ],
+     "dz": -2.7881485489466993
+    },
+    "events": {
+     "mean": 0.16666666666666666,
+     "n": 12,
+     "ci95": [
+      -0.08065231621359933,
+      0.4139856495469326
+     ],
+     "dz": 0.4281744192888376
+    },
+    "oscillations": {
+     "mean": 0.16666666666666666,
+     "n": 12,
+     "ci95": [
+      -0.08065231621359933,
+      0.4139856495469326
+     ],
+     "dz": 0.4281744192888376
+    },
+    "avg_replicas": {
+     "mean": -0.021666666666666796,
+     "n": 12,
+     "ci95": [
+      -0.05381813444110156,
+      0.010484801107767974
+     ],
+     "dz": -0.42817441928883765
+    },
+    "peak_replicas": {
+     "mean": 0.0,
+     "n": 12,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "dz": null
+    },
+    "cpu_pct": {
+     "mean": -3.1791666666666654,
+     "n": 12,
+     "ci95": [
+      -5.087710047382289,
+      -1.270623285951042
+     ],
+     "dz": -1.058377698224786
+    }
+   },
+   "verdict": "Beats on performance",
+   "checks": {
+    "C1 replica-h interval < 0": false,
+    "C2 p95 not worse (interval not > 0, mean <= +10%)": true,
+    "C3 failures not worse (interval not > 0, mean <= +0.10 pp)": true,
+    "C4 throughput mean >= -2%": true,
+    "C5 e2e SLO violation mean <= +5 s": true,
+    "C6 oscillations mean <= +5": true,
+    "C7 replica-h lower in >= 4 of 6 scenarios": true
+   },
+   "per_scenario_replica_hours": {
+    "steady_browsing": -0.012825740560945077,
+    "checkout_heavy": -0.01415336837901069,
+    "payment_degradation": -0.014926174698825198,
+    "flash_sale": -0.6152873026034955,
+    "gradual_ramp": -0.03942320389949335,
+    "traffic_drop": -0.0039806741275973945
+   }
+  },
+  "hpa_tuned vs hpa_default": {
+   "pairs": [
+    {
+     "block": 1,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-034420-shopping-hpa_tuned-steady_browsing",
+     "reference": "20261027-035524-shopping-hpa-steady_browsing",
+     "replica_hours": -7.409813778710204,
+     "cost": -7.516192197620128,
+     "p50_ms": 0.0,
+     "p95_ms": -1.408450704225352,
+     "p99_ms": 0.0,
+     "mean_ms": 2.740079553484644,
+     "throughput": -3.0741896602668812,
+     "failure_pct": 0.018743686520844148,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": 25.200000000000003,
+     "events": -2,
+     "oscillations": 0,
+     "avg_replicas": -1.370000000000001,
+     "peak_replicas": -2,
+     "cpu_pct": 3.1900000000000013
+    },
+    {
+     "block": 2,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-054255-shopping-hpa_tuned-checkout_heavy",
+     "reference": "20261027-051443-shopping-hpa-checkout_heavy",
+     "replica_hours": -23.88695224292778,
+     "cost": -24.200518582541054,
+     "p50_ms": 6.557377049180328,
+     "p95_ms": 15.517241379310345,
+     "p99_ms": 35.294117647058826,
+     "mean_ms": 13.181344439548766,
+     "throughput": -2.8540120094927475,
+     "failure_pct": 0.27181992451274106,
+     "e2e_slo_s": 20.0,
+     "svc_slo_s": 0.0,
+     "events": -7,
+     "oscillations": 0,
+     "avg_replicas": -5.43,
+     "peak_replicas": -9,
+     "cpu_pct": 11.839999999999996
+    },
+    {
+     "block": 3,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-061627-shopping-hpa_tuned-payment_degradation",
+     "reference": "20261027-062753-shopping-hpa-payment_degradation",
+     "replica_hours": -14.075118387810406,
+     "cost": -14.281725533994143,
+     "p50_ms": 5.128205128205129,
+     "p95_ms": 0.0,
+     "p99_ms": 3.9215686274509802,
+     "mean_ms": 3.3279324589566666,
+     "throughput": 1.1322160783587938,
+     "failure_pct": -0.08823176008468778,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -15.0,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -2.789999999999999,
+     "peak_replicas": -4,
+     "cpu_pct": 11.189999999999998
+    },
+    {
+     "block": 4,
+     "scenario": "flash_sale",
+     "candidate": "20261027-080826-shopping-hpa_tuned-flash_sale",
+     "reference": "20261027-074033-shopping-hpa-flash_sale",
+     "replica_hours": -16.548998454745078,
+     "cost": -16.78082191780822,
+     "p50_ms": 0.0,
+     "p95_ms": -6.25,
+     "p99_ms": 7.6923076923076925,
+     "mean_ms": -2.8832813601675737,
+     "throughput": 2.543198578450188,
+     "failure_pct": 0.07251158963328691,
+     "e2e_slo_s": -5.0,
+     "svc_slo_s": 10.0,
+     "events": -4,
+     "oscillations": 0,
+     "avg_replicas": -3.5699999999999967,
+     "peak_replicas": -6,
+     "cpu_pct": 6.850000000000001
+    },
+    {
+     "block": 5,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-084748-shopping-hpa_tuned-gradual_ramp",
+     "reference": "20261027-083628-shopping-hpa-gradual_ramp",
+     "replica_hours": -3.550512913476507,
+     "cost": -3.6106750392464706,
+     "p50_ms": -10.344827586206897,
+     "p95_ms": -25.806451612903224,
+     "p99_ms": -23.529411764705884,
+     "mean_ms": -23.05795875919832,
+     "throughput": 2.3626410924819465,
+     "failure_pct": -0.0026118969704197886,
+     "e2e_slo_s": 5.0,
+     "svc_slo_s": 5.100000000000023,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -0.7600000000000016,
+     "peak_replicas": -3,
+     "cpu_pct": 1.9699999999999989
+    },
+    {
+     "block": 6,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-094417-shopping-hpa_tuned-traffic_drop",
+     "reference": "20261027-100716-shopping-hpa-traffic_drop",
+     "replica_hours": -16.454484706085232,
+     "cost": -16.691545664269228,
+     "p50_ms": 0.0,
+     "p95_ms": -13.793103448275861,
+     "p99_ms": -17.647058823529413,
+     "mean_ms": -6.5934391250709465,
+     "throughput": -0.2064153771365292,
+     "failure_pct": 0.07678928551559358,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": 14.899999999999977,
+     "events": -4,
+     "oscillations": 0,
+     "avg_replicas": -3.370000000000001,
+     "peak_replicas": -5,
+     "cpu_pct": 0.8200000000000003
+    },
+    {
+     "block": 7,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-110932-shopping-hpa_tuned-steady_browsing",
+     "reference": "20261027-112056-shopping-hpa-steady_browsing",
+     "replica_hours": -8.631069046666484,
+     "cost": -8.768019022142955,
+     "p50_ms": 0.0,
+     "p95_ms": -9.090909090909092,
+     "p99_ms": -53.763440860215056,
+     "mean_ms": -12.871315891955954,
+     "throughput": 1.9904240035846894,
+     "failure_pct": -0.0003603314659939606,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": 4.899999999999977,
+     "events": -2,
+     "oscillations": 0,
+     "avg_replicas": -1.5899999999999999,
+     "peak_replicas": -2,
+     "cpu_pct": 3.8900000000000006
+    },
+    {
+     "block": 8,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-121155-shopping-hpa_tuned-checkout_heavy",
+     "reference": "20261027-113714-shopping-hpa-checkout_heavy",
+     "replica_hours": -23.08616034626066,
+     "cost": -23.377433849226158,
+     "p50_ms": -23.529411764705884,
+     "p95_ms": -35.8974358974359,
+     "p99_ms": 0.0,
+     "mean_ms": -25.466463775083128,
+     "throughput": 11.636629100135426,
+     "failure_pct": -2.1649434912703502,
+     "e2e_slo_s": 15.0,
+     "svc_slo_s": -5.0,
+     "events": -7,
+     "oscillations": 0,
+     "avg_replicas": -4.940000000000001,
+     "peak_replicas": -8,
+     "cpu_pct": 10.559999999999995
+    },
+    {
+     "block": 9,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-130756-shopping-hpa_tuned-payment_degradation",
+     "reference": "20261027-123948-shopping-hpa-payment_degradation",
+     "replica_hours": -14.095556050903784,
+     "cost": -14.30764935790061,
+     "p50_ms": -26.582278481012658,
+     "p95_ms": -13.333333333333334,
+     "p99_ms": -16.666666666666668,
+     "mean_ms": -15.870318570189326,
+     "throughput": 2.1460233379618097,
+     "failure_pct": 0.08104348618495949,
+     "e2e_slo_s": -25.0,
+     "svc_slo_s": 10.0,
+     "events": -4,
+     "oscillations": 0,
+     "avg_replicas": -2.789999999999999,
+     "peak_replicas": -4,
+     "cpu_pct": 8.29
+    },
+    {
+     "block": 10,
+     "scenario": "flash_sale",
+     "candidate": "20261027-140418-shopping-hpa_tuned-flash_sale",
+     "reference": "20261027-143242-shopping-hpa-flash_sale",
+     "replica_hours": -12.426838354338452,
+     "cost": -12.61086474501109,
+     "p50_ms": -6.25,
+     "p95_ms": -15.0,
+     "p99_ms": -21.21212121212121,
+     "mean_ms": -18.42574010520462,
+     "throughput": 7.794847115849235,
+     "failure_pct": -0.04490509335570536,
+     "e2e_slo_s": -25.0,
+     "svc_slo_s": 5.0,
+     "events": -5,
+     "oscillations": 0,
+     "avg_replicas": -2.5700000000000003,
+     "peak_replicas": -5,
+     "cpu_pct": 4.609999999999999
+    },
+    {
+     "block": 11,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-150056-shopping-hpa_tuned-gradual_ramp",
+     "reference": "20261027-173350-shopping-hpa-gradual_ramp",
+     "replica_hours": -3.12940746535411,
+     "cost": -3.184110970996216,
+     "p50_ms": 59.25925925925926,
+     "p95_ms": 43.75,
+     "p99_ms": 25.0,
+     "mean_ms": 30.6714739819357,
+     "throughput": -1.359509506866472,
+     "failure_pct": -0.05528871363550561,
+     "e2e_slo_s": -5.0,
+     "svc_slo_s": 0.19999999999998863,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -0.6700000000000017,
+     "peak_replicas": -3,
+     "cpu_pct": 9.659999999999998
+    },
+    {
+     "block": 12,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-182956-shopping-hpa_tuned-traffic_drop",
+     "reference": "20261027-184120-shopping-hpa-traffic_drop",
+     "replica_hours": -14.391157883576774,
+     "cost": -14.605647517039918,
+     "p50_ms": 3.3333333333333335,
+     "p95_ms": -10.0,
+     "p99_ms": 22.22222222222222,
+     "mean_ms": -4.222706355162673,
+     "throughput": 1.950407990568047,
+     "failure_pct": -0.24428477117525932,
+     "e2e_slo_s": 29.8,
+     "svc_slo_s": 15.0,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -2.8599999999999994,
+     "peak_replicas": -4,
+     "cpu_pct": 1.1899999999999995
+    }
+   ],
+   "stats": {
+    "replica_hours": {
+     "mean": -13.140505802571289,
+     "n": 12,
+     "ci95": [
+      -17.364786770156197,
+      -8.91622483498638
+     ],
+     "dz": -1.976463076199487
+    },
+    "cost": {
+     "mean": -13.327933699816349,
+     "n": 12,
+     "ci95": [
+      -17.604548478621776,
+      -9.051318921010921
+     ],
+     "dz": -1.9801227375647723
+    },
+    "p50_ms": {
+     "mean": 0.6309714115043842,
+     "n": 12,
+     "ci95": [
+      -12.90660166248753,
+      14.1685444854963
+     ],
+     "dz": 0.02961408291406847
+    },
+    "p95_ms": {
+     "mean": -5.942703558981035,
+     "n": 12,
+     "ci95": [
+      -18.797166777663207,
+      6.911759659701139
+     ],
+     "dz": -0.29373759883673106
+    },
+    "p99_ms": {
+     "mean": -3.2240402615165427,
+     "n": 12,
+     "ci95": [
+      -19.018733989258763,
+      12.570653466225679
+     ],
+     "dz": -0.12969363633874628
+    },
+    "mean_ms": {
+     "mean": -4.955866125675564,
+     "n": 12,
+     "ci95": [
+      -15.174451316135311,
+      5.262719064784183
+     ],
+     "dz": -0.3081471928383837
+    },
+    "throughput": {
+     "mean": 2.005188395302292,
+     "n": 12,
+     "ci95": [
+      -0.6569896191034266,
+      4.667366409708011
+     ],
+     "dz": 0.4785722468293954
+    },
+    "failure_pct": {
+     "mean": -0.17330984046587472,
+     "n": 12,
+     "ci95": [
+      -0.5792918344211367,
+      0.2326721534893873
+     ],
+     "dz": -0.2712350873483809
+    },
+    "e2e_slo_s": {
+     "mean": 0.8166666666666668,
+     "n": 12,
+     "ci95": [
+      -9.37462211868028,
+      11.007955452013613
+     ],
+     "dz": 0.05091492882902036
+    },
+    "svc_slo_s": {
+     "mean": 5.858333333333331,
+     "n": 12,
+     "ci95": [
+      -0.7648371666414437,
+      12.481503833308105
+     ],
+     "dz": 0.5620016146165179
+    },
+    "events": {
+     "mean": -3.9166666666666665,
+     "n": 12,
+     "ci95": [
+      -4.981862376798771,
+      -2.8514709565345617
+     ],
+     "dz": -2.3362355202568112
+    },
+    "oscillations": {
+     "mean": 0.0,
+     "n": 12,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "dz": null
+    },
+    "avg_replicas": {
+     "mean": -2.7258333333333336,
+     "n": 12,
+     "ci95": [
+      -3.6762430505737123,
+      -1.7754236160929548
+     ],
+     "dz": -1.822291500739153
+    },
+    "peak_replicas": {
+     "mean": -4.583333333333333,
+     "n": 12,
+     "ci95": [
+      -5.976905027775533,
+      -3.1897616388911327
+     ],
+     "dz": -2.0896884696677795
+    },
+    "cpu_pct": {
+     "mean": 6.171666666666666,
+     "n": 12,
+     "ci95": [
+      3.5919489940509575,
+      8.751384339282374
+     ],
+     "dz": 1.5200564002855224
+    }
+   },
+   "verdict": "Beats on cost",
+   "checks": {
+    "C1 replica-h interval < 0": true,
+    "C2 p95 not worse (interval not > 0, mean <= +10%)": true,
+    "C3 failures not worse (interval not > 0, mean <= +0.10 pp)": true,
+    "C4 throughput mean >= -2%": true,
+    "C5 e2e SLO violation mean <= +5 s": true,
+    "C6 oscillations mean <= +5": true,
+    "C7 replica-h lower in >= 4 of 6 scenarios": true
+   },
+   "per_scenario_replica_hours": {
+    "steady_browsing": -8.020441412688344,
+    "checkout_heavy": -23.48655629459422,
+    "payment_degradation": -14.085337219357095,
+    "flash_sale": -14.487918404541766,
+    "gradual_ramp": -3.339960189415309,
+    "traffic_drop": -15.422821294831003
+   }
+  },
+  "rl vs hpa_default": {
+   "pairs": [
+    {
+     "block": 1,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-041820-shopping-flexascale-steady_browsing",
+     "reference": "20261027-035524-shopping-hpa-steady_browsing",
+     "replica_hours": -7.4258520412272135,
+     "cost": -7.531254707034186,
+     "p50_ms": -5.882352941176471,
+     "p95_ms": -9.859154929577464,
+     "p99_ms": 4.166666666666667,
+     "mean_ms": -8.278585850227174,
+     "throughput": -2.5375055703359104,
+     "failure_pct": 0.00046630637791825885,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -65.0,
+     "events": -2,
+     "oscillations": 0,
+     "avg_replicas": -1.370000000000001,
+     "peak_replicas": -2,
+     "cpu_pct": 1.3300000000000018
+    },
+    {
+     "block": 2,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-045807-shopping-flexascale-checkout_heavy",
+     "reference": "20261027-051443-shopping-hpa-checkout_heavy",
+     "replica_hours": -23.88919654534529,
+     "cost": -24.200518582541054,
+     "p50_ms": -18.0327868852459,
+     "p95_ms": -24.137931034482758,
+     "p99_ms": -23.529411764705884,
+     "mean_ms": -17.229044409688186,
+     "throughput": 4.054764333246539,
+     "failure_pct": -0.13292055724771568,
+     "e2e_slo_s": -25.200000000000003,
+     "svc_slo_s": -250.2,
+     "events": -7,
+     "oscillations": 0,
+     "avg_replicas": -5.43,
+     "peak_replicas": -9,
+     "cpu_pct": 6.699999999999996
+    },
+    {
+     "block": 3,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-065544-shopping-flexascale-payment_degradation",
+     "reference": "20261027-062753-shopping-hpa-payment_degradation",
+     "replica_hours": -14.09848877809593,
+     "cost": -14.309646796035178,
+     "p50_ms": 12.820512820512821,
+     "p95_ms": 172.0,
+     "p99_ms": 213.72549019607843,
+     "mean_ms": 65.87215216803982,
+     "throughput": -3.5325760672500794,
+     "failure_pct": 0.3001901583778503,
+     "e2e_slo_s": 60.0,
+     "svc_slo_s": -60.0,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -2.789999999999999,
+     "peak_replicas": -4,
+     "cpu_pct": 4.850000000000001
+    },
+    {
+     "block": 4,
+     "scenario": "flash_sale",
+     "candidate": "20261027-072409-shopping-flexascale-flash_sale",
+     "reference": "20261027-074033-shopping-hpa-flash_sale",
+     "replica_hours": -16.72600908016668,
+     "cost": -16.952054794520546,
+     "p50_ms": -12.5,
+     "p95_ms": -43.125,
+     "p99_ms": -23.076923076923077,
+     "mean_ms": -25.162157785100078,
+     "throughput": 15.651040863977558,
+     "failure_pct": -0.09270197454689505,
+     "e2e_slo_s": -40.0,
+     "svc_slo_s": -205.0,
+     "events": -3,
+     "oscillations": 1,
+     "avg_replicas": -3.639999999999997,
+     "peak_replicas": -6,
+     "cpu_pct": 6.09
+    },
+    {
+     "block": 5,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-090424-shopping-flexascale-gradual_ramp",
+     "reference": "20261027-083628-shopping-hpa-gradual_ramp",
+     "replica_hours": -3.5571953620963,
+     "cost": -3.6263736263736175,
+     "p50_ms": -24.137931034482758,
+     "p95_ms": -22.580645161290324,
+     "p99_ms": -23.529411764705884,
+     "mean_ms": -22.758371791465915,
+     "throughput": 2.304373479886818,
+     "failure_pct": -0.03024343126849456,
+     "e2e_slo_s": 5.0,
+     "svc_slo_s": -290.2,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -0.7600000000000016,
+     "peak_replicas": -3,
+     "cpu_pct": 0.28000000000000114
+    },
+    {
+     "block": 6,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-095541-shopping-flexascale-traffic_drop",
+     "reference": "20261027-100716-shopping-hpa-traffic_drop",
+     "replica_hours": -16.45078940804405,
+     "cost": -16.691545664269228,
+     "p50_ms": -17.24137931034483,
+     "p95_ms": 3.4482758620689653,
+     "p99_ms": -11.764705882352942,
+     "mean_ms": -1.7731423313328283,
+     "throughput": -3.206537444639262,
+     "failure_pct": -0.11221564736195058,
+     "e2e_slo_s": 20.0,
+     "svc_slo_s": -250.3,
+     "events": -4,
+     "oscillations": 0,
+     "avg_replicas": -3.370000000000001,
+     "peak_replicas": -5,
+     "cpu_pct": -1.3999999999999986
+    },
+    {
+     "block": 7,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-103005-shopping-flexascale-steady_browsing",
+     "reference": "20261027-112056-shopping-hpa-steady_browsing",
+     "replica_hours": -8.642317064792634,
+     "cost": -8.782880071333029,
+     "p50_ms": -11.11111111111111,
+     "p95_ms": -9.090909090909092,
+     "p99_ms": -36.55913978494624,
+     "mean_ms": -16.190930360665984,
+     "throughput": 0.3224517332114123,
+     "failure_pct": -0.018198362147406732,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -290.3,
+     "events": -2,
+     "oscillations": 0,
+     "avg_replicas": -1.5899999999999999,
+     "peak_replicas": -2,
+     "cpu_pct": 1.4800000000000004
+    },
+    {
+     "block": 8,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-114841-shopping-flexascale-checkout_heavy",
+     "reference": "20261027-113714-shopping-hpa-checkout_heavy",
+     "replica_hours": -23.09920068399406,
+     "cost": -23.389915127309035,
+     "p50_ms": -29.41176470588235,
+     "p95_ms": -35.8974358974359,
+     "p99_ms": 0.0,
+     "mean_ms": -28.70524228546188,
+     "throughput": 13.16937334153401,
+     "failure_pct": -2.171666714755612,
+     "e2e_slo_s": -0.19999999999998863,
+     "svc_slo_s": -300.2,
+     "events": -7,
+     "oscillations": 0,
+     "avg_replicas": -4.940000000000001,
+     "peak_replicas": -8,
+     "cpu_pct": 7.119999999999997
+    },
+    {
+     "block": 9,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-125616-shopping-flexascale-payment_degradation",
+     "reference": "20261027-123948-shopping-hpa-payment_degradation",
+     "replica_hours": -14.101382021561157,
+     "cost": -14.30764935790061,
+     "p50_ms": -46.835443037974684,
+     "p95_ms": -38.666666666666664,
+     "p99_ms": -36.111111111111114,
+     "mean_ms": -37.40751905017436,
+     "throughput": 5.223120526148275,
+     "failure_pct": 0.06281717216457217,
+     "e2e_slo_s": -95.0,
+     "svc_slo_s": -290.2,
+     "events": -4,
+     "oscillations": 0,
+     "avg_replicas": -2.789999999999999,
+     "peak_replicas": -4,
+     "cpu_pct": 4.289999999999999
+    },
+    {
+     "block": 10,
+     "scenario": "flash_sale",
+     "candidate": "20261027-141542-shopping-flexascale-flash_sale",
+     "reference": "20261027-143242-shopping-hpa-flash_sale",
+     "replica_hours": -11.649276792927937,
+     "cost": -11.8209534368071,
+     "p50_ms": -12.5,
+     "p95_ms": -40.0,
+     "p99_ms": -18.181818181818183,
+     "mean_ms": -31.287817028732785,
+     "throughput": 16.93172830734417,
+     "failure_pct": -0.409823238965337,
+     "e2e_slo_s": -35.0,
+     "svc_slo_s": -220.0,
+     "events": -5,
+     "oscillations": 0,
+     "avg_replicas": -2.4299999999999997,
+     "peak_replicas": -5,
+     "cpu_pct": 0.6000000000000014
+    },
+    {
+     "block": 11,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-175019-shopping-flexascale-gradual_ramp",
+     "reference": "20261027-173350-shopping-hpa-gradual_ramp",
+     "replica_hours": -3.177229356645684,
+     "cost": -3.2313997477931817,
+     "p50_ms": -25.925925925925927,
+     "p95_ms": -34.375,
+     "p99_ms": -31.25,
+     "mean_ms": -36.05448816091562,
+     "throughput": 3.439609743562043,
+     "failure_pct": -0.1466736385327828,
+     "e2e_slo_s": -30.0,
+     "svc_slo_s": -300.2,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -0.6700000000000017,
+     "peak_replicas": -3,
+     "cpu_pct": -0.17999999999999972
+    },
+    {
+     "block": 12,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-190417-shopping-flexascale-traffic_drop",
+     "reference": "20261027-184120-shopping-hpa-traffic_drop",
+     "replica_hours": -14.402012371592033,
+     "cost": -14.619557657532338,
+     "p50_ms": -23.333333333333332,
+     "p95_ms": -37.5,
+     "p99_ms": 5.555555555555555,
+     "mean_ms": -22.738610179114122,
+     "throughput": 2.4192246412392984,
+     "failure_pct": -0.2050093165043895,
+     "e2e_slo_s": -5.199999999999999,
+     "svc_slo_s": -270.2,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -2.8599999999999994,
+     "peak_replicas": -4,
+     "cpu_pct": -1.0500000000000007
+    }
+   ],
+   "stats": {
+    "replica_hours": {
+     "mean": -13.101579125540747,
+     "n": 12,
+     "ci95": [
+      -17.334244411903025,
+      -8.868913839178468
+     ],
+     "dz": -1.9667046164441553
+    },
+    "cost": {
+     "mean": -13.288645797454093,
+     "n": 12,
+     "ci95": [
+      -17.572628974393346,
+      -9.004662620514841
+     ],
+     "dz": -1.9708900114787196
+    },
+    "p50_ms": {
+     "mean": -17.84095962208038,
+     "n": 12,
+     "ci95": [
+      -27.019702441654758,
+      -8.662216802506
+     ],
+     "dz": -1.2349928076965262
+    },
+    "p95_ms": {
+     "mean": -9.982038909857769,
+     "n": 12,
+     "ci95": [
+      -47.573204777450826,
+      27.609126957735285
+     ],
+     "dz": -0.16871856876160254
+    },
+    "p99_ms": {
+     "mean": 1.6204325709781102,
+     "n": 12,
+     "ci95": [
+      -41.82102280673073,
+      45.06188794868695
+     ],
+     "dz": 0.0237004186163264
+    },
+    "mean_ms": {
+     "mean": -15.142813088736593,
+     "n": 12,
+     "ci95": [
+      -32.68863058610617,
+      2.4030044086329827
+     ],
+     "dz": -0.5483557143704607
+    },
+    "throughput": {
+     "mean": 4.519922323993739,
+     "n": 12,
+     "ci95": [
+      0.0029775841854391416,
+      9.036867063802038
+     ],
+     "dz": 0.6357928117642859
+    },
+    "failure_pct": {
+     "mean": -0.2463316037008536,
+     "n": 12,
+     "ci95": [
+      -0.6460548919721004,
+      0.1533916845703932
+     ],
+     "dz": -0.3915525912013062
+    },
+    "e2e_slo_s": {
+     "mean": -12.133333333333333,
+     "n": 12,
+     "ci95": [
+      -36.11473682400974,
+      11.848070157343074
+     ],
+     "dz": -0.3214659303578503
+    },
+    "svc_slo_s": {
+     "mean": -232.65,
+     "n": 12,
+     "ci95": [
+      -286.8152795674715,
+      -178.4847204325285
+     ],
+     "dz": -2.729049966881338
+    },
+    "events": {
+     "mean": -3.8333333333333335,
+     "n": 12,
+     "ci95": [
+      -4.911371786527679,
+      -2.755294880138988
+     ],
+     "dz": -2.259288818392257
+    },
+    "oscillations": {
+     "mean": 0.08333333333333333,
+     "n": 12,
+     "ci95": [
+      -0.10008333333333334,
+      0.26675
+     ],
+     "dz": 0.28867513459481287
+    },
+    "avg_replicas": {
+     "mean": -2.72,
+     "n": 12,
+     "ci95": [
+      -3.673992383547514,
+      -1.7660076164524865
+     ],
+     "dz": -1.811562892520079
+    },
+    "peak_replicas": {
+     "mean": -4.583333333333333,
+     "n": 12,
+     "ci95": [
+      -5.976905027775533,
+      -3.1897616388911327
+     ],
+     "dz": -2.0896884696677795
+    },
+    "cpu_pct": {
+     "mean": 2.5091666666666668,
+     "n": 12,
+     "ci95": [
+      0.531783499120954,
+      4.486549834212379
+     ],
+     "dz": 0.8062469710864294
+    }
+   },
+   "verdict": "Beats on cost",
+   "checks": {
+    "C1 replica-h interval < 0": true,
+    "C2 p95 not worse (interval not > 0, mean <= +10%)": true,
+    "C3 failures not worse (interval not > 0, mean <= +0.10 pp)": true,
+    "C4 throughput mean >= -2%": true,
+    "C5 e2e SLO violation mean <= +5 s": true,
+    "C6 oscillations mean <= +5": true,
+    "C7 replica-h lower in >= 4 of 6 scenarios": true
+   },
+   "per_scenario_replica_hours": {
+    "steady_browsing": -8.034084553009924,
+    "checkout_heavy": -23.494198614669674,
+    "payment_degradation": -14.099935399828544,
+    "flash_sale": -14.18764293654731,
+    "gradual_ramp": -3.367212359370992,
+    "traffic_drop": -15.42640088981804
+   }
+  },
+  "auto vs hpa_default": {
+   "pairs": [
+    {
+     "block": 1,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-042957-shopping-auto-steady_browsing",
+     "reference": "20261027-035524-shopping-hpa-steady_browsing",
+     "replica_hours": -7.411315233073496,
+     "cost": -7.516192197620128,
+     "p50_ms": -5.882352941176471,
+     "p95_ms": -7.042253521126761,
+     "p99_ms": -4.166666666666667,
+     "mean_ms": -9.04344240514138,
+     "throughput": -3.2473738322512813,
+     "failure_pct": 0.0005983953931018582,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -65.0,
+     "events": -2,
+     "oscillations": 0,
+     "avg_replicas": -1.370000000000001,
+     "peak_replicas": -2,
+     "cpu_pct": 0.6400000000000006
+    },
+    {
+     "block": 2,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-053125-shopping-auto-checkout_heavy",
+     "reference": "20261027-051443-shopping-hpa-checkout_heavy",
+     "replica_hours": -21.86298421526003,
+     "cost": -22.150882825040135,
+     "p50_ms": -16.39344262295082,
+     "p95_ms": -13.793103448275861,
+     "p99_ms": -5.882352941176471,
+     "mean_ms": -12.372067300135564,
+     "throughput": 1.2848903230346607,
+     "failure_pct": -0.17080532441425067,
+     "e2e_slo_s": -10.200000000000003,
+     "svc_slo_s": -250.2,
+     "events": -5,
+     "oscillations": 1,
+     "avg_replicas": -4.989999999999998,
+     "peak_replicas": -8,
+     "cpu_pct": 2.8200000000000003
+    },
+    {
+     "block": 3,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-064413-shopping-auto-payment_degradation",
+     "reference": "20261027-062753-shopping-hpa-payment_degradation",
+     "replica_hours": -14.082085170822353,
+     "cost": -14.295686165014656,
+     "p50_ms": -12.820512820512821,
+     "p95_ms": -12.0,
+     "p99_ms": 66.66666666666667,
+     "mean_ms": 6.009318931153019,
+     "throughput": -0.5001647522632425,
+     "failure_pct": 0.1316117005646651,
+     "e2e_slo_s": 10.2,
+     "svc_slo_s": -60.0,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -2.789999999999999,
+     "peak_replicas": -4,
+     "cpu_pct": 3.59
+    },
+    {
+     "block": 4,
+     "scenario": "flash_sale",
+     "candidate": "20261027-075152-shopping-auto-flash_sale",
+     "reference": "20261027-074033-shopping-hpa-flash_sale",
+     "replica_hours": -16.548878852971143,
+     "cost": -16.78082191780822,
+     "p50_ms": -6.25,
+     "p95_ms": -45.0,
+     "p99_ms": -7.6923076923076925,
+     "mean_ms": -20.576053467280794,
+     "throughput": 13.076705517610499,
+     "failure_pct": -0.1090434747161812,
+     "e2e_slo_s": -35.0,
+     "svc_slo_s": -205.0,
+     "events": -3,
+     "oscillations": 1,
+     "avg_replicas": -3.599999999999998,
+     "peak_replicas": -6,
+     "cpu_pct": 6.870000000000001
+    },
+    {
+     "block": 5,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-081950-shopping-auto-gradual_ramp",
+     "reference": "20261027-083628-shopping-hpa-gradual_ramp",
+     "replica_hours": -3.5540674074232115,
+     "cost": -3.6106750392464706,
+     "p50_ms": -27.586206896551722,
+     "p95_ms": -22.580645161290324,
+     "p99_ms": -23.529411764705884,
+     "mean_ms": -27.6666309289712,
+     "throughput": 3.2986240558838986,
+     "failure_pct": -0.030976428873653955,
+     "e2e_slo_s": 5.0,
+     "svc_slo_s": -290.2,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -0.7600000000000016,
+     "peak_replicas": -3,
+     "cpu_pct": 0.10999999999999943
+    },
+    {
+     "block": 6,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-101834-shopping-auto-traffic_drop",
+     "reference": "20261027-100716-shopping-hpa-traffic_drop",
+     "replica_hours": -16.447709993009724,
+     "cost": -16.691545664269228,
+     "p50_ms": -17.24137931034483,
+     "p95_ms": -20.689655172413794,
+     "p99_ms": -23.529411764705884,
+     "mean_ms": -18.985254314722663,
+     "throughput": -1.5505316422620412,
+     "failure_pct": 0.043353659721609705,
+     "e2e_slo_s": 5.0,
+     "svc_slo_s": -250.3,
+     "events": -4,
+     "oscillations": 0,
+     "avg_replicas": -3.370000000000001,
+     "peak_replicas": -5,
+     "cpu_pct": -0.4599999999999991
+    },
+    {
+     "block": 7,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-104140-shopping-auto-steady_browsing",
+     "reference": "20261027-112056-shopping-hpa-steady_browsing",
+     "replica_hours": -8.636457318822728,
+     "cost": -8.768019022142955,
+     "p50_ms": -11.11111111111111,
+     "p95_ms": -13.636363636363637,
+     "p99_ms": -43.01075268817204,
+     "mean_ms": -17.576004584117438,
+     "throughput": 1.4073289055801337,
+     "failure_pct": -0.018198362147406732,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -290.3,
+     "events": -2,
+     "oscillations": 0,
+     "avg_replicas": -1.5899999999999999,
+     "peak_replicas": -2,
+     "cpu_pct": 1.2199999999999989
+    },
+    {
+     "block": 8,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-122820-shopping-auto-checkout_heavy",
+     "reference": "20261027-113714-shopping-hpa-checkout_heavy",
+     "replica_hours": -23.075161104868126,
+     "cost": -23.364952571143288,
+     "p50_ms": -29.41176470588235,
+     "p95_ms": -43.58974358974359,
+     "p99_ms": 0.0,
+     "mean_ms": -29.3658923352632,
+     "throughput": 13.555082034463986,
+     "failure_pct": -1.8967137232357856,
+     "e2e_slo_s": -19.899999999999977,
+     "svc_slo_s": -300.2,
+     "events": -7,
+     "oscillations": 0,
+     "avg_replicas": -4.940000000000001,
+     "peak_replicas": -8,
+     "cpu_pct": 5.369999999999997
+    },
+    {
+     "block": 9,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-132422-shopping-auto-payment_degradation",
+     "reference": "20261027-123948-shopping-hpa-payment_degradation",
+     "replica_hours": -14.082954223068826,
+     "cost": -14.293690675600232,
+     "p50_ms": -40.50632911392405,
+     "p95_ms": -48.666666666666664,
+     "p99_ms": -55.55555555555556,
+     "mean_ms": -45.84999772708831,
+     "throughput": 6.72775660760809,
+     "failure_pct": -0.3023452057848294,
+     "e2e_slo_s": -95.0,
+     "svc_slo_s": -290.2,
+     "events": -4,
+     "oscillations": 0,
+     "avg_replicas": -2.789999999999999,
+     "peak_replicas": -4,
+     "cpu_pct": 7.039999999999999
+    },
+    {
+     "block": 10,
+     "scenario": "flash_sale",
+     "candidate": "20261027-144925-shopping-auto-flash_sale",
+     "reference": "20261027-143242-shopping-hpa-flash_sale",
+     "replica_hours": -12.606909213227404,
+     "cost": -12.791019955654104,
+     "p50_ms": -6.25,
+     "p95_ms": -55.0,
+     "p99_ms": -24.242424242424242,
+     "mean_ms": -34.68097857162581,
+     "throughput": 19.057046978546104,
+     "failure_pct": -0.1254073204930008,
+     "e2e_slo_s": -45.0,
+     "svc_slo_s": -220.0,
+     "events": -4,
+     "oscillations": 1,
+     "avg_replicas": -2.6400000000000006,
+     "peak_replicas": -5,
+     "cpu_pct": 3.210000000000001
+    },
+    {
+     "block": 11,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-180157-shopping-auto-gradual_ramp",
+     "reference": "20261027-173350-shopping-hpa-gradual_ramp",
+     "replica_hours": -3.1872219906468926,
+     "cost": -3.2471626733921752,
+     "p50_ms": -25.925925925925927,
+     "p95_ms": -28.125,
+     "p99_ms": -31.25,
+     "mean_ms": -33.08725666115719,
+     "throughput": 7.13149499094378,
+     "failure_pct": -0.1226889456176994,
+     "e2e_slo_s": -20.0,
+     "svc_slo_s": -300.2,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -0.6700000000000017,
+     "peak_replicas": -3,
+     "cpu_pct": -0.08000000000000007
+    },
+    {
+     "block": 12,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-181829-shopping-auto-traffic_drop",
+     "reference": "20261027-184120-shopping-hpa-traffic_drop",
+     "replica_hours": -14.387623864222977,
+     "cost": -14.605647517039918,
+     "p50_ms": -23.333333333333332,
+     "p95_ms": -25.0,
+     "p99_ms": -11.11111111111111,
+     "mean_ms": -24.04013445281768,
+     "throughput": 2.8745959841998516,
+     "failure_pct": -0.28461824423194043,
+     "e2e_slo_s": -5.199999999999999,
+     "svc_slo_s": -270.2,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -2.8599999999999994,
+     "peak_replicas": -4,
+     "cpu_pct": -0.8800000000000008
+    }
+   ],
+   "stats": {
+    "replica_hours": {
+     "mean": -12.990280715618077,
+     "n": 12,
+     "ci95": [
+      -17.030395148416808,
+      -8.950166282819346
+     ],
+     "dz": -2.0429337790138717
+    },
+    "cost": {
+     "mean": -13.176358018664294,
+     "n": 12,
+     "ci95": [
+      -17.26701585500792,
+      -9.08570018232067
+     ],
+     "dz": -2.0465937890136052
+    },
+    "p50_ms": {
+     "mean": -18.559363231809453,
+     "n": 12,
+     "ci95": [
+      -25.510491397107806,
+      -11.608235066511101
+     ],
+     "dz": -1.6964348865279995
+    },
+    "p95_ms": {
+     "mean": -27.92695259965672,
+     "n": 12,
+     "ci95": [
+      -38.21368101797514,
+      -17.640224181338297
+     ],
+     "dz": -1.7249467523965856
+    },
+    "p99_ms": {
+     "mean": -13.608610646679907,
+     "n": 12,
+     "ci95": [
+      -32.827609469650454,
+      5.610388176290638
+     ],
+     "dz": -0.4498963275521362
+    },
+    "mean_ms": {
+     "mean": -22.26953281809735,
+     "n": 12,
+     "ci95": [
+      -30.87536731277782,
+      -13.66369832341688
+     ],
+     "dz": -1.6441730913034798
+    },
+    "throughput": {
+     "mean": 5.25962126425787,
+     "n": 12,
+     "ci95": [
+      0.899318665028475,
+      9.619923863487266
+     ],
+     "dz": 0.7664207641224768
+    },
+    "failure_pct": {
+     "mean": -0.24043610615294764,
+     "n": 12,
+     "ci95": [
+      -0.5814439985493218,
+      0.10057178624342661
+     ],
+     "dz": -0.4479862402101699
+    },
+    "e2e_slo_s": {
+     "mean": -17.50833333333333,
+     "n": 12,
+     "ci95": [
+      -36.3542629663347,
+      1.3375962996680428
+     ],
+     "dz": -0.59027808638155
+    },
+    "svc_slo_s": {
+     "mean": -232.65,
+     "n": 12,
+     "ci95": [
+      -286.8152795674715,
+      -178.4847204325285
+     ],
+     "dz": -2.729049966881338
+    },
+    "events": {
+     "mean": -3.5833333333333335,
+     "n": 12,
+     "ci95": [
+      -4.45948504686602,
+      -2.707181619800647
+     ],
+     "dz": -2.598587316696647
+    },
+    "oscillations": {
+     "mean": 0.25,
+     "n": 12,
+     "ci95": [
+      -0.03735869056886826,
+      0.5373586905688683
+     ],
+     "dz": 0.5527707983925666
+    },
+    "avg_replicas": {
+     "mean": -2.6975000000000002,
+     "n": 12,
+     "ci95": [
+      -3.60522653788823,
+      -1.7897734621117702
+     ],
+     "dz": -1.8881471631487379
+    },
+    "peak_replicas": {
+     "mean": -4.5,
+     "n": 12,
+     "ci95": [
+      -5.785107132074634,
+      -3.214892867925366
+     ],
+     "dz": -2.224859546128699
+    },
+    "cpu_pct": {
+     "mean": 2.454166666666666,
+     "n": 12,
+     "ci95": [
+      0.6635298341291218,
+      4.2448034992042105
+     ],
+     "dz": 0.8708151160293699
+    }
+   },
+   "verdict": "Beats on cost",
+   "checks": {
+    "C1 replica-h interval < 0": true,
+    "C2 p95 not worse (interval not > 0, mean <= +10%)": true,
+    "C3 failures not worse (interval not > 0, mean <= +0.10 pp)": true,
+    "C4 throughput mean >= -2%": true,
+    "C5 e2e SLO violation mean <= +5 s": true,
+    "C6 oscillations mean <= +5": true,
+    "C7 replica-h lower in >= 4 of 6 scenarios": true
+   },
+   "per_scenario_replica_hours": {
+    "steady_browsing": -8.023886275948112,
+    "checkout_heavy": -22.46907266006408,
+    "payment_degradation": -14.082519696945589,
+    "flash_sale": -14.577894033099273,
+    "gradual_ramp": -3.370644699035052,
+    "traffic_drop": -15.41766692861635
+   }
+  },
+  "heuristic vs hpa_default": {
+   "pairs": [
+    {
+     "block": 1,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-040643-shopping-flexascale-steady_browsing",
+     "reference": "20261027-035524-shopping-hpa-steady_browsing",
+     "replica_hours": -7.427899478995341,
+     "cost": -7.546317216448256,
+     "p50_ms": -5.882352941176471,
+     "p95_ms": -8.450704225352112,
+     "p99_ms": -8.333333333333334,
+     "mean_ms": -9.206685185626421,
+     "throughput": 0.7247350249683404,
+     "failure_pct": 0.01739874701826269,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -65.0,
+     "events": -2,
+     "oscillations": 0,
+     "avg_replicas": -1.370000000000001,
+     "peak_replicas": -2,
+     "cpu_pct": 1.7300000000000004
+    },
+    {
+     "block": 2,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-044632-shopping-flexascale-checkout_heavy",
+     "reference": "20261027-051443-shopping-hpa-checkout_heavy",
+     "replica_hours": -23.894695086268186,
+     "cost": -24.212865785899492,
+     "p50_ms": -18.0327868852459,
+     "p95_ms": -27.586206896551722,
+     "p99_ms": -23.529411764705884,
+     "mean_ms": -18.621794182921253,
+     "throughput": 2.7791722378141848,
+     "failure_pct": -0.2206381493900864,
+     "e2e_slo_s": -25.200000000000003,
+     "svc_slo_s": -250.2,
+     "events": -7,
+     "oscillations": 0,
+     "avg_replicas": -5.43,
+     "peak_replicas": -9,
+     "cpu_pct": 6.960000000000001
+    },
+    {
+     "block": 3,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-055933-shopping-flexascale-payment_degradation",
+     "reference": "20261027-062753-shopping-hpa-payment_degradation",
+     "replica_hours": -14.09912212200611,
+     "cost": -14.309646796035178,
+     "p50_ms": -12.820512820512821,
+     "p95_ms": -12.0,
+     "p99_ms": -9.803921568627452,
+     "mean_ms": -8.2878789126642,
+     "throughput": 0.712161118026851,
+     "failure_pct": 0.08406229855836672,
+     "e2e_slo_s": 10.0,
+     "svc_slo_s": -60.0,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -2.789999999999999,
+     "peak_replicas": -4,
+     "cpu_pct": 4.060000000000002
+    },
+    {
+     "block": 4,
+     "scenario": "flash_sale",
+     "candidate": "20261027-071234-shopping-flexascale-flash_sale",
+     "reference": "20261027-074033-shopping-hpa-flash_sale",
+     "replica_hours": -17.057006989527665,
+     "cost": -17.294520547945204,
+     "p50_ms": -6.25,
+     "p95_ms": -58.75,
+     "p99_ms": -50.0,
+     "mean_ms": -34.18313289118658,
+     "throughput": 19.590257769002097,
+     "failure_pct": -0.1302505351525165,
+     "e2e_slo_s": -85.0,
+     "svc_slo_s": -205.0,
+     "events": -3,
+     "oscillations": 1,
+     "avg_replicas": -3.6999999999999993,
+     "peak_replicas": -6,
+     "cpu_pct": 8.440000000000001
+    },
+    {
+     "block": 5,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-091600-shopping-flexascale-gradual_ramp",
+     "reference": "20261027-083628-shopping-hpa-gradual_ramp",
+     "replica_hours": -3.5701337200622856,
+     "cost": -3.6263736263736175,
+     "p50_ms": -34.48275862068966,
+     "p95_ms": -38.70967741935484,
+     "p99_ms": -42.94117647058823,
+     "mean_ms": -44.87916245974634,
+     "throughput": 2.6515630627656193,
+     "failure_pct": -0.08584486069049536,
+     "e2e_slo_s": -5.0,
+     "svc_slo_s": -290.2,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -0.7600000000000016,
+     "peak_replicas": -3,
+     "cpu_pct": -0.6699999999999999
+    },
+    {
+     "block": 6,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-093242-shopping-flexascale-traffic_drop",
+     "reference": "20261027-100716-shopping-hpa-traffic_drop",
+     "replica_hours": -16.454792647588665,
+     "cost": -16.691545664269228,
+     "p50_ms": -17.24137931034483,
+     "p95_ms": -6.896551724137931,
+     "p99_ms": 5.882352941176471,
+     "mean_ms": -6.571715628434316,
+     "throughput": -3.912594489190331,
+     "failure_pct": -0.15134807236967948,
+     "e2e_slo_s": 20.0,
+     "svc_slo_s": -250.3,
+     "events": -4,
+     "oscillations": 0,
+     "avg_replicas": -3.370000000000001,
+     "peak_replicas": -5,
+     "cpu_pct": -1.6600000000000001
+    },
+    {
+     "block": 7,
+     "scenario": "steady_browsing",
+     "candidate": "20261027-105308-shopping-flexascale-steady_browsing",
+     "reference": "20261027-112056-shopping-hpa-steady_browsing",
+     "replica_hours": -8.636659379028584,
+     "cost": -8.768019022142955,
+     "p50_ms": -11.11111111111111,
+     "p95_ms": -11.818181818181818,
+     "p99_ms": -45.16129032258065,
+     "mean_ms": -19.727278429011783,
+     "throughput": 1.1756228563537947,
+     "failure_pct": -0.018198362147406732,
+     "e2e_slo_s": 0.0,
+     "svc_slo_s": -290.3,
+     "events": -2,
+     "oscillations": 0,
+     "avg_replicas": -1.5899999999999999,
+     "peak_replicas": -2,
+     "cpu_pct": 1.3599999999999994
+    },
+    {
+     "block": 8,
+     "scenario": "checkout_heavy",
+     "candidate": "20261027-120019-shopping-flexascale-checkout_heavy",
+     "reference": "20261027-113714-shopping-hpa-checkout_heavy",
+     "replica_hours": -23.100107837923343,
+     "cost": -23.389915127309035,
+     "p50_ms": -29.41176470588235,
+     "p95_ms": -41.02564102564103,
+     "p99_ms": 0.0,
+     "mean_ms": -33.8756620601407,
+     "throughput": 16.270635879021864,
+     "failure_pct": -2.222420343483419,
+     "e2e_slo_s": -25.0,
+     "svc_slo_s": -300.2,
+     "events": -7,
+     "oscillations": 0,
+     "avg_replicas": -4.940000000000001,
+     "peak_replicas": -8,
+     "cpu_pct": 7.159999999999997
+    },
+    {
+     "block": 9,
+     "scenario": "payment_degradation",
+     "candidate": "20261027-133552-shopping-flexascale-payment_degradation",
+     "reference": "20261027-123948-shopping-hpa-payment_degradation",
+     "replica_hours": -14.097202520872179,
+     "cost": -14.30764935790061,
+     "p50_ms": -32.91139240506329,
+     "p95_ms": -33.333333333333336,
+     "p99_ms": -30.555555555555557,
+     "mean_ms": -27.860603143235657,
+     "throughput": 3.2774171464804907,
+     "failure_pct": -0.4776478383017151,
+     "e2e_slo_s": -60.0,
+     "svc_slo_s": -290.2,
+     "events": -4,
+     "oscillations": 0,
+     "avg_replicas": -2.789999999999999,
+     "peak_replicas": -4,
+     "cpu_pct": 6.460000000000001
+    },
+    {
+     "block": 10,
+     "scenario": "flash_sale",
+     "candidate": "20261027-135240-shopping-flexascale-flash_sale",
+     "reference": "20261027-143242-shopping-hpa-flash_sale",
+     "replica_hours": -12.97138923032911,
+     "cost": -13.165188470066523,
+     "p50_ms": -12.5,
+     "p95_ms": -50.0,
+     "p99_ms": -36.36363636363637,
+     "mean_ms": -33.342485443849895,
+     "throughput": 18.57649475684843,
+     "failure_pct": -0.0703731847626129,
+     "e2e_slo_s": -35.0,
+     "svc_slo_s": -220.0,
+     "events": -4,
+     "oscillations": 1,
+     "avg_replicas": -2.6999999999999993,
+     "peak_replicas": -5,
+     "cpu_pct": 3.1000000000000014
+    },
+    {
+     "block": 11,
+     "scenario": "gradual_ramp",
+     "candidate": "20261027-172740-shopping-flexascale-gradual_ramp",
+     "reference": "20261027-173350-shopping-hpa-gradual_ramp",
+     "replica_hours": -3.186079975332466,
+     "cost": -3.2471626733921752,
+     "p50_ms": -18.51851851851852,
+     "p95_ms": -25.0,
+     "p99_ms": -12.5,
+     "mean_ms": -22.443159748813795,
+     "throughput": 2.201562024334819,
+     "failure_pct": -0.17381424809391066,
+     "e2e_slo_s": -30.0,
+     "svc_slo_s": -300.2,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -0.6700000000000017,
+     "peak_replicas": -3,
+     "cpu_pct": -0.40000000000000036
+    },
+    {
+     "block": 12,
+     "scenario": "traffic_drop",
+     "candidate": "20261027-185240-shopping-flexascale-traffic_drop",
+     "reference": "20261027-184120-shopping-hpa-traffic_drop",
+     "replica_hours": -14.397657954888246,
+     "cost": -14.605647517039918,
+     "p50_ms": -16.666666666666668,
+     "p95_ms": -10.0,
+     "p99_ms": 33.333333333333336,
+     "mean_ms": -7.976667674890387,
+     "throughput": 3.196033300766305,
+     "failure_pct": -0.2848023554351071,
+     "e2e_slo_s": 19.8,
+     "svc_slo_s": -270.2,
+     "events": -3,
+     "oscillations": 0,
+     "avg_replicas": -2.8599999999999994,
+     "peak_replicas": -4,
+     "cpu_pct": -0.6300000000000008
+    }
+   ],
+   "stats": {
+    "replica_hours": {
+     "mean": -13.241062245235183,
+     "n": 12,
+     "ci95": [
+      -17.473438427342025,
+      -9.00868606312834
+     ],
+     "dz": -1.987778481931945
+    },
+    "cost": {
+     "mean": -13.430404317068515,
+     "n": 12,
+     "ci95": [
+      -17.71491575956864,
+      -9.145892874568391
+     ],
+     "dz": -1.9916691648180065
+    },
+    "p50_ms": {
+     "mean": -17.98577033210097,
+     "n": 12,
+     "ci95": [
+      -24.09303867392657,
+      -11.878501990275367
+     ],
+     "dz": -1.8711623072974095
+    },
+    "p95_ms": {
+     "mean": -26.96419137021273,
+     "n": 12,
+     "ci95": [
+      -38.147904841371165,
+      -15.780477899054297
+     ],
+     "dz": -1.5319013131403685
+    },
+    "p99_ms": {
+     "mean": -18.331053258709805,
+     "n": 12,
+     "ci95": [
+      -33.92776999000837,
+      -2.7343365274112355
+     ],
+     "dz": -0.7467644829814779
+    },
+    "mean_ms": {
+     "mean": -22.248018813376778,
+     "n": 12,
+     "ci95": [
+      -30.326671810977924,
+      -14.169365815775631
+     ],
+     "dz": -1.7497733929091526
+    },
+    "throughput": {
+     "mean": 5.603588390599373,
+     "n": 12,
+     "ci95": [
+      0.6261098053213701,
+      10.581066975877375
+     ],
+     "dz": 0.7152967406987781
+    },
+    "failure_pct": {
+     "mean": -0.31115640868752664,
+     "n": 12,
+     "ci95": [
+      -0.7049474951377688,
+      0.08263467776271549
+     ],
+     "dz": -0.5020445862492658
+    },
+    "e2e_slo_s": {
+     "mean": -17.95,
+     "n": 12,
+     "ci95": [
+      -38.278943413467275,
+      2.3789434134672796
+     ],
+     "dz": -0.5610209321680591
+    },
+    "svc_slo_s": {
+     "mean": -232.65,
+     "n": 12,
+     "ci95": [
+      -286.8152795674715,
+      -178.4847204325285
+     ],
+     "dz": -2.729049966881338
+    },
+    "events": {
+     "mean": -3.75,
+     "n": 12,
+     "ci95": [
+      -4.80364853208585,
+      -2.69635146791415
+     ],
+     "dz": -2.2613350843332274
+    },
+    "oscillations": {
+     "mean": 0.16666666666666666,
+     "n": 12,
+     "ci95": [
+      -0.08065231621359933,
+      0.4139856495469326
+     ],
+     "dz": 0.4281744192888376
+    },
+    "avg_replicas": {
+     "mean": -2.7475,
+     "n": 12,
+     "ci95": [
+      -3.701900558218331,
+      -1.7930994417816692
+     ],
+     "dz": -1.8290957302555324
+    },
+    "peak_replicas": {
+     "mean": -4.583333333333333,
+     "n": 12,
+     "ci95": [
+      -5.976905027775533,
+      -3.1897616388911327
+     ],
+     "dz": -2.0896884696677795
+    },
+    "cpu_pct": {
+     "mean": 2.9925,
+     "n": 12,
+     "ci95": [
+      0.7265190606674619,
+      5.2584809393325385
+     ],
+     "dz": 0.8390876445347704
+    }
+   },
+   "verdict": "Beats on cost",
+   "checks": {
+    "C1 replica-h interval < 0": true,
+    "C2 p95 not worse (interval not > 0, mean <= +10%)": true,
+    "C3 failures not worse (interval not > 0, mean <= +0.10 pp)": true,
+    "C4 throughput mean >= -2%": true,
+    "C5 e2e SLO violation mean <= +5 s": true,
+    "C6 oscillations mean <= +5": true,
+    "C7 replica-h lower in >= 4 of 6 scenarios": true
+   },
+   "per_scenario_replica_hours": {
+    "steady_browsing": -8.032279429011963,
+    "checkout_heavy": -23.497401462095766,
+    "payment_degradation": -14.098162321439144,
+    "flash_sale": -15.014198109928387,
+    "gradual_ramp": -3.3781068476973757,
+    "traffic_drop": -15.426225301238455
+   }
+  }
+ },
+ "arms": {
+  "hpa_default": {
+   "replica_hours": 1.5777286666666666,
+   "cost": 0.007157166666666667,
+   "p50_ms": 68.25,
+   "p95_ms": 944.25,
+   "p99_ms": 2140.0,
+   "mean_ms": 208.664407798148,
+   "throughput": 13.420134562166277,
+   "failure_pct": 0.7287398116657072,
+   "e2e_slo_s": 67.13333333333334,
+   "svc_slo_s": 232.65,
+   "events": 4.083333333333333,
+   "oscillations": 0.0,
+   "avg_replicas": 18.808333333333334,
+   "peak_replicas": 20.75,
+   "cpu_pct": 21.3,
+   "recovery_s": [
+    105.0,
+    165.0,
+    105.0,
+    165.0
+   ],
+   "owners": {
+    "HPA up": 49
+   },
+   "auto_rules": {}
+  },
+  "hpa_tuned": {
+   "replica_hours": 1.3629085833333334,
+   "cost": 0.006168333333333334,
+   "p50_ms": 64.0,
+   "p95_ms": 782.5,
+   "p99_ms": 2066.6666666666665,
+   "mean_ms": 184.90772350369184,
+   "throughput": 13.638547861503879,
+   "failure_pct": 0.5554299711998325,
+   "e2e_slo_s": 67.95,
+   "svc_slo_s": 238.50833333333333,
+   "events": 0.16666666666666666,
+   "oscillations": 0.0,
+   "avg_replicas": 16.0825,
+   "peak_replicas": 16.166666666666668,
+   "cpu_pct": 27.471666666666664,
+   "recovery_s": [
+    4.8,
+    4.8,
+    4.8,
+    4.8
+   ],
+   "owners": {
+    "HPA up": 2
+   },
+   "auto_rules": {}
+  },
+  "rl": {
+   "replica_hours": 1.3635250833333332,
+   "cost": 0.006171166666666668,
+   "p50_ms": 54.75,
+   "p95_ms": 651.1666666666666,
+   "p99_ms": 1878.3333333333333,
+   "mean_ms": 159.5402585559461,
+   "throughput": 13.956771533348435,
+   "failure_pct": 0.4824082079648537,
+   "e2e_slo_s": 55.0,
+   "svc_slo_s": 0.0,
+   "events": 0.25,
+   "oscillations": 0.08333333333333333,
+   "avg_replicas": 16.088333333333335,
+   "peak_replicas": 16.166666666666668,
+   "cpu_pct": 23.809166666666666,
+   "recovery_s": [
+    4.8,
+    4.8,
+    4.8,
+    4.8
+   ],
+   "owners": {
+    "FlexaScale up": 2,
+    "FlexaScale down": 1
+   },
+   "auto_rules": {}
+  },
+  "auto": {
+   "replica_hours": 1.3656334166666666,
+   "cost": 0.006180833333333333,
+   "p50_ms": 56.0,
+   "p95_ms": 552.5833333333334,
+   "p99_ms": 1750.8333333333333,
+   "mean_ms": 151.45737935087382,
+   "throughput": 14.033844130494922,
+   "failure_pct": 0.48830370551275964,
+   "e2e_slo_s": 49.625,
+   "svc_slo_s": 0.0,
+   "events": 0.5,
+   "oscillations": 0.25,
+   "avg_replicas": 16.110833333333336,
+   "peak_replicas": 16.25,
+   "cpu_pct": 23.754166666666666,
+   "recovery_s": [
+    4.8,
+    4.8,
+    4.8,
+    4.8
+   ],
+   "owners": {
+    "FlexaScale up": 3,
+    "FlexaScale down": 3
+   },
+   "auto_rules": {
+    "efficiency": 5952
+   }
+  },
+  "heuristic": {
+   "replica_hours": 1.361286,
+   "cost": 0.006160833333333333,
+   "p50_ms": 55.75,
+   "p95_ms": 568.5,
+   "p99_ms": 1746.6666666666667,
+   "mean_ms": 150.08841053675022,
+   "throughput": 14.110246549436212,
+   "failure_pct": 0.4175834029781806,
+   "e2e_slo_s": 49.18333333333334,
+   "svc_slo_s": 0.0,
+   "events": 0.3333333333333333,
+   "oscillations": 0.16666666666666666,
+   "avg_replicas": 16.06083333333333,
+   "peak_replicas": 16.166666666666668,
+   "cpu_pct": 24.2925,
+   "recovery_s": [
+    4.8,
+    4.8,
+    4.8,
+    4.8
+   ],
+   "owners": {
+    "FlexaScale up": 2,
+    "FlexaScale down": 2
+   },
+   "auto_rules": {}
+  }
+ }
+}

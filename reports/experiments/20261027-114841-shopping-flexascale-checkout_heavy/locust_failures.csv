@@ -1,0 +1,6 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),52,2026-10-27T06:25:10Z,2026-10-27T06:30:01Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [FlashSale Contention]'),4,2026-10-27T06:26:47Z,2026-10-27T06:27:55Z
+POST,POST /api/users/login,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/users/login'),17,2026-10-27T06:25:08Z,2026-10-27T06:25:12Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),30,2026-10-27T06:25:38Z,2026-10-27T06:29:26Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),5,2026-10-27T06:26:45Z,2026-10-27T06:27:56Z

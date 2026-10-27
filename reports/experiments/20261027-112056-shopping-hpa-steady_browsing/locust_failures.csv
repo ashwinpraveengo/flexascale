@@ -1,0 +1,2 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Success]'),1,2026-10-27T06:04:50Z,2026-10-27T06:04:50Z

@@ -63,3 +63,7 @@ The laptop was unplugged from 19:25:29 to 19:33:52 (AC adapter state polled ever
 | 20261027-013641-shopping-hpa_tuned-calibration_steady | cal-70 | unclean reboot of the laptop at about 01:38 while the run was still settling; it wrote no data | not needed: the plan resumed at 01:44 with the same run in the same position |
 
 Moved by `scripts/rerun_plan.py`, which also wrote the one-time rerun plan `reports/v7/calibration_plan.reruns.json`.
+
+## 2026-10-27 19:16: first run of the §3.6 flash-sale study, stopped while preparing (docs/POLICY_V7.md §5, 19:19)
+
+`20261027-191609-shopping-hpa_tuned-flash_sale` was stopped at 19:19:22, before its load started (no workload data). The study it belonged to was withdrawn because of the CPU-clock confound found in the 12-block batch.
