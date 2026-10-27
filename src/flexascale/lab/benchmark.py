@@ -25,6 +25,7 @@ _T95 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8
         20: 2.086, 25: 2.060, 30: 2.042, 40: 2.021, 60: 2.000, 120: 1.980}
 
 REFERENCES = {"hpa": "native HPA (default)", "hpa_tuned": "native HPA, tuned"}
+SPIKE_SUFFIX = " · flash-sale study (POLICY_V7 §3.6)"
 VERDICT_RULE_V7 = ("Verdict rule (docs/POLICY_V7.md §3.5, fixed before the v7 runs): beats on cost = replica-hours interval below 0, "
                    "p95 interval not entirely above 0 with mean <= +10%, failure interval not entirely above 0 with mean <= +0.10 pp, "
                    "throughput mean >= -2%, end-to-end SLO-violation mean <= +5 s, oscillations mean <= +5, and replica-hours lower "
@@ -113,8 +114,9 @@ def verdict(pooled: Dict[str, Any]) -> tuple[str, str]:
     return "On par with HPA", "warning"
 
 
-def verdict_v7(pooled: Dict[str, Any], per_scenario_rh: Dict[str, float]) -> tuple[str, str]:
-    """docs/POLICY_V7.md §3.5 (the same table as scripts/analyze_v7.py)."""
+def verdict_v7(pooled: Dict[str, Any], per_scenario_rh: Dict[str, float], multi_scenario: bool = True) -> tuple[str, str]:
+    """docs/POLICY_V7.md §3.5 (the same table as scripts/analyze_v7.py); for the one-scenario flash-sale study (§3.6)
+    the "4 of 6 scenarios" condition does not apply."""
     def iv(key):
         x = pooled.get(key)
         return x["ci95"] if x and x.get("ci95") else None
@@ -129,7 +131,7 @@ def verdict_v7(pooled: Dict[str, Any], per_scenario_rh: Dict[str, float]) -> tup
     guards = (fail[0] <= 0 and mean("failure_pp") <= 0.10 and (mean("throughput_pct") or 0) >= -2
               and (mean("e2e_slo_s") or 0) <= 5 and (mean("oscillations") or 0) <= 5)
     if rh[1] < 0 and p95[0] <= 0 and mean("p95_pct") <= 10 and guards and \
-            sum(1 for v in per_scenario_rh.values() if v < 0) >= 4:
+            (not multi_scenario or sum(1 for v in per_scenario_rh.values() if v < 0) >= 4):
         return "Beats on cost", "good"
     if (p95[1] < 0 or fail[1] < 0) and rh[0] <= 0 and mean("replica_hours_pct") <= 2 and guards:
         return "Beats on performance", "good"
@@ -169,7 +171,9 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
                 continue
             row = {x["metric"]: x for x in cmp["rows"]}
             pct = lambda m: (row.get(m) or {}).get("pct_change")
-            groups.setdefault(model_tag(cand), []).append({
+            # the confirmatory flash-sale study (v7s-bNN-<arm>, POLICY_V7 §3.6) is its own group, never pooled with the batch
+            tag = model_tag(cand) + (SPIKE_SUFFIX if str(_block_id(block) or "").startswith("v7s-") else "")
+            groups.setdefault(tag, []).append({
                 "scenario": k[1], "baseline": hpa[-1]["id"], "candidate": cand["id"], "started_at": cand.get("started_at"),
                 "replica_hours_pct": pct("Replica-hours"),
                 "cost_pct": pct("Estimated cost") if pct("Estimated cost") is not None else pct("Resource-cost proxy"),
@@ -190,7 +194,8 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
             for p in pairs:
                 if p["replica_hours_pct"] is not None:
                     by_scen.setdefault(p["scenario"], []).append(p["replica_hours_pct"])
-            text, level = verdict_v7(pooled, {k: sum(v) / len(v) for k, v in by_scen.items()})
+            text, level = verdict_v7(pooled, {k: sum(v) / len(v) for k, v in by_scen.items()},
+                                     multi_scenario=not tag.endswith(SPIKE_SUFFIX))
         else:
             text, level = verdict(pooled)
         bases = sorted({p["cost_basis"] for p in pairs})

@@ -192,3 +192,15 @@ def test_benchmark_against_the_tuned_hpa_pairs_within_blocks_and_uses_the_v7_rul
     assert models["v7"]["pairs"][0]["baseline"] == "t1" and models["v7"]["verdict_rule"] == VERDICT_RULE_V7
     default = benchmark(runs, _compare)                      # default reference: block pairing against the default HPA
     assert {m["model"]: m for m in default["models"]}["v7"]["pairs"][0]["baseline"] == "d1"
+
+
+def test_flash_sale_study_is_never_pooled_with_the_batch():
+    from flexascale.lab.benchmark import SPIKE_SUFFIX
+
+    runs = [_run("t1", "hpa_tuned", 1, "v7-b01-hpa_tuned", hpa_cpu_target_pct=250, hpa_scale_down_window_s=60),
+            _run("r1", "flexascale", 2, "v7-b01-rl"),
+            _run("t2", "hpa_tuned", 3, "v7s-b01-hpa_tuned", hpa_cpu_target_pct=250, hpa_scale_down_window_s=60),
+            _run("r2", "flexascale", 4, "v7s-b01-rl")]
+    models = {m["model"]: m for m in benchmark(runs, _compare, reference="hpa_tuned")["models"]}
+    assert [p["baseline"] for p in models["v7"]["pairs"]] == ["t1"]
+    assert [p["baseline"] for p in models["v7" + SPIKE_SUFFIX]["pairs"]] == ["t2"]
