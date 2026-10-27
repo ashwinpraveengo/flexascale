@@ -178,3 +178,48 @@ def test_spike_verdict_rejects_lower_latency_at_a_consistently_higher_cost(tmp_p
                                       "--host-load", str(tmp_path / "host.csv"), "--out", str(tmp_path / "sp")])
     mod.main()
     assert json.loads((tmp_path / "sp.json").read_text())["comparisons"]["rl vs hpa_tuned"]["verdict"] == "Worse"
+
+
+def test_replication_plan_has_four_arms_per_block_and_no_default_hpa():
+    mod = _load("v7_plan")
+    arms = json.loads((ROOT / "reports" / "v7" / "arms.json").read_text())
+    plan = mod.replication(arms)
+    assert len(plan) == 48 and not any(p["block"].endswith("-hpa_default") for p in plan)
+    for b in range(1, 13):
+        names = sorted(p["block"].split("-", 2)[2] for p in plan if p["block"].startswith(f"v7r-b{b:02d}-"))
+        assert names == ["auto", "heuristic", "hpa_tuned", "rl"]
+    assert plan == mod.replication(arms)
+
+
+def _replication_runs(tmp, app_cpu_rl):
+    """12 blocks: RL p95 -26..-30% at equal replica-hours; its shop CPU per request is app_cpu_rl x the reference's."""
+    rids, cpu, b = [], {}, 0
+    for rep in range(2):
+        for s in ("steady_browsing", "checkout_heavy", "payment_degradation", "flash_sale", "gradual_ramp", "traffic_drop"):
+            b += 1
+            t = _run(tmp, f"t{b}", "hpa_tuned", s, f"v7r-b{b:02d}-hpa_tuned", 100 + b, rh=1.40 + 0.01 * b)
+            r = _run(tmp, f"r{b}", "flexascale", s, f"v7r-b{b:02d}-rl", (100 + b) * (0.70 + 0.02 * (b % 3)),
+                     rh=(1.40 + 0.01 * b) * (1.0 + 0.004 * ((b % 3) - 1)))
+            rids += [t, r]
+            cpu[t], cpu[r] = 15.0, 15.0 * app_cpu_rl
+    with open(tmp / "host.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["run", "host_affected", "reason", "cpu_mhz", "app_cpu_ms_per_request"])
+        w.writeheader()
+        for rid in rids:
+            w.writerow({"run": rid, "host_affected": "False", "reason": "", "cpu_mhz": 2000, "app_cpu_ms_per_request": cpu[rid]})
+
+
+def _replication_verdict(tmp, monkeypatch, app_cpu_rl):
+    tmp.mkdir(exist_ok=True)
+    _replication_runs(tmp, app_cpu_rl)
+    monkeypatch.setattr(sys, "argv", ["x", "--study", "replication", "--results", str(tmp / "runs"),
+                                      "--host-load", str(tmp / "host.csv"), "--out", str(tmp / "rep")])
+    _load("analyze_v7").main()
+    return json.loads((tmp / "rep.json").read_text())["comparisons"]["rl vs hpa_tuned"]["verdict"]
+
+
+def test_replication_verdict_needs_environment_parity(tmp_path, monkeypatch):
+    """§3.7: if the candidate's shop ran > 10% faster per request where replicas are identical, there is no verdict."""
+    assert _replication_verdict(tmp_path / "fast", monkeypatch, 0.85).startswith("No verdict: environment parity failed (shop CPU per request -15.0%")
+    assert _replication_verdict(tmp_path / "slower", monkeypatch, 1.05) == "Beats on performance"   # a slower environment only makes the test harder
+    assert _replication_verdict(tmp_path / "equal", monkeypatch, 0.97) == "Beats on performance"

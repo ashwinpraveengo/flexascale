@@ -18,3 +18,10 @@ In `reports/experiments/` it would have been paired with `20261026-110001-shoppi
 and temporary lab variants: `20261027-025811-shopping-flexascale-calibration_steady` (v7 model alone),
 `20261027-031135-shopping-auto-calibration_steady` (Auto with the v7 model), `20261027-032629-shopping-flexascale-calibration_steady`
 (the rule `limit_target(0.6/0.3)`). Only the plumbing was checked; the outcomes are not used anywhere.
+
+## 2026-10-27 19:31–20:12: setup pilot for the clock-controlled replication (docs/POLICY_V7.md §3.7)
+
+steady_browsing × {HPA-tuned, FlexaScale-RL} × 2 blocks under the `performance` power profile, to check that the shop ran
+equally fast in both arms where scaling is identical: `20261027-193148-shopping-hpa_tuned-steady_browsing`,
+`20261027-193749-shopping-flexascale-steady_browsing`, `20261027-194920-shopping-flexascale-steady_browsing`,
+`20261027-200050-shopping-hpa_tuned-steady_browsing`. Not counted in any comparison.

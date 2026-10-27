@@ -6,7 +6,9 @@ For every completed run in the given result folders, reports the mean host CPU u
 Kubernetes containers (Prometheus: node CPU busy minus the container CPU of all pods) and how long
 the laptop was on battery during the load window (upower charge history). A run is host-affected
 if it was on battery for any part of its load window or the outside load averaged more than 2.0
-cores. No outcome metric is used. Writes reports/host_load_by_run.csv.
+cores. No outcome metric is used. Also reports the mean CPU clock (node-exporter) of each load window, which
+is descriptive (it mostly counts busy cores), and the application's CPU-seconds per Locust request, which shows how
+fast the application ran (docs/POLICY_V7.md §3.7). Writes reports/host_load_by_run.csv.
 
     python scripts/check_host_load.py [--results reports/experiments reports/experiments_invalid ...]
 """
@@ -25,6 +27,10 @@ from typing import Callable, List, Optional, Tuple
 OUTSIDE_LIMIT_CORES = 2.0
 HOST_BUSY = 'sum(increase(node_cpu_seconds_total{{mode!~"idle|iowait|steal"}}[{w}s]))'
 K8S_BUSY = 'sum(increase(container_cpu_usage_seconds_total{{container!="",pod!=""}}[{w}s]))'
+# mean CPU clock over the load window (descriptive; arms must not differ in it, docs/POLICY_V7.md §5 2026-10-27 19:19)
+CPU_MHZ = 'avg(avg_over_time(node_cpu_scaling_frequency_hertz[{w}s])) / 1e6'
+# the application's own CPU-seconds in the load window; per Locust request it shows how fast the shop ran (§3.7 parity)
+APP_CPU = 'sum(increase(container_cpu_usage_seconds_total{{namespace="{ns}",container!=""}}[{w}s]))'
 
 
 def battery_intervals(path: Optional[str]) -> Optional[List[Tuple[float, float]]]:
@@ -70,6 +76,14 @@ def classify(outside_cores: Optional[float], battery_s: Optional[float], limit: 
     return False, ""
 
 
+def locust_requests(run_dir: Path) -> Optional[int]:
+    try:
+        with open(run_dir / "locust_stats.csv") as f:
+            return sum(int(r["Request Count"]) for r in csv.DictReader(f) if r.get("Name") != "Aggregated")
+    except (OSError, ValueError, KeyError):
+        return None
+
+
 def prometheus_query(url: str) -> Callable[[str, float], Optional[float]]:
     def q(expr: str, at: float) -> Optional[float]:
         full = url.rstrip("/") + "/api/v1/query?" + urllib.parse.urlencode({"query": expr, "time": f"{at:.3f}"})
@@ -103,6 +117,9 @@ def main() -> None:
                 continue
             w = max(1, int(b - a))
             host, k8s = q(HOST_BUSY.format(w=w), b), q(K8S_BUSY.format(w=w), b)
+            mhz = q(CPU_MHZ.format(w=w), b)
+            app_cpu = q(APP_CPU.format(ns=run.get("namespace") or "flexascale-apps", w=w), b)
+            reqs = locust_requests(path.parent)
             outside = (host - k8s) / w if host is not None and k8s is not None else None
             bat = overlap_s(a, b, battery) if battery is not None else None
             affected, reason = classify(outside, bat)
@@ -111,7 +128,8 @@ def main() -> None:
                 "load_start": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a)), "load_end": time.strftime("%H:%M:%S", time.localtime(b)),
                 "host_cores": None if host is None else round(host / w, 2), "k8s_cores": None if k8s is None else round(k8s / w, 2),
                 "outside_cores": None if outside is None else round(outside, 2), "battery_s": None if bat is None else round(bat),
-                "host_affected": affected, "reason": reason,
+                "host_affected": affected, "reason": reason, "cpu_mhz": None if mhz is None else round(mhz),
+                "app_cpu_ms_per_request": round(1000 * app_cpu / reqs, 2) if app_cpu is not None and reqs else None,
             })
     rows.sort(key=lambda r: r["load_start"])
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)

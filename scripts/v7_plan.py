@@ -5,6 +5,7 @@ Write the pre-registered run plans of docs/POLICY_V7.md as JSON (deterministic, 
     python scripts/v7_plan.py calibration   -> reports/v7/calibration_plan.json  (§2.1: 4 CPU targets x 2 runs, seed 7)
     python scripts/v7_plan.py evaluation    -> reports/v7/evaluation_plan.json   (§3.3: 12 blocks, arm order seed 2610+block)
     python scripts/v7_plan.py spike         -> reports/v7/spike_plan.json        (§3.6: flash_sale, 10 blocks, seed 2710+block)
+    python scripts/v7_plan.py replication   -> reports/v7/replication_plan.json  (§3.7: 12 blocks, 4 arms, seed 2810+block)
 
 Each entry is the body of POST /api/lab/experiments; scripts/run_plan.py executes a plan.
 """
@@ -21,6 +22,7 @@ CAL_TARGETS = [70, 150, 250, 350]
 CAL_WINDOW_S = 60
 SPIKE_ARMS = ("hpa_tuned", "rl", "heuristic")
 SPIKE_BLOCKS = 10
+REPLICATION_ARMS = ("hpa_tuned", "rl", "auto", "heuristic")
 
 
 def calibration() -> list:
@@ -54,9 +56,22 @@ def spike(arms: dict) -> list:
     return plan
 
 
+def replication(arms: dict) -> list:
+    """§3.7: the §3.3 design (6 scenarios x 2 repeats) without HPA-default, a new order seed, labels v7r-bNN-<arm>."""
+    plan, block = [], 0
+    for repeat in (1, 2):
+        for scenario in SCENARIOS:
+            block += 1
+            names = [a for a in arms if a in REPLICATION_ARMS]
+            random.Random(2810 + block).shuffle(names)
+            for name in names:
+                plan.append({**COMMON, **arms[name], "scenario": scenario, "block": f"v7r-b{block:02d}-{name}"})
+    return plan
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("which", choices=["calibration", "evaluation", "spike"])
+    ap.add_argument("which", choices=["calibration", "evaluation", "spike", "replication"])
     ap.add_argument("--arms", help="evaluation: JSON file mapping arm name -> request fields")
     ap.add_argument("--out")
     args = ap.parse_args()
@@ -66,8 +81,8 @@ def main() -> int:
         if not args.arms:
             ap.error(f"{args.which} needs --arms")
         arms = json.loads(Path(args.arms).read_text())
-        plan, out = ((evaluation(arms), args.out or "reports/v7/evaluation_plan.json") if args.which == "evaluation"
-                     else (spike(arms), args.out or "reports/v7/spike_plan.json"))
+        build = {"evaluation": evaluation, "spike": spike, "replication": replication}[args.which]
+        plan, out = build(arms), args.out or f"reports/v7/{args.which}_plan.json"
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     Path(out).write_text(json.dumps(plan, indent=1) + "\n")
     print(f"wrote {out}: {len(plan)} runs")

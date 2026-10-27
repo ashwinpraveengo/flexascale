@@ -27,7 +27,9 @@ sys.path.insert(0, str(ROOT / "src"))
 from flexascale.lab.benchmark import mean_ci  # noqa: E402
 
 LABEL = re.compile(r"^v7-b(\d+)-(.+)$")
-SPIKE_LABEL = re.compile(r"^v7s-b(\d+)-(.+)$")  # confirmatory flash-sale study (§3.6)
+SPIKE_LABEL = re.compile(r"^v7s-b(\d+)-(.+)$")  # confirmatory flash-sale study (§3.6, withdrawn)
+REPLICATION_LABEL = re.compile(r"^v7r-b(\d+)-(.+)$")  # clock-controlled replication (§3.7)
+PARITY_TOLERANCE_PCT = 10.0  # §3.7: a candidate whose shop ran > 10% faster per request in steady_browsing gets no verdict
 ARM_TITLES = {"hpa_default": "HPA-default", "hpa_tuned": "HPA-tuned", "rl": "FlexaScale-RL", "auto": "FlexaScale-Auto",
               "heuristic": "FlexaScale-heuristic"}
 PCT = ("replica_hours", "cost", "p50_ms", "p95_ms", "p99_ms", "mean_ms", "throughput")
@@ -112,16 +114,21 @@ def main() -> int:
     ap.add_argument("--results", default=str(ROOT / "reports" / "experiments"))
     ap.add_argument("--host-load", default=str(ROOT / "reports" / "host_load_by_run.csv"))
     ap.add_argument("--out")
-    ap.add_argument("--study", choices=["evaluation", "spike"], default="evaluation",
-                    help="evaluation: the 12-block batch (§3, v7-bNN-<arm>); spike: the confirmatory flash-sale study (§3.6, v7s-bNN-<arm>)")
+    ap.add_argument("--study", choices=["evaluation", "spike", "replication"], default="evaluation",
+                    help="evaluation: the 12-block batch (§3, v7-bNN-<arm>); spike: the flash-sale study (§3.6, v7s-bNN-<arm>); "
+                         "replication: the clock-controlled replication (§3.7, v7r-bNN-<arm>)")
     args = ap.parse_args()
     spike = args.study == "spike"
-    label = SPIKE_LABEL if spike else LABEL
-    args.out = args.out or str(ROOT / "reports" / "v7" / ("spike" if spike else "evaluation"))
-    flags = {}
+    label = {"evaluation": LABEL, "spike": SPIKE_LABEL, "replication": REPLICATION_LABEL}[args.study]
+    args.out = args.out or str(ROOT / "reports" / "v7" / args.study)
+    flags, clock, app_cpu = {}, {}, {}
     if Path(args.host_load).exists():
         with open(args.host_load) as f:
-            flags = {r["run"]: (r.get("host_affected"), r.get("reason") or "") for r in csv.DictReader(f)}
+            rows = list(csv.DictReader(f))
+            flags = {r["run"]: (r.get("host_affected"), r.get("reason") or "") for r in rows}
+            clock = {r["run"]: float(r["cpu_mhz"]) for r in rows if r.get("cpu_mhz") not in (None, "", "None")}
+            app_cpu = {r["run"]: float(r["app_cpu_ms_per_request"]) for r in rows
+                       if r.get("app_cpu_ms_per_request") not in (None, "", "None")}
 
     blocks = defaultdict(dict)      # block -> arm -> run
     excluded, scen_of = [], {}
@@ -154,7 +161,9 @@ def main() -> int:
     arms = sorted({a for b in blocks.values() for a in b}, key=lambda a: list(ARM_TITLES).index(a) if a in ARM_TITLES else 99)
     result = {"blocks": {b: {a: r["id"] for a, r in v.items()} for b, v in sorted(blocks.items())}, "excluded": excluded,
               "comparisons": {}, "arms": {}}
-    lines = ["# v7 confirmatory flash-sale study (docs/POLICY_V7.md §3.6)" if spike else "# v7 live evaluation (docs/POLICY_V7.md §3)", "",
+    title = {"evaluation": "# v7 live evaluation (docs/POLICY_V7.md §3)", "spike": "# v7 confirmatory flash-sale study (docs/POLICY_V7.md §3.6)",
+             "replication": "# v7 clock-controlled replication (docs/POLICY_V7.md §3.7)"}[args.study]
+    lines = [title, "",
              f"{sum(len(v) for v in blocks.values())} valid runs in {len(blocks)} blocks; {len(excluded)} excluded. "
              "Pairs are within block; Δ = candidate − reference; 95% t-intervals over pairs; d_z = mean / SD of the paired differences.", ""]
 
@@ -200,8 +209,19 @@ def main() -> int:
                 per_scen[p["scenario"]].append(p)
             per_scen_rh = {s: sum(p["replica_hours"] for p in ps) / len(ps) for s, ps in per_scen.items()}
             text, checks = verdict(st, per_scen_rh, multi_scenario=not spike)
+            # environment parity (§5 2026-10-27 19:19, §3.7): mean CPU clock (descriptive; it mostly counts busy cores) and the
+            # shop's CPU-seconds per request in steady_browsing, where every arm keeps every service at one replica
+            cm, rm = [clock.get(p["candidate"]) for p in pairs], [clock.get(p["reference"]) for p in pairs]
+            clock_delta = (100.0 * (sum(cm) - sum(rm)) / sum(rm)) if pairs and None not in cm + rm else None
+            steady = [p for p in pairs if p["scenario"] == "steady_browsing"]
+            ca, ra = [app_cpu.get(p["candidate"]) for p in steady], [app_cpu.get(p["reference"]) for p in steady]
+            parity = (100.0 * (sum(ca) - sum(ra)) / sum(ra)) if steady and None not in ca + ra else None
+            if args.study == "replication" and (parity is None or parity < -PARITY_TOLERANCE_PCT):
+                text = "No verdict: environment parity " + ("not measured" if parity is None else
+                                                            f"failed (shop CPU per request {parity:+.1f}% in steady_browsing)")
             result["comparisons"][f"{cand} vs {ref}"] = {"pairs": pairs, "stats": st, "verdict": text, "checks": checks,
-                                                         "per_scenario_replica_hours": per_scen_rh}
+                                                         "per_scenario_replica_hours": per_scen_rh, "cpu_clock_delta_pct": clock_delta,
+                                                         "steady_app_cpu_per_request_delta_pct": parity}
             fmt = lambda k, unit="%": (f"{st[k]['mean']:+.1f}{unit} [{st[k]['ci95'][0]:+.1f} … {st[k]['ci95'][1]:+.1f}]"
                                        if st.get(k) and st[k].get("ci95") else "–")
             fmt2 = lambda k: (f"{st[k]['mean']:+.2f} pp [{st[k]['ci95'][0]:+.2f} … {st[k]['ci95'][1]:+.2f}]"
@@ -216,6 +236,10 @@ def main() -> int:
                 dz = (st.get(k) or {}).get("dz")
                 lines.append(f"| {label} | {f_(k)} | {'' if dz is None else f'{dz:+.2f}'} |")
             lines += ["", "Checks: " + "; ".join(f"{k}: {'yes' if ok else 'no'}" for k, ok in checks.items()), "",
+                      "Environment: shop CPU per request in steady_browsing " + (f"{parity:+.1f}% (candidate vs reference)" if parity is not None
+                                                                                  else "not measured")
+                      + "; mean CPU clock " + (f"{sum(cm) / len(cm):.0f} vs {sum(rm) / len(rm):.0f} MHz (Δ {clock_delta:+.1f}%, mostly busy cores)"
+                                               if clock_delta is not None else "not recorded") + ".", "",
                       "Per scenario (replica-h Δ% per pair; p95 Δ% per pair):", ""]
             for s, ps in sorted(per_scen.items()):
                 lines.append(f"* {s}: " + " / ".join(f"{p['replica_hours']:+.1f}" for p in ps) + "  |  "
