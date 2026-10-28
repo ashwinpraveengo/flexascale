@@ -33,3 +33,11 @@ equally fast in both arms where scaling is identical: `20261027-193148-shopping-
 (`20261028-085107`). Exploration only; no evaluation was pre-registered. The static-capacity test (HPAs pinned by hand,
 Locust outside the lab, 08:38–08:45) left no lab run folder; its numbers are in POLICY_V8 §1.1. The HPA 70% attempt at
 08:20 failed during preparation (the shop was still recovering) and wrote no data.
+
+## 2026-10-28 11:29–11:58: post-reboot smoke test of the live lab (one short run per controller)
+
+`flash_sale`, 25 users, 120 s (preliminary by design), *Comparable start* on, block label `smoke-20261028`, `balanced` power
+profile: `20261028-112933-shopping-hpa-flash_sale` (shadow mode), `20261028-113233-shopping-hpa_tuned-flash_sale`,
+`20261028-114614-shopping-flexascale-flash_sale` (v5 model), all completed with verified cleanup;
+`20261028-115745-shopping-auto-flash_sale` (v7 variant) stopped during preparation to free the dashboard for a demo.
+Only the plumbing was checked; the outcomes are not used anywhere.
