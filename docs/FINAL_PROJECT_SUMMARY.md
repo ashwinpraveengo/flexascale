@@ -140,6 +140,18 @@ v4 uses 52% fewer replicas than v3, but it is below the HPA rule on reward: 3.0 
 
 The PPO policies beat the HPA-like rule on reward (paired difference +0.53 ± 0.23 for v3) and violate the latency SLO about 6 percentage points less often, **by provisioning about 40% more replicas and scaling almost every step**. That is a performance-for-cost trade-off, not a free win.
 
+### Live, v7 against a fairly tuned native HPA (2026-10-27/28; `docs/V7_REPORT.md`, `docs/POLICY_V7.md`)
+
+The baseline is HPA-tuned: CPU target 250% of request with a 60 s window, chosen by a calibration rule fixed in advance. At 25 users it keeps every service at its minimum for most of each run. The candidate v7 is a graph policy over the shop's real call graph, trained in an application twin fitted to the live runs. It runs in three arms: RL (the policy alone), Auto (per-service arbitration with HPA-tuned) and heuristic (the same operator with a hand-written rule, for attribution). Verdicts follow a table fixed in advance (12 paired blocks: six scenarios × two repeats).
+
+| vs HPA-tuned | 12-block batch (60 runs) | Clock-controlled replication (48 runs), the verdict that counts |
+| :--- | :--- | :--- |
+| FlexaScale-Auto | "beats on performance", p95 −21.6% [−33.5, −9.8] | **on par**: replica-hours +0.1% [−0.1, +0.2], p95 +0.1% [−9.3, +9.5] |
+| FlexaScale-RL | on par, p95 −2.5% [−40.0, +35.1] | **on par**: p95 +7.2% [−8.1, +22.4] |
+| FlexaScale-heuristic | "beats on performance", p95 −20.4% [−33.5, −7.3] | **on par**: p95 +4.5% [−6.6, +15.6] |
+
+The batch's advantage was an environment confound. Under the laptop's `balanced` power profile the shop ran faster whenever FlexaScale's live control kept the host busy. Where all arms had identical replicas, the FlexaScale arms still had a lower p50, and every shop container used 10–20% more CPU-seconds in the HPA arms. A setup pilot under the `performance` profile removed the effect, and the pre-registered replication under that profile found no difference. **FlexaScale v7 performs like a well-tuned native HPA on this shop and is not shown to beat one.**
+
 ### Live experiments (`reports/live_benchmark_report.md`)
 
 Shop on Minikube, 25 users, 300 s, comparable starts (data reset, every service at its minimum, then a wait until the previous run's HPA scale-down window has passed). The two arms of a pair run back to back. Afterwards `scripts/check_host_load.py` checks each run's load window for battery power and for CPU used on the host outside Kubernetes (`reports/host_load_by_run.csv`), with a criterion that uses no outcome metric (`docs/POLICY_V6.md` §5.2). Excluded runs are kept with their reasons in `reports/experiments_invalid/README.md`.
@@ -150,7 +162,7 @@ Shop on Minikube, 25 users, 300 s, comparable starts (data reset, every service 
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | Mean (95% CI) | −3.9% (−6.5 … −1.3) | −4.0% (−6.6 … −1.3) | +2.8% (−8.0 … +13.6) | −0.07 pp (−0.12 … −0.02) | +0.7% (−0.3 … +1.7) |
 
-Verdict under the rule fixed in advance: **beats default native HPA on cost**. Replica-hours were lower in 16 of 18 pairs. The mechanism is scale-down: default HPA made 0 scale-downs in its 18 runs (300 s window), while FlexaScale made 56 inside Auto, and the SLA-risk rule handed services under pressure back to HPA. The effect is modest, and repeat 3 was weaker than repeats 1–2. Without the two pairs affected by the laptop's battery period, the result is −4.9% (95% CI −7.2 … −2.6, 16 pairs). A native HPA with a 60 s scale-down window (`docs/POLICY_V6.md` §5.2, 12 pairs) also beats default HPA on cost, but by less: replica-hours −1.4% (95% CI −2.6 … −0.2), with throughput −2.3% and slightly more failures. The indirect comparison does not show Auto saving more than that tuned HPA (−2.5 points, CI −5.4 … +0.3), although Auto's point estimate is larger and it had fewer failures (−0.13 pp, CI −0.21 … −0.04). A single earlier pair that had suggested "a tuned HPA saves as much" was withdrawn: its tuned arm ran while other jobs on the laptop used up to 12 extra cores. The first batch was invalidated by an application bug (unbounded order history, OOM kills in both arms) and is listed in `reports/experiments_invalid/README.md`.
+Verdict under the rule fixed in advance: **beats default native HPA on cost**. *Caveat (2026-10-28):* these runs used the laptop's `balanced` power profile with live FlexaScale control in one arm only. The v7 evaluation found that this makes the shop run faster in the FlexaScale arm, and a CPU-based HPA scales on the inflated CPU-seconds of the other. The result may therefore be partly an environment effect (`docs/V7_REPORT.md` §4.1). Replica-hours were lower in 16 of 18 pairs. The mechanism is scale-down: default HPA made 0 scale-downs in its 18 runs (300 s window), while FlexaScale made 56 inside Auto, and the SLA-risk rule handed services under pressure back to HPA. The effect is modest, and repeat 3 was weaker than repeats 1–2. Without the two pairs affected by the laptop's battery period, the result is −4.9% (95% CI −7.2 … −2.6, 16 pairs). A native HPA with a 60 s scale-down window (`docs/POLICY_V6.md` §5.2, 12 pairs) also beats default HPA on cost, but by less: replica-hours −1.4% (95% CI −2.6 … −0.2), with throughput −2.3% and slightly more failures. The indirect comparison does not show Auto saving more than that tuned HPA (−2.5 points, CI −5.4 … +0.3), although Auto's point estimate is larger and it had fewer failures (−0.13 pp, CI −0.21 … −0.04). A single earlier pair that had suggested "a tuned HPA saves as much" was withdrawn: its tuned arm ran while other jobs on the laptop used up to 12 extra cores. The first batch was invalidated by an application bug (unbounded order history, OOM kills in both arms) and is listed in `reports/experiments_invalid/README.md`.
 
 **v5 (deployed), 2026-10-25, six scenarios × two repeats** (v5 relative to HPA, rep 1 / rep 2):
 
@@ -194,6 +206,8 @@ Per run, from 5-second samples: replica-hours; *allocated* vCPU-hours and GiB-ho
 
 ## 12. Limitations
 
+* **v7 does not beat a fairly tuned native HPA**; it is on par in a pre-registered, clock-controlled replication (`docs/V7_REPORT.md`). Its twin predicted a large flash-sale gain (p95 −385 ms) that did not appear live.
+* **Environment confound on the laptop testbed:** under the `balanced` power profile, host activity changes how fast the whole application runs. Live FlexaScale control adds about 0.55 host cores, so comparisons with live control in only one arm favour that arm. Fair live comparisons need the `performance` profile, or the same host activity in every arm.
 * Three learned policies (v4, v5, v6) do not beat native HPA. v6, trained in a simulator matching the live control loop, loses in simulation (−0.048 ± 0.018 reward per step).
 * The learned policy does not beat native HPA live. v5 beats the HPA-like rule in simulation but not a tuned threshold rule, and live it uses 8% more replica-hours with no consistent latency or failure benefit.
 * The trained graph is a synthetic chain, not the real Alibaba call graph. The dependency awareness is architectural, not learned from real dependencies.

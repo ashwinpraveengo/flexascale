@@ -1,233 +1,285 @@
-run,folder,controller,scenario,load_start,load_end,host_cores,k8s_cores,outside_cores,battery_s,host_affected,reason
-20261022-231341-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-22 23:14:02,23:15:09,,,,67,True,on battery 67 s
-20261022-233320-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-22 23:34:13,23:35:52,,,,99,True,on battery 99 s
-20261022-233616-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-22 23:42:38,23:47:44,,,,214,True,on battery 214 s
-20261022-234747-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-22 23:54:10,00:01:24,,,,0,,unknown (no host CPU data)
-20261023-001403-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-23 00:20:44,00:25:50,,,,0,,unknown (no host CPU data)
-20261023-002554-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-23 00:37:01,00:42:07,,,,0,,unknown (no host CPU data)
-20261023-004215-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-23 00:53:59,00:59:11,,,,0,,unknown (no host CPU data)
-20261023-005916-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-23 01:10:48,01:16:01,,,,0,,unknown (no host CPU data)
-20261023-011607-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-23 01:27:46,01:32:53,,,,0,,unknown (no host CPU data)
-20261023-013258-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-23 01:39:11,01:44:18,,,,0,,unknown (no host CPU data)
-20261023-014451-bookstore-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-23 01:50:34,01:52:42,,,,0,,unknown (no host CPU data)
-20261024-152728-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-24 15:28:13,15:33:24,,,,0,,unknown (no host CPU data)
-20261024-153329-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-24 15:40:17,15:45:30,,,,0,,unknown (no host CPU data)
-20261024-154539-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-24 15:51:45,16:51:20,,,,0,,unknown (no host CPU data)
-20261024-165144-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-24 16:57:34,17:02:48,,,,0,,unknown (no host CPU data)
-20261024-170255-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-24 17:14:50,17:20:03,,,,0,,unknown (no host CPU data)
-20261024-172006-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-24 17:31:48,17:36:54,,,,0,,unknown (no host CPU data)
-20261024-173657-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-24 17:48:47,17:53:55,,,,0,,unknown (no host CPU data)
-20261024-175357-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-24 18:05:52,18:10:58,,,,0,,unknown (no host CPU data)
-20261024-181108-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-24 18:22:52,18:28:01,,,,4,True,on battery 4 s
-20261024-182809-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-24 18:34:17,18:39:24,,,,307,True,on battery 307 s
-20261024-183930-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-24 18:50:53,18:56:01,,,,4,True,on battery 4 s
-20261024-185611-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-24 19:07:53,19:13:00,,,,307,True,on battery 307 s
-20261024-191302-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-24 19:24:58,19:30:06,,,,308,True,on battery 308 s
-20261024-193117-bookstore-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-24 19:36:25,19:38:33,,,,128,True,on battery 128 s
-20261025-010311-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-25 01:03:56,01:09:02,,,,0,,unknown (no host CPU data)
-20261025-010911-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-25 01:21:00,01:26:08,,,,0,,unknown (no host CPU data)
-20261025-012612-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-25 01:37:59,01:43:05,,,,0,,unknown (no host CPU data)
-20261025-014313-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-25 01:55:02,02:00:17,,,,0,,unknown (no host CPU data)
-20261025-020024-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-25 02:12:02,02:17:08,,,,307,True,on battery 307 s
-20261025-021715-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-25 02:29:04,02:34:19,,,,314,True,on battery 314 s
-20261025-023426-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-25 02:46:03,02:51:10,,,,307,True,on battery 307 s
-20261025-025117-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-25 03:03:06,03:08:16,,,,309,True,on battery 309 s
-20261025-030818-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-25 03:19:50,03:24:57,,,,307,True,on battery 307 s
-20261025-032459-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-25 03:31:15,03:36:29,,,,314,True,on battery 314 s
-20261025-033630-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-25 03:47:52,03:52:58,,,,307,True,on battery 307 s
-20261025-035301-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-25 04:00:57,04:06:06,,,,310,True,on battery 310 s
-20261025-040612-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-25 04:17:52,04:23:04,,,,312,True,on battery 312 s
-20261025-042313-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-25 04:31:56,04:37:12,,,,316,True,on battery 316 s
-20261025-043714-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-25 04:48:54,04:57:05,,,,491,True,on battery 491 s
-20261025-113620-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-25 11:41:35,11:46:42,,,,0,,unknown (no host CPU data)
-20261025-114650-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-25 11:57:53,12:03:01,,,,0,,unknown (no host CPU data)
-20261025-120311-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-25 12:09:17,12:14:23,,,,0,,unknown (no host CPU data)
-20261025-121432-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-25 12:20:40,12:25:48,,,,0,,unknown (no host CPU data)
-20261025-122552-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-25 12:32:02,12:37:09,,,,0,,unknown (no host CPU data)
-20261025-123713-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-25 12:43:25,12:48:33,,,,0,,unknown (no host CPU data)
-20261025-124833-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-25 12:54:47,12:59:53,,,,0,,unknown (no host CPU data)
-20261025-125954-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-25 13:11:57,13:17:05,,,,0,,unknown (no host CPU data)
-20261025-131705-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-25 13:28:55,13:34:01,,,,0,,unknown (no host CPU data)
-20261025-133406-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-25 13:40:18,13:45:26,,,,0,,unknown (no host CPU data)
-20261025-192442-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-25 19:25:30,19:28:39,,,,189,True,on battery 189 s
-20261025-192934-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-25 19:34:56,19:40:07,,,,312,True,on battery 312 s
-20261025-200213-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-25 20:03:00,20:08:12,2.02,1.15,0.87,312,True,on battery 312 s
-20261025-200814-shopping-auto-steady_browsing,reports/experiments_invalid,auto,steady_browsing,2026-10-25 20:19:17,20:24:35,2.6,1.21,1.39,318,True,on battery 318 s
-20261025-202445-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-25 20:36:18,20:41:31,3.7,1.8,1.9,313,True,on battery 313 s
-20261025-204137-shopping-auto-checkout_heavy,reports/experiments_invalid,auto,checkout_heavy,2026-10-25 20:47:51,20:53:11,4.89,1.9,2.99,533,True,on battery 533 s; 3.0 cores outside Kubernetes
-20261025-205320-shopping-hpa-payment_degradation,reports/experiments_invalid,hpa,payment_degradation,2026-10-25 21:04:24,21:09:31,3.38,1.58,1.81,615,True,on battery 615 s
-20261025-210931-shopping-auto-payment_degradation,reports/experiments_invalid,auto,payment_degradation,2026-10-25 21:21:25,21:26:42,5.43,1.98,3.46,634,True,on battery 634 s; 3.5 cores outside Kubernetes
-20261025-212644-shopping-hpa-flash_sale,reports/experiments_invalid,hpa,flash_sale,2026-10-25 21:38:24,21:43:31,2.68,1.51,1.17,615,True,on battery 615 s
-20261025-214335-shopping-auto-flash_sale,reports/experiments_invalid,auto,flash_sale,2026-10-25 21:49:50,21:55:04,3.79,1.54,2.24,629,True,on battery 629 s; 2.2 cores outside Kubernetes
-20261025-215507-shopping-hpa-gradual_ramp,reports/experiments_invalid,hpa,gradual_ramp,2026-10-25 22:06:27,22:11:34,2.56,1.4,1.16,614,True,on battery 614 s
-20261025-221139-shopping-auto-gradual_ramp,reports/experiments_invalid,auto,gradual_ramp,2026-10-25 22:17:53,22:23:04,3.68,1.55,2.13,622,True,on battery 622 s; 2.1 cores outside Kubernetes
-20261025-222311-shopping-hpa-traffic_drop,reports/experiments_invalid,hpa,traffic_drop,2026-10-25 22:34:27,22:39:33,2.42,0.86,1.56,28,True,on battery 28 s
-20261025-223942-shopping-auto-traffic_drop,reports/experiments_invalid,auto,traffic_drop,2026-10-25 22:51:33,22:57:00,8.49,1.93,6.56,327,True,on battery 327 s; 6.6 cores outside Kubernetes
-20261025-225706-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-25 23:03:25,23:08:33,6.9,1.89,5.02,308,True,on battery 308 s; 5.0 cores outside Kubernetes
-20261025-230838-shopping-auto-steady_browsing,reports/experiments_invalid,auto,steady_browsing,2026-10-25 23:20:36,23:25:54,4.83,1.89,2.94,318,True,on battery 318 s; 2.9 cores outside Kubernetes
-20261025-232041-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-25 23:21:35,23:26:45,4.38,1.75,2.63,310,True,on battery 310 s; 2.6 cores outside Kubernetes
-20261025-232600-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-25 23:37:30,23:42:37,2.23,1.29,0.94,0,False,
-20261025-234242-shopping-auto-checkout_heavy,reports/experiments_invalid,auto,checkout_heavy,2026-10-25 23:48:56,23:54:09,5.08,1.46,3.62,0,True,3.6 cores outside Kubernetes
-20261025-235413-shopping-hpa-payment_degradation,reports/experiments_invalid,hpa,payment_degradation,2026-10-26 00:05:22,00:10:36,4.97,1.71,3.26,0,True,3.3 cores outside Kubernetes
-20261026-001045-shopping-auto-payment_degradation,reports/experiments_invalid,auto,payment_degradation,2026-10-26 00:16:56,00:22:06,6.25,1.85,4.4,0,True,4.4 cores outside Kubernetes
-20261026-002206-shopping-hpa-flash_sale,reports/experiments_invalid,hpa,flash_sale,2026-10-26 00:33:22,00:38:30,4.67,1.59,3.08,0,True,3.1 cores outside Kubernetes
-20261026-003838-shopping-auto-flash_sale,reports/experiments_invalid,auto,flash_sale,2026-10-26 00:47:28,00:52:42,5.28,1.58,3.7,0,True,3.7 cores outside Kubernetes
-20261026-005249-shopping-hpa-gradual_ramp,reports/experiments_invalid,hpa,gradual_ramp,2026-10-26 01:04:27,01:09:35,4.28,1.42,2.85,0,True,2.9 cores outside Kubernetes
-20261026-010940-shopping-auto-gradual_ramp,reports/experiments_invalid,auto,gradual_ramp,2026-10-26 01:15:54,01:21:05,4.97,1.5,3.47,0,True,3.5 cores outside Kubernetes
-20261026-012112-shopping-hpa-traffic_drop,reports/experiments_invalid,hpa,traffic_drop,2026-10-26 01:32:30,01:37:38,3.53,0.93,2.6,0,True,2.6 cores outside Kubernetes
-20261026-013743-shopping-auto-traffic_drop,reports/experiments_invalid,auto,traffic_drop,2026-10-26 01:43:56,01:49:06,5.25,1.48,3.77,0,True,3.8 cores outside Kubernetes
-20261026-014914-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-26 02:00:26,02:05:33,1.91,1.16,0.75,0,False,
-20261026-020535-shopping-auto-steady_browsing,reports/experiments_invalid,auto,steady_browsing,2026-10-26 02:17:28,02:22:37,2.53,1.23,1.3,0,False,
-20261026-022247-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-26 02:34:26,02:39:32,1.81,1.07,0.75,0,False,
-20261026-023938-shopping-auto-checkout_heavy,reports/experiments_invalid,auto,checkout_heavy,2026-10-26 02:51:29,02:56:39,2.32,1.07,1.24,0,False,
-20261026-025639-shopping-hpa-payment_degradation,reports/experiments_invalid,hpa,payment_degradation,2026-10-26 03:02:55,03:08:01,1.53,0.84,0.69,0,False,
-20261026-030810-shopping-auto-payment_degradation,reports/experiments_invalid,auto,payment_degradation,2026-10-26 03:14:17,03:19:26,1.89,0.76,1.14,0,False,
-20261026-032241-shopping-auto-flash_sale,reports/experiments_invalid,auto,flash_sale,2026-10-26 03:30:34,03:35:44,2.35,1.15,1.2,0,False,
-20261026-033552-shopping-hpa-gradual_ramp,reports/experiments_invalid,hpa,gradual_ramp,2026-10-26 03:42:00,03:47:12,1.83,1.17,0.66,0,False,
-20261026-034713-shopping-auto-gradual_ramp,reports/experiments_invalid,auto,gradual_ramp,2026-10-26 03:58:17,04:03:26,2.43,1.19,1.24,0,False,
-20261026-040335-shopping-hpa-traffic_drop,reports/experiments_invalid,hpa,traffic_drop,2026-10-26 04:13:19,04:18:25,1.7,1.04,0.66,0,False,
-20261026-041826-shopping-auto-traffic_drop,reports/experiments_invalid,auto,traffic_drop,2026-10-26 04:26:18,04:31:28,1.97,0.84,1.13,0,False,
-20261026-043500-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-26 04:39:22,04:44:28,1.42,0.74,0.68,0,False,
-20261026-044431-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-26 04:50:45,04:55:55,1.91,0.71,1.2,0,False,
-20261026-045602-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 05:02:11,05:07:18,2.27,1.51,0.75,0,False,
-20261026-050723-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-26 05:18:24,05:23:33,2.71,1.39,1.32,0,False,
-20261026-052334-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 05:29:48,05:34:54,1.75,1.06,0.69,0,False,
-20261026-053455-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-26 05:41:10,05:46:19,2.2,1.0,1.2,0,False,
-20261026-054626-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 05:57:26,06:02:33,2.46,1.57,0.89,0,False,
-20261026-060237-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-26 06:08:49,06:13:59,2.67,1.32,1.35,0,False,
-20261026-061408-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 06:20:14,06:25:21,1.3,0.69,0.61,0,False,
-20261026-062529-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-26 06:36:25,06:41:35,1.83,0.65,1.17,0,False,
-20261026-064140-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 06:47:50,06:52:56,1.19,0.59,0.59,0,False,
-20261026-065301-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-26 06:59:12,07:04:22,1.7,0.57,1.13,0,False,
-20261026-070422-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-26 07:10:37,07:15:44,1.39,0.75,0.64,0,False,
-20261026-071553-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-26 07:22:00,07:27:10,1.91,0.69,1.22,0,False,
-20261026-072714-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 07:38:32,07:43:38,2.31,1.52,0.78,0,False,
-20261026-074345-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-26 07:49:54,07:55:03,2.74,1.39,1.36,0,False,
-20261026-075506-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 08:06:35,08:11:41,1.75,1.08,0.67,0,False,
-20261026-081148-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-26 08:17:57,08:23:07,2.22,1.01,1.21,0,False,
-20261026-082309-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 08:34:19,08:39:26,2.32,1.46,0.86,0,False,
-20261026-083930-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-26 08:45:42,08:50:51,2.78,1.41,1.38,0,False,
-20261026-085101-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 08:57:07,09:02:13,1.29,0.68,0.61,0,False,
-20261026-090222-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-26 09:13:23,09:18:32,1.83,0.65,1.19,0,False,
-20261026-091833-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 09:24:48,09:29:55,1.2,0.6,0.6,0,False,
-20261026-093004-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-26 09:36:10,09:41:20,1.7,0.55,1.15,0,False,
-20261026-094125-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-26 09:47:37,09:52:43,1.41,0.74,0.67,0,False,
-20261026-095246-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-26 09:58:58,10:04:07,1.92,0.7,1.21,0,False,
-20261026-100417-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 10:15:21,10:20:27,2.32,1.53,0.79,0,False,
-20261026-102028-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-26 10:26:43,10:31:53,3.02,1.38,1.64,0,False,
-20261026-103159-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 10:43:26,10:48:32,1.79,1.08,0.71,0,False,
-20261026-104840-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-26 10:54:49,10:59:58,2.31,1.01,1.3,0,False,
-20261026-110001-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 11:11:24,11:16:30,2.27,1.43,0.85,0,False,
-20261026-111632-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-26 11:22:46,11:27:56,2.83,1.43,1.4,0,False,
-20261026-112803-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 11:34:13,11:39:19,1.34,0.7,0.64,0,False,
-20261026-113924-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-26 11:50:28,11:55:42,3.55,1.09,2.46,218,True,on battery 218 s; 2.5 cores outside Kubernetes
-20261026-115546-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 12:02:02,12:07:10,2.39,0.84,1.55,308,True,on battery 308 s
-20261026-120718-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-26 12:13:28,12:18:42,2.86,0.92,1.94,314,True,on battery 314 s
-20261026-122013-shopping-hpa_fast-traffic_drop,reports/experiments_invalid,hpa_fast,traffic_drop,2026-10-26 12:25:10,12:30:24,4.42,1.09,3.33,314,True,on battery 314 s; 3.3 cores outside Kubernetes
-20261026-123025-shopping-hpa_fast-flash_sale,reports/experiments_invalid,hpa_fast,flash_sale,2026-10-26 12:36:43,12:41:57,5.85,2.17,3.68,314,True,on battery 314 s; 3.7 cores outside Kubernetes
-20261026-124158-shopping-hpa_fast-checkout_heavy,reports/experiments_invalid,hpa_fast,checkout_heavy,2026-10-26 12:53:38,12:58:49,5.97,2.48,3.49,311,True,on battery 311 s; 3.5 cores outside Kubernetes
-20261026-130803-shopping-hpa-traffic_drop,reports/experiments_invalid,hpa,traffic_drop,2026-10-26 13:08:53,13:14:01,1.63,0.61,1.02,0,False,
-20261026-131404-shopping-hpa_fast-traffic_drop,reports/experiments_invalid,hpa_fast,traffic_drop,2026-10-26 13:20:20,13:25:30,6.2,0.57,5.62,0,True,5.6 cores outside Kubernetes
-20261026-133325-shopping-auto-flash_sale,reports/experiments_demo,auto,flash_sale,2026-10-26 13:34:23,13:39:36,8.03,1.67,6.36,0,True,6.4 cores outside Kubernetes
-20261026-140550-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-26 14:06:45,14:11:56,6.34,0.86,5.49,0,True,5.5 cores outside Kubernetes
-20261026-141201-shopping-hpa_fast-steady_browsing,reports/experiments_invalid,hpa_fast,steady_browsing,2026-10-26 14:18:14,14:23:26,6.29,0.88,5.41,0,True,5.4 cores outside Kubernetes
-20261026-142333-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-26 14:29:41,14:34:49,6.32,1.67,4.64,0,True,4.6 cores outside Kubernetes
-20261026-143454-shopping-hpa_fast-checkout_heavy,reports/experiments_invalid,hpa_fast,checkout_heavy,2026-10-26 14:41:09,14:46:19,5.28,1.38,3.91,0,True,3.9 cores outside Kubernetes
-20261026-144625-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 14:57:26,15:02:34,2.18,1.11,1.07,0,False,
-20261026-150236-shopping-hpa_fast-payment_degradation,reports/experiments,hpa_fast,payment_degradation,2026-10-26 15:08:52,15:14:00,2.07,1.12,0.95,0,False,
-20261026-151407-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 15:25:23,15:30:30,2.44,1.47,0.96,0,False,
-20261026-153038-shopping-hpa_fast-flash_sale,reports/experiments,hpa_fast,flash_sale,2026-10-26 15:36:47,15:41:56,2.12,1.28,0.84,0,False,
-20261026-154159-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 15:53:25,15:58:32,1.36,0.7,0.66,0,False,
-20261026-155840-shopping-hpa_fast-gradual_ramp,reports/experiments,hpa_fast,gradual_ramp,2026-10-26 16:04:49,16:09:57,1.39,0.71,0.68,0,False,
-20261026-161001-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 16:21:26,16:26:32,1.62,0.62,0.99,0,False,
-20261026-162633-shopping-hpa_fast-traffic_drop,reports/experiments,hpa_fast,traffic_drop,2026-10-26 16:32:49,16:37:59,1.88,0.66,1.22,0,False,
-20261026-163804-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-26 16:44:13,16:49:20,1.99,0.75,1.24,0,False,
-20261026-164925-shopping-hpa_fast-steady_browsing,reports/experiments,hpa_fast,steady_browsing,2026-10-26 17:00:29,17:05:37,1.77,0.76,1.01,0,False,
-20261026-170546-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 17:11:52,17:17:00,2.47,1.54,0.93,0,False,
-20261026-171707-shopping-hpa_fast-checkout_heavy,reports/experiments,hpa_fast,checkout_heavy,2026-10-26 17:28:32,17:33:42,2.72,1.48,1.24,0,False,
-20261026-173348-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 17:39:58,17:45:05,2.33,1.08,1.25,0,False,
-20261026-174509-shopping-hpa_fast-payment_degradation,reports/experiments,hpa_fast,payment_degradation,2026-10-26 17:56:18,18:01:27,1.98,1.07,0.9,0,False,
-20261026-180130-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 18:07:42,18:12:50,2.97,1.44,1.53,0,False,
-20261026-181251-shopping-hpa_fast-flash_sale,reports/experiments,hpa_fast,flash_sale,2026-10-26 18:19:09,18:24:18,2.65,1.43,1.22,0,False,
-20261026-182422-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 18:35:21,18:40:28,1.89,0.75,1.14,0,False,
-20261026-184033-shopping-hpa_fast-gradual_ramp,reports/experiments,hpa_fast,gradual_ramp,2026-10-26 18:46:45,18:51:55,1.93,0.78,1.15,0,False,
-20261026-185204-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 19:03:22,19:08:30,1.49,0.6,0.89,0,False,
-20261026-190836-shopping-hpa_fast-traffic_drop,reports/experiments,hpa_fast,traffic_drop,2026-10-26 19:14:48,19:19:59,1.93,0.63,1.3,0,False,
-20261026-192013-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-26 19:26:22,19:31:31,4.34,1.57,2.77,0,True,2.8 cores outside Kubernetes
-20261026-193856-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 19:50:28,19:55:36,3.49,1.62,1.87,0,False,
-20261026-195537-shopping-hpa_fast-checkout_heavy,reports/experiments,hpa_fast,checkout_heavy,2026-10-26 20:01:55,20:07:05,3.1,1.64,1.46,0,False,
-20261026-200708-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 20:18:30,20:23:38,1.81,0.59,1.22,0,False,
-20261026-202339-shopping-hpa_fast-traffic_drop,reports/experiments,hpa_fast,traffic_drop,2026-10-26 20:29:56,20:35:06,1.35,0.59,0.76,0,False,
-20261027-004540-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 00:46:36,00:51:46,2.36,0.91,1.45,0,False,
-20261027-005147-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 01:03:27,01:08:37,2.21,0.88,1.33,0,False,
-20261027-010839-shopping-hpa_tuned-calibration_steady,reports/experiments_invalid,hpa_tuned,calibration_steady,2026-10-27 01:14:57,01:20:06,2.25,0.94,1.31,85,True,on battery 85 s
-20261027-012008-shopping-hpa_tuned-calibration_steady,reports/experiments_invalid,hpa_tuned,calibration_steady,2026-10-27 01:31:28,01:36:39,3.04,0.79,2.24,0,True,2.2 cores outside Kubernetes
-20261027-014406-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 01:44:55,01:50:04,1.68,0.89,0.79,0,False,
-20261027-015005-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:01:12,02:06:21,1.82,0.86,0.96,0,False,
-20261027-020623-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:12:36,02:17:45,2.06,0.92,1.15,0,False,
-20261027-021746-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:24:01,02:29:10,1.97,0.86,1.1,0,False,
-20261027-022925-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:40:14,02:45:24,1.79,0.9,0.89,0,False,
-20261027-024524-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:51:38,02:56:47,1.77,0.85,0.92,0,False,
-20261027-025811-shopping-flexascale-calibration_steady,reports/experiments_demo,flexascale,calibration_steady,2026-10-27 03:08:17,03:11:34,2.79,1.33,1.46,0,False,
-20261027-031135-shopping-auto-calibration_steady,reports/experiments_demo,auto,calibration_steady,2026-10-27 03:23:16,03:26:28,2.78,1.34,1.44,0,False,
-20261027-032629-shopping-flexascale-calibration_steady,reports/experiments_demo,flexascale,calibration_steady,2026-10-27 03:38:19,03:41:36,2.69,1.27,1.42,0,False,
-20261027-034420-shopping-hpa_tuned-steady_browsing,reports/experiments,hpa_tuned,steady_browsing,2026-10-27 03:50:13,03:55:22,1.4,0.7,0.69,0,False,
-20261027-035524-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-27 04:01:35,04:06:41,1.45,0.75,0.71,0,False,
-20261027-040643-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 04:13:03,04:18:19,1.92,0.69,1.23,0,False,
-20261027-041820-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 04:24:38,04:29:55,1.94,0.66,1.28,0,False,
-20261027-042957-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-27 04:41:19,04:46:32,1.93,0.68,1.25,0,False,
-20261027-044632-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 04:52:50,04:58:07,2.62,1.28,1.34,0,False,
-20261027-045807-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 05:09:25,05:14:42,2.66,1.32,1.35,0,False,
-20261027-051443-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-27 05:26:17,05:31:23,2.33,1.52,0.81,0,False,
-20261027-053125-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-27 05:37:40,05:42:53,2.66,1.31,1.35,0,False,
-20261027-054255-shopping-hpa_tuned-checkout_heavy,reports/experiments,hpa_tuned,checkout_heavy,2026-10-27 05:54:23,05:59:33,2.21,1.41,0.8,0,False,
-20261027-055933-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-27 06:11:11,06:16:27,2.24,0.95,1.29,0,False,
-20261027-061627-shopping-hpa_tuned-payment_degradation,reports/experiments,hpa_tuned,payment_degradation,2026-10-27 06:22:42,06:27:52,1.83,1.08,0.76,0,False,
-20261027-062753-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-27 06:39:05,06:44:12,1.83,1.09,0.74,0,False,
-20261027-064413-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-27 06:50:30,06:55:43,2.24,0.97,1.28,0,False,
-20261027-065544-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-27 07:07:17,07:12:33,2.43,1.06,1.37,0,False,
-20261027-071234-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-27 07:18:52,07:24:09,2.5,1.14,1.37,0,False,
-20261027-072409-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-27 07:35:15,07:40:32,2.54,1.13,1.4,0,False,
-20261027-074033-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-27 07:46:45,07:51:51,2.04,1.21,0.84,0,False,
-20261027-075152-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-27 08:03:11,08:08:24,2.54,1.16,1.38,0,False,
-20261027-080826-shopping-hpa_tuned-flash_sale,reports/experiments,hpa_tuned,flash_sale,2026-10-27 08:14:39,08:19:48,1.94,1.16,0.78,0,False,
-20261027-081950-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-27 08:31:14,08:36:26,2.08,0.74,1.34,0,False,
-20261027-083628-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-27 08:42:39,08:47:46,1.55,0.82,0.72,0,False,
-20261027-084748-shopping-hpa_tuned-gradual_ramp,reports/experiments,hpa_tuned,gradual_ramp,2026-10-27 08:59:14,09:04:23,1.5,0.76,0.74,0,False,
-20261027-090424-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-27 09:10:42,09:15:59,2.05,0.72,1.33,0,False,
-20261027-091600-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-27 09:27:24,09:32:41,1.96,0.71,1.25,0,False,
-20261027-093242-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-27 09:39:00,09:44:16,1.81,0.6,1.21,0,False,
-20261027-094417-shopping-hpa_tuned-traffic_drop,reports/experiments,hpa_tuned,traffic_drop,2026-10-27 09:50:30,09:55:39,1.37,0.66,0.72,0,False,
-20261027-095541-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-27 10:01:59,10:07:15,1.85,0.61,1.24,0,False,
-20261027-100716-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-27 10:13:27,10:18:34,1.43,0.69,0.74,0,False,
-20261027-101834-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-27 10:24:52,10:30:05,1.87,0.62,1.25,0,False,
-20261027-103005-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 10:36:23,10:41:40,2.06,0.75,1.31,0,False,
-20261027-104140-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-27 10:47:55,10:53:07,2.05,0.74,1.31,0,False,
-20261027-105308-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 11:04:14,11:09:30,2.0,0.74,1.27,0,False,
-20261027-110932-shopping-hpa_tuned-steady_browsing,reports/experiments,hpa_tuned,steady_browsing,2026-10-27 11:15:45,11:20:54,1.52,0.78,0.74,0,False,
-20261027-112056-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-27 11:32:06,11:37:13,1.57,0.82,0.75,0,False,
-20261027-113714-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-27 11:43:28,11:48:39,2.42,1.44,0.99,0,False,
-20261027-114841-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 11:55:02,12:00:18,2.79,1.33,1.46,0,False,
-20261027-120019-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 12:06:37,12:11:54,2.8,1.35,1.45,0,False,
-20261027-121155-shopping-hpa_tuned-checkout_heavy,reports/experiments,hpa_tuned,checkout_heavy,2026-10-27 12:23:10,12:28:19,2.33,1.44,0.89,0,False,
-20261027-122820-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-27 12:34:34,12:39:47,2.82,1.37,1.45,0,False,
-20261027-123948-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-27 12:51:10,12:56:16,2.12,1.26,0.86,0,False,
-20261027-125616-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-27 13:02:39,13:07:55,2.43,1.06,1.37,0,False,
-20261027-130756-shopping-hpa_tuned-payment_degradation,reports/experiments,hpa_tuned,payment_degradation,2026-10-27 13:19:13,13:24:22,2.0,1.17,0.83,0,False,
-20261027-132422-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-27 13:30:38,13:35:51,3.12,1.13,1.99,0,False,
-20261027-133552-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-27 13:47:23,13:52:40,3.02,1.12,1.9,0,False,
-20261027-135240-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-27 13:58:59,14:04:16,2.63,1.12,1.51,0,False,
-20261027-140418-shopping-hpa_tuned-flash_sale,reports/experiments,hpa_tuned,flash_sale,2026-10-27 14:10:31,14:15:40,1.93,1.16,0.77,0,False,
-20261027-141542-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-27 14:27:25,14:32:42,2.49,1.13,1.36,0,False,
-20261027-143242-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-27 14:44:16,14:49:23,2.09,1.21,0.88,0,False,
-20261027-144925-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-27 14:55:42,15:00:55,2.57,1.14,1.43,0,False,
-20261027-150056-shopping-hpa_tuned-gradual_ramp,reports/experiments,hpa_tuned,gradual_ramp,2026-10-27 15:12:22,15:17:35,2.78,1.01,1.76,0,False,
-20261027-172740-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-27 17:28:34,17:33:50,2.07,0.71,1.36,0,False,
-20261027-173350-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-27 17:45:11,17:50:17,1.59,0.79,0.8,0,False,
-20261027-175019-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-27 17:56:39,18:01:56,2.05,0.72,1.32,0,False,
-20261027-180157-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-27 18:13:15,18:18:27,2.1,0.74,1.36,0,False,
-20261027-181829-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-27 18:24:43,18:29:55,1.91,0.61,1.29,0,False,
-20261027-182956-shopping-hpa_tuned-traffic_drop,reports/experiments,hpa_tuned,traffic_drop,2026-10-27 18:36:09,18:41:18,1.36,0.64,0.73,0,False,
-20261027-184120-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-27 18:47:31,18:52:38,1.45,0.68,0.78,0,False,
-20261027-185240-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-27 18:59:00,19:04:16,1.87,0.62,1.25,0,False,
-20261027-190417-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-27 19:10:35,19:15:52,1.93,0.62,1.31,0,False,
+run,folder,controller,scenario,load_start,load_end,host_cores,k8s_cores,outside_cores,battery_s,host_affected,reason,cpu_mhz,app_cpu_ms_per_request
+20261022-231341-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-22 23:14:02,23:15:09,,,,67,True,on battery 67 s,,
+20261022-233320-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-22 23:34:13,23:35:52,,,,99,True,on battery 99 s,,
+20261022-233616-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-22 23:42:38,23:47:44,,,,214,True,on battery 214 s,,
+20261022-234747-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-22 23:54:10,00:01:24,,,,0,,unknown (no host CPU data),,
+20261023-001403-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-23 00:20:44,00:25:50,,,,0,,unknown (no host CPU data),,
+20261023-002554-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-23 00:37:01,00:42:07,,,,0,,unknown (no host CPU data),,
+20261023-004215-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-23 00:53:59,00:59:11,,,,0,,unknown (no host CPU data),,
+20261023-005916-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-23 01:10:48,01:16:01,,,,0,,unknown (no host CPU data),,
+20261023-011607-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-23 01:27:46,01:32:53,,,,0,,unknown (no host CPU data),,
+20261023-013258-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-23 01:39:11,01:44:18,,,,0,,unknown (no host CPU data),,
+20261023-014451-bookstore-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-23 01:50:34,01:52:42,,,,0,,unknown (no host CPU data),,
+20261024-152728-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-24 15:28:13,15:33:24,,,,0,,unknown (no host CPU data),,
+20261024-153329-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-24 15:40:17,15:45:30,,,,0,,unknown (no host CPU data),,
+20261024-154539-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-24 15:51:45,16:51:20,,,,0,,unknown (no host CPU data),,
+20261024-165144-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-24 16:57:34,17:02:48,,,,0,,unknown (no host CPU data),,
+20261024-170255-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-24 17:14:50,17:20:03,,,,0,,unknown (no host CPU data),,
+20261024-172006-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-24 17:31:48,17:36:54,,,,0,,unknown (no host CPU data),,
+20261024-173657-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-24 17:48:47,17:53:55,,,,0,,unknown (no host CPU data),,
+20261024-175357-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-24 18:05:52,18:10:58,,,,0,,unknown (no host CPU data),,
+20261024-181108-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-24 18:22:52,18:28:01,,,,4,True,on battery 4 s,,
+20261024-182809-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-24 18:34:17,18:39:24,,,,307,True,on battery 307 s,,
+20261024-183930-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-24 18:50:53,18:56:01,,,,4,True,on battery 4 s,,
+20261024-185611-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-24 19:07:53,19:13:00,,,,307,True,on battery 307 s,,
+20261024-191302-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-24 19:24:58,19:30:06,,,,308,True,on battery 308 s,,
+20261024-193117-bookstore-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-24 19:36:25,19:38:33,,,,128,True,on battery 128 s,,
+20261025-010311-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-25 01:03:56,01:09:02,,,,0,,unknown (no host CPU data),,
+20261025-010911-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-25 01:21:00,01:26:08,,,,0,,unknown (no host CPU data),,
+20261025-012612-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-25 01:37:59,01:43:05,,,,0,,unknown (no host CPU data),,
+20261025-014313-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-25 01:55:02,02:00:17,,,,0,,unknown (no host CPU data),,
+20261025-020024-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-25 02:12:02,02:17:08,,,,307,True,on battery 307 s,,
+20261025-021715-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-25 02:29:04,02:34:19,,,,314,True,on battery 314 s,,
+20261025-023426-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-25 02:46:03,02:51:10,,,,307,True,on battery 307 s,,
+20261025-025117-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-25 03:03:06,03:08:16,,,,309,True,on battery 309 s,,
+20261025-030818-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-25 03:19:50,03:24:57,,,,307,True,on battery 307 s,,
+20261025-032459-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-25 03:31:15,03:36:29,,,,314,True,on battery 314 s,,
+20261025-033630-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-25 03:47:52,03:52:58,,,,307,True,on battery 307 s,,
+20261025-035301-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-25 04:00:57,04:06:06,,,,310,True,on battery 310 s,,
+20261025-040612-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-25 04:17:52,04:23:04,,,,312,True,on battery 312 s,,
+20261025-042313-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-25 04:31:56,04:37:12,,,,316,True,on battery 316 s,,
+20261025-043714-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-25 04:48:54,04:57:05,,,,491,True,on battery 491 s,,
+20261025-113620-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-25 11:41:35,11:46:42,,,,0,,unknown (no host CPU data),,
+20261025-114650-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-25 11:57:53,12:03:01,,,,0,,unknown (no host CPU data),,
+20261025-120311-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-25 12:09:17,12:14:23,,,,0,,unknown (no host CPU data),,
+20261025-121432-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-25 12:20:40,12:25:48,,,,0,,unknown (no host CPU data),,
+20261025-122552-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-25 12:32:02,12:37:09,,,,0,,unknown (no host CPU data),,
+20261025-123713-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-25 12:43:25,12:48:33,,,,0,,unknown (no host CPU data),,
+20261025-124833-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-25 12:54:47,12:59:53,,,,0,,unknown (no host CPU data),,
+20261025-125954-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-25 13:11:57,13:17:05,,,,0,,unknown (no host CPU data),,
+20261025-131705-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-25 13:28:55,13:34:01,,,,0,,unknown (no host CPU data),,
+20261025-133406-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-25 13:40:18,13:45:26,,,,0,,unknown (no host CPU data),,
+20261025-192442-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-25 19:25:30,19:28:39,,,,189,True,on battery 189 s,,
+20261025-192934-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-25 19:34:56,19:40:07,,,,312,True,on battery 312 s,,
+20261025-200213-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-25 20:03:00,20:08:12,2.02,1.15,0.87,312,True,on battery 312 s,1628,51.36
+20261025-200814-shopping-auto-steady_browsing,reports/experiments_invalid,auto,steady_browsing,2026-10-25 20:19:17,20:24:35,2.6,1.21,1.39,318,True,on battery 318 s,2650,56.55
+20261025-202445-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-25 20:36:18,20:41:31,3.7,1.8,1.9,313,True,on battery 313 s,1147,132.13
+20261025-204137-shopping-auto-checkout_heavy,reports/experiments_invalid,auto,checkout_heavy,2026-10-25 20:47:51,20:53:11,4.89,1.9,2.99,533,True,on battery 533 s; 3.0 cores outside Kubernetes,1323,126.76
+20261025-205320-shopping-hpa-payment_degradation,reports/experiments_invalid,hpa,payment_degradation,2026-10-25 21:04:24,21:09:31,3.38,1.58,1.81,615,True,on battery 615 s,1397,118.5
+20261025-210931-shopping-auto-payment_degradation,reports/experiments_invalid,auto,payment_degradation,2026-10-25 21:21:25,21:26:42,5.43,1.98,3.46,634,True,on battery 634 s; 3.5 cores outside Kubernetes,1212,149.18
+20261025-212644-shopping-hpa-flash_sale,reports/experiments_invalid,hpa,flash_sale,2026-10-25 21:38:24,21:43:31,2.68,1.51,1.17,615,True,on battery 615 s,1221,154.27
+20261025-214335-shopping-auto-flash_sale,reports/experiments_invalid,auto,flash_sale,2026-10-25 21:49:50,21:55:04,3.79,1.54,2.24,629,True,on battery 629 s; 2.2 cores outside Kubernetes,1330,148.38
+20261025-215507-shopping-hpa-gradual_ramp,reports/experiments_invalid,hpa,gradual_ramp,2026-10-25 22:06:27,22:11:34,2.56,1.4,1.16,614,True,on battery 614 s,1241,99.36
+20261025-221139-shopping-auto-gradual_ramp,reports/experiments_invalid,auto,gradual_ramp,2026-10-25 22:17:53,22:23:04,3.68,1.55,2.13,622,True,on battery 622 s; 2.1 cores outside Kubernetes,1120,102.36
+20261025-222311-shopping-hpa-traffic_drop,reports/experiments_invalid,hpa,traffic_drop,2026-10-25 22:34:27,22:39:33,2.42,0.86,1.56,28,True,on battery 28 s,1802,68.25
+20261025-223942-shopping-auto-traffic_drop,reports/experiments_invalid,auto,traffic_drop,2026-10-25 22:51:33,22:57:00,8.49,1.93,6.56,327,True,on battery 327 s; 6.6 cores outside Kubernetes,962,203.14
+20261025-225706-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-25 23:03:25,23:08:33,6.9,1.89,5.02,308,True,on battery 308 s; 5.0 cores outside Kubernetes,919,87.57
+20261025-230838-shopping-auto-steady_browsing,reports/experiments_invalid,auto,steady_browsing,2026-10-25 23:20:36,23:25:54,4.83,1.89,2.94,318,True,on battery 318 s; 2.9 cores outside Kubernetes,1121,90.55
+20261025-232041-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-25 23:21:35,23:26:45,4.38,1.75,2.63,310,True,on battery 310 s; 2.6 cores outside Kubernetes,1147,97.91
+20261025-232600-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-25 23:37:30,23:42:37,2.23,1.29,0.94,0,False,,1800,78.9
+20261025-234242-shopping-auto-checkout_heavy,reports/experiments_invalid,auto,checkout_heavy,2026-10-25 23:48:56,23:54:09,5.08,1.46,3.62,0,True,3.6 cores outside Kubernetes,2066,85.95
+20261025-235413-shopping-hpa-payment_degradation,reports/experiments_invalid,hpa,payment_degradation,2026-10-26 00:05:22,00:10:36,4.97,1.71,3.26,0,True,3.3 cores outside Kubernetes,2133,163.19
+20261026-001045-shopping-auto-payment_degradation,reports/experiments_invalid,auto,payment_degradation,2026-10-26 00:16:56,00:22:06,6.25,1.85,4.4,0,True,4.4 cores outside Kubernetes,2113,125.68
+20261026-002206-shopping-hpa-flash_sale,reports/experiments_invalid,hpa,flash_sale,2026-10-26 00:33:22,00:38:30,4.67,1.59,3.08,0,True,3.1 cores outside Kubernetes,2167,169.0
+20261026-003838-shopping-auto-flash_sale,reports/experiments_invalid,auto,flash_sale,2026-10-26 00:47:28,00:52:42,5.28,1.58,3.7,0,True,3.7 cores outside Kubernetes,1952,158.09
+20261026-005249-shopping-hpa-gradual_ramp,reports/experiments_invalid,hpa,gradual_ramp,2026-10-26 01:04:27,01:09:35,4.28,1.42,2.85,0,True,2.9 cores outside Kubernetes,2069,98.6
+20261026-010940-shopping-auto-gradual_ramp,reports/experiments_invalid,auto,gradual_ramp,2026-10-26 01:15:54,01:21:05,4.97,1.5,3.47,0,True,3.5 cores outside Kubernetes,1944,98.8
+20261026-012112-shopping-hpa-traffic_drop,reports/experiments_invalid,hpa,traffic_drop,2026-10-26 01:32:30,01:37:38,3.53,0.93,2.6,0,True,2.6 cores outside Kubernetes,1550,75.93
+20261026-013743-shopping-auto-traffic_drop,reports/experiments_invalid,auto,traffic_drop,2026-10-26 01:43:56,01:49:06,5.25,1.48,3.77,0,True,3.8 cores outside Kubernetes,2084,142.09
+20261026-014914-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-26 02:00:26,02:05:33,1.91,1.16,0.75,0,False,,1614,51.69
+20261026-020535-shopping-auto-steady_browsing,reports/experiments_invalid,auto,steady_browsing,2026-10-26 02:17:28,02:22:37,2.53,1.23,1.3,0,False,,2675,56.13
+20261026-022247-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-26 02:34:26,02:39:32,1.81,1.07,0.75,0,False,,2130,61.22
+20261026-023938-shopping-auto-checkout_heavy,reports/experiments_invalid,auto,checkout_heavy,2026-10-26 02:51:29,02:56:39,2.32,1.07,1.24,0,False,,2710,59.48
+20261026-025639-shopping-hpa-payment_degradation,reports/experiments_invalid,hpa,payment_degradation,2026-10-26 03:02:55,03:08:01,1.53,0.84,0.69,0,False,,2442,49.38
+20261026-030810-shopping-auto-payment_degradation,reports/experiments_invalid,auto,payment_degradation,2026-10-26 03:14:17,03:19:26,1.89,0.76,1.14,0,False,,2055,39.47
+20261026-032241-shopping-auto-flash_sale,reports/experiments_invalid,auto,flash_sale,2026-10-26 03:30:34,03:35:44,2.35,1.15,1.2,0,False,,1589,94.89
+20261026-033552-shopping-hpa-gradual_ramp,reports/experiments_invalid,hpa,gradual_ramp,2026-10-26 03:42:00,03:47:12,1.83,1.17,0.66,0,False,,1843,80.67
+20261026-034713-shopping-auto-gradual_ramp,reports/experiments_invalid,auto,gradual_ramp,2026-10-26 03:58:17,04:03:26,2.43,1.19,1.24,0,False,,2264,83.52
+20261026-040335-shopping-hpa-traffic_drop,reports/experiments_invalid,hpa,traffic_drop,2026-10-26 04:13:19,04:18:25,1.7,1.04,0.66,0,False,,1868,91.3
+20261026-041826-shopping-auto-traffic_drop,reports/experiments_invalid,auto,traffic_drop,2026-10-26 04:26:18,04:31:28,1.97,0.84,1.13,0,False,,2856,67.68
+20261026-043500-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-26 04:39:22,04:44:28,1.42,0.74,0.68,0,False,,1855,25.84
+20261026-044431-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-26 04:50:45,04:55:55,1.91,0.71,1.2,0,False,,1661,23.38
+20261026-045602-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 05:02:11,05:07:18,2.27,1.51,0.75,0,False,,1915,61.28
+20261026-050723-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-26 05:18:24,05:23:33,2.71,1.39,1.32,0,False,,1652,55.83
+20261026-052334-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 05:29:48,05:34:54,1.75,1.06,0.69,0,False,,1654,52.57
+20261026-053455-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-26 05:41:10,05:46:19,2.2,1.0,1.2,0,False,,2734,48.96
+20261026-054626-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 05:57:26,06:02:33,2.46,1.57,0.89,0,False,,1740,82.54
+20261026-060237-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-26 06:08:49,06:13:59,2.67,1.32,1.35,0,False,,2524,69.25
+20261026-061408-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 06:20:14,06:25:21,1.3,0.69,0.61,0,False,,1630,35.89
+20261026-062529-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-26 06:36:25,06:41:35,1.83,0.65,1.17,0,False,,1508,31.98
+20261026-064140-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 06:47:50,06:52:56,1.19,0.59,0.59,0,False,,1619,38.32
+20261026-065301-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-26 06:59:12,07:04:22,1.7,0.57,1.13,0,False,,1487,33.12
+20261026-070422-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-26 07:10:37,07:15:44,1.39,0.75,0.64,0,False,,1640,26.24
+20261026-071553-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-26 07:22:00,07:27:10,1.91,0.69,1.22,0,False,,2788,23.64
+20261026-072714-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 07:38:32,07:43:38,2.31,1.52,0.78,0,False,,2032,62.17
+20261026-074345-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-26 07:49:54,07:55:03,2.74,1.39,1.36,0,False,,2329,54.44
+20261026-075506-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 08:06:35,08:11:41,1.75,1.08,0.67,0,False,,2385,53.99
+20261026-081148-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-26 08:17:57,08:23:07,2.22,1.01,1.21,0,False,,1987,48.84
+20261026-082309-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 08:34:19,08:39:26,2.32,1.46,0.86,0,False,,2065,78.38
+20261026-083930-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-26 08:45:42,08:50:51,2.78,1.41,1.38,0,False,,1824,71.7
+20261026-085101-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 08:57:07,09:02:13,1.29,0.68,0.61,0,False,,2752,35.0
+20261026-090222-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-26 09:13:23,09:18:32,1.83,0.65,1.19,0,False,,2539,31.34
+20261026-091833-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 09:24:48,09:29:55,1.2,0.6,0.6,0,False,,2325,39.41
+20261026-093004-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-26 09:36:10,09:41:20,1.7,0.55,1.15,0,False,,2949,33.9
+20261026-094125-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-26 09:47:37,09:52:43,1.41,0.74,0.67,0,False,,2317,26.65
+20261026-095246-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-26 09:58:58,10:04:07,1.92,0.7,1.21,0,False,,2732,23.61
+20261026-100417-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 10:15:21,10:20:27,2.32,1.53,0.79,0,False,,2211,63.61
+20261026-102028-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-26 10:26:43,10:31:53,3.02,1.38,1.64,0,False,,2584,54.01
+20261026-103159-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 10:43:26,10:48:32,1.79,1.08,0.71,0,False,,2160,54.31
+20261026-104840-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-26 10:54:49,10:59:58,2.31,1.01,1.3,0,False,,2680,49.49
+20261026-110001-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 11:11:24,11:16:30,2.27,1.43,0.85,0,False,,2163,77.73
+20261026-111632-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-26 11:22:46,11:27:56,2.83,1.43,1.4,0,False,,1959,74.1
+20261026-112803-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 11:34:13,11:39:19,1.34,0.7,0.64,0,False,,1388,36.49
+20261026-113924-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-26 11:50:28,11:55:42,3.55,1.09,2.46,218,True,on battery 218 s; 2.5 cores outside Kubernetes,1260,58.69
+20261026-115546-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 12:02:02,12:07:10,2.39,0.84,1.55,308,True,on battery 308 s,1156,59.49
+20261026-120718-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-26 12:13:28,12:18:42,2.86,0.92,1.94,314,True,on battery 314 s,1280,61.3
+20261026-122013-shopping-hpa_fast-traffic_drop,reports/experiments_invalid,hpa_fast,traffic_drop,2026-10-26 12:25:10,12:30:24,4.42,1.09,3.33,314,True,on battery 314 s; 3.3 cores outside Kubernetes,1077,81.26
+20261026-123025-shopping-hpa_fast-flash_sale,reports/experiments_invalid,hpa_fast,flash_sale,2026-10-26 12:36:43,12:41:57,5.85,2.17,3.68,314,True,on battery 314 s; 3.7 cores outside Kubernetes,989,163.79
+20261026-124158-shopping-hpa_fast-checkout_heavy,reports/experiments_invalid,hpa_fast,checkout_heavy,2026-10-26 12:53:38,12:58:49,5.97,2.48,3.49,311,True,on battery 311 s; 3.5 cores outside Kubernetes,1059,133.59
+20261026-130803-shopping-hpa-traffic_drop,reports/experiments_invalid,hpa,traffic_drop,2026-10-26 13:08:53,13:14:01,1.63,0.61,1.02,0,False,,1291,40.25
+20261026-131404-shopping-hpa_fast-traffic_drop,reports/experiments_invalid,hpa_fast,traffic_drop,2026-10-26 13:20:20,13:25:30,6.2,0.57,5.62,0,True,5.6 cores outside Kubernetes,1670,34.52
+20261026-133325-shopping-auto-flash_sale,reports/experiments_demo,auto,flash_sale,2026-10-26 13:34:23,13:39:36,8.03,1.67,6.36,0,True,6.4 cores outside Kubernetes,2155,98.09
+20261026-140550-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-26 14:06:45,14:11:56,6.34,0.86,5.49,0,True,5.5 cores outside Kubernetes,2313,32.85
+20261026-141201-shopping-hpa_fast-steady_browsing,reports/experiments_invalid,hpa_fast,steady_browsing,2026-10-26 14:18:14,14:23:26,6.29,0.88,5.41,0,True,5.4 cores outside Kubernetes,2438,32.91
+20261026-142333-shopping-hpa-checkout_heavy,reports/experiments_invalid,hpa,checkout_heavy,2026-10-26 14:29:41,14:34:49,6.32,1.67,4.64,0,True,4.6 cores outside Kubernetes,2238,75.21
+20261026-143454-shopping-hpa_fast-checkout_heavy,reports/experiments_invalid,hpa_fast,checkout_heavy,2026-10-26 14:41:09,14:46:19,5.28,1.38,3.91,0,True,3.9 cores outside Kubernetes,2410,57.96
+20261026-144625-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 14:57:26,15:02:34,2.18,1.11,1.07,0,False,,1984,56.14
+20261026-150236-shopping-hpa_fast-payment_degradation,reports/experiments,hpa_fast,payment_degradation,2026-10-26 15:08:52,15:14:00,2.07,1.12,0.95,0,False,,2476,56.66
+20261026-151407-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 15:25:23,15:30:30,2.44,1.47,0.96,0,False,,1869,79.58
+20261026-153038-shopping-hpa_fast-flash_sale,reports/experiments,hpa_fast,flash_sale,2026-10-26 15:36:47,15:41:56,2.12,1.28,0.84,0,False,,2041,75.49
+20261026-154159-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 15:53:25,15:58:32,1.36,0.7,0.66,0,False,,1664,36.93
+20261026-155840-shopping-hpa_fast-gradual_ramp,reports/experiments,hpa_fast,gradual_ramp,2026-10-26 16:04:49,16:09:57,1.39,0.71,0.68,0,False,,1705,37.49
+20261026-161001-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 16:21:26,16:26:32,1.62,0.62,0.99,0,False,,1968,40.4
+20261026-162633-shopping-hpa_fast-traffic_drop,reports/experiments,hpa_fast,traffic_drop,2026-10-26 16:32:49,16:37:59,1.88,0.66,1.22,0,False,,1749,43.24
+20261026-163804-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-26 16:44:13,16:49:20,1.99,0.75,1.24,0,False,,1824,26.88
+20261026-164925-shopping-hpa_fast-steady_browsing,reports/experiments,hpa_fast,steady_browsing,2026-10-26 17:00:29,17:05:37,1.77,0.76,1.01,0,False,,1656,27.41
+20261026-170546-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 17:11:52,17:17:00,2.47,1.54,0.93,0,False,,2152,65.93
+20261026-171707-shopping-hpa_fast-checkout_heavy,reports/experiments,hpa_fast,checkout_heavy,2026-10-26 17:28:32,17:33:42,2.72,1.48,1.24,0,False,,1995,65.77
+20261026-173348-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-26 17:39:58,17:45:05,2.33,1.08,1.25,0,False,,2260,54.18
+20261026-174509-shopping-hpa_fast-payment_degradation,reports/experiments,hpa_fast,payment_degradation,2026-10-26 17:56:18,18:01:27,1.98,1.07,0.9,0,False,,1981,54.63
+20261026-180130-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-26 18:07:42,18:12:50,2.97,1.44,1.53,0,False,,2333,82.0
+20261026-181251-shopping-hpa_fast-flash_sale,reports/experiments,hpa_fast,flash_sale,2026-10-26 18:19:09,18:24:18,2.65,1.43,1.22,0,False,,2089,86.14
+20261026-182422-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-26 18:35:21,18:40:28,1.89,0.75,1.14,0,False,,1814,40.23
+20261026-184033-shopping-hpa_fast-gradual_ramp,reports/experiments,hpa_fast,gradual_ramp,2026-10-26 18:46:45,18:51:55,1.93,0.78,1.15,0,False,,1586,41.75
+20261026-185204-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 19:03:22,19:08:30,1.49,0.6,0.89,0,False,,1972,38.83
+20261026-190836-shopping-hpa_fast-traffic_drop,reports/experiments,hpa_fast,traffic_drop,2026-10-26 19:14:48,19:19:59,1.93,0.63,1.3,0,False,,1168,41.41
+20261026-192013-shopping-hpa-steady_browsing,reports/experiments_invalid,hpa,steady_browsing,2026-10-26 19:26:22,19:31:31,4.34,1.57,2.77,0,True,2.8 cores outside Kubernetes,937,62.96
+20261026-193856-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-26 19:50:28,19:55:36,3.49,1.62,1.87,0,False,,2116,72.69
+20261026-195537-shopping-hpa_fast-checkout_heavy,reports/experiments,hpa_fast,checkout_heavy,2026-10-26 20:01:55,20:07:05,3.1,1.64,1.46,0,False,,2724,71.47
+20261026-200708-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-26 20:18:30,20:23:38,1.81,0.59,1.22,0,False,,3045,37.67
+20261026-202339-shopping-hpa_fast-traffic_drop,reports/experiments,hpa_fast,traffic_drop,2026-10-26 20:29:56,20:35:06,1.35,0.59,0.76,0,False,,1841,38.65
+20261027-004540-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 00:46:36,00:51:46,2.36,0.91,1.45,0,False,,1859,40.13
+20261027-005147-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 01:03:27,01:08:37,2.21,0.88,1.33,0,False,,1955,39.27
+20261027-010839-shopping-hpa_tuned-calibration_steady,reports/experiments_invalid,hpa_tuned,calibration_steady,2026-10-27 01:14:57,01:20:06,2.25,0.94,1.31,85,True,on battery 85 s,1753,40.4
+20261027-012008-shopping-hpa_tuned-calibration_steady,reports/experiments_invalid,hpa_tuned,calibration_steady,2026-10-27 01:31:28,01:36:39,3.04,0.79,2.24,0,True,2.2 cores outside Kubernetes,2359,35.16
+20261027-014406-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 01:44:55,01:50:04,1.68,0.89,0.79,0,False,,1706,38.03
+20261027-015005-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:01:12,02:06:21,1.82,0.86,0.96,0,False,,1582,36.95
+20261027-020623-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:12:36,02:17:45,2.06,0.92,1.15,0,False,,1773,39.53
+20261027-021746-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:24:01,02:29:10,1.97,0.86,1.1,0,False,,2033,37.52
+20261027-022925-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:40:14,02:45:24,1.79,0.9,0.89,0,False,,1884,38.86
+20261027-024524-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-27 02:51:38,02:56:47,1.77,0.85,0.92,0,False,,2016,37.21
+20261027-025811-shopping-flexascale-calibration_steady,reports/experiments_demo,flexascale,calibration_steady,2026-10-27 03:08:17,03:11:34,2.79,1.33,1.46,0,False,,1525,38.72
+20261027-031135-shopping-auto-calibration_steady,reports/experiments_demo,auto,calibration_steady,2026-10-27 03:23:16,03:26:28,2.78,1.34,1.44,0,False,,1847,38.7
+20261027-032629-shopping-flexascale-calibration_steady,reports/experiments_demo,flexascale,calibration_steady,2026-10-27 03:38:19,03:41:36,2.69,1.27,1.42,0,False,,2122,36.49
+20261027-034420-shopping-hpa_tuned-steady_browsing,reports/experiments,hpa_tuned,steady_browsing,2026-10-27 03:50:13,03:55:22,1.4,0.7,0.69,0,False,,1443,25.74
+20261027-035524-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-27 04:01:35,04:06:41,1.45,0.75,0.71,0,False,,1688,26.56
+20261027-040643-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 04:13:03,04:18:19,1.92,0.69,1.23,0,False,,2684,23.26
+20261027-041820-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 04:24:38,04:29:55,1.94,0.66,1.28,0,False,,1572,23.39
+20261027-042957-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-27 04:41:19,04:46:32,1.93,0.68,1.25,0,False,,2729,23.14
+20261027-044632-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 04:52:50,04:58:07,2.62,1.28,1.34,0,False,,2633,55.28
+20261027-045807-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 05:09:25,05:14:42,2.66,1.32,1.35,0,False,,1680,55.68
+20261027-051443-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-27 05:26:17,05:31:23,2.33,1.52,0.81,0,False,,1637,66.96
+20261027-053125-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-27 05:37:40,05:42:53,2.66,1.31,1.35,0,False,,2772,56.03
+20261027-054255-shopping-hpa_tuned-checkout_heavy,reports/experiments,hpa_tuned,checkout_heavy,2026-10-27 05:54:23,05:59:33,2.21,1.41,0.8,0,False,,2034,65.19
+20261027-055933-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-27 06:11:11,06:16:27,2.24,0.95,1.29,0,False,,2443,47.23
+20261027-061627-shopping-hpa_tuned-payment_degradation,reports/experiments,hpa_tuned,payment_degradation,2026-10-27 06:22:42,06:27:52,1.83,1.08,0.76,0,False,,1952,55.06
+20261027-062753-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-27 06:39:05,06:44:12,1.83,1.09,0.74,0,False,,1971,55.43
+20261027-064413-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-27 06:50:30,06:55:43,2.24,0.97,1.28,0,False,,2452,47.39
+20261027-065544-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-27 07:07:17,07:12:33,2.43,1.06,1.37,0,False,,1653,55.65
+20261027-071234-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-27 07:18:52,07:24:09,2.5,1.14,1.37,0,False,,2717,67.69
+20261027-072409-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-27 07:35:15,07:40:32,2.54,1.13,1.4,0,False,,2021,68.67
+20261027-074033-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-27 07:46:45,07:51:51,2.04,1.21,0.84,0,False,,2489,85.07
+20261027-075152-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-27 08:03:11,08:08:24,2.54,1.16,1.38,0,False,,1381,71.5
+20261027-080826-shopping-hpa_tuned-flash_sale,reports/experiments,hpa_tuned,flash_sale,2026-10-27 08:14:39,08:19:48,1.94,1.16,0.78,0,False,,1827,79.53
+20261027-081950-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-27 08:31:14,08:36:26,2.08,0.74,1.34,0,False,,1536,40.35
+20261027-083628-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-27 08:42:39,08:47:46,1.55,0.82,0.72,0,False,,1567,49.28
+20261027-084748-shopping-hpa_tuned-gradual_ramp,reports/experiments,hpa_tuned,gradual_ramp,2026-10-27 08:59:14,09:04:23,1.5,0.76,0.74,0,False,,1360,43.69
+20261027-090424-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-27 09:10:42,09:15:59,2.05,0.72,1.33,0,False,,2479,40.69
+20261027-091600-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-27 09:27:24,09:32:41,1.96,0.71,1.25,0,False,,2572,38.16
+20261027-093242-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-27 09:39:00,09:44:16,1.81,0.6,1.21,0,False,,2191,43.4
+20261027-094417-shopping-hpa_tuned-traffic_drop,reports/experiments,hpa_tuned,traffic_drop,2026-10-27 09:50:30,09:55:39,1.37,0.66,0.72,0,False,,1534,46.61
+20261027-095541-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-27 10:01:59,10:07:15,1.85,0.61,1.24,0,False,,1324,43.98
+20261027-100716-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-27 10:13:27,10:18:34,1.43,0.69,0.74,0,False,,1614,49.28
+20261027-101834-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-27 10:24:52,10:30:05,1.87,0.62,1.25,0,False,,1587,41.77
+20261027-103005-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 10:36:23,10:41:40,2.06,0.75,1.31,0,False,,2714,27.31
+20261027-104140-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-27 10:47:55,10:53:07,2.05,0.74,1.31,0,False,,1457,26.75
+20261027-105308-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 11:04:14,11:09:30,2.0,0.74,1.27,0,False,,2775,26.37
+20261027-110932-shopping-hpa_tuned-steady_browsing,reports/experiments,hpa_tuned,steady_browsing,2026-10-27 11:15:45,11:20:54,1.52,0.78,0.74,0,False,,1879,29.17
+20261027-112056-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-27 11:32:06,11:37:13,1.57,0.82,0.75,0,False,,1581,31.82
+20261027-113714-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-27 11:43:28,11:48:39,2.42,1.44,0.99,0,False,,1966,91.76
+20261027-114841-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 11:55:02,12:00:18,2.79,1.33,1.46,0,False,,2734,74.46
+20261027-120019-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 12:06:37,12:11:54,2.8,1.35,1.45,0,False,,1753,73.87
+20261027-121155-shopping-hpa_tuned-checkout_heavy,reports/experiments,hpa_tuned,checkout_heavy,2026-10-27 12:23:10,12:28:19,2.33,1.44,0.89,0,False,,1649,83.26
+20261027-122820-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-27 12:34:34,12:39:47,2.82,1.37,1.45,0,False,,1818,75.8
+20261027-123948-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-27 12:51:10,12:56:16,2.12,1.26,0.86,0,False,,2021,71.92
+20261027-125616-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-27 13:02:39,13:07:55,2.43,1.06,1.37,0,False,,1689,57.22
+20261027-130756-shopping-hpa_tuned-payment_degradation,reports/experiments,hpa_tuned,payment_degradation,2026-10-27 13:19:13,13:24:22,2.0,1.17,0.83,0,False,,1569,65.94
+20261027-132422-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-27 13:30:38,13:35:51,3.12,1.13,1.99,0,False,,2873,59.8
+20261027-133552-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-27 13:47:23,13:52:40,3.02,1.12,1.9,0,False,,2714,60.83
+20261027-135240-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-27 13:58:59,14:04:16,2.63,1.12,1.51,0,False,,1678,71.82
+20261027-140418-shopping-hpa_tuned-flash_sale,reports/experiments,hpa_tuned,flash_sale,2026-10-27 14:10:31,14:15:40,1.93,1.16,0.77,0,False,,1939,81.37
+20261027-141542-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-27 14:27:25,14:32:42,2.49,1.13,1.36,0,False,,2454,71.92
+20261027-143242-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-27 14:44:16,14:49:23,2.09,1.21,0.88,0,False,,1448,90.9
+20261027-144925-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-27 14:55:42,15:00:55,2.57,1.14,1.43,0,False,,1687,71.06
+20261027-150056-shopping-hpa_tuned-gradual_ramp,reports/experiments,hpa_tuned,gradual_ramp,2026-10-27 15:12:22,15:17:35,2.78,1.01,1.76,0,False,,1092,62.77
+20261027-172740-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-27 17:28:34,17:33:50,2.07,0.71,1.36,0,False,,2660,39.85
+20261027-173350-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-27 17:45:11,17:50:17,1.59,0.79,0.8,0,False,,1510,47.44
+20261027-175019-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-27 17:56:39,18:01:56,2.05,0.72,1.32,0,False,,1251,39.68
+20261027-180157-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-27 18:13:15,18:18:27,2.1,0.74,1.36,0,False,,1288,39.3
+20261027-181829-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-27 18:24:43,18:29:55,1.91,0.61,1.29,0,False,,1169,41.53
+20261027-182956-shopping-hpa_tuned-traffic_drop,reports/experiments,hpa_tuned,traffic_drop,2026-10-27 18:36:09,18:41:18,1.36,0.64,0.73,0,False,,1598,48.01
+20261027-184120-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-27 18:47:31,18:52:38,1.45,0.68,0.78,0,False,,1601,50.9
+20261027-185240-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-27 18:59:00,19:04:16,1.87,0.62,1.25,0,False,,1508,44.51
+20261027-190417-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-27 19:10:35,19:15:52,1.93,0.62,1.31,0,False,,1435,42.92
+20261027-193148-shopping-hpa_tuned-steady_browsing,reports/experiments_demo,hpa_tuned,steady_browsing,2026-10-27 19:32:36,19:37:44,0.81,0.4,0.41,0,False,,2134,14.91
+20261027-193749-shopping-flexascale-steady_browsing,reports/experiments_demo,flexascale,steady_browsing,2026-10-27 19:44:02,19:49:13,1.39,0.45,0.93,0,False,,2824,15.71
+20261027-194920-shopping-flexascale-steady_browsing,reports/experiments_demo,flexascale,steady_browsing,2026-10-27 19:55:31,20:00:41,1.38,0.45,0.93,0,False,,2489,15.55
+20261027-200050-shopping-hpa_tuned-steady_browsing,reports/experiments_demo,hpa_tuned,steady_browsing,2026-10-27 20:06:55,20:12:03,0.81,0.39,0.42,0,False,,2057,14.82
+20261027-201526-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-27 20:18:18,20:23:28,1.41,0.46,0.95,0,False,,2463,15.84
+20261027-202330-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 20:29:47,20:34:58,1.4,0.45,0.95,0,False,,2127,15.58
+20261027-203459-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-27 20:41:16,20:46:26,1.41,0.45,0.96,0,False,,2259,15.66
+20261027-204627-shopping-hpa_tuned-steady_browsing,reports/experiments,hpa_tuned,steady_browsing,2026-10-27 20:52:40,20:57:48,0.82,0.4,0.42,0,False,,2825,14.54
+20261027-205750-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 21:04:07,21:09:17,2.03,0.98,1.06,0,False,,2448,41.37
+20261027-210918-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-27 21:15:35,21:20:46,2.02,0.97,1.05,0,False,,2388,42.29
+20261027-212047-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-27 21:32:07,21:37:18,2.04,0.98,1.06,0,False,,2706,41.78
+20261027-213720-shopping-hpa_tuned-checkout_heavy,reports/experiments,hpa_tuned,checkout_heavy,2026-10-27 21:43:32,21:48:42,1.79,1.02,0.77,0,False,,2176,47.41
+20261028-000947-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-28 00:10:36,00:15:47,1.79,0.68,1.11,0,False,,2203,33.29
+20261028-001548-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-28 00:22:05,00:27:16,1.72,0.69,1.03,0,False,,1862,33.71
+20261028-002716-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-28 00:33:34,00:38:44,1.71,0.69,1.02,0,False,,2748,33.92
+20261028-003845-shopping-hpa_tuned-payment_degradation,reports/experiments,hpa_tuned,payment_degradation,2026-10-28 00:44:58,00:50:06,1.13,0.62,0.51,0,False,,2279,32.18
+20261028-005008-shopping-hpa_tuned-flash_sale,reports/experiments,hpa_tuned,flash_sale,2026-10-28 01:01:15,01:06:23,1.44,0.85,0.58,0,False,,2205,46.02
+20261028-010624-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-28 01:12:42,01:17:52,2.09,0.93,1.16,0,False,,2995,49.31
+20261028-011753-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-28 01:24:07,01:29:18,2.03,0.92,1.1,0,False,,2041,49.07
+20261028-012918-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-28 01:35:36,01:40:46,1.96,0.93,1.04,0,False,,1974,49.39
+20261028-014047-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-28 01:47:04,01:52:15,1.36,0.44,0.93,0,False,,2276,22.51
+20261028-015216-shopping-hpa_tuned-gradual_ramp,reports/experiments,hpa_tuned,gradual_ramp,2026-10-28 02:03:17,02:08:25,0.83,0.4,0.43,0,False,,1738,22.87
+20261028-020826-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-28 02:14:40,02:19:51,1.4,0.44,0.96,0,False,,2596,22.47
+20261028-021953-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-28 02:26:10,02:31:21,1.42,0.47,0.95,0,False,,1923,25.03
+20261028-023121-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-28 02:37:35,02:42:46,1.29,0.38,0.91,0,False,,1964,24.78
+20261028-024248-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-28 02:49:05,02:54:16,1.27,0.37,0.9,0,False,,1939,24.37
+20261028-025416-shopping-hpa_tuned-traffic_drop,reports/experiments,hpa_tuned,traffic_drop,2026-10-28 03:00:29,03:05:38,0.76,0.32,0.44,0,False,,2030,23.07
+20261028-030539-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-28 03:11:56,03:17:07,1.29,0.37,0.92,0,False,,2216,24.43
+20261028-031707-shopping-hpa_tuned-steady_browsing,reports/experiments,hpa_tuned,steady_browsing,2026-10-28 03:23:20,03:28:28,0.83,0.4,0.42,0,False,,2158,15.38
+20261028-032830-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-28 03:34:47,03:39:58,1.41,0.46,0.95,0,False,,2231,15.63
+20261028-033958-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-28 03:46:16,03:51:26,1.39,0.45,0.94,0,False,,2191,15.65
+20261028-035127-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-28 03:57:41,04:02:52,1.41,0.45,0.96,0,False,,2938,15.75
+20261028-040254-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-28 04:09:06,04:14:16,2.06,1.0,1.05,0,False,,2596,43.42
+20261028-041417-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-28 04:20:34,04:25:47,2.04,0.98,1.05,0,False,,3060,43.92
+20261028-042549-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-28 04:32:04,04:37:15,2.05,1.0,1.05,0,False,,3303,42.44
+20261028-043716-shopping-hpa_tuned-checkout_heavy,reports/experiments,hpa_tuned,checkout_heavy,2026-10-28 04:43:29,04:48:37,1.46,0.95,0.51,0,False,,2377,43.54
+20261028-044839-shopping-hpa_tuned-payment_degradation,reports/experiments,hpa_tuned,payment_degradation,2026-10-28 05:00:08,05:05:16,1.09,0.62,0.47,0,False,,2646,31.98
+20261028-050518-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-28 05:11:32,05:16:42,1.68,0.69,1.0,0,False,,2702,33.99
+20261028-051644-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-28 05:22:59,05:28:10,1.66,0.69,0.97,0,False,,2269,34.29
+20261028-052811-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-28 05:34:28,05:39:40,1.67,0.69,0.98,0,False,,2699,34.64
+20261028-053942-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-28 05:45:54,05:51:05,2.04,0.92,1.12,0,False,,2539,49.51
+20261028-055106-shopping-hpa_tuned-flash_sale,reports/experiments,hpa_tuned,flash_sale,2026-10-28 06:02:07,06:07:15,1.33,0.84,0.49,0,False,,3080,46.9
+20261028-060717-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-28 06:13:34,06:18:45,1.96,0.92,1.04,0,False,,3295,49.68
+20261028-061846-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-28 06:25:03,06:30:13,1.98,0.92,1.06,0,False,,3095,50.28
+20261028-063015-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-28 06:36:29,06:41:39,1.4,0.46,0.94,0,False,,3248,24.61
+20261028-064141-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-28 06:47:57,06:53:07,1.4,0.47,0.93,0,False,,2409,24.58
+20261028-065308-shopping-hpa_tuned-gradual_ramp,reports/experiments,hpa_tuned,gradual_ramp,2026-10-28 06:59:21,07:04:29,0.82,0.39,0.42,0,False,,2497,22.66
+20261028-070431-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-28 07:10:48,07:15:58,1.42,0.47,0.95,0,False,,2222,25.21
+20261028-071559-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-28 07:22:16,07:27:27,1.28,0.37,0.91,0,False,,2096,24.43
+20261028-072728-shopping-hpa_tuned-traffic_drop,reports/experiments,hpa_tuned,traffic_drop,2026-10-28 07:33:41,07:38:49,0.72,0.34,0.38,0,False,,2093,24.81
+20261028-073850-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-28 07:45:04,07:50:15,1.31,0.37,0.94,0,False,,2068,24.16
+20261028-075017-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-28 07:56:34,08:01:44,1.3,0.37,0.92,0,False,,2785,23.99

@@ -181,26 +181,30 @@ def test_rule_runs_are_labelled_by_their_rule_not_a_model():
 
 
 def test_benchmark_against_the_tuned_hpa_pairs_within_blocks_and_uses_the_v7_rule():
-    from flexascale.lab.benchmark import VERDICT_RULE_V7
+    from flexascale.lab.benchmark import STUDY_SUFFIXES, VERDICT_RULE_V7
 
     runs = [_run("t1", "hpa_tuned", 1, "v7-b01-hpa_tuned", hpa_cpu_target_pct=350, hpa_scale_down_window_s=60),
             _run("d1", "hpa", 2, "v7-b01-hpa_default"), _run("r1", "flexascale", 3, "v7-b01-rl"),
             _run("old", "hpa_tuned", 0)]                     # unlabelled: never paired against the tuned reference
+    batch = STUDY_SUFFIXES["v7-"]
     out = benchmark(runs, _compare, reference="hpa_tuned")
     models = {m["model"]: m for m in out["models"]}
-    assert set(models) == {"Native HPA (default)", "v7"} and out["reference_label"] == "native HPA, tuned"
-    assert models["v7"]["pairs"][0]["baseline"] == "t1" and models["v7"]["verdict_rule"] == VERDICT_RULE_V7
+    assert set(models) == {"Native HPA (default)" + batch, "v7" + batch} and out["reference_label"] == "native HPA, tuned"
+    assert models["v7" + batch]["pairs"][0]["baseline"] == "t1" and models["v7" + batch]["verdict_rule"] == VERDICT_RULE_V7
     default = benchmark(runs, _compare)                      # default reference: block pairing against the default HPA
-    assert {m["model"]: m for m in default["models"]}["v7"]["pairs"][0]["baseline"] == "d1"
+    assert {m["model"]: m for m in default["models"]}["v7" + batch]["pairs"][0]["baseline"] == "d1"
 
 
 def test_flash_sale_study_is_never_pooled_with_the_batch():
-    from flexascale.lab.benchmark import SPIKE_SUFFIX
+    from flexascale.lab.benchmark import SPIKE_SUFFIX, STUDY_SUFFIXES
 
     runs = [_run("t1", "hpa_tuned", 1, "v7-b01-hpa_tuned", hpa_cpu_target_pct=250, hpa_scale_down_window_s=60),
             _run("r1", "flexascale", 2, "v7-b01-rl"),
             _run("t2", "hpa_tuned", 3, "v7s-b01-hpa_tuned", hpa_cpu_target_pct=250, hpa_scale_down_window_s=60),
             _run("r2", "flexascale", 4, "v7s-b01-rl")]
+    runs += [_run("t3", "hpa_tuned", 5, "v7r-b01-hpa_tuned", hpa_cpu_target_pct=250, hpa_scale_down_window_s=60),
+             _run("r3", "flexascale", 6, "v7r-b01-rl")]
     models = {m["model"]: m for m in benchmark(runs, _compare, reference="hpa_tuned")["models"]}
-    assert [p["baseline"] for p in models["v7"]["pairs"]] == ["t1"]
+    assert [p["baseline"] for p in models["v7" + STUDY_SUFFIXES["v7-"]]["pairs"]] == ["t1"]
     assert [p["baseline"] for p in models["v7" + SPIKE_SUFFIX]["pairs"]] == ["t2"]
+    assert [p["baseline"] for p in models["v7" + STUDY_SUFFIXES["v7r-"]]["pairs"]] == ["t3"]

@@ -26,6 +26,9 @@ _T95 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8
 
 REFERENCES = {"hpa": "native HPA (default)", "hpa_tuned": "native HPA, tuned"}
 SPIKE_SUFFIX = " · flash-sale study (POLICY_V7 §3.6)"
+# each pre-registered study is its own group, never pooled with another (docs/POLICY_V7.md §3.6, §3.7, §5)
+STUDY_SUFFIXES = {"v7s-": SPIKE_SUFFIX, "v7r-": " · clock-controlled replication (POLICY_V7 §3.7)",
+                  "v7-": " · 12-block batch, CPU-clock confounded (POLICY_V7 §5)"}
 VERDICT_RULE_V7 = ("Verdict rule (docs/POLICY_V7.md §3.5, fixed before the v7 runs): beats on cost = replica-hours interval below 0, "
                    "p95 interval not entirely above 0 with mean <= +10%, failure interval not entirely above 0 with mean <= +0.10 pp, "
                    "throughput mean >= -2%, end-to-end SLO-violation mean <= +5 s, oscillations mean <= +5, and replica-hours lower "
@@ -171,8 +174,8 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
                 continue
             row = {x["metric"]: x for x in cmp["rows"]}
             pct = lambda m: (row.get(m) or {}).get("pct_change")
-            # the confirmatory flash-sale study (v7s-bNN-<arm>, POLICY_V7 §3.6) is its own group, never pooled with the batch
-            tag = model_tag(cand) + (SPIKE_SUFFIX if str(_block_id(block) or "").startswith("v7s-") else "")
+            bid = str(_block_id(block) or "")
+            tag = model_tag(cand) + next((sfx for pre, sfx in STUDY_SUFFIXES.items() if bid.startswith(pre)), "")
             groups.setdefault(tag, []).append({
                 "scenario": k[1], "baseline": hpa[-1]["id"], "candidate": cand["id"], "started_at": cand.get("started_at"),
                 "replica_hours_pct": pct("Replica-hours"),

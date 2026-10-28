@@ -1457,6 +1457,8 @@ Checkpoint selection uses the validation split; the test split is only used by `
 
 ## X. FlexaScale v7: fair HPA baseline, application twin, graph policy (docs/POLICY_V7.md)
 
+Result: on par with a fairly tuned native HPA (`docs/V7_REPORT.md`).
+
 All steps are scripted and write their results to `reports/v7/`. The rules each step applies (calibration, selection, verdict) were fixed in `docs/POLICY_V7.md` before the step ran.
 
 ```bash
@@ -1482,8 +1484,12 @@ python scripts/v7_plan.py evaluation --arms reports/v7/arms.json   # 12 blocks x
 # 5. Live evaluation (~11 h) and the pre-registered verdict
 nohup ./scripts/v7_evaluate.sh >> logs/v7_evaluation.out 2>&1 &    # plan, host-load check, reruns, verdict -> reports/v7/evaluation.md
 
-# 6. Confirmatory flash-sale study (POLICY_V7 §3.6; 10 blocks x 3 arms, ~6 h), starts by itself when step 5 has finished
-nohup ./scripts/v7_spike.sh >> logs/v7_spike.out 2>&1 &            # plan, host-load check, reruns, verdict -> reports/v7/spike.md
+# 6. Clock-controlled replication (POLICY_V7 §3.7; 12 blocks x 4 arms, ~11 h). Live comparisons on a laptop need the
+#    `performance` power profile: under `balanced` the application runs faster when the host is busier (V7_REPORT §4.1).
+python scripts/v7_plan.py replication --arms reports/v7/arms.json
+nohup ./scripts/v7_replicate.sh >> logs/v7_replication.out 2>&1 &  # sets `performance`; plan, reruns, verdict -> reports/v7/replication.md
+busctl call org.freedesktop.UPower.PowerProfiles /org/freedesktop/UPower/PowerProfiles org.freedesktop.DBus.Properties \
+  Set ssv org.freedesktop.UPower.PowerProfiles ActiveProfile s balanced    # afterwards: back to the normal profile
 ```
 
 * **New lab controller `hpa_tuned`:** it sets every HPA's CPU target (`hpa_cpu_target_pct`) and scale-down window (`hpa_scale_down_window_s`) for one run, and stores the originals on the HPA (`flexascale.io/original-metrics`, `flexascale.io/original-behavior`). Teardown restores them, and so does `procctl safe-state` after a crash. Auto and FlexaScale runs may pass the same two fields to choose the native HPA that takes over on hand-back.

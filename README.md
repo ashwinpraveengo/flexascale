@@ -4,16 +4,16 @@
 > http://127.0.0.1:8090/ (FlexaScale control center; see the top of [RUNNING.md](RUNNING.md)). Project summary, demo runbook and
 > viva notes are in `docs/`. Verified status of every component: `reports/final_readiness_report.md`.
 >
-> **Results in one paragraph.** On their own, the learned PPO+GNN policies (v3–v6) do **not** beat Kubernetes' native HPA. The
-> deployed one, v5, used 8% more replica-hours live (6% on the pairs run on AC power; `docs/POLICY_V5.md`, `docs/POLICY_V6.md`). **Auto mode** lets FlexaScale
-> scale a service only while explainable, logged rules (controller health → policy confidence → SLA risk → efficiency) allow it,
-> and hands the service back to native HPA otherwise. On the 16-service shop it used 3.9% fewer replica-hours (95% CI −6.5 … −1.3; estimated
-> cost −4.0% at AWS Fargate list prices) than default native HPA over 18 paired runs, with no measurable latency or failure penalty. Final numbers and
-> the verdict rule fixed in advance: `reports/live_benchmark_report.md`, `docs/POLICY_V6.md` §3.1 and §5. The saving comes from
-> scaling down sooner than HPA's default 300 s window. A native HPA tuned to a 60 s window also saves, but less (−1.4%, 95% CI −2.6 … −0.2,
-> 12 pairs, with 2.3% lower throughput); the indirect comparison does not show Auto saving more than that tuned HPA (−2.5 points, CI −5.4 … +0.3;
-> `docs/POLICY_V6.md` §5.2). So Auto's value is a learned controller acting safely and explainably, with a saving at least comparable to a tuned
-> HPA's; it is not shown to beat one.
+> **Results in one paragraph (2026-10-28).** The fair baseline is a *tuned* native HPA: CPU target 250%, 60 s window,
+> chosen by a calibration rule fixed in advance. Against it, FlexaScale v7 is **on par**. v7 is a graph policy over the shop's
+> call graph, trained in an application twin fitted to live runs. In a pre-registered, clock-controlled replication (48 runs,
+> 12 paired blocks), neither the learned policy nor Auto mode differs from HPA-tuned: replica-hours +0.1% (95% CI −0.1 … +0.2),
+> Auto's p95 +0.1% (CI −9.3 … +9.5). An earlier 60-run batch had shown Auto beating HPA-tuned on p95 (−21.6%), but that came
+> from the test environment. Under the laptop's `balanced` power profile the shop ran faster whenever FlexaScale's live control
+> kept the host busy; with the CPU clock controlled, the difference vanished (`docs/V7_REPORT.md`, `docs/POLICY_V7.md`).
+> Earlier comparisons with the *default* HPA (e.g. v6's Auto −3.9% replica-hours, `docs/POLICY_V6.md`) ran under the same
+> profile and may be affected too. So FlexaScale is a safe, explainable, per-service controller that performs like a
+> well-tuned HPA on this shop; it is not shown to beat one.
 
 FlexaScale is an RL-based intelligent autoscaling framework for distributed microservices on Kubernetes. This repository houses the realistic, cloud-native **E-Commerce Shopping Application** workload alongside the FlexaScale reinforcement learning research framework.
 
