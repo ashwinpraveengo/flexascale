@@ -1,0 +1,103 @@
+02:06:25 training (re)start after commit ef5ffa3: class-balanced warm start
+teacher rule (best on validation): limit_target(0.6/0.3)
+=== training focal_bc_s1 {'use_graph': True, 'reward': 'v7', 'seed': 1, 'design': 'focal', 'warm_start': True} (2000000 steps)
+02:22:48 focal_bc_s1 warm start from limit_target(0.6/0.3): {'teacher': 'limit_target(0.6/0.3 of limit)', 'episodes': 400, 'epsilon': 0.2, 'samples': 248838, 'label_counts': {'-1': 119637, '0': 128959, '1': 231, '2': 11, '3': 0}, 'agreement_heldout': 0.9889, 'recall_per_action_heldout': {'-1': 0.998, '0': 0.98, '1': 1.0}, 'recall_per_action_augmented_heldout': {'-1': 0.998, '0': 0.981, '1': 0.983, '2': 0.776, '3': 0.947}, 'value_mse_heldout': 5.3631, 'return_var_heldout': 11.96}
+02:22:51 focal_bc_s1        0 val reward     -4.17 repl-h 1.973 p95    312 slo   4.5 *best* (warm start)
+02:30:24 focal_bc_s1   250000 val reward     -4.22 repl-h 1.965 p95    344 slo   5.2
+02:32:33 focal_bc_s1   500000 val reward     -4.46 repl-h 1.950 p95    361 slo   7.2
+02:34:47 focal_bc_s1   750000 val reward     -3.82 repl-h 1.962 p95    308 slo   4.4 *best*
+02:37:05 focal_bc_s1  1000000 val reward     -3.56 repl-h 1.978 p95    287 slo   2.4 *best*
+02:39:22 focal_bc_s1  1250000 val reward     -3.58 repl-h 1.972 p95    297 slo   2.9
+02:46:51 focal_bc_s1  1500000 val reward     -4.14 repl-h 1.956 p95    325 slo   5.6
+02:49:03 focal_bc_s1  1750000 val reward     -3.77 repl-h 1.968 p95    300 slo   3.9
+02:51:17 focal_bc_s1  2000000 val reward     -4.09 repl-h 1.962 p95    307 slo   4.5
+=== training focal_bc_s2 {'use_graph': True, 'reward': 'v7', 'seed': 2, 'design': 'focal', 'warm_start': True} (2000000 steps)
+03:11:52 focal_bc_s2 warm start from limit_target(0.6/0.3): {'teacher': 'limit_target(0.6/0.3 of limit)', 'episodes': 400, 'epsilon': 0.2, 'samples': 266142, 'label_counts': {'-1': 130717, '0': 135153, '1': 252, '2': 10, '3': 10}, 'agreement_heldout': 0.9906, 'recall_per_action_heldout': {'-1': 0.994, '0': 0.987, '1': 0.9, '2': 1.0}, 'recall_per_action_augmented_heldout': {'-1': 0.993, '0': 0.983, '1': 0.946, '2': 0.989, '3': 0.932}, 'value_mse_heldout': 5.7512, 'return_var_heldout': 12.9581}
+03:11:54 focal_bc_s2        0 val reward     -4.07 repl-h 1.987 p95    301 slo   3.0 *best* (warm start)
+03:13:49 focal_bc_s2   250000 val reward     -3.35 repl-h 1.975 p95    276 slo   1.9 *best*
+03:15:55 focal_bc_s2   500000 val reward     -4.05 repl-h 1.997 p95    272 slo   1.9
+03:18:02 focal_bc_s2   750000 val reward     -4.81 repl-h 1.977 p95    356 slo   6.4
+03:20:10 focal_bc_s2  1000000 val reward     -4.29 repl-h 1.965 p95    327 slo   5.9
+03:22:17 focal_bc_s2  1250000 val reward     -4.14 repl-h 1.963 p95    323 slo   5.4
+03:27:49 focal_bc_s2  1500000 val reward     -4.36 repl-h 1.963 p95    351 slo   6.1
+03:29:55 focal_bc_s2  1750000 val reward     -5.25 repl-h 1.945 p95    413 slo  10.0
+03:32:02 focal_bc_s2  2000000 val reward     -5.42 repl-h 1.962 p95    367 slo   8.8
+=== training focal_bc_nograph_s1 {'use_graph': False, 'reward': 'v7', 'seed': 1, 'design': 'focal', 'warm_start': True} (2000000 steps)
+03:32:09 focal_bc_s2 saved; stopping training before the ablations (they resume after promotion)
+=== focal_bc_s1: already trained (2000000 steps, best validation reward -3.56); skipped (use --retrain to train again)
+=== focal_bc_s2: already trained (2000000 steps, best validation reward -3.35); skipped (use --retrain to train again)
+selected model: focal_bc_s2 | selected rule: limit_target(0.6/0.3)
+wrote /home/ashwin/flexascale/reports/v7/training_v7.json (selection only; test sets not run)
+03:44:26 ablations resume during the live evaluation (selection already fixed: focal_bc_s2); twin test sets follow them
+teacher rule (best on validation): limit_target(0.6/0.3)
+=== training focal_bc_nograph_s1 {'use_graph': False, 'reward': 'v7', 'seed': 1, 'design': 'focal', 'warm_start': True} (2000000 steps)
+03:55:26 focal_bc_nograph_s1 warm start from limit_target(0.6/0.3): {'teacher': 'limit_target(0.6/0.3 of limit)', 'episodes': 400, 'epsilon': 0.2, 'samples': 248838, 'label_counts': {'-1': 119637, '0': 128959, '1': 231, '2': 11, '3': 0}, 'agreement_heldout': 0.9939, 'recall_per_action_heldout': {'-1': 0.998, '0': 0.99, '1': 1.0}, 'recall_per_action_augmented_heldout': {'-1': 0.996, '0': 0.987, '1': 0.955, '2': 0.789, '3': 0.982}, 'value_mse_heldout': 6.9186, 'return_var_heldout': 11.96}
+03:55:28 focal_bc_nograph_s1        0 val reward     -4.06 repl-h 1.980 p95    304 slo   3.5 *best* (warm start)
+03:56:32 focal_bc_nograph_s1   250000 val reward     -4.48 repl-h 2.006 p95    288 slo   2.5
+03:57:42 focal_bc_nograph_s1   500000 val reward     -4.54 repl-h 2.007 p95    293 slo   2.8
+03:58:53 focal_bc_nograph_s1   750000 val reward     -5.41 repl-h 2.035 p95    277 slo   2.1
+04:00:05 focal_bc_nograph_s1  1000000 val reward     -5.18 repl-h 2.038 p95    253 slo   1.4
+04:01:17 focal_bc_nograph_s1  1250000 val reward     -4.57 repl-h 2.019 p95    257 slo   1.9
+04:07:45 focal_bc_nograph_s1  1500000 val reward     -5.46 repl-h 2.031 p95    284 slo   2.8
+04:08:57 focal_bc_nograph_s1  1750000 val reward     -4.33 repl-h 2.002 p95    293 slo   2.5
+04:10:10 focal_bc_nograph_s1  2000000 val reward     -4.62 repl-h 2.005 p95    305 slo   3.2
+=== training focal_bc_v5reward_s1 {'use_graph': True, 'reward': 'v5', 'seed': 1, 'design': 'focal', 'warm_start': True} (2000000 steps)
+04:32:06 focal_bc_v5reward_s1 warm start from limit_target(0.6/0.3): {'teacher': 'limit_target(0.6/0.3 of limit)', 'episodes': 400, 'epsilon': 0.2, 'samples': 248838, 'label_counts': {'-1': 119637, '0': 128959, '1': 231, '2': 11, '3': 0}, 'agreement_heldout': 0.9889, 'recall_per_action_heldout': {'-1': 0.998, '0': 0.98, '1': 1.0}, 'recall_per_action_augmented_heldout': {'-1': 0.998, '0': 0.981, '1': 0.983, '2': 0.776, '3': 0.947}, 'value_mse_heldout': 5.3631, 'return_var_heldout': 11.96}
+04:32:08 focal_bc_v5reward_s1        0 val reward     -4.17 repl-h 1.973 p95    312 slo   4.5 *best* (warm start)
+04:34:05 focal_bc_v5reward_s1   250000 val reward     -4.60 repl-h 1.988 p95    317 slo   4.4
+04:36:05 focal_bc_v5reward_s1   500000 val reward     -6.86 repl-h 1.933 p95    451 slo  12.1
+04:38:07 focal_bc_v5reward_s1   750000 val reward     -6.86 repl-h 1.933 p95    451 slo  12.1
+04:40:09 focal_bc_v5reward_s1  1000000 val reward     -6.86 repl-h 1.933 p95    451 slo  12.1
+04:47:38 focal_bc_v5reward_s1  1250000 val reward     -6.31 repl-h 1.936 p95    447 slo  12.1
+04:49:41 focal_bc_v5reward_s1  1500000 val reward     -6.86 repl-h 1.933 p95    451 slo  12.1
+04:51:46 focal_bc_v5reward_s1  1750000 val reward     -6.86 repl-h 1.933 p95    451 slo  12.1
+04:59:26 focal_bc_v5reward_s1  2000000 val reward     -6.86 repl-h 1.933 p95    451 slo  12.1
+selected model: focal_bc_s2 | selected rule: limit_target(0.6/0.3)
+T1_live_scenarios  HPA-default (70%, 300 s)                     reward    -11.22 repl-h 1.602 p95    264 mean    85 slo   1.0 ev   3.7 osc  0.0
+T1_live_scenarios  HPA 70%, 60 s                                reward    -11.00 repl-h 1.596 p95    264 mean    85 slo   1.0 ev   4.1 osc  0.4
+T1_live_scenarios  HPA 150%, 60 s                               reward     -3.86 repl-h 1.380 p95    376 mean   104 slo   4.5 ev   0.8 osc  0.1
+T1_live_scenarios  HPA 250%, 60 s                               reward     -3.12 repl-h 1.344 p95    410 mean   111 slo   5.7 ev   0.3 osc  0.0
+T1_live_scenarios  HPA 350%, 60 s                               reward     -3.61 repl-h 1.339 p95    458 mean   123 slo   7.7 ev   0.2 osc  0.0
+T1_live_scenarios  operator + threshold 70% (v5 guards)         reward     -8.84 repl-h 1.502 p95    274 mean    88 slo   1.5 ev  19.7 osc 14.8
+T1_live_scenarios  operator + limit_target(0.4/0.2)             reward     -3.13 repl-h 1.363 p95    362 mean   101 slo   4.0 ev   1.3 osc  0.3
+T1_live_scenarios  operator + limit_target(0.4/0.3)             reward     -3.02 repl-h 1.360 p95    362 mean   101 slo   4.0 ev   1.4 osc  0.3
+T1_live_scenarios  operator + limit_target(0.5/0.2)             reward     -2.74 repl-h 1.345 p95    380 mean   105 slo   4.5 ev   0.5 osc  0.2
+T1_live_scenarios  operator + limit_target(0.5/0.3)             reward     -2.70 repl-h 1.344 p95    380 mean   105 slo   4.5 ev   0.7 osc  0.2
+T1_live_scenarios  operator + limit_target(0.6/0.2)             reward     -3.08 repl-h 1.341 p95    423 mean   113 slo   6.0 ev   0.2 osc  0.0
+T1_live_scenarios  operator + limit_target(0.6/0.3)             reward     -3.04 repl-h 1.339 p95    423 mean   113 slo   6.0 ev   0.3 osc  0.2
+T1_live_scenarios  operator + limit_target(0.7/0.2)             reward     -3.24 repl-h 1.340 p95    434 mean   116 slo   6.5 ev   0.2 osc  0.0
+T1_live_scenarios  operator + limit_target(0.7/0.3)             reward     -3.20 repl-h 1.339 p95    434 mean   116 slo   6.5 ev   0.3 osc  0.2
+T1_live_scenarios  v7 (focal_bc_s1)                             reward     -2.67 repl-h 1.355 p95    344 mean    99 slo   3.5 ev   1.3 osc  0.4
+T1_live_scenarios  v7 (focal_bc_s2)                             reward     -2.50 repl-h 1.352 p95    344 mean    99 slo   3.5 ev   0.4 osc  0.0
+T1_live_scenarios  v7 (focal_bc_nograph_s1)                     reward     -2.76 repl-h 1.341 p95    396 mean   108 slo   5.0 ev   0.5 osc  0.2
+T1_live_scenarios  v7 (focal_bc_v5reward_s1)                    reward     -2.79 repl-h 1.342 p95    396 mean   108 slo   5.0 ev   0.4 osc  0.1
+T2_random_shop     HPA-default (70%, 300 s)                     reward    -22.70 repl-h 2.654 p95    237 mean    78 slo   0.0 ev   4.7 osc  0.2
+T2_random_shop     HPA 70%, 60 s                                reward    -19.95 repl-h 2.576 p95    237 mean    78 slo   0.0 ev   6.3 osc  1.4
+T2_random_shop     HPA 150%, 60 s                               reward     -6.59 repl-h 2.195 p95    276 mean    87 slo   2.6 ev   2.1 osc  0.6
+T2_random_shop     HPA 250%, 60 s                               reward     -4.59 repl-h 2.100 p95    323 mean    96 slo   6.7 ev   0.7 osc  0.2
+T2_random_shop     HPA 350%, 60 s                               reward     -4.77 repl-h 2.079 p95    349 mean   102 slo   9.1 ev   0.3 osc  0.1
+T2_random_shop     operator + threshold 70% (v5 guards)         reward    -17.28 repl-h 2.455 p95    237 mean    78 slo   0.0 ev  29.8 osc 21.9
+T2_random_shop     operator + limit_target(0.4/0.2)             reward     -4.90 repl-h 2.151 p95    270 mean    86 slo   2.3 ev   1.8 osc  0.5
+T2_random_shop     operator + limit_target(0.4/0.3)             reward     -4.60 repl-h 2.142 p95    270 mean    86 slo   2.3 ev   1.9 osc  0.6
+T2_random_shop     operator + limit_target(0.5/0.2)             reward     -4.25 repl-h 2.116 p95    289 mean    89 slo   3.8 ev   1.0 osc  0.2
+T2_random_shop     operator + limit_target(0.5/0.3)             reward     -4.09 repl-h 2.111 p95    289 mean    89 slo   3.8 ev   1.1 osc  0.3
+T2_random_shop     operator + limit_target(0.6/0.2)             reward     -4.15 repl-h 2.103 p95    302 mean    91 slo   5.1 ev   0.6 osc  0.1
+T2_random_shop     operator + limit_target(0.6/0.3)             reward     -4.04 repl-h 2.100 p95    302 mean    91 slo   5.1 ev   0.7 osc  0.1
+T2_random_shop     operator + limit_target(0.7/0.2)             reward     -4.20 repl-h 2.092 p95    316 mean    94 slo   6.1 ev   0.5 osc  0.1
+T2_random_shop     operator + limit_target(0.7/0.3)             reward     -4.10 repl-h 2.089 p95    316 mean    94 slo   6.1 ev   0.5 osc  0.1
+T2_random_shop     v7 (focal_bc_s1)                             reward     -3.44 repl-h 2.102 p95    277 mean    87 slo   2.8 ev   1.7 osc  0.8
+T2_random_shop     v7 (focal_bc_s2)                             reward     -3.70 repl-h 2.108 p95    286 mean    89 slo   3.3 ev   0.8 osc  0.2
+T2_random_shop     v7 (focal_bc_nograph_s1)                     reward     -3.95 repl-h 2.102 p95    297 mean    90 slo   4.6 ev   1.1 osc  0.3
+T2_random_shop     v7 (focal_bc_v5reward_s1)                    reward     -4.05 repl-h 2.100 p95    302 mean    91 slo   5.1 ev   0.8 osc  0.2
+T3_random_apps     HPA-default (70%, 300 s)                     reward   -109.34 repl-h 3.448 p95    620 mean   161 slo  13.9 ev  10.2 osc  0.2
+T3_random_apps     HPA 70%, 60 s                                reward   -105.51 repl-h 3.329 p95    620 mean   161 slo  13.9 ev  12.9 osc  2.5
+T3_random_apps     HPA 150%, 60 s                               reward    -82.56 repl-h 2.237 p95    961 mean   215 slo  20.6 ev   7.7 osc  1.9
+T3_random_apps     HPA 250%, 60 s                               reward    -79.13 repl-h 1.840 p95   1510 mean   359 slo  30.0 ev   4.4 osc  1.1
+T3_random_apps     HPA 350%, 60 s                               reward    -82.37 repl-h 1.673 p95   2202 mean   521 slo  45.4 ev   1.9 osc  0.4
+T3_random_apps     operator + threshold 70% (v5 guards)         reward   -100.13 repl-h 3.008 p95    590 mean   163 slo  16.5 ev  46.2 osc 25.2
+T3_random_apps     operator + limit_target(0.6/0.3)             reward    -79.29 repl-h 1.802 p95   1399 mean   337 slo  28.8 ev   3.7 osc  0.6
+T3_random_apps     v7 (focal_bc_s1)                             reward    -78.83 repl-h 1.860 p95   1050 mean   256 slo  22.4 ev  10.4 osc  5.7
+T3_random_apps     v7 (focal_bc_s2)                             reward    -75.31 repl-h 1.790 p95   1464 mean   366 slo  28.4 ev   3.4 osc  0.7
+T3_random_apps     v7 (focal_bc_nograph_s1)                     reward    -78.89 repl-h 1.878 p95   1199 mean   273 slo  24.5 ev   5.6 osc  0.9
+T3_random_apps     v7 (focal_bc_v5reward_s1)                    reward    -78.56 repl-h 1.855 p95   1144 mean   281 slo  25.9 ev   5.0 osc  1.0
+wrote /home/ashwin/flexascale/reports/v7/training_v7.json

@@ -1,0 +1,34 @@
+wrote reports/v7/spike_plan.json: 30 runs
+   1 flash_sale           hpa_tuned                  250 v7s-b01-hpa_tuned
+   2 flash_sale           flexascale v7_rule         250 v7s-b01-heuristic
+   3 flash_sale           flexascale v7              250 v7s-b01-rl
+   4 flash_sale           hpa_tuned                  250 v7s-b02-hpa_tuned
+   5 flash_sale           flexascale v7_rule         250 v7s-b02-heuristic
+   6 flash_sale           flexascale v7              250 v7s-b02-rl
+   7 flash_sale           flexascale v7_rule         250 v7s-b03-heuristic
+   8 flash_sale           hpa_tuned                  250 v7s-b03-hpa_tuned
+   9 flash_sale           flexascale v7              250 v7s-b03-rl
+  10 flash_sale           flexascale v7_rule         250 v7s-b04-heuristic
+  11 flash_sale           hpa_tuned                  250 v7s-b04-hpa_tuned
+  12 flash_sale           flexascale v7              250 v7s-b04-rl
+  13 flash_sale           hpa_tuned                  250 v7s-b05-hpa_tuned
+  14 flash_sale           flexascale v7              250 v7s-b05-rl
+  15 flash_sale           flexascale v7_rule         250 v7s-b05-heuristic
+  16 flash_sale           flexascale v7_rule         250 v7s-b06-heuristic
+  17 flash_sale           flexascale v7              250 v7s-b06-rl
+  18 flash_sale           hpa_tuned                  250 v7s-b06-hpa_tuned
+  19 flash_sale           flexascale v7              250 v7s-b07-rl
+  20 flash_sale           hpa_tuned                  250 v7s-b07-hpa_tuned
+  21 flash_sale           flexascale v7_rule         250 v7s-b07-heuristic
+  22 flash_sale           flexascale v7              250 v7s-b08-rl
+  23 flash_sale           flexascale v7_rule         250 v7s-b08-heuristic
+  24 flash_sale           hpa_tuned                  250 v7s-b08-hpa_tuned
+  25 flash_sale           flexascale v7              250 v7s-b09-rl
+  26 flash_sale           hpa_tuned                  250 v7s-b09-hpa_tuned
+  27 flash_sale           flexascale v7_rule         250 v7s-b09-heuristic
+  28 flash_sale           flexascale v7              250 v7s-b10-rl
+  29 flash_sale           flexascale v7_rule         250 v7s-b10-heuristic
+  30 flash_sale           hpa_tuned                  250 v7s-b10-hpa_tuned
+19:16:09 plan reports/v7/spike_plan.json: 30 runs, 0 already done
+19:16:09 [1/30] started 20261027-191609-shopping-hpa_tuned-flash_sale (hpa_tuned, flash_sale, block v7s-b01-hpa_tuned)
+.venv/bin/python failed with exit status 1.
