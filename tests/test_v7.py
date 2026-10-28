@@ -414,3 +414,34 @@ def test_augmented_warm_start_learns_the_rules_scale_ups():
     print(info)
     rec = info["recall_per_action_augmented_heldout"]
     assert rec.get("1", 0.0) > 0.5 and info["agreement_heldout"] > 0.75
+
+
+def test_latency_rule_scales_a_low_cpu_service_whose_latency_inflates(tmp_path):
+    """POLICY_V8 §2: an event-loop-bound service (low CPU, rising latency) is scaled on latency; CPU rules never would."""
+    op, c = _operator(tmp_path, controller_rule={"type": "latency_target", "target": 0.6, "down": 0.3})
+    c.add(deployment("cart", replicas=1, cpu_lim="500m"))
+    vals = op.metrics.values
+    vals["cart"] = {"cpu_pct": 15.0, "cpu_cores": 0.015, "memory_pct": 30.0, "request_rate": 3.0, "latency_mean_ms": 40.0}
+    vals["worker"]["latency_mean_ms"] = 5.0
+    assert op.start()["result"] == "lease_acquired"
+    op.step()                                   # baseline latencies: cart 40 ms, worker 5 ms
+    vals["cart"]["latency_mean_ms"] = 200.0     # 5x its own baseline (log2 = 2.3) at 3% of its CPU limit
+    by = {d["service"]: d for d in op.step().decisions}
+    assert by["cart"]["policy"]["mode"] == "rule_latency_target"
+    assert by["cart"]["proposed_replicas"] == 3                      # +2 (4x <= inflation < 8x)
+    assert by["worker"]["proposed_replicas"] <= 3                    # worker's latency is at its baseline
+    vals["cart"]["latency_mean_ms"] = 41.0                           # back at baseline: CPU and latency allow a scale-down
+    c.deployments["cart"]["spec"]["replicas"] = 3
+    by = {d["service"]: d for d in op.step().decisions}
+    assert by["cart"]["proposed_replicas"] == 2
+
+
+def test_limit_target_rule_ignores_latency(tmp_path):
+    op, c = _operator(tmp_path, controller_rule={"type": "limit_target", "target": 0.6, "down": 0.3})
+    c.add(deployment("cart", replicas=1, cpu_lim="500m"))
+    op.metrics.values["cart"] = {"cpu_pct": 15.0, "cpu_cores": 0.015, "memory_pct": 30.0, "request_rate": 3.0, "latency_mean_ms": 40.0}
+    op.start()
+    op.step()
+    op.metrics.values["cart"]["latency_mean_ms"] = 200.0
+    by = {d["service"]: d for d in op.step().decisions}
+    assert by["cart"]["proposed_replicas"] == 1

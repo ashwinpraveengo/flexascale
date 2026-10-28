@@ -318,8 +318,21 @@ class AppOperator:
 
     def _rule_output(self, names: Sequence[str], telemetry: Dict[str, WorkloadMetrics],
                      by_name: Dict[str, WorkloadInfo]) -> PolicyOutput:
-        """``controller_rule`` limit_target, exactly as ``simulator.twin_control.limit_target_policy``."""
+        """``controller_rule``: ``limit_target`` exactly as ``simulator.twin_control.limit_target_policy``.
+
+        ``latency_target`` (docs/POLICY_V8.md §2) adds scale-ups on each service's latency inflation, its mean latency
+        over its lowest latency in the last 30 min (``features_v3``), for services whose bottleneck is not CPU. It adds
+        +1/+2/+3 replicas at 2/4/8x (``latency_up_log2`` = 1), and scales down only when inflation is below
+        ``latency_down_log2`` and the CPU rule allows it too.
+        """
         target, down = float(self.rule["target"]), float(self.rule["down"])
+        latency_rule = self.rule.get("type") == "latency_target"
+        up_log2 = float(self.rule.get("latency_up_log2", 1.0))
+        down_log2 = float(self.rule.get("latency_down_log2", 0.3))
+        min_rps = float(self.rule.get("min_rps", 0.5))
+        if latency_rule and self.tracker is None:
+            self.tracker = FeatureTracker(names, max_replicas=10)
+        now = time.time()
         deltas: List[int] = []
         for n in names:
             m, w = telemetry[n], by_name[n]
@@ -327,17 +340,24 @@ class AppOperator:
             lo, _ = self.policy.bounds_for(n)
             cur = max(1, int(w.desired_replicas))
             limit = w.cpu_limit_cores or 1.0  # no CPU limit: one core, what a single-threaded worker can use
-            if cores is None:
+            inflation = 0.0
+            if latency_rule:
+                x = self.tracker.update(now, n, cpu_cores=cores, ready=w.ready_replicas, desired=w.desired_replicas,
+                                        cpu_limit=limit, rps=m.request_rate, latency_ms=m.latency_mean_ms)
+                inflation = float(x[3]) if (m.request_rate or 0.0) >= min_rps else 0.0
+            if cores is None and not latency_rule:
                 deltas.append(0)
                 continue
-            need = math.ceil(cores / (target * limit) - 1e-9)
-            if need > cur:
-                deltas.append(min(need - cur, self.policy.max_step))
-            elif cur > lo and cores / (max(cur - 1, 1) * limit) < down:
+            need = math.ceil(cores / (target * limit) - 1e-9) if cores is not None else cur
+            up = max(need - cur, min(3, int(inflation // up_log2)) if inflation >= up_log2 else 0)
+            if up > 0:
+                deltas.append(min(up, self.policy.max_step))
+            elif cur > lo and (cores is None or cores / (max(cur - 1, 1) * limit) < down) and inflation < down_log2:
                 deltas.append(-1)
             else:
                 deltas.append(0)
-        return PolicyOutput(actions=[1] * len(names), confidences=[1.0] * len(names), mode="rule_limit_target",
+        return PolicyOutput(actions=[1] * len(names), confidences=[1.0] * len(names),
+                            mode="rule_latency_target" if latency_rule else "rule_limit_target",
                             windows=[[n] for n in names], deltas=deltas)
 
     def _policy_inputs(

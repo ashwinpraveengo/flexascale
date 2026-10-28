@@ -252,10 +252,16 @@ class AppPolicy:
             errors.append("cost: set both cpu_per_vcpu_hour and memory_per_gib_hour, or neither")
         if self.controller_rule:
             r = self.controller_rule
-            if r.get("type") != "limit_target" or set(r) - {"type", "target", "down"}:
-                errors.append("controller_rule must be {type: limit_target, target: <0-1.5>, down: <below target>}")
+            latency_keys = {"latency_up_log2", "latency_down_log2", "min_rps"}
+            allowed = {"type", "target", "down"} | (latency_keys if r.get("type") == "latency_target" else set())
+            if r.get("type") not in ("limit_target", "latency_target") or set(r) - allowed:
+                errors.append("controller_rule must be {type: limit_target|latency_target, target: <0-1.5>, down: <below target>}"
+                              " (latency_target also: latency_up_log2, latency_down_log2, min_rps)")
             elif not (0.0 < float(r.get("down", 0)) < float(r.get("target", 0)) <= 1.5):
                 errors.append("controller_rule needs 0 < down < target <= 1.5 (fractions of the CPU limit)")
+            elif r.get("type") == "latency_target" and not (
+                    0.0 <= float(r.get("latency_down_log2", 0.3)) < float(r.get("latency_up_log2", 1.0)) <= 4.0):
+                errors.append("controller_rule latency_target needs 0 <= latency_down_log2 < latency_up_log2 <= 4")
         try:
             from flexascale.operator.auto_mode import AutoConfig
 

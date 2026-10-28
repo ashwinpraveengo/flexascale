@@ -35,3 +35,4 @@
 | 2026-10-28 08:22 | Exploration: FlexaScale-RL (v7) at 75 users, same workload. Its features include each service's latency inflation, which a CPU-based HPA lacks. |
 | 2026-10-28 08:37 | FlexaScale-RL v7 at 75 users: scaled nothing either (16 replicas); 7.8% failures, p95 6000 ms. |
 | 2026-10-28 08:45 | Static-capacity test, outside the lab (all HPAs pinned, restored afterwards to min 1 / max 10): api-gateway, cart, order and user at 3 replicas cut failures from 11.1% to 1.9% and p95 from 6000 to 2300 ms, for +50% replicas (§1.1). |
+| 2026-10-28 08:51 | Exploration: the latency-aware rule (`controller_rule: latency_target`, new in the operator, tested) at 75 users, calibration_steady. |
