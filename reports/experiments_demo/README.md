@@ -41,3 +41,11 @@ profile: `20261028-112933-shopping-hpa-flash_sale` (shadow mode), `20261028-1132
 `20261028-114614-shopping-flexascale-flash_sale` (v5 model), all completed with verified cleanup;
 `20261028-115745-shopping-auto-flash_sale` (v7 variant) stopped during preparation to free the dashboard for a demo.
 Only the plumbing was checked; the outcomes are not used anywhere.
+
+## 2026-10-28 12:01–12:43: dashboard demo runs after the smoke test
+
+Started from the dashboard with no block label, mixed user counts and mostly without *Comparable start*, v5 model,
+`balanced` power profile: `20261028-120158-shopping-hpa-flash_sale` (stopped after 16 s),
+`20261028-120300-shopping-hpa-checkout_heavy` (40 users, stopped during preparation), `20261028-120734-shopping-auto-flash_sale`
+(30 users, completed, unsettled start), `20261028-123004-shopping-hpa-checkout_heavy` (25 users, stopped at 294 s) and
+`20261028-123816-shopping-auto-flash_sale` (30 users, completed, unsettled start). Demo only; the outcomes are not used anywhere.

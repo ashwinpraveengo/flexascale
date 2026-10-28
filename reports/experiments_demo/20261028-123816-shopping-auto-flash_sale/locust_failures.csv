@@ -1,0 +1,6 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),22,2026-10-28T07:09:44Z,2026-10-28T07:11:43Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [FlashSale Contention]'),1,2026-10-28T07:11:08Z,2026-10-28T07:11:08Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [FlashSale Contention]'),78,2026-10-28T07:10:07Z,2026-10-28T07:11:41Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('402 Client Error: Payment Required for url: POST /api/orders/checkout [FlashSale Contention]'),1,2026-10-28T07:11:11Z,2026-10-28T07:11:11Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),20,2026-10-28T07:09:53Z,2026-10-28T07:11:47Z
