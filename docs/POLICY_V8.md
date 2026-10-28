@@ -18,6 +18,22 @@
 
 **Mechanism.** cart-service (and, by the same code pattern, other services) runs one uvicorn worker whose `async` handlers call a synchronous SQLAlchemy/psycopg session. Each database call blocks the event loop, so a pod serves about one request at a time while its CPU stays low (0.015–0.025 cores per replica). When the loop is blocked even `/healthz` times out, and cart-service was restarted by its liveness probe. More pods add concurrency, which is why the static configuration helped. A CPU-based HPA cannot see this bottleneck at any CPU target. The v7 twin queues requests on CPU time only, which is why the v7 policy did not learn to scale for it.
 
+### 1.2 Result of the exploration: no regime found where FlexaScale dominates a calibrated HPA
+
+HPA's cost–reliability frontier at 75 users (single runs each, so noisy), with the FlexaScale candidates:
+
+| 75 users, calibration_steady | replica-h | failures | p95 | mean |
+| :--- | ---: | ---: | ---: | ---: |
+| HPA 250% | 1.35 | 11.07% | 6000 ms | 665 ms |
+| **HPA 70%** | **1.69** | **2.66%** | 2900 ms | 480 ms |
+| HPA 35% | 2.06 | 4.12% | 4100 ms | 529 ms |
+| HPA 20% | 3.10 | 3.41% | 3000 ms | 546 ms |
+| FlexaScale latency rule | 3.59 | 2.96% | 2400 ms | 489 ms |
+| FlexaScale-RL v7 | 1.35 | 7.82% | 6000 ms | 582 ms |
+| static: gateway, cart, order and user at 3 (not a controller) | about 2.0 | 1.87% | 2300 ms | 446 ms |
+
+HPA at 250% collapses at this load because of a trap: an event-loop-bound service that is choked serves few requests, shows little CPU, and is never scaled. HPA at 70% avoids it. At 75 users cart-service and api-gateway do pass 70% of their CPU request, so HPA scales them, and it buys most of the reliability at the lowest cost. The latency rule is dominated by it: more replica-hours for similar failures. A better allocation of the same replicas (fewer on the database-bound catalog-service, more on order-service) might lower failures by a fraction of a point. That is within the run-to-run noise seen here (the 35% and 20% points are not even monotonic), so 12 blocks could not establish it. **Conclusion: at 75 users, as at 25, a CPU-based HPA calibrated for the load is not shown to be beatable on this testbed.** No evaluation is pre-registered, because no candidate regime survived the exploration.
+
 ## 2. Plan (design phase; nothing below is an evaluation yet)
 
 1. **Data:** static-replica runs at 75 users to measure each service's event-loop blocking time per request. This is Prometheus latency and request rate per service at different replica counts.
@@ -36,3 +52,6 @@
 | 2026-10-28 08:37 | FlexaScale-RL v7 at 75 users: scaled nothing either (16 replicas); 7.8% failures, p95 6000 ms. |
 | 2026-10-28 08:45 | Static-capacity test, outside the lab (all HPAs pinned, restored afterwards to min 1 / max 10): api-gateway, cart, order and user at 3 replicas cut failures from 11.1% to 1.9% and p95 from 6000 to 2300 ms, for +50% replicas (§1.1). |
 | 2026-10-28 08:51 | Exploration: the latency-aware rule (`controller_rule: latency_target`, new in the operator, tested) at 75 users, calibration_steady. |
+| 2026-10-28 09:02 | Latency rule at 75 users: failures 2.96%, p95 2400 ms, mean 489 ms, req/s 39.9, but replica-hours 3.59 (+165% vs HPA 250%). It also scaled catalog and search (7 each), review, inventory and wishlist, whose latency rose because more traffic reached the shared database, not because they lacked pods. The static configuration got 1.87% failures at about +50%. |
+| 2026-10-28 09:03 | Exploration: HPA's cost–reliability frontier at 75 users (CPU targets 70, 35 and 20%, 60 s window). Can a lower CPU target buy the reliability a latency-aware controller gets? |
+| 2026-10-28 09:42 | Frontier complete (§1.2): HPA 70% gets 2.66% failures at 1.69 replica-hours; no FlexaScale controller dominates it. Exploration closed without an evaluation; power profile back to `balanced`. |

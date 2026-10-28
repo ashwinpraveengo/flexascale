@@ -25,3 +25,11 @@ steady_browsing × {HPA-tuned, FlexaScale-RL} × 2 blocks under the `performance
 equally fast in both arms where scaling is identical: `20261027-193148-shopping-hpa_tuned-steady_browsing`,
 `20261027-193749-shopping-flexascale-steady_browsing`, `20261027-194920-shopping-flexascale-steady_browsing`,
 `20261027-200050-shopping-hpa_tuned-steady_browsing`. Not counted in any comparison.
+
+## 2026-10-28 08:14–09:42: v8 exploration at 75 users (docs/POLICY_V8.md §1)
+
+`calibration_steady` at 75 users under the `performance` profile: native HPA at 250%, 70%, 35% and 20%
+(`20261028-081453`, `-090340`, `-091931`, `-093052`), FlexaScale-RL v7 (`20261028-082203`) and the latency-aware rule
+(`20261028-085107`). Exploration only; no evaluation was pre-registered. The static-capacity test (HPAs pinned by hand,
+Locust outside the lab, 08:38–08:45) left no lab run folder; its numbers are in POLICY_V8 §1.1. The HPA 70% attempt at
+08:20 failed during preparation (the shop was still recovering) and wrote no data.
