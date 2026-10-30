@@ -1,0 +1,9 @@
+study,comparison,pairs,verdict,replica_hours_mean,cost_mean,p95_ms_mean,failure_pct_mean,throughput_mean,replica_hours_ci95,p95_ms_ci95,source
+"v9 (second laptop, POLICY_V9 §6)",hpa_tuned vs hpa_default,12,Beats on cost,-8.9637,-9.0956,-10.6905,-0.0425,1.9811,"[-13.855, -4.072]","[-27.493, 6.112]",reports/v9/evaluation.json
+"v9 (second laptop, POLICY_V9 §6)",rl vs hpa_default,11,On par / inconclusive,-7.3232,-7.4374,53.4943,0.0449,-0.7877,"[-11.488, -3.159]","[-49.395, 156.384]",reports/v9/evaluation.json
+"v9 (second laptop, POLICY_V9 §6)",auto vs hpa_default,11,On par / inconclusive,-7.7482,-7.8644,17.5922,0.0872,-1.4346,"[-12.314, -3.183]","[-5.98, 41.164]",reports/v9/evaluation.json
+"v9 (second laptop, POLICY_V9 §6)",rl vs hpa_tuned,11,On par / inconclusive,0.2883,0.2912,154.9509,0.1036,-2.436,"[-0.171, 0.747]","[-164.71, 474.612]",reports/v9/evaluation.json
+"v9 (second laptop, POLICY_V9 §6)",auto vs hpa_tuned,11,On par / inconclusive,0.1702,0.1741,41.5232,0.0834,-2.212,"[-0.193, 0.534]","[-22.609, 105.656]",reports/v9/evaluation.json
+"v7 replication (first laptop, POLICY_V7 §3.7)",rl vs hpa_tuned,12,On par / inconclusive,0.0988,0.1037,7.1581,0.0128,-0.3016,"[-0.052, 0.25]","[-8.053, 22.369]",reports/v7/replication.json
+"v7 replication (first laptop, POLICY_V7 §3.7)",auto vs hpa_tuned,12,On par / inconclusive,0.0816,0.0851,0.0753,0.0228,0.0044,"[-0.053, 0.216]","[-9.341, 9.491]",reports/v7/replication.json
+"v7 replication (first laptop, POLICY_V7 §3.7)",heuristic vs hpa_tuned,12,On par / inconclusive,-0.0191,-0.0185,4.5256,0.0246,0.0166,"[-0.078, 0.04]","[-6.569, 15.62]",reports/v7/replication.json

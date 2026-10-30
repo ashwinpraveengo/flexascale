@@ -1,0 +1,12 @@
+block,scenario,candidate,reference,replica_hours,cost,p95_ms,p99_ms,failure_pct,throughput
+1,steady_browsing,20261029-150817-shopping-auto-steady_browsing,20261029-142402-shopping-hpa-steady_browsing,-3.4609,-3.5126,-1.6667,0.0,-0.0002,1.0257
+2,checkout_heavy,20261029-154332-shopping-auto-checkout_heavy,20261029-155953-shopping-hpa-checkout_heavy,-15.2857,-15.5019,6.25,5.0,0.1359,-1.6887
+3,payment_degradation,20261029-162756-shopping-auto-payment_degradation,20261029-163938-shopping-hpa-payment_degradation,-4.14,-4.203,6.6667,15.0,-0.1252,-0.9047
+4,flash_sale,20261029-171432-shopping-auto-flash_sale,20261029-173816-shopping-hpa-flash_sale,-22.9108,-23.2018,-51.2195,-73.8462,0.0559,8.4918
+5,gradual_ramp,20261029-191230-shopping-auto-gradual_ramp,20261029-180150-shopping-hpa-gradual_ramp,-1.7166,-1.7558,30.4348,20.0,0.0005,-0.5827
+6,traffic_drop,20261029-195916-shopping-auto-traffic_drop,20261029-194754-shopping-hpa-traffic_drop,-3.9197,-3.9925,64.557,-4.0,0.0013,-2.9044
+7,steady_browsing,20261029-202309-shopping-auto-steady_browsing,20261029-204642-shopping-hpa-steady_browsing,-3.4681,-3.5261,10.7143,5.8824,-0.0176,-0.8284
+8,checkout_heavy,20261029-212647-shopping-auto-checkout_heavy,20261029-214328-shopping-hpa-checkout_heavy,-13.8003,-13.9964,5.5556,-22.3881,0.1518,-1.3439
+9,payment_degradation,20261029-223406-shopping-auto-payment_degradation,20261029-224557-shopping-hpa-payment_degradation,-7.901,-8.037,0.0,-36.6667,-0.1701,-0.266
+11,gradual_ramp,20261030-000158-shopping-auto-gradual_ramp,20261030-002542-shopping-hpa-gradual_ramp,-1.6483,-1.6831,73.3333,1220.0,0.8661,-9.5411
+12,traffic_drop,20261030-020558-shopping-auto-traffic_drop,20261030-011800-shopping-hpa-traffic_drop,-6.9793,-7.0985,48.8889,421.7391,0.0605,-7.2381

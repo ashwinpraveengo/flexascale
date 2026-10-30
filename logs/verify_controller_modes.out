@@ -1,0 +1,15 @@
+[00:10:33] hpa: started 20261031-001033-shopping-hpa-flash_sale
+[00:16:28] hpa: completed, cleanup safe=True, applied=0
+[00:16:28] flexascale: started 20261031-001628-shopping-flexascale-flash_sale
+[00:28:04] flexascale: completed, cleanup safe=True, applied=0
+[00:28:05] auto: started 20261031-002805-shopping-auto-flash_sale
+[00:44:16] auto: completed, cleanup safe=True, applied=1
+[00:44:16] auto_sla: started 20261031-004416-shopping-auto-flash_sale
+[03:04:52] auto_sla: completed, cleanup safe=True, applied=0
+[03:04:52] auto_outage: started 20261031-030452-shopping-auto-flash_sale
+[03:12:52] auto_outage: injecting telemetry_outage at +103 s
+[03:16:25] auto_outage: completed, cleanup safe=True, applied=6
+[03:16:25] auto_crash: started 20261031-031625-shopping-auto-flash_sale
+[03:24:20] auto_crash: injecting operator_kill at +105 s
+[03:27:44] auto_crash: completed, cleanup safe=True, applied=0
+wrote /home/ashwin/flexascale/results/verification/README.md

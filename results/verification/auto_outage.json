@@ -1,0 +1,3031 @@
+{
+  "run": {
+    "id": "20261031-030452-shopping-auto-flash_sale",
+    "state": "completed",
+    "controller": "auto",
+    "policy_variant": null,
+    "users": 40,
+    "duration": 300,
+    "model": "models/flexascale_v9/best_model/best_model.zip",
+    "model_sha256": "2f95764bfdeb7c2bba728c60932f0bfa7a408611a1a0b076ff0415314f680772",
+    "cleanup_safe": true,
+    "cleanup": {
+      "locust": "already_stopped",
+      "operator": "stopped",
+      "hpas_restored": [],
+      "lease_holder_after": null,
+      "frozen_hpas_after": [],
+      "safe": true
+    },
+    "operator_failure": null,
+    "workload": {
+      "total_requests": 4044,
+      "total_failures": 239,
+      "failure_rate_pct": 5.909990108803165,
+      "throughput_rps": 13.462658149757962,
+      "mean_latency_ms": 668.7848916080609,
+      "p50_ms": 140.0,
+      "p90_ms": 1700.0,
+      "p95_ms": 5800.0,
+      "p99_ms": 6000.0,
+      "max_ms": 6026.821385000403
+    },
+    "replicas": {
+      "avg_total_desired": 17.9,
+      "peak_total_desired": 22
+    },
+    "resources": {
+      "replica_hours": 1.504611,
+      "estimated_cost": 0.006821
+    }
+  },
+  "totals": {
+    "decisions": 464,
+    "live_decisions": 464,
+    "applied": 6,
+    "apply_errors": {},
+    "owner_steps": {
+      "hpa": 128,
+      "flexascale": 336
+    },
+    "auto_rules": {
+      "efficiency": 368,
+      "controller_health": 96
+    },
+    "policy_modes": [
+      "ppo_graph"
+    ]
+  },
+  "operator_events": [
+    {
+      "event": "operator_start",
+      "result": "lease_acquired",
+      "reason": null,
+      "restored_hpas": null,
+      "lease_identity": "fedora-6bc228",
+      "ts": 1793396468.028555
+    },
+    {
+      "event": "operator_shutdown",
+      "result": null,
+      "reason": "operator_shutdown",
+      "restored_hpas": [
+        "api-gateway-hpa",
+        "cart-service-hpa",
+        "catalog-service-hpa",
+        "fraud-service-hpa",
+        "inventory-service-hpa",
+        "notification-service-hpa",
+        "order-service-hpa",
+        "payment-service-hpa",
+        "pricing-service-hpa",
+        "promotion-service-hpa",
+        "recommendation-service-hpa",
+        "review-service-hpa",
+        "search-service-hpa",
+        "shipping-service-hpa",
+        "user-service-hpa",
+        "wishlist-service-hpa"
+      ],
+      "lease_identity": null,
+      "ts": 1793396778.1698885
+    }
+  ],
+  "lab_events": [
+    {
+      "elapsed": null,
+      "kind": "ownership",
+      "message": "HPAs restored to their original bounds after the reset: api-gateway-hpa, cart-service-hpa, catalog-service-hpa, fraud-service-hpa, inventory-service-hpa, notification-service-hpa, order-service-hpa, payment-service-hpa, pricing-service-hpa, promotion-service-hpa, recommendation-service-hpa, review-service-hpa, search-service-hpa, shipping-service-hpa, user-service-hpa, wishlist-service-hpa"
+    },
+    {
+      "elapsed": null,
+      "kind": "ownership",
+      "message": "FlexaScale operator holds the controller lease; HPAs are frozen per service before any scale"
+    },
+    {
+      "elapsed": null,
+      "kind": "auto",
+      "message": "Auto mode: each service is assigned to FlexaScale or native HPA by the rules health -> confidence -> SLA risk -> efficiency, one owner at a time"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "api-gateway -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "cart-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "catalog-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "fraud-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "inventory-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "notification-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "order-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "payment-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "pricing-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "promotion-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "recommendation-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "review-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "search-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "shipping-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "user-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 0.2,
+      "kind": "auto",
+      "message": "wishlist-service -> native HPA (efficiency): no SLA risk; FlexaScale and HPA agree (waiting 1/2 steps before switching)"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "api-gateway -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "cart-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "catalog-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "fraud-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "inventory-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "notification-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "order-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "payment-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "pricing-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "promotion-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "recommendation-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "review-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "search-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "shipping-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "user-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 40.4,
+      "kind": "auto",
+      "message": "wishlist-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "api-gateway -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "api-gateway: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "cart-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "cart-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "catalog-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "catalog-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "fraud-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "fraud-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "inventory-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "inventory-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "notification-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "notification-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "order-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "order-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "payment-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "payment-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "pricing-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "pricing-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "promotion-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "promotion-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "recommendation-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "recommendation-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "review-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "review-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "search-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "search-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "shipping-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "shipping-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "user-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "user-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "auto",
+      "message": "wishlist-service -> native HPA (controller health): CPU telemetry missing or stale"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "safety",
+      "message": "wishlist-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 115.3,
+      "kind": "replicas",
+      "message": "order-service: desired replicas 1 -> 2 (owner: HPA)"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "api-gateway: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "cart-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "catalog-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "fraud-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "inventory-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "notification-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "order-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "payment-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "pricing-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "promotion-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "recommendation-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "review-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "search-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "shipping-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "user-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 120.3,
+      "kind": "safety",
+      "message": "wishlist-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 125.4,
+      "kind": "replicas",
+      "message": "api-gateway: desired replicas 1 -> 2 (owner: HPA)"
+    },
+    {
+      "elapsed": 125.4,
+      "kind": "replicas",
+      "message": "catalog-service: desired replicas 1 -> 2 (owner: HPA)"
+    },
+    {
+      "elapsed": 125.4,
+      "kind": "replicas",
+      "message": "inventory-service: desired replicas 1 -> 2 (owner: HPA)"
+    },
+    {
+      "elapsed": 125.4,
+      "kind": "ready",
+      "message": "order-service: 2/2 replicas ready"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "api-gateway: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "cart-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "catalog-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "fraud-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "inventory-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "notification-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "order-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "payment-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "pricing-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "promotion-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "recommendation-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "review-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "search-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "shipping-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "user-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "safety",
+      "message": "wishlist-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 130.3,
+      "kind": "replicas",
+      "message": "order-service: desired replicas 2 -> 4 (owner: HPA)"
+    },
+    {
+      "elapsed": 135.3,
+      "kind": "ready",
+      "message": "api-gateway: 2/2 replicas ready"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "api-gateway: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "cart-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "catalog-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "fraud-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "inventory-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "notification-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "order-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "payment-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "pricing-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "promotion-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "recommendation-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "review-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "search-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "shipping-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "user-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "safety",
+      "message": "wishlist-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "ready",
+      "message": "catalog-service: 2/2 replicas ready"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "ready",
+      "message": "inventory-service: 2/2 replicas ready"
+    },
+    {
+      "elapsed": 140.3,
+      "kind": "ready",
+      "message": "order-service: 4/4 replicas ready"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "api-gateway: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "cart-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "catalog-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "fraud-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "inventory-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "notification-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "order-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "payment-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "pricing-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "promotion-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "recommendation-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "review-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "search-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "shipping-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "user-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 150.3,
+      "kind": "safety",
+      "message": "wishlist-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "api-gateway: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "cart-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "catalog-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "fraud-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "inventory-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "notification-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "order-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "payment-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "pricing-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "promotion-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "recommendation-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "review-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "search-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "shipping-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "user-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 160.3,
+      "kind": "safety",
+      "message": "wishlist-service: telemetry_unavailable"
+    },
+    {
+      "elapsed": 180.4,
+      "kind": "replicas",
+      "message": "catalog-service: desired replicas 2 -> 1 (owner: FlexaScale)"
+    },
+    {
+      "elapsed": 180.4,
+      "kind": "ready",
+      "message": "catalog-service: 1/1 replicas ready"
+    },
+    {
+      "elapsed": 180.4,
+      "kind": "replicas",
+      "message": "inventory-service: desired replicas 2 -> 1 (owner: FlexaScale)"
+    },
+    {
+      "elapsed": 180.4,
+      "kind": "ready",
+      "message": "inventory-service: 1/1 replicas ready"
+    },
+    {
+      "elapsed": 180.4,
+      "kind": "replicas",
+      "message": "order-service: desired replicas 4 -> 3 (owner: FlexaScale)"
+    },
+    {
+      "elapsed": 180.4,
+      "kind": "ready",
+      "message": "order-service: 3/3 replicas ready"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "api-gateway -> FlexaScale (efficiency): no SLA risk; FlexaScale proposes 2 vs HPA 1 replicas (scales ahead)"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "cart-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "catalog-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "scale_request",
+      "message": "catalog-service: FlexaScale requested 2 -> 1 (scale_down, confidence 0.50, ppo_graph)"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "fraud-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "inventory-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "scale_request",
+      "message": "inventory-service: FlexaScale requested 2 -> 1 (scale_down, confidence 0.58, ppo_graph)"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "notification-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "order-service -> FlexaScale (efficiency): no SLA risk; FlexaScale proposes 3 vs HPA 1 replicas (scales ahead)"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "scale_request",
+      "message": "order-service: FlexaScale requested 4 -> 3 (scale_down, confidence 0.73, ppo_graph)"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "payment-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "pricing-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "promotion-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "recommendation-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "review-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "search-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "shipping-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "user-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 185.4,
+      "kind": "auto",
+      "message": "wishlist-service -> FlexaScale (efficiency): no SLA risk; FlexaScale and HPA agree"
+    },
+    {
+      "elapsed": 260.3,
+      "kind": "replicas",
+      "message": "api-gateway: desired replicas 2 -> 1 (owner: FlexaScale)"
+    },
+    {
+      "elapsed": 260.3,
+      "kind": "ready",
+      "message": "api-gateway: 1/1 replicas ready"
+    },
+    {
+      "elapsed": 260.3,
+      "kind": "replicas",
+      "message": "order-service: desired replicas 3 -> 2 (owner: FlexaScale)"
+    },
+    {
+      "elapsed": 260.3,
+      "kind": "ready",
+      "message": "order-service: 2/2 replicas ready"
+    },
+    {
+      "elapsed": 265.4,
+      "kind": "scale_request",
+      "message": "api-gateway: FlexaScale requested 2 -> 1 (scale_down, confidence 0.96, ppo_graph)"
+    },
+    {
+      "elapsed": 265.4,
+      "kind": "scale_request",
+      "message": "order-service: FlexaScale requested 3 -> 2 (scale_down, confidence 0.55, ppo_graph)"
+    },
+    {
+      "elapsed": 290.4,
+      "kind": "replicas",
+      "message": "order-service: desired replicas 2 -> 1 (owner: FlexaScale)"
+    },
+    {
+      "elapsed": 290.4,
+      "kind": "ready",
+      "message": "order-service: 1/1 replicas ready"
+    },
+    {
+      "elapsed": 295.4,
+      "kind": "scale_request",
+      "message": "order-service: FlexaScale requested 2 -> 1 (scale_down, confidence 0.78, ppo_graph)"
+    },
+    {
+      "elapsed": 311.1,
+      "kind": "ownership",
+      "message": "Cleanup: native HPA ownership verified"
+    }
+  ],
+  "per_service": {
+    "api-gateway": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [
+        {
+          "elapsed": 257.4,
+          "from": 2,
+          "policy_proposed": 1,
+          "approved": 1,
+          "policy_mode": "ppo_graph",
+          "action": "scale_down",
+          "confidence": 0.9599,
+          "hpa_note": "frozen",
+          "auto_rule": "efficiency",
+          "safety_reasons": [
+            "accepted"
+          ],
+          "desired_confirmed_after_s": 2.7,
+          "ready_confirmed_after_s": 2.7
+        }
+      ],
+      "proposal_changes": 1,
+      "desired_min": 1,
+      "desired_max": 2,
+      "ready_max": 2,
+      "frozen_samples": 47,
+      "hpa_desired_max": 2,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.6965,
+            "cpu_pct": 21.7,
+            "latency_ms": 173.8,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "cart-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 47,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.6888,
+            "cpu_pct": 30.5,
+            "latency_ms": 9.8,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "catalog-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [
+        {
+          "elapsed": 177.4,
+          "from": 2,
+          "policy_proposed": 1,
+          "approved": 1,
+          "policy_mode": "ppo_graph",
+          "action": "scale_down",
+          "confidence": 0.5013,
+          "hpa_note": "frozen",
+          "auto_rule": "efficiency",
+          "safety_reasons": [
+            "accepted"
+          ],
+          "desired_confirmed_after_s": 2.7,
+          "ready_confirmed_after_s": 2.7
+        }
+      ],
+      "proposal_changes": 2,
+      "desired_min": 1,
+      "desired_max": 2,
+      "ready_max": 2,
+      "frozen_samples": 46,
+      "hpa_desired_max": 2,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.6791,
+            "cpu_pct": 34.5,
+            "latency_ms": 8.5,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "fraud-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 46,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.703,
+            "cpu_pct": 11.3,
+            "latency_ms": 1.1,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "inventory-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [
+        {
+          "elapsed": 177.4,
+          "from": 2,
+          "policy_proposed": 1,
+          "approved": 1,
+          "policy_mode": "ppo_graph",
+          "action": "scale_down",
+          "confidence": 0.5841,
+          "hpa_note": "frozen",
+          "auto_rule": "efficiency",
+          "safety_reasons": [
+            "accepted"
+          ],
+          "desired_confirmed_after_s": 2.7,
+          "ready_confirmed_after_s": 2.7
+        }
+      ],
+      "proposal_changes": 2,
+      "desired_min": 1,
+      "desired_max": 2,
+      "ready_max": 2,
+      "frozen_samples": 46,
+      "hpa_desired_max": 2,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.8168,
+            "cpu_pct": 64.3,
+            "latency_ms": 11.2,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "notification-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 46,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.7046,
+            "cpu_pct": 9.1,
+            "latency_ms": 1.3,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "order-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [
+        {
+          "elapsed": 177.4,
+          "from": 4,
+          "policy_proposed": 3,
+          "approved": 3,
+          "policy_mode": "ppo_graph",
+          "action": "scale_down",
+          "confidence": 0.7318,
+          "hpa_note": "frozen",
+          "auto_rule": "efficiency",
+          "safety_reasons": [
+            "accepted"
+          ],
+          "desired_confirmed_after_s": 2.7,
+          "ready_confirmed_after_s": 2.7
+        },
+        {
+          "elapsed": 257.4,
+          "from": 3,
+          "policy_proposed": 2,
+          "approved": 2,
+          "policy_mode": "ppo_graph",
+          "action": "scale_down",
+          "confidence": 0.5544,
+          "hpa_note": "frozen",
+          "auto_rule": "efficiency",
+          "safety_reasons": [
+            "accepted"
+          ],
+          "desired_confirmed_after_s": 2.7,
+          "ready_confirmed_after_s": 2.7
+        },
+        {
+          "elapsed": 287.4,
+          "from": 2,
+          "policy_proposed": 1,
+          "approved": 1,
+          "policy_mode": "ppo_graph",
+          "action": "scale_down",
+          "confidence": 0.7753,
+          "hpa_note": "frozen",
+          "auto_rule": "efficiency",
+          "safety_reasons": [
+            "accepted"
+          ],
+          "desired_confirmed_after_s": 2.7,
+          "ready_confirmed_after_s": 2.7
+        }
+      ],
+      "proposal_changes": 4,
+      "desired_min": 1,
+      "desired_max": 4,
+      "ready_max": 4,
+      "frozen_samples": 46,
+      "hpa_desired_max": 4,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.9671,
+            "cpu_pct": 40.3,
+            "latency_ms": 270.0,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "payment-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 46,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.6869,
+            "cpu_pct": 35.9,
+            "latency_ms": 64.1,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "pricing-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 45,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.7507,
+            "cpu_pct": 3.9,
+            "latency_ms": 4.8,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "promotion-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 46,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.6016,
+            "cpu_pct": 2.9,
+            "latency_ms": 0.9,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "recommendation-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 46,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.6505,
+            "cpu_pct": 4.1,
+            "latency_ms": 30.9,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "review-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 45,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.7043,
+            "cpu_pct": 5.1,
+            "latency_ms": 7.8,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "search-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 43,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.701,
+            "cpu_pct": 3.5,
+            "latency_ms": 47.6,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "shipping-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 41,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.5991,
+            "cpu_pct": 12.1,
+            "latency_ms": 1.2,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "user-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 41,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.5015,
+            "cpu_pct": 2.4,
+            "latency_ms": null,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    },
+    "wishlist-service": {
+      "owner_steps": {
+        "hpa": 8,
+        "flexascale": 21
+      },
+      "auto_rules": {
+        "efficiency": 23,
+        "controller_health": 6
+      },
+      "safety_reasons": {
+        "auto_efficiency": 2,
+        "accepted": 21,
+        "telemetry_unavailable": 6
+      },
+      "policy_modes": [
+        "ppo_graph"
+      ],
+      "applied": [],
+      "proposal_changes": 0,
+      "desired_min": 1,
+      "desired_max": 1,
+      "ready_max": 1,
+      "frozen_samples": 41,
+      "hpa_desired_max": 1,
+      "last_decision": {
+        "controller": "flexascale",
+        "current_replicas": 1,
+        "policy_replicas": 1,
+        "proposed_replicas": 1,
+        "ready_replicas": 1,
+        "applied": false,
+        "safety_reasons": [
+          "accepted"
+        ],
+        "auto": {
+          "owner": "flexascale",
+          "rule": "efficiency",
+          "reason": "no SLA risk; FlexaScale and HPA agree",
+          "candidate": "flexascale",
+          "hpa_recommendation": 1,
+          "flexascale_proposal": 1,
+          "streak": 0,
+          "inputs": {
+            "confidence": 0.5648,
+            "cpu_pct": 4.2,
+            "latency_ms": 16.3,
+            "slo_ms": null,
+            "current": 1,
+            "previous_owner": "flexascale"
+          }
+        }
+      }
+    }
+  },
+  "exclusivity_violations": [],
+  "scenario": "auto_outage",
+  "title": "Auto mode, Prometheus unavailable for 60 s from +100 s",
+  "request": {
+    "app": "shopping",
+    "controller": "auto",
+    "scenario": "flash_sale",
+    "users": 40,
+    "spawn_rate": 5,
+    "duration": 300,
+    "reset_replicas": true,
+    "shadow": true,
+    "policy_variant": null,
+    "block": "verify-auto_outage"
+  },
+  "faults": [
+    {
+      "t": 1793396572.6017382,
+      "elapsed": 103.4,
+      "fault": "telemetry_outage"
+    },
+    {
+      "t": 1793396572.6017518,
+      "action": "stop Prometheus port-forward",
+      "result": "pf-prometheus: stopped"
+    },
+    {
+      "t": 1793396573.1038465,
+      "action": "check",
+      "prometheus_reachable": false
+    },
+    {
+      "t": 1793396573.2747862,
+      "label": "outage start",
+      "deployments": {
+        "api-gateway": {
+          "spec": 1,
+          "ready": 1
+        },
+        "cart-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "catalog-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "fraud-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "inventory-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "notification-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "order-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "payment-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "postgres": {
+          "spec": 1,
+          "ready": 1
+        },
+        "pricing-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "promotion-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "recommendation-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "review-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "search-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shipping-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shopping-frontend": {
+          "spec": 1,
+          "ready": 1
+        },
+        "user-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "wishlist-service": {
+          "spec": 1,
+          "ready": 1
+        }
+      },
+      "hpas": {
+        "api-gateway-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "cart-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "catalog-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "fraud-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "inventory-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "notification-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "order-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "payment-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "pricing-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "promotion-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "recommendation-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "review-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "search-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "shipping-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "user-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "wishlist-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        }
+      },
+      "lease_holder": "fedora-6bc228"
+    },
+    {
+      "t": 1793396633.466051,
+      "label": "outage end (before restore)",
+      "deployments": {
+        "api-gateway": {
+          "spec": 2,
+          "ready": 2
+        },
+        "cart-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "catalog-service": {
+          "spec": 2,
+          "ready": 2
+        },
+        "fraud-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "inventory-service": {
+          "spec": 2,
+          "ready": 2
+        },
+        "notification-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "order-service": {
+          "spec": 4,
+          "ready": 4
+        },
+        "payment-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "postgres": {
+          "spec": 1,
+          "ready": 1
+        },
+        "pricing-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "promotion-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "recommendation-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "review-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "search-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shipping-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shopping-frontend": {
+          "spec": 1,
+          "ready": 1
+        },
+        "user-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "wishlist-service": {
+          "spec": 1,
+          "ready": 1
+        }
+      },
+      "hpas": {
+        "api-gateway-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 2,
+          "flexascale_annotations": []
+        },
+        "cart-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "catalog-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 2,
+          "flexascale_annotations": []
+        },
+        "fraud-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "inventory-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 2,
+          "flexascale_annotations": []
+        },
+        "notification-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "order-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 4,
+          "flexascale_annotations": []
+        },
+        "payment-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "pricing-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "promotion-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "recommendation-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "review-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "search-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "shipping-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "user-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "wishlist-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        }
+      },
+      "lease_holder": "fedora-6bc228"
+    },
+    {
+      "t": 1793396634.509933,
+      "action": "restart Prometheus port-forward",
+      "result": "started pf-prometheus pid=201681 log=/home/ashwin/flexascale/.runtime/logs/pf-prometheus.log",
+      "prometheus_reachable": true
+    }
+  ],
+  "snapshots": [
+    {
+      "label": "before run",
+      "t": 1793396092.2399952,
+      "deployments": {
+        "api-gateway": {
+          "spec": 1,
+          "ready": 1
+        },
+        "cart-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "catalog-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "fraud-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "inventory-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "notification-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "order-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "payment-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "postgres": {
+          "spec": 1,
+          "ready": 1
+        },
+        "pricing-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "promotion-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "recommendation-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "review-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "search-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shipping-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shopping-frontend": {
+          "spec": 1,
+          "ready": 1
+        },
+        "user-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "wishlist-service": {
+          "spec": 1,
+          "ready": 1
+        }
+      },
+      "hpas": {
+        "api-gateway-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "cart-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "catalog-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "fraud-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "inventory-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "notification-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "order-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "payment-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "pricing-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "promotion-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "recommendation-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "review-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "search-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "shipping-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "user-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "wishlist-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        }
+      },
+      "lease_holder": ""
+    },
+    {
+      "label": "mid-run (+180 s)",
+      "t": 1793396649.7140076,
+      "deployments": {
+        "api-gateway": {
+          "spec": 2,
+          "ready": 2
+        },
+        "cart-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "catalog-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "fraud-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "inventory-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "notification-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "order-service": {
+          "spec": 3,
+          "ready": 3
+        },
+        "payment-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "postgres": {
+          "spec": 1,
+          "ready": 1
+        },
+        "pricing-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "promotion-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "recommendation-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "review-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "search-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shipping-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shopping-frontend": {
+          "spec": 1,
+          "ready": 1
+        },
+        "user-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "wishlist-service": {
+          "spec": 1,
+          "ready": 1
+        }
+      },
+      "hpas": {
+        "api-gateway-hpa": {
+          "min": 2,
+          "max": 2,
+          "desired": 2,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "cart-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "catalog-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 2,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "fraud-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "inventory-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 2,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "notification-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "order-service-hpa": {
+          "min": 3,
+          "max": 3,
+          "desired": 4,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "payment-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "pricing-service-hpa": {
+          "min": 1,
+          "max": 1,
+          "desired": 1,
+          "flexascale_annotations": [
+            "flexascale.io/frozen-by",
+            "flexascale.io/original-max-replicas",
+            "flexascale.io/original-min-replicas"
+          ]
+        },
+        "promotion-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "recommendation-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "review-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "search-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "shipping-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "user-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "wishlist-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        }
+      },
+      "lease_holder": "fedora-6bc228"
+    },
+    {
+      "label": "after cleanup",
+      "t": 1793396785.027069,
+      "deployments": {
+        "api-gateway": {
+          "spec": 1,
+          "ready": 1
+        },
+        "cart-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "catalog-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "fraud-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "inventory-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "notification-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "order-service": {
+          "spec": 4,
+          "ready": 1
+        },
+        "payment-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "postgres": {
+          "spec": 1,
+          "ready": 1
+        },
+        "pricing-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "promotion-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "recommendation-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "review-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "search-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shipping-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "shopping-frontend": {
+          "spec": 1,
+          "ready": 1
+        },
+        "user-service": {
+          "spec": 1,
+          "ready": 1
+        },
+        "wishlist-service": {
+          "spec": 1,
+          "ready": 1
+        }
+      },
+      "hpas": {
+        "api-gateway-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "cart-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "catalog-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "fraud-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "inventory-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "notification-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "order-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 4,
+          "flexascale_annotations": []
+        },
+        "payment-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "pricing-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "promotion-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "recommendation-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "review-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "search-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "shipping-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "user-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        },
+        "wishlist-service-hpa": {
+          "min": 1,
+          "max": 10,
+          "desired": 1,
+          "flexascale_annotations": []
+        }
+      },
+      "lease_holder": ""
+    }
+  ]
+}

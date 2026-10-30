@@ -1,0 +1,8 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),34,2026-10-30T21:41:41Z,2026-10-30T21:45:52Z
+POST,POST /api/orders/checkout [Success],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [Success]'),1,2026-10-30T21:41:31Z,2026-10-30T21:41:31Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('502 Server Error: Bad Gateway for url: POST /api/orders/checkout [FlashSale Contention]'),2,2026-10-30T21:43:51Z,2026-10-30T21:44:24Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [FlashSale Contention]'),174,2026-10-30T21:41:28Z,2026-10-30T21:44:31Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),20,2026-10-30T21:43:12Z,2026-10-30T21:44:29Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),7,2026-10-30T21:43:10Z,2026-10-30T21:44:22Z
+GET,GET /api/recommendations/{id},HTTPError('502 Server Error: Bad Gateway for url: GET /api/recommendations/{id}'),1,2026-10-30T21:43:54Z,2026-10-30T21:43:54Z

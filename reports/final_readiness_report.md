@@ -31,7 +31,7 @@ GPU on this laptop. Branch `flexascale-v7`, starting from `main` at `fd8e100` (t
 
 | Area | What was checked | Status |
 | :--- | :--- | :--- |
-| Test suite | `pytest`: **VERIFICATION_TESTS** (was 364 at the start of this pass; 9 new tests for the fixes above) | VERIFIED |
+| Test suite | `pytest`: **373 passed, 0 failed** on 2026-10-31 (`logs/pytest_final_2026-10-31.out`) (was 364 at the start of this pass; 9 new tests for the fixes above); `npm run build` type-checks and builds the dashboard | VERIFIED |
 | Startup / shutdown | `./fsctl start` (cold Minikube: 57 s, 8 steps, READY) and `./fsctl stop` (HPAs restored, no Lease, processes stopped) on this laptop | VERIFIED |
 | Metrics pipeline | 16/16 services scraped (ServiceMonitor 15 s + annotation job 30 s, de-duplicated), cAdvisor 10 s; CPU/memory per service; zero vs missing distinguished (`no_traffic`); only `shopping-frontend` (nginx, no `/metrics`, excluded from scaling) is down as a target | VERIFIED |
 | Per-service latency | Every service with traffic reports mean and p50/p90/p95/p99 from its own histogram (not the gateway's), consistent order p50 ≤ p90 ≤ p95 ≤ p99; idle services "no requests" | VERIFIED |
@@ -41,9 +41,9 @@ GPU on this laptop. Branch `flexascale-v7`, starting from `main` at `fd8e100` (t
 | Safety guards and execution | bounds, budget, readiness, cooldowns, blocks, telemetry checks recorded per decision; FlexaScale scale requests applied and confirmed by Kubernetes (desired, then ready) | VERIFIED (§00.3) |
 | Exclusive ownership | No applied action without FlexaScale ownership and an HPA freeze in any verification run; Lease held only during live runs; cleanup verified safe after every run | VERIFIED |
 | Native HPA mode | HPA scaled order 1→3, catalog 1→3 under a 40-user flash sale; FlexaScale shadow logged 496 proposals, applied 0 | VERIFIED |
-| FlexaScale mode | v9: live, Lease, 512 accepted decisions but only holds (v9 is fitted to the other laptop); v7 (this laptop's model): VERIFICATION_FS_V7 | VERIFICATION_FS_V7_STATUS |
-| Auto mode selects FlexaScale and applies scaling | Default policy: order-service 1→2 by the v9 policy under Auto (rule efficiency), desired confirmed at +295 s, ready at +305 s; after the outage, 6 FlexaScale scale-downs applied; VERIFICATION_AUTO_V7 | VERIFIED |
-| Auto mode selects HPA (SLA risk) and mixed ownership | VERIFICATION_AUTO_SLA | VERIFICATION_AUTO_SLA_STATUS |
+| FlexaScale mode | v9: live, Lease, 512 accepted decisions but only holds (v9 is fitted to the other laptop); v7 (this laptop's model) at 40 and 25 users: also live, 512 accepted decisions each, holds only — at these loads the shop is latency-bound (event loop), not CPU-bound, and both policies key on CPU (§00.4). FlexaScale-mode scale changes confirmed by Kubernetes are in earlier runs on this cluster (`20261028-061846-shopping-flexascale-flash_sale`: order-service 1→2→1, v7) and in Auto mode below | PARTIALLY VERIFIED (mode, ownership, safety and execution path verified today; no scale change today) |
+| Auto mode selects FlexaScale and applies scaling | Default policy: order-service 1→2 by the v9 policy under Auto (rule efficiency), desired confirmed at +295 s, ready at +305 s; after the outage, 6 FlexaScale scale-downs applied; Auto with v7: all services FlexaScale-owned (efficiency), holds only | VERIFIED |
+| Auto mode selects HPA (SLA risk) and mixed ownership | Controlled variant `verify_sla_risk` (CPU risk 60%): **mixed ownership in 21 of 31 steps** (api-gateway, cart, catalog, inventory, order → HPA by `sla_risk`, 11 services FlexaScale in the same step); HPA scaled the risky services to 3; FlexaScale applied 7 actions (order 1→2 at +29 s, then scale-downs) | VERIFIED |
 | Fallback: telemetry unavailable | Prometheus stopped for 60 s: all 16 services → HPA in the same step (controller_health), HPAs unfrozen, HPA scaled meanwhile; back to FlexaScale after 2 steps | VERIFIED |
 | Fallback: FlexaScale unhealthy | Operator SIGKILLed: watchdog restored 16 HPAs 1 s later; HPA scaled the rest of the run; cleanup safe | VERIFIED |
 | Dashboard | All 7 pages render with real data (screenshots in `results/screenshots/`); live run, replay, Auto table, Comparison, Models | VERIFIED |

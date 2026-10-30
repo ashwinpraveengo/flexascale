@@ -1,0 +1,105 @@
+
+=== 03:12:04 0. baseline
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS no release fs-bookstore yet
+  PASS HPAs at their original bounds (1-5)
+  PASS no FlexaScale markers on HPAs or Deployments
+  PASS Lease not held
+1 chart(s) linted, 0 chart(s) failed
+
+=== 03:12:05 1. helm install (observe, revision 1)
+Release "fs-bookstore" does not exist. Installing it now.
+NAME: fs-bookstore
+LAST DEPLOYED: Sat Oct 31 03:12:05 2026
+NAMESPACE: flexascale-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+  PASS operator ready
+  PASS policy mode observe
+Found 2 pods, using pod/flexascale-operator-fc75dd985-8q4z7
+/usr/local/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+{"type": "decision", "ts": 1793396551.4264815, "step": 337, "app": "shopping-incluster", "mode": "observe", "service": "user-service", "features": {"cpu_pct": 8.337, "memory_pct": 27.518, "replicas": 1.0, "request_rate": 0.289, "latency_ms": 1001.495}, "missing": [], "stale": false, "policy": {"mode": "ppo_neighborhood", "action": 0, "action_label": "scale_down", "confidence": 0.976, "probabilitie
+{"type": "decision", "ts": 1793396551.4264815, "step": 337, "app": "shopping-incluster", "mode": "observe", "service": "wishlist-service", "features": {"cpu_pct": 5.12, "memory_pct": 38.531, "replicas": 1.0, "request_rate": 0.667, "latency_ms": 16.292}, "missing": [], "stale": false, "policy": {"mode": "ppo_neighborhood", "action": 0, "action_label": "scale_down", "confidence": 0.9864, "probabilit
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS HPAs unchanged in observe
+  PASS no markers in observe
+  PASS Lease not taken in observe
+  PASS RBAC observe: list deployments
+  PASS RBAC observe: no patch on HPAs
+  PASS RBAC observe: no scale update
+
+=== 03:12:38 2. helm upgrade (live, v9 model, revision 2)
+Release "fs-bookstore" has been upgraded. Happy Helming!
+NAME: fs-bookstore
+LAST DEPLOYED: Sat Oct 31 03:12:38 2026
+NAMESPACE: flexascale-system
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+  PASS operator ready
+  PASS policy mode live
+  PASS Lease taken within 60 s
+Found 2 pods, using pod/flexascale-operator-fc75dd985-8q4z7
+/usr/local/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+{"type": "decision", "ts": 1793396581.4268863, "step": 340, "app": "shopping-incluster", "mode": "observe", "service": "user-service", "features": {"cpu_pct": 43.713, "memory_pct": 27.519, "replicas": 1.0, "request_rate": 0.133, "latency_ms": 1002.08}, "missing": [], "stale": false, "policy": {"mode": "ppo_neighborhood", "action": 1, "action_label": "hold", "confidence": 0.9169, "probabilities": [
+{"type": "decision", "ts": 1793396581.4268863, "step": 340, "app": "shopping-incluster", "mode": "observe", "service": "wishlist-service", "features": {"cpu_pct": 7.6, "memory_pct": 37.622, "replicas": 1.0, "request_rate": 1.467, "latency_ms": 35.701}, "missing": [], "stale": false, "policy": {"mode": "ppo_neighborhood", "action": 0, "action_label": "scale_down", "confidence": 0.5239, "probabiliti
+  FAIL v9 model loaded without error (operator_start event)
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     1     flexascale-bookstore
+search-autoscaler            1     1     flexascale-bookstore
+storefront-autoscaler        1     1     flexascale-bookstore
+  lease holder: 'fs-bookstore-operator-948656575-qcnhq-ce91a4'  markers: 5
+  PASS 3 HPAs and 2 HPA-less Deployments marked (5 markers)
+  PASS RBAC live: patch HPAs
+  PASS RBAC live: update deployments/scale
+  PASS RBAC live: no delete deployments
+  PASS RBAC live: no secrets
+
+=== 03:13:09 3. helm rollback to revision 1 (observe)
+Rollback was a success! Happy Helming!
+  PASS operator ready
+  PASS policy mode observe again
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS HPAs restored to 1-5
+  PASS every marker cleared
+  PASS Lease released
+  PASS RBAC observe again: no patch on HPAs
+
+=== 03:13:30 4. helm uninstall
+release "fs-bookstore" uninstalled
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS release gone
+  PASS no operator left
+  PASS no Role or RoleBinding left in flexascale-bookstore
+  PASS HPAs at 1-5
+  PASS no markers
+  PASS Lease released
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+cart              1/1     1            1           8d
+pricing           1/1     1            1           8d
+recommendations   1/1     1            1           8d
+search            1/1     1            1           8d
+storefront        1/1     1            1           8d
+
+=== 03:13:43 result: 32 passed, 1 failed

@@ -1,0 +1,20 @@
+FlexaScale shutdown
+
+== 1/4 Active experiment
+  [ OK ] stop requested for the running experiment
+  [ OK ] experiment state: completed
+
+== 2/4 Managed processes (Locust, operator, dashboard, tunnel, port-forwards)
+  lab: stopped
+  pf-bookstore: stopped
+  pf-grafana: stopped
+  pf-prometheus: stopped
+
+== 3/4 Restore native HPA ownership
+  shopping   flexascale-apps: 16 managed services, lease free, frozen HPAs: none
+  bookstore  flexascale-bookstore: 5 managed services, lease free, frozen HPAs: none
+  [ OK ] native HPA owns every managed Deployment; FlexaScale holds no lease
+
+== 4/4 Summary
+  managed processes still running: none
+  [ OK ] Minikube, Deployments, Helm releases, volumes and database data were left untouched

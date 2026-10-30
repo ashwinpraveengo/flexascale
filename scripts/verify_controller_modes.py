@@ -191,7 +191,7 @@ def run_scenario(name: str, users: int, duration: int) -> Dict[str, Any]:
 
 def owner_of(decision: Dict[str, Any]) -> str:
     """Who actually controlled the service in this step. Observe (shadow) decisions control nothing."""
-    return decision.get("controller") if decision.get("mode") == "live" else "shadow (no control)"
+    return decision.get("controller") if decision.get("mode") == "live" else "native HPA (FlexaScale shadow only)"
 
 
 def evidence(run_id: str) -> Dict[str, Any]:
@@ -227,6 +227,7 @@ def evidence(run_id: str) -> Dict[str, Any]:
                 "elapsed": round(x["ts"] - t0, 1), "from": x["current_replicas"], "policy_proposed": x.get("policy_replicas"),
                 "approved": target, "policy_mode": x["policy"]["mode"], "action": x["policy"]["action_label"],
                 "confidence": x["policy"]["confidence"], "hpa_note": x.get("hpa_note"),
+                "auto_rule": (x.get("auto") or {}).get("rule"), "safety_reasons": x.get("safety_reasons"),
                 "desired_confirmed_after_s": round(desired_at["t"] - x["ts"], 1) if desired_at else None,
                 "ready_confirmed_after_s": round(ready_at["t"] - x["ts"], 1) if ready_at else None,
             })
@@ -304,6 +305,41 @@ def scenario_table(ev: Dict[str, Any]) -> List[str]:
     return rows
 
 
+def mixed_steps(run_id: str) -> tuple[int, int, Dict[str, str]]:
+    """Operator steps in which some services were owned by FlexaScale and others by HPA at the same time."""
+    by_step: Dict[int, Dict[str, str]] = defaultdict(dict)
+    path = ROOT / "reports" / "experiments" / run_id / "decisions.jsonl"
+    for line in path.read_text(encoding="utf-8").splitlines() if path.is_file() else []:
+        d = json.loads(line)
+        if d.get("type") == "decision" and d.get("mode") == "live":
+            by_step[d["step"]][d["service"]] = d["controller"]
+    mixed = [st for st, owners in sorted(by_step.items()) if len(set(owners.values())) > 1]
+    return len(mixed), len(by_step), (by_step[mixed[len(mixed) // 2]] if mixed else {})
+
+
+def key_evidence(evs: Dict[str, Dict[str, Any]]) -> List[str]:
+    out = []
+    for n, ev in evs.items():
+        acts = sorted(((a, svc) for svc, p in ev["per_service"].items() for a in p["applied"]), key=lambda x: x[0]["elapsed"])
+        if acts:
+            a, svc = acts[0]
+            out.append(f"* **{ev['title']}** — first applied FlexaScale action: {svc} {a['from']}→{a['approved']} at +{a['elapsed']:.0f} s "
+                       f"(policy `{a['policy_mode']}` {a['action']}, confidence {a['confidence']:.2f}"
+                       f"{', Auto rule ' + a['auto_rule'] if a.get('auto_rule') else ''}; safety: {', '.join(a.get('safety_reasons') or [])}; "
+                       f"HPA {a['hpa_note']}); Kubernetes desired after "
+                       f"{a['desired_confirmed_after_s']} s, ready after {a['ready_confirmed_after_s']} s; {len(acts)} applied in total.")
+        if ev["run"]["controller"] == "auto":
+            m, total, example = mixed_steps(ev["run"]["id"])
+            if m:
+                hpa = sorted(k for k, v in example.items() if v == "hpa")
+                out.append(f"* **{ev['title']}** — mixed ownership in {m} of {total} operator steps; e.g. HPA owned {', '.join(hpa)} while "
+                           f"FlexaScale owned the other {len(example) - len(hpa)} services in the same step.")
+        if ev["run"].get("operator_failure"):
+            of = ev["run"]["operator_failure"]
+            out.append(f"* **{ev['title']}** — watchdog fallback at +{of['elapsed']} s ({of['reason']}): {len(of['restored'])} HPAs restored.")
+    return out or ["* (no runs yet)"]
+
+
 def build_report() -> None:
     evs = {}
     for n in SCENARIOS:
@@ -324,6 +360,7 @@ def build_report() -> None:
              "actually held the service in that operator step (FlexaScale only with the Lease and a frozen HPA). A proposal is "
              "never counted as an action: *Action applied* lists only scale requests that Kubernetes accepted, with the time until "
              "the new desired and ready counts were observed.", ""]
+    lines += ["## Key evidence", ""] + key_evidence(evs) + [""]
     lines += ["## Summary", "", "| Scenario | Run | State / cleanup | Policy | Operator steps by owner | Auto rules | Applied scale requests | Exclusivity |",
               "|---|---|---|---|---|---|---|---|"]
     for n, ev in evs.items():

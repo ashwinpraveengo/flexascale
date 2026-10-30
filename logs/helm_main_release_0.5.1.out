@@ -1,0 +1,46 @@
+=== 03:16:54 before
+7       	Mon Oct 26 20:51:01 2026	superseded	flexascale-0.4.1	0.4.0      	Upgrade complete                                                                                                                                                                                                                                                                                                                                                                   
+8       	Wed Oct 28 08:07:19 2026	superseded	flexascale-0.4.2	0.4.0      	Upgrade complete                                                                                                                                                                                                                                                                                                                                                                   
+9       	Wed Oct 28 08:13:10 2026	deployed  	flexascale-0.4.1	0.4.0      	Rollback to 7                                                                                                                                                                                                                                                                                                                                                                      
+{"app.kubernetes.io/component":"operator","app.kubernetes.io/name":"flexascale"}  image=flexascale:0.4.0
+api-gateway-hpa 31%/70% 1
+cart-service-hpa 31%/70% 1
+catalog-service-hpa 45%/70% 1
+(lease holder above, empty = none)
+=== 03:16:54 helm upgrade -> chart 0.5.1, image 0.6.0, v7 model (observe)
+Release "flexascale" has been upgraded. Happy Helming!
+NAME: flexascale
+LAST DEPLOYED: Sat Oct 31 03:16:54 2026
+NAMESPACE: flexascale-system
+STATUS: deployed
+REVISION: 10
+deployment "flexascale-operator" successfully rolled out
+{"app.kubernetes.io/component":"operator","app.kubernetes.io/name":"flexascale"}  image=flexascale:0.6.0
+pod flexascale-operator-6d9dbcb86b-drzk6
+{"type": "event", "event": "operator_start", "ts": 1793396824.9092324, "app": "shopping-incluster", "requested_mode": "observe", "model": {"model_path": "/app/models/flexascale_v7/best_model/best_model.zip", "sha256": "5d4fcc207c93d9e42feaa6c6d90ea60411751aab380ac4e2b6da478fc328da1a", "extractor": "GraphFocalExtractor", "trained_services": 20, "observation_dim": 640, "observation_version": 3, "observation_fields": ["
+{"type": "decision", "ts": 1793396854.9102762, "step": 4, "app": "shopping-incluster", "mode": "observe", "service": "wishlist-service", "features": {"cpu_pct": 2.632, "memory_pct": 37.618, "replicas": 1.0, "request_rate": 0.0, "latency_ms": 0.0}, "missing": [], "stale": false, "policy": {"mode": "p
+9       	Wed Oct 28 08:13:10 2026	superseded	flexascale-0.4.1	0.4.0      	Rollback to 7                                                                                                                                                                                                                                                                                                                                                                      
+10      	Sat Oct 31 03:16:54 2026	deployed  	flexascale-0.5.1	0.6.0      	Upgrade complete                                                                                                                                                                                                                                                                                                                                                                   
+=== 03:17:57 helm rollback flexascale 9 (chart 0.4.1, image 0.4.0)
+Rollback was a success! Happy Helming!
+deployment "flexascale-operator" successfully rolled out
+image=flexascale:0.4.0
+HPAs (min/max) after rollback:
+api-gateway-hpa=1-1 cart-service-hpa=1-1 catalog-service-hpa=1-1 fraud-service-hpa=1-1 inventory-service-hpa=1-1 notification-service-hpa=1-1 order-service-hpa=1-1 payment-service-hpa=1-1 pricing-service-hpa=1-1 promotion-service-hpa=1-1 recommendation-service-hpa=1-1 review-service-hpa=1-1 search-service-hpa=1-1 shipping-service-hpa=1-1 user-service-hpa=1-1 wishlist-service-hpa=1-1 
+=== 03:18:06 helm rollback flexascale 10 (forward again to chart 0.5.1)
+Rollback was a success! Happy Helming!
+deployment "flexascale-operator" successfully rolled out
+image=flexascale:0.6.0
+10      	Sat Oct 31 03:16:54 2026	superseded	flexascale-0.5.1	0.6.0      	Upgrade complete                    
+11      	Sat Oct 31 03:17:57 2026	superseded	flexascale-0.4.1	0.4.0      	Rollback to 9                       
+12      	Sat Oct 31 03:18:07 2026	deployed  	flexascale-0.5.1	0.6.0      	Rollback to 10                      
+=== 03:18:59 application and data preservation
+NAME        	NAMESPACE      	REVISION	UPDATED                                	STATUS  	CHART             	APP VERSION
+shopping-app	flexascale-apps	9       	2026-10-26 04:33:27.807380572 +0530 IST	deployed	shopping-app-1.1.0	1.1.0      
+18
+NAME           UID                                    STATUS
+postgres-pvc   29f7b255-ef3e-49c7-a1d9-37325a995d9c   Bound
+orders|249088
+users|6
+products|14
+FlexaScale markers on shop HPAs owned by the in-cluster release: 0
