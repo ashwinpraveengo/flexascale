@@ -87,13 +87,25 @@ RULES = {f"limit_target({t}/{d})": (t, d) for t in (0.4, 0.5, 0.6, 0.7) for d in
 # ---------------------------------------------------------------------------
 
 
+DEVICE = "cpu"  # --device; the protocol, seeds and selection do not depend on it (docs/POLICY_V9.md §2)
+TWIN = ROOT / "config" / "twin" / "shopping.json"
+
+
 def battery() -> tuple:
     """(on_battery, capacity %) of the laptop; (False, 100) when there is no battery."""
     import glob
+    try:  # cross-platform (Windows has no /sys/class/power_supply)
+        import psutil
+
+        bat = psutil.sensors_battery()
+        if bat is not None and bat.power_plugged is not None:
+            return not bat.power_plugged, int(bat.percent)
+    except Exception:
+        pass
     for d in glob.glob("/sys/class/power_supply/BAT*"):
         try:
-            status = Path(d, "status").read_text().strip()
-            cap = int(Path(d, "capacity").read_text().strip())
+            status = Path(d, "status").read_text(encoding="utf-8").strip()
+            cap = int(Path(d, "capacity").read_text(encoding="utf-8").strip())
             return status == "Discharging", cap
         except (OSError, ValueError):
             pass
@@ -130,7 +142,7 @@ def hold_live_runs(create_pause_file: bool) -> None:
     if not create_pause_file:
         return
     PAUSE.parent.mkdir(parents=True, exist_ok=True)
-    PAUSE.write_text(f"train_v7.py pid {os.getpid()} since {time.strftime('%F %T')}\n")
+    PAUSE.write_text(f"train_v7.py pid {os.getpid()} since {time.strftime('%F %T')}\n", encoding="utf-8")
     atexit.register(lambda: PAUSE.unlink(missing_ok=True))
     while lab_busy():
         print(time.strftime("%H:%M:%S"), "a live run is active; waiting for it to finish before training", flush=True)
@@ -261,7 +273,7 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
         # 4 simulations x 20 agent slots; each service decides from its own focal view and gets its own reward
         venv = TwinAgentsVecEnv(app, cal, n_sims=4, n_max=N_MAX, reward=RewardConfig(kind=spec["reward"]), seed=spec["seed"])
         kw = {**FOCAL_PPO_KW, **(FINETUNE_KW if spec.get("warm_start") else {})}
-        model = PPO(ActorCriticPolicy, venv, seed=spec["seed"], verbose=0, device="cpu",
+        model = PPO(ActorCriticPolicy, venv, seed=spec["seed"], verbose=0, device=DEVICE,
                     policy_kwargs={"features_extractor_class": GraphFocalExtractor,
                                    "features_extractor_kwargs": {"n_max": N_MAX, "hidden": 64, "rounds": 2,
                                                                  "use_graph": spec["use_graph"]},
@@ -282,7 +294,7 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
         # The 8 environments step in this process (DummyVecEnv): a twin step costs ~1 ms, and subprocesses each load
         # PyTorch (~0.5 GB apiece), which the laptop running Minikube cannot spare. Same environments, seeds and settings.
         venv = DummyVecEnv([make_env(app, cal, spec["reward"], r, spec["seed"]) for r in range(n_envs)])
-        model = PPO(GraphPolicy, venv, seed=spec["seed"], verbose=0, device="cpu",
+        model = PPO(GraphPolicy, venv, seed=spec["seed"], verbose=0, device=DEVICE,
                     policy_kwargs={"n_max": N_MAX, "hidden": 64, "rounds": 2, "use_graph": spec["use_graph"],
                                    "hold_index": HOLD_INDEX, "hold_bias": 1.5}, **PPO_KW)
     history = []
@@ -331,7 +343,7 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
     model.learn(total_timesteps=steps, callback=Eval())
     model.save(run_dir / "final_model")
     venv.close()
-    (run_dir / "history.json").write_text(json.dumps(history, indent=1))
+    (run_dir / "history.json").write_text(json.dumps(history, indent=1), encoding="utf-8")
     best = max(history, key=lambda h: h["reward"]) if history else None
     out = {"name": name, **spec, "steps": steps, "minutes": round((time.time() - t0) / 60, 1), "best": best,
            "history": history, "paused_at": paused}
@@ -342,6 +354,7 @@ def train_run(name: str, spec: Dict[str, Any], app, cal, steps: int, eval_every:
 
 
 def main() -> int:
+    global OUT, REPORT, DEVICE  # --out-dir / --report-dir / --device (v9: docs/POLICY_V9.md §5)
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--steps", type=int, default=1_500_000)
     ap.add_argument("--eval-every", type=int, default=100_000)
@@ -354,14 +367,19 @@ def main() -> int:
                     help="select the model and rule from the finished runs and stop before the test sets (they run once, later)")
     ap.add_argument("--pause-live-runs", action="store_true", help="create .runtime/pause_live_runs while training")
     ap.add_argument("--retrain", action="store_true", help="train runs again even if training_v7.json has them")
+    ap.add_argument("--twin", default=str(TWIN), help="application twin (v9: config/twin/shopping_v9.json)")
+    ap.add_argument("--out-dir", default=str(OUT), help="model folder (v9: models/flexascale_v9)")
+    ap.add_argument("--report-dir", default=str(REPORT), help="report folder (v9: reports/v9)")
+    ap.add_argument("--device", default="cpu", help="cpu or cuda (speed only, docs/POLICY_V9.md §2)")
     args = ap.parse_args()
+    OUT, REPORT, DEVICE = Path(args.out_dir), Path(args.report_dir), args.device
 
-    app, cal = load_shop(ROOT / "config" / "twin" / "shopping.json")
+    app, cal = load_shop(args.twin)
     val = episodes_validation(app, cal)
     REPORT.mkdir(parents=True, exist_ok=True)
     hold_live_runs(args.pause_live_runs)
     summary_path = REPORT / "training_v7.json"
-    summary = json.loads(summary_path.read_text()) if summary_path.exists() else {"runs": {}}
+    summary = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else {"runs": {}}
     if not args.only_test:
         teacher_rule = None
         for name in args.runs.split(","):
@@ -379,7 +397,8 @@ def main() -> int:
             summary["runs"][name] = train_run(name, RUNS[name], app, cal, args.focal_steps if focal else args.steps,
                                               args.focal_eval_every if focal else args.eval_every, args.n_envs, val,
                                               teacher_rule)
-            summary_path.write_text(json.dumps(summary, indent=1))
+            summary["runs"][name]["device"] = summary["device"] = DEVICE  # speed only (docs/POLICY_V9.md §2)
+            summary_path.write_text(json.dumps(summary, indent=1), encoding="utf-8")
 
     from stable_baselines3 import PPO
 
@@ -402,7 +421,7 @@ def main() -> int:
     summary["selected_rule"] = max(rule_val, key=lambda n: rule_val[n]["reward"])
     print("selected model:", chosen, "| selected rule:", summary["selected_rule"], flush=True)
     if args.select_only:
-        summary_path.write_text(json.dumps(summary, indent=1))
+        summary_path.write_text(json.dumps(summary, indent=1), encoding="utf-8")
         print("wrote", summary_path, "(selection only; test sets not run)")
         return 0
 
@@ -423,7 +442,7 @@ def main() -> int:
             print(f"{tname:18s} {cname:44s} reward {a['reward']:9.2f} repl-h {a['replica_hours']:.3f} p95 {a['p95_ms']:6.0f} "
                   f"mean {a['mean_latency_ms']:5.0f} slo {a['slo_violation_s']:5.1f} ev {a['scaling_events']:5.1f} osc {a['oscillations']:4.1f}", flush=True)
     summary["test"] = results
-    summary_path.write_text(json.dumps(summary, indent=1))
+    summary_path.write_text(json.dumps(summary, indent=1), encoding="utf-8")
     print("wrote", summary_path)
     return 0
 

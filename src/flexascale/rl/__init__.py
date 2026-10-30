@@ -1,3 +1,4 @@
+from flexascale.rl import sb3_compat  # noqa: F401  (Windows: buffer zip members before torch.load)
 from flexascale.rl.gnn_encoder import (
     GNNDependencyEncoder,
     GNNExtractor,

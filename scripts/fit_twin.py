@@ -60,7 +60,7 @@ def locust_classes(run_dir: Path):
     """Per class: (requests, request-weighted mean latency ms, request-weighted p95 ms) from locust_stats.csv."""
     import csv
     out = defaultdict(lambda: [0.0, 0.0, 0.0])
-    with open(run_dir / "locust_stats.csv") as f:
+    with open(run_dir / "locust_stats.csv", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             if row["Name"] == "Aggregated" or not row.get("Request Count"):
                 continue
@@ -80,6 +80,15 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", default=str(ROOT / "config" / "twin" / "shopping.json"))
     ap.add_argument("--policy", default=str(ROOT / "config" / "apps" / "shopping.yaml"))
+    ap.add_argument("--scenarios-from", default=None,
+                    help="take scenarios that have no runs in this fit from this twin file (v9: config/twin/shopping.json); "
+                         "their per-user request rate and class shares are workload properties, their class latencies "
+                         "come from this fit's calibration_steady, and service rates are scaled by --scenario-rate-scale")
+    ap.add_argument("--scenario-rate-scale", type=float, default=1.0,
+                    help="factor on the imported scenarios' service-rate ratios (v9: 0.5, the first laptop double-counted "
+                         "request rates, docs/POLICY_V9.md §8)")
+    ap.add_argument("--since", default="20261025",
+                    help="only runs whose folder name sorts at or after this (v9 on the second laptop: 20261028-23)")
     args = ap.parse_args()
 
     samples = defaultdict(list)          # svc -> (rps, ready, cores, lat)
@@ -87,7 +96,7 @@ def main() -> int:
     per_user = defaultdict(list)
     cls_obs = defaultdict(lambda: defaultdict(list))   # scenario -> class -> [(share, mean, p95)]
     n_runs = 0
-    for run, rows in load_runs(str(ROOT / "reports" / "experiments")):
+    for run, rows in load_runs(str(ROOT / "reports" / "experiments"), since=args.since):
         n_runs += 1
         sc = run["request"]["scenario"]
         lc = locust_classes(ROOT / "reports" / "experiments" / run["id"])
@@ -127,7 +136,7 @@ def main() -> int:
                                     cpu_limit=CPU_LIMIT, cpu_request=CPU_REQUEST, serial=serial))
         fit_report[s] = {"n": len(samples[s]), "r2": round(float(r2), 3)}
 
-    policy = yaml.safe_load(Path(args.policy).read_text())
+    policy = yaml.safe_load(Path(args.policy).read_text(encoding="utf-8"))
     edges = [tuple(e) for e in policy.get("topology") or []]
     mean_rate = {s: float(np.mean([x[0] for x in samples[s]])) for s in samples}
     callers = defaultdict(list)
@@ -168,13 +177,34 @@ def main() -> int:
             "classes": g["classes"],
             "samples": 0, "note": "approximated from gradual_ramp and traffic_drop (same 6:4 mix family); no live samples"}
 
+    imported = {}
+    if args.scenarios_from:
+        prev = json.loads(Path(args.scenarios_from).read_text(encoding="utf-8"))["scenarios"]
+        own = scenarios.get("calibration_steady", {}).get("classes", {})
+        # Check of the rate correction where both laptops have the scenario: ratio(this fit) / (scale x ratio(imported))
+        for sc, v in prev.items():
+            if sc in scenarios and scenarios[sc].get("samples"):
+                mine, theirs = scenarios[sc]["ratios"], v["ratios"]
+                common = [k for k in mine if theirs.get(k)]
+                imported[f"check:{sc}"] = {k: round(mine[k] / (args.scenario_rate_scale * theirs[k]), 3) for k in common}
+                continue
+            classes = {k: {**c, **{x: own[k][x] for x in ("base_ms", "sigma") if k in own}} for k, c in v["classes"].items()}
+            scenarios[sc] = {"rps_per_user": v["rps_per_user"], "classes": classes, "samples": 0,
+                             "ratios": {k: round(r * args.scenario_rate_scale, 4) for k, r in v["ratios"].items()},
+                             "note": f"imported from {args.scenarios_from}: per-user rate and class shares as fitted there, service "
+                                     f"rates x {args.scenario_rate_scale}, class latencies from this fit's calibration_steady"}
+            imported[sc] = "imported"
+
     app = AppSpec(name="shopping", services=services, edges=edges, fanout=fanout, entry="api-gateway")
     out = app.to_json()
     out["scenarios"] = scenarios
-    out["fit"] = {"runs": n_runs, "services": fit_report, "source": "reports/experiments (16-service runs, 2026-10-25/26)"}
+    out["fit"] = {"runs": n_runs, "services": fit_report, "since": args.since, "imported_scenarios": imported,
+                  "source": f"reports/experiments, 16-service runs whose folder sorts at or after {args.since}"}
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    Path(args.out).write_text(json.dumps(out, indent=1) + "\n")
+    Path(args.out).write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {args.out} from {n_runs} runs")
+    for k, v in imported.items():
+        print(f"  {k}: {v}")
     for s in services:
         print(f"  {s.name:24s} c={1000 * s.cpu_per_req:7.2f} ms  idle={1000 * s.idle_cores:5.1f} m  base={s.base_latency_ms:7.1f} ms"
               f"  serial={s.serial}  R2={fit_report[s.name]['r2']}")

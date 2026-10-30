@@ -1,0 +1,22 @@
+# FlexaScale on the second, unrelated application: the synthetic 5-service bookstore (examples/bookstore/).
+# Same chart, image and model as the shop; only the application policy differs (config/apps/bookstore.yaml).
+# Install next to the shop's release (observation only, the default):
+#   helm upgrade --install fs-bookstore helm/flexascale -n flexascale-system --create-namespace -f helm/flexascale/values-bookstore.yaml
+# Live control is explicit: add --set policy.mode=live
+image:
+  tag: "0.6.0"
+policy:
+  name: bookstore
+  namespace: flexascale-bookstore
+  label_selector: app.kubernetes.io/part-of=bookstore
+  exclude: []
+  max_replicas: 6
+  max_total_replicas: 15
+  services:
+    storefront: {min_replicas: 1, max_replicas: 4}
+  slo_latency_ms: 200
+  topology: []                      # no prior: inferred from traffic
+  cost:
+    currency: USD
+    cpu_per_vcpu_hour: 0.04
+    memory_per_gib_hour: 0.005

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Json, OWNER_COLOR, TERMINAL, api, fmt, fmtAgo, fmtElapsed } from '../api';
 import { Card, Empty, ErrorNote, Icon, OwnerBadge, Skeleton, StatusBadge, usePoll } from '../ui';
+import { ScalingTimeline } from '../timeline/ScalingTimeline';
+import { feedOfRun } from '../timeline/feeds';
 
 const RULES: { id: string; title: string; owner: string; text: (c: Json, p: Json) => string; immediate: boolean }[] = [
   { id: 'controller_health', title: 'Controller health', owner: 'hpa', immediate: true,
@@ -46,6 +48,7 @@ export function AutoPage({ live, active, onNavigate }: { live: Json; active: Jso
   for (const e of run?.events || []) if (e.kind === 'auto' && e.service) handoffs[e.service] = e;
   const handoffCount = (run?.events || []).filter((e: Json) => e.kind === 'auto' && e.service).length;
   const fsOwned = Object.values(state).filter((d: Json) => d.owner === 'flexascale').length;
+  const feed = useMemo(() => feedOfRun(run, running ? 'live' : 'replay'), [run, running]);
 
   return (
     <div className="space-y-4">
@@ -59,6 +62,8 @@ export function AutoPage({ live, active, onNavigate }: { live: Json; active: Jso
           hand-back, under one Lease per application. Stopping a run, losing the Lease or the operator exiting returns every service to native HPA.
         </p>
       </Card>
+
+      {run && <ScalingTimeline feed={feed} compact title={running ? 'Auto run: replicas and ownership, live' : 'Last Auto run: replicas and ownership (replay)'} />}
 
       <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
         {RULES.map((r, i) => {

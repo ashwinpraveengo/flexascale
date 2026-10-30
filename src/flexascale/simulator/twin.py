@@ -103,7 +103,7 @@ class AppSpec:
 
     @classmethod
     def load(cls, path: str | Path) -> "AppSpec":
-        return cls.from_json(json.loads(Path(path).read_text()))
+        return cls.from_json(json.loads(Path(path).read_text(encoding="utf-8")))
 
 
 @dataclass

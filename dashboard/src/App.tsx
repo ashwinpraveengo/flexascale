@@ -6,15 +6,26 @@ import { LiveLab } from './pages/LiveLab';
 import { Compare } from './pages/Compare';
 import { AutoPage } from './pages/AutoPage';
 import { Models } from './pages/Models';
+import { Experiments } from './pages/Experiments';
+import { TopologyPage } from './pages/TopologyPage';
+import { useActiveExperiment } from './timeline/feeds';
 
-type Page = 'overview' | 'live' | 'compare' | 'auto' | 'models';
-const PAGES: { id: Page; label: string; icon: string }[] = [
-  { id: 'overview', label: 'Overview', icon: 'overview' },
-  { id: 'live', label: 'Live lab', icon: 'live' },
-  { id: 'compare', label: 'Comparison', icon: 'compare' },
-  { id: 'auto', label: 'Auto mode', icon: 'auto' },
-  { id: 'models', label: 'Models', icon: 'model' },
+type Page = 'overview' | 'topology' | 'live' | 'auto' | 'compare' | 'experiments' | 'models';
+const GROUPS: { label: string; pages: { id: Page; label: string; icon: string }[] }[] = [
+  { label: 'Observe', pages: [{ id: 'overview', label: 'Overview', icon: 'overview' }, { id: 'topology', label: 'Service topology', icon: 'graph' }] },
+  { label: 'Operate', pages: [{ id: 'live', label: 'Live lab', icon: 'live' }, { id: 'auto', label: 'Auto mode', icon: 'auto' }] },
+  { label: 'Analyze', pages: [{ id: 'compare', label: 'Comparison', icon: 'compare' }, { id: 'experiments', label: 'Experiments', icon: 'history' }, { id: 'models', label: 'Models', icon: 'model' }] },
 ];
+const PAGES = GROUPS.flatMap((g) => g.pages);
+const SUBTITLE: Record<Page, string> = {
+  overview: 'Cluster, application and autoscaling health',
+  topology: 'Discovered microservices and their call graph',
+  live: 'Run HPA, FlexaScale and Auto under the same workload',
+  auto: 'Per-service controller ownership and its reasons',
+  compare: 'Paired benchmark against native HPA',
+  experiments: 'Saved runs: configuration, validity and replay',
+  models: 'Trained policies, compatibility and inference health',
+};
 
 function readTheme(): 'dark' | 'light' {
   try {
@@ -50,7 +61,7 @@ export default function App() {
   }, []);
   const go = (p: string) => {
     window.location.hash = p;
-    setPage(p as Page);
+    setPage(p.split('?')[0] as Page);
     setMenu(false);
     window.scrollTo({ top: 0 });
   };
@@ -58,9 +69,9 @@ export default function App() {
   const overview = usePoll<Json>(api.overview, 10000);
   const meta = usePoll<Json>(api.scenarios, 600000);
   const live = usePoll<Json>(() => api.live(app), 5000, [app]);
-  const activeRes = usePoll<Json>(api.active, 3000);
+  const activeRes = useActiveExperiment(3000);
   const bench = usePoll<Json>(() => api.benchmark(app), 30000, [app]);
-  const active = activeRes.data?.active || null;
+  const active = activeRes.active;
   const exp = active && active.request?.app === app ? active : null;
   const running = !!exp && !TERMINAL.includes(exp.state);
   const cluster = overview.data?.cluster;
@@ -68,25 +79,33 @@ export default function App() {
   const appInfo = apps.find((a) => a.name === app);
   const shopUrl = exp?.app_url || appInfo?.url;
   const last = exp?.samples?.[exp.samples.length - 1];
-  const deployed = String(live.data?.policy?.model_path || '').split('/')[1];
+  const deployed = String(live.data?.policy?.model_path || '').replace(/\\/g, '/').split('/')[1];
   const liveAge = useAge(live.data?.timestamp);
   const apiDown = !!(overview.error && live.error);
+  const current = PAGES.find((p) => p.id === page);
 
   const nav = (
-    <nav className="space-y-1" aria-label="Pages">
-      {PAGES.map((p) => (
-        <button key={p.id} className="nav-item" aria-current={page === p.id ? 'page' : undefined} onClick={() => go(p.id)}>
-          <Icon name={p.icon} size={17} />
-          {p.label}
-          {p.id === 'live' && running && <span className="dot dot-live ml-auto" style={{ background: 'var(--good)', color: 'var(--good)' }} />}
-        </button>
+    <nav className="space-y-5" aria-label="Pages">
+      {GROUPS.map((g) => (
+        <div key={g.label}>
+          <div className="eyebrow px-2.5 mb-1.5 !text-[10px]">{g.label}</div>
+          <div className="space-y-0.5">
+            {g.pages.map((p) => (
+              <button key={p.id} className="nav-item" aria-current={page === p.id ? 'page' : undefined} onClick={() => go(p.id)}>
+                <Icon name={p.icon} size={17} />
+                {p.label}
+                {p.id === 'live' && running && <span className="dot dot-live ml-auto" style={{ background: 'var(--good)', color: 'var(--good)' }} />}
+              </button>
+            ))}
+          </div>
+        </div>
       ))}
     </nav>
   );
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[236px_1fr]">
-      <aside className="hidden lg:flex flex-col gap-6 p-4 border-r sticky top-0 h-screen" style={{ borderColor: 'var(--border)', background: 'color-mix(in srgb, var(--surface) 55%, transparent)' }}>
+    <div className="min-h-screen lg:grid lg:grid-cols-[244px_1fr]">
+      <aside className="hidden lg:flex flex-col gap-7 p-4 border-r sticky top-0 h-screen" style={{ borderColor: 'var(--border)', background: 'color-mix(in srgb, var(--surface) 50%, transparent)' }}>
         <Brand />
         {nav}
         <div className="mt-auto space-y-2 text-xs">
@@ -100,13 +119,13 @@ export default function App() {
       </aside>
 
       <div className="min-w-0">
-        <header className="sticky top-0 z-20 backdrop-blur-md border-b" style={{ borderColor: 'var(--border)', background: 'color-mix(in srgb, var(--page) 78%, transparent)' }}>
+        <header className="sticky top-0 z-20 backdrop-blur-md border-b" style={{ borderColor: 'var(--border)', background: 'color-mix(in srgb, var(--page) 80%, transparent)' }}>
           <div className="px-4 sm:px-6 py-3 flex items-center gap-3 flex-wrap">
             <button className="btn btn-ghost lg:hidden !p-2" aria-label="Menu" aria-expanded={menu} onClick={() => setMenu((m) => !m)}><Icon name="menu" size={18} /></button>
             <div className="lg:hidden"><Brand compact /></div>
             <div className="min-w-0 hidden sm:block">
-              <h1 className="text-lg font-semibold leading-tight">{PAGES.find((p) => p.id === page)?.label}</h1>
-              <p className="text-xs muted">Real cluster telemetry · missing values shown as “—”, never estimated</p>
+              <h1 className="text-lg font-semibold leading-tight tracking-tight">{current?.label}</h1>
+              <p className="text-xs muted">{SUBTITLE[page]} · real telemetry; missing values shown as “—”, never estimated</p>
             </div>
             <div className="ml-auto flex items-center gap-2 flex-wrap justify-end">
               {running && (
@@ -129,7 +148,7 @@ export default function App() {
           {menu && <div className="lg:hidden px-4 pb-3">{nav}</div>}
         </header>
 
-        <main className="px-4 sm:px-6 py-5 max-w-[1680px] space-y-4">
+        <main className="px-4 sm:px-6 py-5 max-w-[1720px] space-y-4">
           {apiDown && (
             <Banner level="critical"><b>Lab server unreachable.</b> The dashboard cannot reach the FlexaScale lab API on this host; values below are the last ones received and are not current. <span className="muted">({live.error})</span></Banner>
           )}
@@ -137,10 +156,12 @@ export default function App() {
             <Banner level="warning"><b>Telemetry is stale</b>: the last live update is {Math.round(liveAge)} s old. Values are shown as last received.</Banner>
           )}
           {page === 'overview' && <Overview overview={overview.data} live={live.data} liveErr={live.error} active={active} app={app} bench={bench.data} onNavigate={go} />}
+          {page === 'topology' && <TopologyPage live={live.data} liveErr={live.error} />}
           {page === 'live' && <LiveLab meta={meta.data} live={live.data} liveErr={live.error} active={active} app={app} shopUrl={shopUrl}
             grafana={cluster?.grafana_url} prometheus={cluster?.prometheus_url} reloadActive={activeRes.reload} />}
           {page === 'compare' && <Compare app={app} />}
           {page === 'auto' && <AutoPage live={live.data} active={active} onNavigate={go} />}
+          {page === 'experiments' && <Experiments app={app} meta={meta.data} onNavigate={go} />}
           {page === 'models' && <Models deployed={deployed} live={live.data} />}
         </main>
       </div>
@@ -151,13 +172,20 @@ export default function App() {
 function Brand({ compact }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden>
-        <rect width="32" height="32" rx="9" fill="var(--accent)" />
-        <path d="M9 21V11h9M9 16h6M19 21l4-10" stroke="#fff" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden>
+        <defs>
+          <linearGradient id="brand-g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="var(--accent)" />
+            <stop offset="1" stopColor="var(--flexa)" />
+          </linearGradient>
+        </defs>
+        <rect width="32" height="32" rx="9" fill="url(#brand-g)" />
+        <path d="M8 22V10h9M8 16h6" stroke="#fff" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M18 22h2v-4h2v-5h2v9" stroke="#fff" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />
       </svg>
       {!compact && (
         <div className="leading-tight">
-          <div className="font-semibold">FlexaScale</div>
+          <div className="font-semibold tracking-tight">FlexaScale</div>
           <div className="text-[11px] muted">Autoscaling control center</div>
         </div>
       )}

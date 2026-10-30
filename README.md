@@ -4,6 +4,13 @@
 > http://127.0.0.1:8090/ (FlexaScale control center; see the top of [RUNNING.md](RUNNING.md)). Project summary, demo runbook and
 > viva notes are in `docs/`. Verified status of every component: `reports/final_readiness_report.md`.
 >
+> **Second laptop (Windows 11, 2026-10-30).** Start and stop with `./fsctl start` / `./fsctl stop` (`fsctl.cmd` in
+> PowerShell). Everything was measured again under rules fixed in advance (`docs/POLICY_V9.md`). HPA-tuned was recalibrated
+> to a 350% CPU target. A GPU-trained v9 graph policy passed its gate against v7. In a pre-registered 48-run evaluation,
+> v9 and Auto are **on par / inconclusive against HPA-tuned** (replica-hours +0.3% and +0.2%). Against default HPA they use
+> 7–8% fewer replica-hours, a saving HPA-tuned matches without any model. The graph input showed no measurable
+> benefit (`reports/v9/`, readiness report §0.4).
+>
 > **Results in one paragraph (2026-10-28).** The fair baseline is a *tuned* native HPA: CPU target 250%, 60 s window,
 > chosen by a calibration rule fixed in advance. Against it, FlexaScale v7 is **on par**. v7 is a graph policy over the shop's
 > call graph, trained in an application twin fitted to live runs. In a pre-registered, clock-controlled replication (48 runs,

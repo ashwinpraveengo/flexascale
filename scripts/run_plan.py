@@ -38,10 +38,35 @@ def call(method, path, body=None):
         return json.loads(resp.read() or b"null")
 
 
+def keep_awake() -> None:
+    """Windows: ask the OS not to sleep while this runner lives (the equivalent of the systemd-inhibit wrapper
+    used on Linux). Changes no setting; the request ends with the process.
+
+    ES_DISPLAY_REQUIRED is essential on Modern Standby (S0 low-power idle) laptops: there the display timing
+    out *is* entering standby, which ES_SYSTEM_REQUIRED alone does not prevent. Measured 2026-10-29: with only
+    ES_SYSTEM_REQUIRED the laptop entered Modern Standby 21 s into a calibration run's load window
+    (System log, Kernel-Power 506 at 00:00:50, 507 at 00:39:11; docs/POLICY_V9.md §8)."""
+    if sys.platform != "win32":
+        return
+    import ctypes
+
+    ES_CONTINUOUS, ES_SYSTEM_REQUIRED, ES_DISPLAY_REQUIRED = 0x80000000, 0x00000001, 0x00000002
+    if ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED):
+        log("Windows: sleep and display-off (Modern Standby) inhibited while the plan runs")
+
+
 def on_battery() -> bool:
+    try:  # cross-platform (Windows has no /sys/class/power_supply)
+        import psutil
+
+        bat = psutil.sensors_battery()
+        if bat is not None and bat.power_plugged is not None:
+            return not bat.power_plugged
+    except Exception:
+        pass
     for f in glob.glob("/sys/class/power_supply/BAT*/status"):
         try:
-            if Path(f).read_text().strip() == "Discharging":
+            if Path(f).read_text(encoding="utf-8").strip() == "Discharging":
                 return True
         except OSError:
             pass
@@ -56,26 +81,44 @@ FROZEN = set()
 
 
 def matching_pids(pattern):
+    """PIDs whose full command line matches the regex (like `pgrep -f`), never this process. psutil, so it
+    also works on Windows, where there is no pgrep and no SIGSTOP/SIGCONT."""
     if not pattern:
         return []
-    out = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True).stdout.split()
-    return [int(x) for x in out if int(x) != os.getpid()]
+    import re
+
+    import psutil
+
+    rx = re.compile(pattern)
+    out = []
+    for proc in psutil.process_iter(["pid", "cmdline"]):
+        try:
+            cmd = " ".join(proc.info["cmdline"] or [])
+        except (psutil.Error, TypeError):
+            continue
+        if proc.info["pid"] != os.getpid() and cmd and rx.search(cmd):
+            out.append(proc.info["pid"])
+    return out
 
 
 def freeze(pattern):
+    import psutil
+
     for pid in matching_pids(pattern):
         try:
-            os.kill(pid, signal.SIGSTOP)
+            psutil.Process(pid).suspend()  # SIGSTOP on POSIX, NtSuspendProcess on Windows
             FROZEN.add(pid)
-        except ProcessLookupError:
+        except psutil.Error:
             pass
 
 
 def thaw():
+    import psutil
+
     for pid in list(FROZEN):
         try:
-            os.kill(pid, signal.SIGCONT)
-        except ProcessLookupError:
+            psutil.Process(pid).resume()
+        except psutil.Error:
             pass
         FROZEN.discard(pid)
 
@@ -119,9 +162,10 @@ def main() -> int:
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, lambda *_: sys.exit(1))  # atexit resumes anything frozen
     BASE = args.base_url.rstrip("/")
-    plan = json.loads(Path(args.plan).read_text())
+    keep_awake()
+    plan = json.loads(Path(args.plan).read_text(encoding="utf-8"))
     prog_path = Path(args.plan).with_suffix(".progress.json")
-    progress = json.loads(prog_path.read_text()) if prog_path.exists() else {}
+    progress = json.loads(prog_path.read_text(encoding="utf-8")) if prog_path.exists() else {}
     log(f"plan {args.plan}: {len(plan)} runs, {len(progress)} already done")
     for i, body in enumerate(plan):
         key = str(i)
@@ -148,7 +192,7 @@ def main() -> int:
         s = final.get("summary") or {}
         w, r = s.get("workload") or {}, s.get("resources") or {}
         progress[key] = {"id": started["id"], "state": final["state"], "block": body.get("block")}
-        prog_path.write_text(json.dumps(progress, indent=1))
+        prog_path.write_text(json.dumps(progress, indent=1), encoding="utf-8")
         log(f"[{i + 1}/{len(plan)}] {final['state']} {started['id']} p95={w.get('p95_ms')} mean={w.get('mean_latency_ms') and round(w['mean_latency_ms'], 1)} "
             f"fail%={w.get('failure_rate_pct') and round(w['failure_rate_pct'], 3)} replica_h={r.get('replica_hours')} "
             f"safe={(final.get('cleanup') or {}).get('safe')} error={final.get('error')}")

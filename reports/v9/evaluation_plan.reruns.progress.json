@@ -1,0 +1,27 @@
+{
+ "0": {
+  "id": "20261030-013122-shopping-flexascale-flash_sale",
+  "state": "completed",
+  "block": "v9-b04-rl"
+ },
+ "1": {
+  "id": "20261030-014144-shopping-auto-flash_sale",
+  "state": "completed",
+  "block": "v9-b10-auto"
+ },
+ "2": {
+  "id": "20261030-015346-shopping-flexascale-gradual_ramp",
+  "state": "completed",
+  "block": "v9-b11-rl"
+ },
+ "3": {
+  "id": "20261030-020558-shopping-auto-traffic_drop",
+  "state": "completed",
+  "block": "v9-b12-auto"
+ },
+ "4": {
+  "id": "20261030-021821-shopping-flexascale-traffic_drop",
+  "state": "completed",
+  "block": "v9-b12-rl"
+ }
+}

@@ -8,6 +8,8 @@ import { MIN_PAIRS } from './Overview';
 const isReference = (model: string) => model.startsWith('Native HPA');
 const candidateName = (model: string) => (isReference(model) ? model : model.startsWith('Rule') ? `${model} (hand-written rule)` : `FlexaScale ${model}`);
 const REFERENCE_OPTIONS: [string, string][] = [['hpa', 'Native HPA (default)'], ['hpa_tuned', 'Native HPA, tuned (fair baseline)']];
+/** Short name of a native-HPA group, for the "candidate − reference" labels. */
+const hpaShort = (model: string) => (model.startsWith('Native HPA (default)') ? 'default HPA' : model.startsWith('Native HPA, tuned') ? 'tuned HPA' : 'HPA, 60 s scale-down');
 
 const METRICS: [string, string, string][] = [
   ['replica_hours_pct', 'Replica-hours', '%'],
@@ -24,6 +26,7 @@ export function Compare({ app }: { app: string }) {
   const models: Json[] = bench.data?.models || [];
   const [model, setModel] = useState<string | null>(null);
   const current = models.find((m) => m.model === model) || models.find((m) => String(m.model).includes('Auto')) || models[0];
+  const refShort = reference === 'hpa_tuned' ? 'tuned HPA' : 'default HPA';
 
   return (
     <div className="space-y-4">
@@ -32,14 +35,14 @@ export function Compare({ app }: { app: string }) {
         <div className="seg" role="group" aria-label="Reference controller">
           {REFERENCE_OPTIONS.map(([k, label]) => <button key={k} aria-pressed={reference === k} onClick={() => { setReference(k); setModel(null); }}>{label}</button>)}
         </div>
-        {reference === 'hpa_tuned' && <span className="text-xs muted">pre-registered v7 evaluation (docs/POLICY_V7.md): runs paired within their block</span>}
+        {reference === 'hpa_tuned' && <span className="text-xs muted">pre-registered block studies (docs/POLICY_V7.md, docs/POLICY_V9.md): runs paired within their block</span>}
       </div>
       <ErrorNote error={bench.error} what="Benchmark" />
       {bench.loading && !bench.data ? (
         <div className="card p-5 space-y-3"><Skeleton h={14} w="30%" /><Skeleton h={120} /></div>
       ) : !models.length ? (
         <Card title="No paired benchmark yet"><Empty icon="compare">{reference === 'hpa_tuned'
-          ? 'Pairs against the tuned HPA appear here once runs of the pre-registered v7 evaluation (block-labelled) have completed.'
+          ? 'Pairs against the tuned HPA appear here once runs of a pre-registered block study (v7 or v9, block-labelled) have completed.'
           : 'Paired runs appear here once the same scenario has been run with native HPA and then with FlexaScale (same users, spawn rate and duration).'}</Empty></Card>
       ) : (
         <>
@@ -51,9 +54,11 @@ export function Compare({ app }: { app: string }) {
             )}>
             <div className="flex flex-wrap items-center gap-2 mb-4 text-sm">
               <StatusBadge level={current.n_pairs < MIN_PAIRS ? 'warning' : current.verdict_level} label={current.n_pairs < MIN_PAIRS ? `Preliminary: ${current.n_pairs} of ≥ ${MIN_PAIRS} pairs needed for a verdict` : current.verdict} />
-              <span className="ink2">{current.n_pairs} comparable pairs · {current.scenarios} scenarios · {isReference(current.model)
+              <span className="ink2">{current.n_pairs} comparable pairs · {current.scenarios} scenarios · {current.study
+                ? 'pre-registered block design: each pair = two arms of the same block, same scenario and settings, run back to back in an order fixed by seed.'
+                : isReference(current.model)
                 ? 'tuned-HPA reference: each tuned run directly follows the default-HPA run it is paired with, same settings (docs/POLICY_V6.md §5.2). It asks whether a shorter scale-down window alone gives the saving, and does not change the Auto verdict.'
-                : 'each pair = native-HPA run then the candidate run, same settings, adjacent in time.'} Δ = candidate − default HPA; negative cost/latency/failures is better.</span>
+                : 'each pair = native-HPA run then the candidate run, same settings, adjacent in time.'} Δ = candidate − {refShort}; negative cost/latency/failures is better.</span>
             </div>
             <div className="grid gap-3 grid-cols-2 lg:grid-cols-5">
               {METRICS.map(([k, label, unit]) => {
@@ -70,7 +75,7 @@ export function Compare({ app }: { app: string }) {
             <p className="text-xs muted mt-3">{current.verdict_rule}</p>
           </Card>
 
-          <Card eyebrow="By scenario" title={`Δ per pair (dots) and mean (bar), ${isReference(current.model) ? 'tuned HPA' : 'FlexaScale'} − default HPA`}>
+          <Card eyebrow="By scenario" title={`Δ per pair (dots) and mean (bar), ${isReference(current.model) ? hpaShort(current.model) : 'FlexaScale'} − ${refShort}`}>
             <DeltaChart model={current} />
           </Card>
 

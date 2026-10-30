@@ -4,9 +4,15 @@ Managed background processes for the review/demo workflow.
 Every process FlexaScale starts (Locust, the operator, port-forwards, the lab
 server) is recorded in ``<runtime>/pids/<name>.json`` with its PID, process
 group, command line and start time. A process is only ever signalled when the
-live ``/proc/<pid>`` entry still matches that record (same start time and a
-command line containing the recorded marker), so stale PID files can never
-cause an unrelated process to be killed, and nothing is killed by port number.
+live process still matches that record (same start time and a command line
+containing the recorded marker), so stale PID files can never cause an
+unrelated process to be killed, and nothing is killed by port number.
+
+Linux reads the identity from ``/proc/<pid>``. Windows has no ``/proc``, no
+process groups in the POSIX sense and no SIGTERM between processes, so there the
+identity comes from psutil (creation time in ms, command line), each process
+gets its own process group, and a graceful stop is a CTRL_BREAK to that group
+(Python receives SIGBREAK) before the process tree is terminated.
 """
 
 from __future__ import annotations
@@ -15,17 +21,36 @@ import json
 import os
 import signal
 import subprocess
+import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
 DEFAULT_RUNTIME_DIR = Path(os.environ.get("FLEXASCALE_RUNTIME_DIR", ".runtime"))
+WINDOWS = sys.platform == "win32"
+SIGTERM = int(signal.SIGTERM)
+SIGKILL = int(getattr(signal, "SIGKILL", 9))
+
+
+def _ps(pid: int):
+    try:
+        import psutil
+
+        return psutil.Process(pid)
+    except Exception:  # psutil missing, no such process, access denied
+        return None
 
 
 def _proc_start_ticks(pid: int) -> Optional[int]:
+    if WINDOWS:
+        p = _ps(pid)
+        try:
+            return int(p.create_time() * 1000) if p else None
+        except Exception:
+            return None
     try:
-        stat = Path(f"/proc/{pid}/stat").read_text()
+        stat = Path(f"/proc/{pid}/stat").read_text(encoding="utf-8")
         # Field 22 (starttime) comes after the ')' that closes the command name.
         return int(stat.rsplit(")", 1)[1].split()[19])
     except (OSError, ValueError, IndexError):
@@ -33,17 +58,68 @@ def _proc_start_ticks(pid: int) -> Optional[int]:
 
 
 def _proc_state(pid: int) -> Optional[str]:
+    if WINDOWS:
+        p = _ps(pid)
+        try:
+            return None if p is None or not p.is_running() else ("Z" if p.status() == "zombie" else "R")
+        except Exception:
+            return None
     try:
-        return Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()[0]
+        return Path(f"/proc/{pid}/stat").read_text(encoding="utf-8").rsplit(")", 1)[1].split()[0]
     except (OSError, IndexError):
         return None
 
 
 def _proc_cmdline(pid: int) -> str:
+    if WINDOWS:
+        p = _ps(pid)
+        try:
+            return " ".join(p.cmdline()) if p else ""
+        except Exception:
+            return ""
     try:
         return Path(f"/proc/{pid}/cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace")
     except OSError:
         return ""
+
+
+# Sent from a helper so that it works whether or not the target shares our console:
+# the helper detaches from its own console, attaches to the target's and raises CTRL_BREAK
+# in the target's process group only (the helper ignores the event itself).
+_CTRL_BREAK_HELPER = (
+    "import ctypes,sys\n"
+    "k=ctypes.windll.kernel32\n"
+    "k.FreeConsole()\n"
+    "ok=k.AttachConsole(int(sys.argv[1]))\n"
+    "ok=ok and k.SetConsoleCtrlHandler(None,True)\n"
+    "ok=ok and k.GenerateConsoleCtrlEvent(1,int(sys.argv[2]))\n"
+    "sys.exit(0 if ok else 1)\n"
+)
+
+
+def _windows_ctrl_break(pid: int, pgid: int) -> bool:
+    try:
+        out = subprocess.run([sys.executable, "-c", _CTRL_BREAK_HELPER, str(pid), str(pgid)],
+                             creationflags=subprocess.CREATE_NO_WINDOW, timeout=10,
+                             stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return out.returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
+def _windows_terminate_tree(pid: int) -> None:
+    p = _ps(pid)
+    if p is None:
+        return
+    try:
+        procs = p.children(recursive=True) + [p]
+    except Exception:
+        procs = [p]
+    for q in procs:
+        try:
+            q.terminate()  # TerminateProcess on Windows
+        except Exception:
+            pass
 
 
 @dataclass
@@ -85,7 +161,7 @@ class ProcessManager:
         if not path.is_file():
             return None
         try:
-            return ProcessRecord(**json.loads(path.read_text()))
+            return ProcessRecord(**json.loads(path.read_text(encoding="utf-8")))
         except (ValueError, TypeError):
             return None
 
@@ -113,31 +189,46 @@ class ProcessManager:
         full_env = dict(os.environ)
         full_env.update(env or {})
         full_env["PYTHONUNBUFFERED"] = "1"
+        full_env.setdefault("PYTHONIOENCODING", "utf-8")
+        # POSIX: own session/process group. Windows: own process group (CTRL_BREAK target) and
+        # no console window; a process started from a console-less parent still gets a hidden console.
+        # Windows also breaks away from the starter's job object where the job allows it, so the lab, the
+        # tunnel and the port-forwards outlive the terminal (or agent) that ran `fsctl start` (observed
+        # 2026-10-29: they were killed with the job of the process that started them).
+        flags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW if WINDOWS else 0
+        attempts = ([{"creationflags": flags | subprocess.CREATE_BREAKAWAY_FROM_JOB}, {"creationflags": flags}]
+                    if WINDOWS else [{"start_new_session": True}])
         with log.open("ab") as fh:
-            proc = subprocess.Popen(
-                list(cmd),
-                stdout=fh,
-                stderr=subprocess.STDOUT,
-                stdin=subprocess.DEVNULL,
-                env=full_env,
-                cwd=cwd,
-                start_new_session=True,
-            )
+            for i, spawn in enumerate(attempts):
+                try:
+                    proc = subprocess.Popen(
+                        list(cmd),
+                        stdout=fh,
+                        stderr=subprocess.STDOUT,
+                        stdin=subprocess.DEVNULL,
+                        env=full_env,
+                        cwd=cwd,
+                        **spawn,
+                    )
+                    break
+                except PermissionError:  # the job forbids breakaway: start inside it
+                    if i == len(attempts) - 1:
+                        raise
         self._children[name] = proc
         rec = ProcessRecord(
             name=name,
             pid=proc.pid,
-            pgid=os.getpgid(proc.pid),
+            pgid=proc.pid if WINDOWS else os.getpgid(proc.pid),
             cmd=list(cmd),
             marker=marker or " ".join(cmd[:3]),
             start_ticks=_proc_start_ticks(proc.pid),
             started_at=time.time(),
             log=str(log),
         )
-        self._record_path(name).write_text(json.dumps(asdict(rec), indent=2))
+        self._record_path(name).write_text(json.dumps(asdict(rec), indent=2), encoding="utf-8")
         return rec
 
-    def stop(self, name: str, timeout: float = 20.0, first_signal: int = signal.SIGINT) -> str:
+    def stop(self, name: str, timeout: float = 20.0, first_signal: int = int(signal.SIGINT)) -> str:
         """Gracefully stop a managed process group. Returns a short outcome string."""
         rec = self.get(name)
         child = self._children.pop(name, None)
@@ -148,20 +239,29 @@ class ProcessManager:
             self._record_path(name).unlink(missing_ok=True)
             return "already_stopped"
         outcome = "stopped"
-        for sig, wait in ((first_signal, timeout), (signal.SIGTERM, 10.0), (signal.SIGKILL, 5.0)):
-            try:
-                os.killpg(rec.pgid, sig)
-            except ProcessLookupError:
-                break
-            deadline = time.time() + wait
-            def gone() -> bool:
-                return child.poll() is not None if child is not None else not rec.matches_live_process()
 
+        def gone() -> bool:
+            return child.poll() is not None if child is not None else not rec.matches_live_process()
+
+        # Windows: any graceful first signal becomes CTRL_BREAK (SIGBREAK in Python); SIGTERM has no
+        # graceful meaning between Windows processes, so the escalation is a tree terminate.
+        for sig, wait in ((int(first_signal), timeout), (SIGTERM, 10.0), (SIGKILL, 5.0)):
+            if WINDOWS:
+                if sig == SIGKILL or sig == SIGTERM and int(first_signal) != SIGTERM:
+                    _windows_terminate_tree(rec.pid)
+                elif not _windows_ctrl_break(rec.pid, rec.pgid):
+                    continue  # no console to signal: go straight to the next stage
+            else:
+                try:
+                    os.killpg(rec.pgid, sig)
+                except ProcessLookupError:
+                    break
+            deadline = time.time() + wait
             while time.time() < deadline and not gone():
                 time.sleep(0.2)
             if gone():
                 break
-            outcome = "killed" if sig == signal.SIGKILL else outcome
+            outcome = "killed" if sig == SIGKILL else outcome
         if child is not None:
             try:
                 child.wait(timeout=1)

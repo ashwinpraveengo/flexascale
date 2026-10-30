@@ -26,7 +26,7 @@ MARGIN, FAIL_PP = 1.10, 0.10
 def host_flags(path: Path) -> dict:
     flags = {}
     if path.exists():
-        with path.open() as f:
+        with path.open(encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 flags[row["run"]] = (row.get("host_affected"), row.get("reason") or "")
     return flags
@@ -37,16 +37,17 @@ def main() -> int:
     ap.add_argument("--results", default=str(ROOT / "reports" / "experiments"))
     ap.add_argument("--host-load", default=str(ROOT / "reports" / "host_load_by_run.csv"))
     ap.add_argument("--out", default=str(ROOT / "reports" / "v7" / "calibration"))
+    ap.add_argument("--prefix", default="cal-", help="block-label prefix of the calibration runs (v9 on the second laptop: v9cal-)")
     args = ap.parse_args()
     flags = host_flags(Path(args.host_load))
     runs = {t: [] for t in GRID}
     excluded = []
     for p in sorted(Path(args.results).glob("*/run.json")):
-        r = json.loads(p.read_text())
+        r = json.loads(p.read_text(encoding="utf-8"))
         req = r.get("request") or {}
         if req.get("controller") != "hpa_tuned" or req.get("scenario") != "calibration_steady":
             continue
-        if not str(req.get("block") or "").startswith("cal-"):
+        if not str(req.get("block") or "").startswith(args.prefix):
             continue
         t = int(req.get("hpa_cpu_target_pct") or 0)
         s = r.get("summary") or {}
@@ -107,10 +108,10 @@ def main() -> int:
         lines += ["", "Excluded runs:", ""] + [f"* `{r['run']}` ({r['target']}%): {r['reason']}" for r in excluded]
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.with_suffix(".md").write_text("\n".join(lines) + "\n")
+    out.with_suffix(".md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     out.with_suffix(".json").write_text(json.dumps({"selected_cpu_target_pct": selected, "scale_down_window_s": 60,
                                                     "means": means, "runs": runs, "excluded": excluded,
-                                                    "incomplete_targets": missing}, indent=1))
+                                                    "incomplete_targets": missing}, indent=1), encoding="utf-8")
     print("\n".join(lines))
     return 0
 

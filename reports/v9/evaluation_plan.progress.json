@@ -1,0 +1,242 @@
+{
+ "0": {
+  "id": "20261029-142402-shopping-hpa-steady_browsing",
+  "state": "completed",
+  "block": "v9-b01-hpa_default"
+ },
+ "1": {
+  "id": "20261029-143954-shopping-hpa_tuned-steady_browsing",
+  "state": "completed",
+  "block": "v9-b01-hpa_tuned"
+ },
+ "2": {
+  "id": "20261029-145135-shopping-flexascale-steady_browsing",
+  "state": "completed",
+  "block": "v9-b01-rl"
+ },
+ "3": {
+  "id": "20261029-150817-shopping-auto-steady_browsing",
+  "state": "completed",
+  "block": "v9-b01-auto"
+ },
+ "4": {
+  "id": "20261029-151959-shopping-flexascale-checkout_heavy",
+  "state": "completed",
+  "block": "v9-b02-rl"
+ },
+ "5": {
+  "id": "20261029-153150-shopping-hpa_tuned-checkout_heavy",
+  "state": "completed",
+  "block": "v9-b02-hpa_tuned"
+ },
+ "6": {
+  "id": "20261029-154332-shopping-auto-checkout_heavy",
+  "state": "completed",
+  "block": "v9-b02-auto"
+ },
+ "7": {
+  "id": "20261029-155953-shopping-hpa-checkout_heavy",
+  "state": "completed",
+  "block": "v9-b02-hpa_default"
+ },
+ "8": {
+  "id": "20261029-161125-shopping-hpa_tuned-payment_degradation",
+  "state": "completed",
+  "block": "v9-b03-hpa_tuned"
+ },
+ "9": {
+  "id": "20261029-162756-shopping-auto-payment_degradation",
+  "state": "completed",
+  "block": "v9-b03-auto"
+ },
+ "10": {
+  "id": "20261029-163938-shopping-hpa-payment_degradation",
+  "state": "completed",
+  "block": "v9-b03-hpa_default"
+ },
+ "11": {
+  "id": "20261029-165059-shopping-flexascale-payment_degradation",
+  "state": "completed",
+  "block": "v9-b03-rl"
+ },
+ "12": {
+  "id": "20261029-170301-shopping-hpa_tuned-flash_sale",
+  "state": "completed",
+  "block": "v9-b04-hpa_tuned"
+ },
+ "13": {
+  "id": "20261029-171432-shopping-auto-flash_sale",
+  "state": "completed",
+  "block": "v9-b04-auto"
+ },
+ "14": {
+  "id": "20261029-172624-shopping-flexascale-flash_sale",
+  "state": "completed",
+  "block": "v9-b04-rl"
+ },
+ "15": {
+  "id": "20261029-173816-shopping-hpa-flash_sale",
+  "state": "completed",
+  "block": "v9-b04-hpa_default"
+ },
+ "16": {
+  "id": "20261029-174938-shopping-flexascale-gradual_ramp",
+  "state": "completed",
+  "block": "v9-b05-rl"
+ },
+ "17": {
+  "id": "20261029-180150-shopping-hpa-gradual_ramp",
+  "state": "completed",
+  "block": "v9-b05-hpa_default"
+ },
+ "18": {
+  "id": "20261029-181311-shopping-hpa_tuned-gradual_ramp",
+  "state": "completed",
+  "block": "v9-b05-hpa_tuned"
+ },
+ "19": {
+  "id": "20261029-191230-shopping-auto-gradual_ramp",
+  "state": "completed",
+  "block": "v9-b05-auto"
+ },
+ "20": {
+  "id": "20261029-192411-shopping-hpa_tuned-traffic_drop",
+  "state": "completed",
+  "block": "v9-b06-hpa_tuned"
+ },
+ "21": {
+  "id": "20261029-193553-shopping-flexascale-traffic_drop",
+  "state": "completed",
+  "block": "v9-b06-rl"
+ },
+ "22": {
+  "id": "20261029-194754-shopping-hpa-traffic_drop",
+  "state": "completed",
+  "block": "v9-b06-hpa_default"
+ },
+ "23": {
+  "id": "20261029-195916-shopping-auto-traffic_drop",
+  "state": "completed",
+  "block": "v9-b06-auto"
+ },
+ "24": {
+  "id": "20261029-201117-shopping-flexascale-steady_browsing",
+  "state": "completed",
+  "block": "v9-b07-rl"
+ },
+ "25": {
+  "id": "20261029-202309-shopping-auto-steady_browsing",
+  "state": "completed",
+  "block": "v9-b07-auto"
+ },
+ "26": {
+  "id": "20261029-203500-shopping-hpa_tuned-steady_browsing",
+  "state": "completed",
+  "block": "v9-b07-hpa_tuned"
+ },
+ "27": {
+  "id": "20261029-204642-shopping-hpa-steady_browsing",
+  "state": "completed",
+  "block": "v9-b07-hpa_default"
+ },
+ "28": {
+  "id": "20261029-210303-shopping-flexascale-checkout_heavy",
+  "state": "completed",
+  "block": "v9-b08-rl"
+ },
+ "29": {
+  "id": "20261029-211505-shopping-hpa_tuned-checkout_heavy",
+  "state": "completed",
+  "block": "v9-b08-hpa_tuned"
+ },
+ "30": {
+  "id": "20261029-212647-shopping-auto-checkout_heavy",
+  "state": "completed",
+  "block": "v9-b08-auto"
+ },
+ "31": {
+  "id": "20261029-214328-shopping-hpa-checkout_heavy",
+  "state": "completed",
+  "block": "v9-b08-hpa_default"
+ },
+ "32": {
+  "id": "20261029-220010-shopping-flexascale-payment_degradation",
+  "state": "completed",
+  "block": "v9-b09-rl"
+ },
+ "33": {
+  "id": "20261029-221734-shopping-hpa_tuned-payment_degradation",
+  "state": "completed",
+  "block": "v9-b09-hpa_tuned"
+ },
+ "34": {
+  "id": "20261029-223406-shopping-auto-payment_degradation",
+  "state": "completed",
+  "block": "v9-b09-auto"
+ },
+ "35": {
+  "id": "20261029-224557-shopping-hpa-payment_degradation",
+  "state": "completed",
+  "block": "v9-b09-hpa_default"
+ },
+ "36": {
+  "id": "20261029-225719-shopping-flexascale-flash_sale",
+  "state": "completed",
+  "block": "v9-b10-rl"
+ },
+ "37": {
+  "id": "20261029-231441-shopping-hpa_tuned-flash_sale",
+  "state": "completed",
+  "block": "v9-b10-hpa_tuned"
+ },
+ "38": {
+  "id": "20261029-232612-shopping-hpa-flash_sale",
+  "state": "completed",
+  "block": "v9-b10-hpa_default"
+ },
+ "39": {
+  "id": "20261029-233744-shopping-auto-flash_sale",
+  "state": "completed",
+  "block": "v9-b10-auto"
+ },
+ "40": {
+  "id": "20261029-234956-shopping-flexascale-gradual_ramp",
+  "state": "completed",
+  "block": "v9-b11-rl"
+ },
+ "41": {
+  "id": "20261030-000158-shopping-auto-gradual_ramp",
+  "state": "completed",
+  "block": "v9-b11-auto"
+ },
+ "42": {
+  "id": "20261030-001350-shopping-hpa_tuned-gradual_ramp",
+  "state": "completed",
+  "block": "v9-b11-hpa_tuned"
+ },
+ "43": {
+  "id": "20261030-002542-shopping-hpa-gradual_ramp",
+  "state": "completed",
+  "block": "v9-b11-hpa_default"
+ },
+ "44": {
+  "id": "20261030-004204-shopping-hpa_tuned-traffic_drop",
+  "state": "completed",
+  "block": "v9-b12-hpa_tuned"
+ },
+ "45": {
+  "id": "20261030-005356-shopping-auto-traffic_drop",
+  "state": "completed",
+  "block": "v9-b12-auto"
+ },
+ "46": {
+  "id": "20261030-010548-shopping-flexascale-traffic_drop",
+  "state": "completed",
+  "block": "v9-b12-rl"
+ },
+ "47": {
+  "id": "20261030-011800-shopping-hpa-traffic_drop",
+  "state": "completed",
+  "block": "v9-b12-hpa_default"
+ }
+}

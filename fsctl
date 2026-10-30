@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# FlexaScale launcher:  ./fsctl start [--demo|--check] | ./fsctl stop [--force-release-lease] | ./fsctl status
+# Windows: fsctl.cmd (same commands). Implementation: src/flexascale/lab/launcher.py
+source "$(dirname "${BASH_SOURCE[0]}")/scripts/lib/review_common.sh"
+launcher "$@"

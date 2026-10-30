@@ -140,6 +140,18 @@ v4 uses 52% fewer replicas than v3, but it is below the HPA rule on reward: 3.0 
 
 The PPO policies beat the HPA-like rule on reward (paired difference +0.53 ± 0.23 for v3) and violate the latency SLO about 6 percentage points less often, **by provisioning about 40% more replicas and scaling almost every step**. That is a performance-for-cost trade-off, not a free win.
 
+### Live, v9 on the second laptop (2026-10-29/30; `docs/POLICY_V9.md`, `reports/v9/`)
+
+Everything was measured again on a Windows 11 laptop (Docker Desktop, 4-vCPU Minikube node), under rules written before the first run. A new calibration put HPA-tuned at **350%** of request (60 s window). The application twin was refitted to this laptop. v9 was trained on the GPU (1.79× the best CPU speed, so §2's rule chose it). It is the same graph-policy design as v7, and it passed its gate against v7 on validation: −2.47 against −2.91. On held-out test episodes, though, v9 and v7 tie on both laptops' twins (every paired reward interval includes 0, `reports/v9/v9_vs_v7.md`), so the gate's margin came from selecting v9 on the same set. 48 live runs (12 blocks × 4 arms) plus 5 reruns; 7 runs were host-affected, all FlexaScale or Auto, which leaves 46 valid runs.
+
+| Pre-registered verdict (`reports/v9/evaluation.md`) | vs HPA-tuned (primary) | vs HPA-default |
+| :--- | :--- | :--- |
+| FlexaScale-RL (v9) | **on par / inconclusive**: replica-hours +0.3% [−0.2, +0.7], p95 +155% [−165, +475] | on par / inconclusive: replica-hours −7.3% [−11.5, −3.2], p95 +53.5% (C2 fails) |
+| FlexaScale-Auto | **on par / inconclusive**: replica-hours +0.2% [−0.2, +0.5], p95 +41.5% [−22.6, +105.7] | on par / inconclusive: replica-hours −7.7% [−12.3, −3.2], p95 +17.6% (C2 fails) |
+| HPA-default | worse than HPA-tuned: replica-hours +10.6% [+4.2, +17.1] | – |
+
+The p95 means are dominated by three late reruns. They ran 1–2 h after their blocks, while the laptop was out of physical memory. Without the pairs that contain one (descriptive only, `reports/v9/evaluation_sensitivity.md`), RL against HPA-tuned is replica-hours +0.1% and p95 +3.8% [−6.2, +13.9]. The verdict is the same. In the twin, run once after the live runs (`reports/v9/ablation.md`), HPA-tuned scores best on the six live scenarios: −1.20 against v9's −1.26. v9 leads only on random workloads (T2) that were never run live. The graph input has no measurable benefit: graph minus no graph, same seed, gives reward intervals that include 0 on all three test sets. **On this laptop, too, v9 performs like a well-tuned HPA. HPA-tuned matches its saving over the default HPA without any model: at 25 users both keep most services at their minimum.**
+
 ### Live, v7 against a fairly tuned native HPA (2026-10-27/28; `docs/V7_REPORT.md`, `docs/POLICY_V7.md`)
 
 The baseline is HPA-tuned: CPU target 250% of request with a 60 s window, chosen by a calibration rule fixed in advance. At 25 users it keeps every service at its minimum for most of each run. The candidate v7 is a graph policy over the shop's real call graph, trained in an application twin fitted to the live runs. It runs in three arms: RL (the policy alone), Auto (per-service arbitration with HPA-tuned) and heuristic (the same operator with a hand-written rule, for attribution). Verdicts follow a table fixed in advance (12 paired blocks: six scenarios × two repeats).
@@ -207,6 +219,8 @@ Per run, from 5-second samples: replica-hours; *allocated* vCPU-hours and GiB-ho
 ## 12. Limitations
 
 * **v7 does not beat a fairly tuned native HPA**; it is on par in a pre-registered, clock-controlled replication (`docs/V7_REPORT.md`). Its twin predicted a large flash-sale gain (p95 −385 ms) that did not appear live.
+* **v9 (second laptop) does not beat it either** (on par / inconclusive in 11 pairs, `reports/v9/evaluation.md`). The graph input showed no measurable benefit in the twin ablation. The two seeds differed by as much as any design choice (validation −2.47 against −2.99).
+* **Second-laptop testbed limits:** the 15.3 GB laptop ran out of physical memory during the night blocks, and latency of the same scenario rose by up to ~60% between repetitions. Arms are compared within blocks, but the late blocks are noisier. FlexaScale and Auto runs use about 1 core more on the host than the HPA arms. This is not the model, which the HPA arms also run in shadow mode; it is the live operator's cluster work. It pushed 7 of their runs over the pre-registered host-load limit, and no HPA run.
 * **Environment confound on the laptop testbed:** under the `balanced` power profile, host activity changes how fast the whole application runs. Live FlexaScale control adds about 0.55 host cores, so comparisons with live control in only one arm favour that arm. Fair live comparisons need the `performance` profile, or the same host activity in every arm.
 * Three learned policies (v4, v5, v6) do not beat native HPA. v6, trained in a simulator matching the live control loop, loses in simulation (−0.048 ± 0.018 reward per step).
 * The learned policy does not beat native HPA live. v5 beats the HPA-like rule in simulation but not a tuned threshold rule, and live it uses 8% more replica-hours with no consistent latency or failure benefit.

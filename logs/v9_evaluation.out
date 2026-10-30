@@ -1,0 +1,113 @@
+14:24:02 Windows: sleep and display-off (Modern Standby) inhibited while the plan runs
+14:24:02 plan reports/v9/evaluation_plan.json: 48 runs, 0 already done
+14:24:02 [1/48] started 20261029-142402-shopping-hpa-steady_browsing (hpa, steady_browsing, block v9-b01-hpa_default)
+14:39:54 [1/48] completed 20261029-142402-shopping-hpa-steady_browsing p95=60.0 mean=24.7 fail%=0.018 replica_h=1.408343 safe=True error=None
+14:39:54 [2/48] started 20261029-143954-shopping-hpa_tuned-steady_browsing (hpa_tuned, steady_browsing, block v9-b01-hpa_tuned)
+14:51:35 [2/48] completed 20261029-143954-shopping-hpa_tuned-steady_browsing p95=55.0 mean=23.0 fail%=0.0 replica_h=1.359839 safe=True error=None
+14:51:35 [3/48] started 20261029-145135-shopping-flexascale-steady_browsing (flexascale, steady_browsing, block v9-b01-rl)
+15:08:17 [3/48] completed 20261029-145135-shopping-flexascale-steady_browsing p95=57.0 mean=23.3 fail%=0.0 replica_h=1.359699 safe=True error=None
+15:08:17 [4/48] started 20261029-150817-shopping-auto-steady_browsing (auto, steady_browsing, block v9-b01-auto)
+15:19:59 [4/48] completed 20261029-150817-shopping-auto-steady_browsing p95=59.0 mean=23.4 fail%=0.018 replica_h=1.359601 safe=True error=None
+15:19:59 [5/48] started 20261029-151959-shopping-flexascale-checkout_heavy (flexascale, checkout_heavy, block v9-b02-rl)
+15:31:50 [5/48] completed 20261029-151959-shopping-flexascale-checkout_heavy p95=170.0 mean=78.1 fail%=0.67 replica_h=1.360122 safe=True error=None
+15:31:50 [6/48] started 20261029-153150-shopping-hpa_tuned-checkout_heavy (hpa_tuned, checkout_heavy, block v9-b02-hpa_tuned)
+15:43:32 [6/48] completed 20261029-153150-shopping-hpa_tuned-checkout_heavy p95=160.0 mean=74.5 fail%=0.713 replica_h=1.36011 safe=True error=None
+15:43:32 [7/48] started 20261029-154332-shopping-auto-checkout_heavy (auto, checkout_heavy, block v9-b02-auto)
+15:59:53 [7/48] completed 20261029-154332-shopping-auto-checkout_heavy p95=170.0 mean=76.6 fail%=0.742 replica_h=1.359771 safe=True error=None
+15:59:53 [8/48] started 20261029-155953-shopping-hpa-checkout_heavy (hpa, checkout_heavy, block v9-b02-hpa_default)
+16:11:25 [8/48] completed 20261029-155953-shopping-hpa-checkout_heavy p95=160.0 mean=74.1 fail%=0.606 replica_h=1.605125 safe=True error=None
+16:11:25 [9/48] started 20261029-161125-shopping-hpa_tuned-payment_degradation (hpa_tuned, payment_degradation, block v9-b03-hpa_tuned)
+16:27:56 [9/48] completed 20261029-161125-shopping-hpa_tuned-payment_degradation p95=150.0 mean=59.2 fail%=0.19 replica_h=1.359611 safe=True error=None
+16:27:56 [10/48] started 20261029-162756-shopping-auto-payment_degradation (auto, payment_degradation, block v9-b03-auto)
+16:39:38 [10/48] completed 20261029-162756-shopping-auto-payment_degradation p95=160.0 mean=64.9 fail%=0.106 replica_h=1.359788 safe=True error=None
+16:39:38 [11/48] started 20261029-163938-shopping-hpa-payment_degradation (hpa, payment_degradation, block v9-b03-hpa_default)
+16:50:59 [11/48] completed 20261029-163938-shopping-hpa-payment_degradation p95=150.0 mean=62.6 fail%=0.232 replica_h=1.418515 safe=True error=None
+16:50:59 [12/48] started 20261029-165059-shopping-flexascale-payment_degradation (flexascale, payment_degradation, block v9-b03-rl)
+17:03:01 [12/48] completed 20261029-165059-shopping-flexascale-payment_degradation p95=160.0 mean=62.3 fail%=0.168 replica_h=1.360121 safe=True error=None
+17:03:01 [13/48] started 20261029-170301-shopping-hpa_tuned-flash_sale (hpa_tuned, flash_sale, block v9-b04-hpa_tuned)
+17:14:32 [13/48] completed 20261029-170301-shopping-hpa_tuned-flash_sale p95=320.0 mean=136.4 fail%=0.434 replica_h=1.386475 safe=True error=None
+17:14:32 [14/48] started 20261029-171432-shopping-auto-flash_sale (auto, flash_sale, block v9-b04-auto)
+17:26:24 [14/48] completed 20261029-171432-shopping-auto-flash_sale p95=200.0 mean=112.5 fail%=0.354 replica_h=1.410015 safe=True error=None
+17:26:24 [15/48] started 20261029-172624-shopping-flexascale-flash_sale (flexascale, flash_sale, block v9-b04-rl)
+17:38:16 [15/48] completed 20261029-172624-shopping-flexascale-flash_sale p95=520.0 mean=190.7 fail%=0.392 replica_h=1.402074 safe=True error=None
+17:38:16 [16/48] started 20261029-173816-shopping-hpa-flash_sale (hpa, flash_sale, block v9-b04-hpa_default)
+17:49:38 [16/48] completed 20261029-173816-shopping-hpa-flash_sale p95=410.0 mean=158.0 fail%=0.298 replica_h=1.82907 safe=True error=None
+17:49:38 [17/48] started 20261029-174938-shopping-flexascale-gradual_ramp (flexascale, gradual_ramp, block v9-b05-rl)
+18:01:50 [17/48] completed 20261029-174938-shopping-flexascale-gradual_ramp p95=100.0 mean=35.2 fail%=0.081 replica_h=1.35994 safe=True error=None
+18:01:50 [18/48] started 20261029-180150-shopping-hpa-gradual_ramp (hpa, gradual_ramp, block v9-b05-hpa_default)
+18:13:11 [18/48] completed 20261029-180150-shopping-hpa-gradual_ramp p95=92.0 mean=31.1 fail%=0.054 replica_h=1.38388 safe=True error=None
+18:13:11 [19/48] started 20261029-181311-shopping-hpa_tuned-gradual_ramp (hpa_tuned, gradual_ramp, block v9-b05-hpa_tuned)
+18:25:03 [19/48] completed 20261029-181311-shopping-hpa_tuned-gradual_ramp p95=78.0 mean=31.6 fail%=0.0 replica_h=1.360599 safe=True error=None
+18:25:03 [20/48] started 20261029-182503-shopping-auto-gradual_ramp (auto, gradual_ramp, block v9-b05-auto)
+Traceback (most recent call last):
+  File "D:\Programming\flexascale\scripts\run_plan.py", line 204, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "D:\Programming\flexascale\scripts\run_plan.py", line 191, in main
+    final = wait_for(started["id"], timeout=body.get("duration", 300) + 1200, suspend=args.suspend)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\scripts\run_plan.py", line 149, in wait_for
+    raise TimeoutError(run_id)
+TimeoutError: 20261029-182503-shopping-auto-gradual_ramp
+--- restart 19:12:29
+19:12:30 Windows: sleep and display-off (Modern Standby) inhibited while the plan runs
+19:12:30 plan reports/v9/evaluation_plan.json: 48 runs, 19 already done
+19:12:30 [20/48] started 20261029-191230-shopping-auto-gradual_ramp (auto, gradual_ramp, block v9-b05-auto)
+19:24:11 [20/48] completed 20261029-191230-shopping-auto-gradual_ramp p95=120.0 mean=35.6 fail%=0.054 replica_h=1.360125 safe=True error=None
+19:24:11 [21/48] started 20261029-192411-shopping-hpa_tuned-traffic_drop (hpa_tuned, traffic_drop, block v9-b06-hpa_tuned)
+19:35:53 [21/48] completed 20261029-192411-shopping-hpa_tuned-traffic_drop p95=99.0 mean=36.7 fail%=0.037 replica_h=1.360161 safe=True error=None
+19:35:53 [22/48] started 20261029-193553-shopping-flexascale-traffic_drop (flexascale, traffic_drop, block v9-b06-rl)
+19:47:54 [22/48] completed 20261029-193553-shopping-flexascale-traffic_drop p95=91.0 mean=35.0 fail%=0.149 replica_h=1.360498 safe=True error=None
+19:47:54 [23/48] started 20261029-194754-shopping-hpa-traffic_drop (hpa, traffic_drop, block v9-b06-hpa_default)
+19:59:16 [23/48] completed 20261029-194754-shopping-hpa-traffic_drop p95=79.0 mean=34.6 fail%=0.037 replica_h=1.415866 safe=True error=None
+19:59:16 [24/48] started 20261029-195916-shopping-auto-traffic_drop (auto, traffic_drop, block v9-b06-auto)
+20:11:17 [24/48] completed 20261029-195916-shopping-auto-traffic_drop p95=130.0 mean=37.0 fail%=0.038 replica_h=1.360369 safe=True error=None
+20:11:17 [25/48] started 20261029-201117-shopping-flexascale-steady_browsing (flexascale, steady_browsing, block v9-b07-rl)
+20:23:09 [25/48] completed 20261029-201117-shopping-flexascale-steady_browsing p95=61.0 mean=25.7 fail%=0.018 replica_h=1.360063 safe=True error=None
+20:23:09 [26/48] started 20261029-202309-shopping-auto-steady_browsing (auto, steady_browsing, block v9-b07-auto)
+20:35:00 [26/48] completed 20261029-202309-shopping-auto-steady_browsing p95=62.0 mean=26.5 fail%=0.018 replica_h=1.360353 safe=True error=None
+20:35:00 [27/48] started 20261029-203500-shopping-hpa_tuned-steady_browsing (hpa_tuned, steady_browsing, block v9-b07-hpa_tuned)
+20:46:42 [27/48] completed 20261029-203500-shopping-hpa_tuned-steady_browsing p95=56.0 mean=23.5 fail%=0.018 replica_h=1.360504 safe=True error=None
+20:46:42 [28/48] started 20261029-204642-shopping-hpa-steady_browsing (hpa, steady_browsing, block v9-b07-hpa_default)
+21:03:03 [28/48] completed 20261029-204642-shopping-hpa-steady_browsing p95=56.0 mean=24.4 fail%=0.035 replica_h=1.409226 safe=True error=None
+21:03:03 [29/48] started 20261029-210303-shopping-flexascale-checkout_heavy (flexascale, checkout_heavy, block v9-b08-rl)
+21:15:05 [29/48] completed 20261029-210303-shopping-flexascale-checkout_heavy p95=190.0 mean=98.8 fail%=0.719 replica_h=1.360264 safe=True error=None
+21:15:05 [30/48] started 20261029-211505-shopping-hpa_tuned-checkout_heavy (hpa_tuned, checkout_heavy, block v9-b08-hpa_tuned)
+21:26:47 [30/48] completed 20261029-211505-shopping-hpa_tuned-checkout_heavy p95=170.0 mean=81.8 fail%=0.948 replica_h=1.36011 safe=True error=None
+21:26:47 [31/48] started 20261029-212647-shopping-auto-checkout_heavy (auto, checkout_heavy, block v9-b08-auto)
+21:43:28 [31/48] completed 20261029-212647-shopping-auto-checkout_heavy p95=190.0 mean=94.7 fail%=0.855 replica_h=1.360435 safe=True error=None
+21:43:28 [32/48] started 20261029-214328-shopping-hpa-checkout_heavy (hpa, checkout_heavy, block v9-b08-hpa_default)
+22:00:10 [32/48] completed 20261029-214328-shopping-hpa-checkout_heavy p95=180.0 mean=91.4 fail%=0.703 replica_h=1.578236 safe=True error=None
+22:00:10 [33/48] started 20261029-220010-shopping-flexascale-payment_degradation (flexascale, payment_degradation, block v9-b09-rl)
+22:17:34 [33/48] completed 20261029-220010-shopping-flexascale-payment_degradation p95=180.0 mean=91.8 fail%=0.237 replica_h=1.360706 safe=True error=None
+22:17:34 [34/48] started 20261029-221734-shopping-hpa_tuned-payment_degradation (hpa_tuned, payment_degradation, block v9-b09-hpa_tuned)
+22:34:06 [34/48] completed 20261029-221734-shopping-hpa_tuned-payment_degradation p95=190.0 mean=92.5 fail%=0.129 replica_h=1.360096 safe=True error=None
+22:34:06 [35/48] started 20261029-223406-shopping-auto-payment_degradation (auto, payment_degradation, block v9-b09-auto)
+22:45:57 [35/48] completed 20261029-223406-shopping-auto-payment_degradation p95=180.0 mean=82.7 fail%=0.128 replica_h=1.360389 safe=True error=None
+22:45:57 [36/48] started 20261029-224557-shopping-hpa-payment_degradation (hpa, payment_degradation, block v9-b09-hpa_default)
+22:57:19 [36/48] completed 20261029-224557-shopping-hpa-payment_degradation p95=180.0 mean=91.1 fail%=0.298 replica_h=1.477094 safe=True error=None
+22:57:19 [37/48] started 20261029-225719-shopping-flexascale-flash_sale (flexascale, flash_sale, block v9-b10-rl)
+23:14:41 [37/48] completed 20261029-225719-shopping-flexascale-flash_sale p95=330.0 mean=169.6 fail%=0.374 replica_h=1.411716 safe=True error=None
+23:14:41 [38/48] started 20261029-231441-shopping-hpa_tuned-flash_sale (hpa_tuned, flash_sale, block v9-b10-hpa_tuned)
+23:26:12 [38/48] completed 20261029-231441-shopping-hpa_tuned-flash_sale p95=400.0 mean=162.4 fail%=0.371 replica_h=1.397568 safe=True error=None
+23:26:12 [39/48] started 20261029-232612-shopping-hpa-flash_sale (hpa, flash_sale, block v9-b10-hpa_default)
+23:37:44 [39/48] completed 20261029-232612-shopping-hpa-flash_sale p95=930.0 mean=265.5 fail%=0.922 replica_h=1.766013 safe=True error=None
+23:37:44 [40/48] started 20261029-233744-shopping-auto-flash_sale (auto, flash_sale, block v9-b10-auto)
+23:49:56 [40/48] completed 20261029-233744-shopping-auto-flash_sale p95=1100.0 mean=295.7 fail%=0.431 replica_h=1.405293 safe=True error=None
+23:49:56 [41/48] started 20261029-234956-shopping-flexascale-gradual_ramp (flexascale, gradual_ramp, block v9-b11-rl)
+00:01:58 [41/48] completed 20261029-234956-shopping-flexascale-gradual_ramp p95=210.0 mean=76.4 fail%=0.056 replica_h=1.360916 safe=True error=None
+00:01:58 [42/48] started 20261030-000158-shopping-auto-gradual_ramp (auto, gradual_ramp, block v9-b11-auto)
+00:13:50 [42/48] completed 20261030-000158-shopping-auto-gradual_ramp p95=260.0 mean=198.0 fail%=0.949 replica_h=1.368179 safe=True error=None
+00:13:50 [43/48] started 20261030-001350-shopping-hpa_tuned-gradual_ramp (hpa_tuned, gradual_ramp, block v9-b11-hpa_tuned)
+00:25:42 [43/48] completed 20261030-001350-shopping-hpa_tuned-gradual_ramp p95=170.0 mean=74.6 fail%=0.027 replica_h=1.361251 safe=True error=None
+00:25:42 [44/48] started 20261030-002542-shopping-hpa-gradual_ramp (hpa, gradual_ramp, block v9-b11-hpa_default)
+00:42:04 [44/48] completed 20261030-002542-shopping-hpa-gradual_ramp p95=150.0 mean=47.8 fail%=0.083 replica_h=1.391109 safe=True error=None
+00:42:04 [45/48] started 20261030-004204-shopping-hpa_tuned-traffic_drop (hpa_tuned, traffic_drop, block v9-b12-hpa_tuned)
+00:53:56 [45/48] completed 20261030-004204-shopping-hpa_tuned-traffic_drop p95=160.0 mean=53.0 fail%=0.113 replica_h=1.360697 safe=True error=None
+00:53:56 [46/48] started 20261030-005356-shopping-auto-traffic_drop (auto, traffic_drop, block v9-b12-auto)
+01:05:48 [46/48] completed 20261030-005356-shopping-auto-traffic_drop p95=320.0 mean=98.4 fail%=0.078 replica_h=1.360671 safe=True error=None
+01:05:48 [47/48] started 20261030-010548-shopping-flexascale-traffic_drop (flexascale, traffic_drop, block v9-b12-rl)
+01:17:59 [47/48] completed 20261030-010548-shopping-flexascale-traffic_drop p95=230.0 mean=91.9 fail%=0.078 replica_h=1.360903 safe=True error=None
+01:18:00 [48/48] started 20261030-011800-shopping-hpa-traffic_drop (hpa, traffic_drop, block v9-b12-hpa_default)
+01:29:21 [48/48] completed 20261030-011800-shopping-hpa-traffic_drop p95=450.0 mean=116.4 fail%=0.203 replica_h=1.458107 safe=True error=None
+01:29:21 plan complete

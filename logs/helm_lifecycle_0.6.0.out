@@ -1,0 +1,117 @@
+
+=== 11:21:26 0. baseline
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS no release fs-bookstore yet
+  PASS HPAs at their original bounds (1-5)
+  PASS no FlexaScale markers on HPAs or Deployments
+  PASS Lease not held
+1 chart(s) linted, 0 chart(s) failed
+
+=== 11:21:27 1. helm install (observe, revision 1)
+Release "fs-bookstore" does not exist. Installing it now.
+NAME: fs-bookstore
+LAST DEPLOYED: Fri Oct 30 11:21:27 2026
+NAMESPACE: flexascale-system
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+  PASS operator ready
+  PASS policy mode observe
+/usr/local/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+{"type": "decision", "ts": 1793339512.9109552, "step": 3, "app": "bookstore", "mode": "observe", "service": "search", "features": {"cpu_pct": 0.333, "memory_pct": 15.792, "replicas": 1.0, "request_rate": 0.0, "latency_ms": 0.0}, "missing": [], "stale": false, "policy": {"mode": "ppo_neighborhood", "action": 0, "action_label": "scale_down", "delta": -1, "confidence": 0.9995, "probabilities": [0.999
+{"type": "decision", "ts": 1793339512.9109552, "step": 3, "app": "bookstore", "mode": "observe", "service": "storefront", "features": {"cpu_pct": 0.288, "memory_pct": 15.181, "replicas": 1.0, "request_rate": 0.0, "latency_ms": 0.0}, "missing": [], "stale": false, "policy": {"mode": "ppo_neighborhood", "action": 0, "action_label": "scale_down", "delta": -1, "confidence": 0.9995, "probabilities": [0
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS HPAs unchanged in observe
+  PASS no markers in observe
+  PASS Lease not taken in observe
+  PASS RBAC observe: list deployments
+  PASS RBAC observe: no patch on HPAs
+  PASS RBAC observe: no scale update
+
+=== 11:22:00 2. helm upgrade (live, v9 model, revision 2)
+Release "fs-bookstore" has been upgraded. Happy Helming!
+NAME: fs-bookstore
+LAST DEPLOYED: Fri Oct 30 11:22:00 2026
+NAMESPACE: flexascale-system
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+  PASS operator ready
+  PASS policy mode live
+  PASS Lease taken within 60 s
+2026-10-30 05:52:24,548 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'recommendations' (expires in 30.0s)
+2026-10-30 05:52:24,755 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'recommendations' to target replicas (min=1, max=1)
+2026-10-30 05:52:24,890 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'search' (expires in 30.0s)
+2026-10-30 05:52:25,096 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'search' to target replicas (min=1, max=1)
+2026-10-30 05:52:25,252 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'storefront' (expires in 30.0s)
+2026-10-30 05:52:25,471 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'storefront' to target replicas (min=1, max=1)
+2026-10-30 05:52:33,822 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'cart' (expires in 30.0s)
+2026-10-30 05:52:34,061 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'cart' to target replicas (min=1, max=1)
+2026-10-30 05:52:34,188 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'pricing' (expires in 30.0s)
+2026-10-30 05:52:34,397 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'pricing' to target replicas (min=1, max=1)
+2026-10-30 05:52:34,547 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'recommendations' (expires in 30.0s)
+2026-10-30 05:52:34,753 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'recommendations' to target replicas (min=1, max=1)
+2026-10-30 05:52:34,889 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'search' (expires in 30.0s)
+2026-10-30 05:52:35,093 [INFO] flexascale.safety.hpa_manager: [HPA] Freezing HPA conflicts for 'search' to target replicas (min=1, max=1)
+2026-10-30 05:52:35,210 [INFO] flexascale.safety.lock: [LOCK] Renewed RL scaling lease for 'storefront' (expires in 30.0s)
+{"type": "decision", "ts": 1793339553.514202, "step": 3, "app": "bookstore", "mode": "live", "service": "search", "features": {"cpu_pct": 0.434, "memory_pct": 15.283, "replicas": 1.0, "request_rate": 0.0, "latency_ms": 0.0}, "missing": [], "stale": false, "policy": {"mode": "ppo_graph", "action": 1, "action_label": "hold", "delta": 0, "confidence": 0.8155, "probabilities": [0.1845, 0.8155, 0.0, 0.
+{"type": "decision", "ts": 1793339553.514202, "step": 3, "app": "bookstore", "mode": "live", "service": "storefront", "features": {"cpu_pct": 0.284, "memory_pct": 15.694, "replicas": 1.0, "request_rate": 0.0, "latency_ms": 0.0}, "missing": [], "stale": false, "policy": {"mode": "ppo_graph", "action": 1, "action_label": "hold", "delta": 0, "confidence": 0.8154, "probabilities": [0.1846, 0.8154, 0.0
+  PASS v9 model loaded without error (operator_start event)
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     1     flexascale-bookstore
+search-autoscaler            1     1     flexascale-bookstore
+storefront-autoscaler        1     1     flexascale-bookstore
+  lease holder: 'fs-bookstore-operator-948656575-nkdg8-9e843e'  markers: 5
+  PASS 3 HPAs and 2 HPA-less Deployments marked (5 markers)
+  PASS RBAC live: patch HPAs
+  PASS RBAC live: update deployments/scale
+  PASS RBAC live: no delete deployments
+  PASS RBAC live: no secrets
+
+=== 11:22:36 3. helm rollback to revision 1 (observe)
+Rollback was a success! Happy Helming!
+  PASS operator ready
+  PASS policy mode observe again
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS HPAs restored to 1-5
+  PASS every marker cleared
+  PASS Lease released
+  PASS RBAC observe again: no patch on HPAs
+
+=== 11:22:59 4. helm uninstall
+release "fs-bookstore" uninstalled
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS release gone
+  PASS no operator left
+  PASS no Role or RoleBinding left in flexascale-bookstore
+  PASS HPAs at 1-5
+  PASS no markers
+  PASS Lease released
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+cart              1/1     1            1           36h
+pricing           1/1     1            1           36h
+recommendations   1/1     1            1           36h
+search            1/1     1            1           36h
+storefront        1/1     1            1           36h
+
+=== 11:23:13 result: 33 passed, 0 failed
+exit=0

@@ -1,5 +1,5 @@
 # FlexaScale operator image (CPU-only PyTorch). Build from the repository root:
-#   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.5.0 .   (after scripts/promote_v7.py)
+#   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.6.0 .   (after scripts/promote_v9.py)
 FROM python:3.11-slim
 
 ARG KUBECTL_VERSION=v1.31.0
@@ -22,6 +22,9 @@ COPY models/flexascale_v5/model_card.json ./models/flexascale_v5/model_card.json
 # v7 graph policy (docs/POLICY_V7.md), written by scripts/promote_v7.py; select it with policy.model_path
 COPY models/flexascale_v7/best_model ./models/flexascale_v7/best_model
 COPY models/flexascale_v7/model_card.json ./models/flexascale_v7/model_card.json
+# v9 graph policy (docs/POLICY_V9.md, the shop's default policy), written by scripts/promote_v9.py
+COPY models/flexascale_v9/best_model ./models/flexascale_v9/best_model
+COPY models/flexascale_v9/model_card.json ./models/flexascale_v9/model_card.json
 
 USER 65534
 ENTRYPOINT ["python", "/app/scripts/run_operator.py"]

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -23,6 +24,9 @@ from flexascale.lab.server import create_lab_app
 from tests.fakes import FakeCluster, deployment
 
 ROOT = Path(__file__).resolve().parents[1]
+SLEEPER = [sys.executable, "-c", "import time; time.sleep(30)"]  # portable `sleep 30`
+# The bash on PATH (Windows: Git Bash). A bare "bash" would resolve to System32\bash.exe (WSL) first.
+BASH = shutil.which("bash") or "bash"
 
 
 # ---------------------------------------------------------------- processes
@@ -30,10 +34,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_process_lifecycle_and_duplicate_refusal(tmp_path):
     pm = ProcessManager(tmp_path)
-    pm.start("sleeper", ["sleep", "30"], marker="sleep 30")
+    pm.start("sleeper", SLEEPER, marker="time.sleep(30)")
     assert pm.is_running("sleeper")
     with pytest.raises(RuntimeError):
-        pm.start("sleeper", ["sleep", "30"])
+        pm.start("sleeper", SLEEPER)
     other = ProcessManager(tmp_path)  # e.g. the stop script, a different process
     time.sleep(0.3)
     assert other.is_running("sleeper")
@@ -45,9 +49,10 @@ def test_process_lifecycle_and_duplicate_refusal(tmp_path):
 def test_stale_record_never_kills_unrelated_process(tmp_path):
     """A PID file pointing at a live but unrelated process must not be signalled."""
     pm = ProcessManager(tmp_path)
-    victim = subprocess.Popen(["sleep", "30"])
+    victim = subprocess.Popen(SLEEPER)
     try:
-        rec = ProcessRecord(name="locust", pid=victim.pid, pgid=os.getpgid(victim.pid), cmd=["locust"],
+        pgid = victim.pid if sys.platform == "win32" else os.getpgid(victim.pid)
+        rec = ProcessRecord(name="locust", pid=victim.pid, pgid=pgid, cmd=["locust"],
                             marker="locust -f", start_ticks=None, started_at=0, log="")
         (tmp_path / "pids" / "locust.json").write_text(json.dumps(rec.__dict__))
         assert not pm.is_running("locust")
@@ -199,19 +204,28 @@ def test_unknown_scenario_is_rejected():
 
 
 @pytest.mark.parametrize("script", ["start_review.sh", "start_demo.sh", "stop_review.sh", "review_status.sh", "run_live_batch.sh", "v7_resume.sh",
-                                    "lib/review_common.sh", "lib/keep_port_forward.sh", "teardown_cluster.sh"])
+                                    "lib/review_common.sh", "lib/keep_port_forward.sh", "teardown_cluster.sh", "../fsctl"])
 def test_scripts_parse(script):
-    assert subprocess.run(["bash", "-n", str(ROOT / "scripts" / script)]).returncode == 0
+    assert subprocess.run([BASH, "-n", str(ROOT / "scripts" / script)]).returncode == 0
 
 
 def test_stop_script_never_kills_by_port_or_stops_cluster():
-    text = (ROOT / "scripts" / "stop_review.sh").read_text() + (ROOT / "scripts" / "lib" / "review_common.sh").read_text()
-    for forbidden in ("fuser -k", "kill -9 $(lsof", "minikube stop", "minikube delete", "helm uninstall", "kubectl delete"):
+    paths = ["scripts/stop_review.sh", "scripts/lib/review_common.sh", "fsctl", "fsctl.cmd",
+             "src/flexascale/lab/launcher.py", "src/flexascale/lab/processes.py", "src/flexascale/lab/portforward.py"]
+    text = "".join((ROOT / p).read_text(encoding="utf-8") for p in paths)
+    for forbidden in ("fuser -k", "kill -9 $(lsof", "minikube stop", "minikube delete", "helm uninstall", "kubectl delete",
+                      "taskkill", "netstat -ano", "Stop-Process"):
         assert forbidden not in text
 
 
+def test_shell_scripts_have_lf_line_endings():
+    """CRLF breaks bash; .gitattributes pins LF (core.autocrlf=true on Windows would otherwise convert)."""
+    for path in [*(ROOT / "scripts").glob("*.sh"), *(ROOT / "scripts" / "lib").glob("*.sh"), ROOT / "fsctl"]:
+        assert b"\r\n" not in path.read_bytes(), path
+
+
 def test_teardown_delete_requires_confirmation():
-    out = subprocess.run(["bash", str(ROOT / "scripts" / "teardown_cluster.sh"), "no-such-profile", "--delete"],
+    out = subprocess.run([BASH, str(ROOT / "scripts" / "teardown_cluster.sh"), "no-such-profile", "--delete"],
                          input="wrong\n", capture_output=True, text=True, timeout=30)
     assert out.returncode == 1 and "Aborted" in out.stdout
 

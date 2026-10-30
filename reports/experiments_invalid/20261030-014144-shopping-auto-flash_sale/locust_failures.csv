@@ -1,0 +1,11 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),11,2026-10-29T20:19:26Z,2026-10-29T20:22:58Z
+GET,GET /api/categories,HTTPError('504 Server Error: Gateway Timeout for url: GET /api/categories'),1,2026-10-29T20:20:23Z,2026-10-29T20:20:23Z
+POST,POST /api/orders/checkout [FlashSale Contention],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [FlashSale Contention]'),38,2026-10-29T20:20:17Z,2026-10-29T20:20:37Z
+GET,GET /api/products/{id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/products/{id}'),4,2026-10-29T20:20:20Z,2026-10-29T20:20:23Z
+POST,POST /api/cart/{user_id}/items,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/cart/{user_id}/items'),3,2026-10-29T20:20:23Z,2026-10-29T20:20:25Z
+GET,GET /api/search?q=[search],HTTPError('504 Server Error: Gateway Timeout for url: GET /api/search?q=[search]'),1,2026-10-29T20:20:23Z,2026-10-29T20:20:23Z
+GET,GET /api/products,HTTPError('504 Server Error: Gateway Timeout for url: GET /api/products'),2,2026-10-29T20:20:23Z,2026-10-29T20:20:24Z
+GET,GET /api/recommendations/{id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/recommendations/{id}'),3,2026-10-29T20:20:20Z,2026-10-29T20:20:26Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),4,2026-10-29T20:20:34Z,2026-10-29T20:20:37Z
+GET,GET /api/wishlist/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/wishlist/{user_id}'),2,2026-10-29T20:20:20Z,2026-10-29T20:20:23Z

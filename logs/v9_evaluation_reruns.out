@@ -1,0 +1,13 @@
+01:31:22 Windows: sleep and display-off (Modern Standby) inhibited while the plan runs
+01:31:22 plan reports/v9/evaluation_plan.reruns.json: 5 runs, 0 already done
+01:31:22 [1/5] started 20261030-013122-shopping-flexascale-flash_sale (flexascale, flash_sale, block v9-b04-rl)
+01:41:44 [1/5] completed 20261030-013122-shopping-flexascale-flash_sale p95=810.0 mean=274.7 fail%=0.658 replica_h=1.405714 safe=True error=None
+01:41:44 [2/5] started 20261030-014144-shopping-auto-flash_sale (auto, flash_sale, block v9-b10-auto)
+01:53:46 [2/5] completed 20261030-014144-shopping-auto-flash_sale p95=1400.0 mean=384.6 fail%=1.997 replica_h=1.392713 safe=True error=None
+01:53:46 [3/5] started 20261030-015346-shopping-flexascale-gradual_ramp (flexascale, gradual_ramp, block v9-b11-rl)
+02:05:58 [3/5] completed 20261030-015346-shopping-flexascale-gradual_ramp p95=310.0 mean=94.7 fail%=0.028 replica_h=1.36123 safe=True error=None
+02:05:58 [4/5] started 20261030-020558-shopping-auto-traffic_drop (auto, traffic_drop, block v9-b12-auto)
+02:18:21 [4/5] completed 20261030-020558-shopping-auto-traffic_drop p95=670.0 mean=282.8 fail%=0.264 replica_h=1.356342 safe=True error=None
+02:18:21 [5/5] started 20261030-021821-shopping-flexascale-traffic_drop (flexascale, traffic_drop, block v9-b12-rl)
+02:30:43 [5/5] completed 20261030-021821-shopping-flexascale-traffic_drop p95=2700.0 mean=494.4 fail%=1.241 replica_h=1.389709 safe=True error=None
+02:30:43 plan complete

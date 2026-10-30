@@ -208,7 +208,7 @@ def episode_reward(sim, cfg: RewardConfig) -> float:
 
 
 def load_shop(path: str | Path = "config/twin/shopping.json") -> Tuple[AppSpec, Dict[str, Any]]:
-    d = json.loads(Path(path).read_text())
+    d = json.loads(Path(path).read_text(encoding="utf-8"))
     return AppSpec.from_json(d), d["scenarios"]
 
 

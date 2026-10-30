@@ -49,3 +49,7 @@ Started from the dashboard with no block label, mixed user counts and mostly wit
 `20261028-120300-shopping-hpa-checkout_heavy` (40 users, stopped during preparation), `20261028-120734-shopping-auto-flash_sale`
 (30 users, completed, unsettled start), `20261028-123004-shopping-hpa-checkout_heavy` (25 users, stopped at 294 s) and
 `20261028-123816-shopping-auto-flash_sale` (30 users, completed, unsettled start). Demo only; the outcomes are not used anywhere.
+
+## 2026-10-30 12:02–12:30: end-to-end run of the whole app after the reboot
+
+Started from the dashboard with no block label, v9 model, 25 users: `20261030-120252-shopping-flexascale-flash_sale` (180 s, comparable start, completed, 3 scale requests on order-service, cleanup safe), `20261030-120750-shopping-auto-flash_sale` (180 s, comparable start, completed; 302 efficiency and 2 SLA-risk decisions) and `20261030-121809-shopping-hpa-steady_browsing` (60 s, completed; used to check the dashboard fix for back-to-back runs, readiness report defect 39). Demo only; the outcomes are not used anywhere.

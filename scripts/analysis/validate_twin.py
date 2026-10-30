@@ -8,11 +8,11 @@ from flexascale.simulator.twin import AppSpec
 from flexascale.simulator.twin_control import NativeHPA, simulate
 from flexascale.simulator.twin_workloads import EVALUATION_SCENARIOS, build
 
-spec = json.loads((ROOT / "config/twin/shopping.json").read_text())
+spec = json.loads((ROOT / "config/twin/shopping.json").read_text(encoding="utf-8"))
 app = AppSpec.from_json(spec)
 live = collections.defaultdict(list)
 for d in sorted((ROOT / "reports/experiments").glob("20261026-*")):
-    r = json.loads((d / "run.json").read_text())
+    r = json.loads((d / "run.json").read_text(encoding="utf-8"))
     if r.get("state") != "completed" or len(r.get("start_replicas") or {}) < 16: continue
     s = r["summary"]
     peaks = collections.defaultdict(int)

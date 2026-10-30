@@ -1,0 +1,9 @@
+# Shell scripts must keep LF on every platform (core.autocrlf=true on Windows would break bash).
+*.sh        text eol=lf
+fsctl       text eol=lf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+# Model checkpoints and other binaries are never converted.
+*.zip       binary
+*.npz       binary
+*.pth       binary

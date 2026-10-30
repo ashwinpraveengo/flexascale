@@ -47,13 +47,13 @@ def main() -> int:
     if plan_path.stem.endswith(".reruns"):
         print("reruns are never rerun (§3.4)", file=sys.stderr)
         return 2
-    plan = json.loads(plan_path.read_text())
-    progress = json.loads(plan_path.with_suffix(".progress.json").read_text())
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    progress = json.loads(plan_path.with_suffix(".progress.json").read_text(encoding="utf-8"))
     if len(progress) < len(plan):
         print(f"plan not finished: {len(progress)}/{len(plan)} runs", file=sys.stderr)
         return 2
     flags = {}
-    with open(args.host_load) as f:
+    with open(args.host_load, encoding="utf-8") as f:
         for row in csv.DictReader(f):
             flags[row["run"]] = (row.get("host_affected"), row.get("reason") or "")
     results, invalid = Path(args.results), Path(args.invalid)
@@ -61,7 +61,7 @@ def main() -> int:
     for i, body in enumerate(plan):
         rid = progress[str(i)]["id"]
         src = results / rid if (results / rid).exists() else invalid / rid
-        reason = invalid_reason(json.loads((src / "run.json").read_text()), flags)
+        reason = invalid_reason(json.loads((src / "run.json").read_text(encoding="utf-8")), flags)
         if flags.get(rid, ("",))[0] not in ("True", "False"):
             print(f"warning: {rid}: host load unknown (no Prometheus data?); counted as the analyses count it", file=sys.stderr)
         if not reason:
@@ -75,7 +75,7 @@ def main() -> int:
         reruns.append(dict(body, rerun_of=rid))
         print(f"[{i + 1}/{len(plan)}] {rid} ({body.get('block')}): invalid, {reason}; rerun once")
     out = plan_path.with_name(plan_path.stem + ".reruns.json")
-    out.write_text(json.dumps(reruns, indent=1))
+    out.write_text(json.dumps(reruns, indent=1), encoding="utf-8")
     print(f"{len(reruns)} rerun(s) -> {out}")
     return 0
 

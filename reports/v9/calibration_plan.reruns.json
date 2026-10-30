@@ -1,0 +1,16 @@
+[
+ {
+  "app": "shopping",
+  "users": 25,
+  "spawn_rate": 5.0,
+  "duration": 300,
+  "reset_replicas": true,
+  "shadow": true,
+  "controller": "hpa_tuned",
+  "scenario": "calibration_steady",
+  "hpa_cpu_target_pct": 150,
+  "hpa_scale_down_window_s": 60,
+  "block": "v9cal-150",
+  "rerun_of": "20261028-231912-shopping-hpa_tuned-calibration_steady"
+ }
+]

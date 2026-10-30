@@ -43,7 +43,7 @@ def _model_cards() -> Dict[str, Any]:
     out: Dict[str, Any] = {}
     for card in sorted((ROOT / "models").glob("*/model_card.json")):
         try:
-            out[card.parent.name] = json.loads(card.read_text())
+            out[card.parent.name] = json.loads(card.read_text(encoding="utf-8"))
         except ValueError:
             continue
     for key, name in (("_simulation_evaluation", "simulation_evaluation.json"),
@@ -53,7 +53,7 @@ def _model_cards() -> Dict[str, Any]:
         sim = ROOT / "reports" / name
         if sim.is_file():
             try:
-                out[key] = json.loads(sim.read_text())
+                out[key] = json.loads(sim.read_text(encoding="utf-8"))
             except ValueError:
                 pass
     return out
@@ -117,11 +117,17 @@ def create_lab_app(lab: Optional[Lab] = None) -> FastAPI:
         return {"id": exp.id, "state": exp.state}
 
     @app.get("/api/lab/experiments/active")
-    def active():
+    def active(samples_from: Optional[int] = None, events_from: Optional[int] = None):
         exp = L().active
         if exp is None:
             return JSONResponse({"active": None})
-        return {"active": exp.snapshot()}
+        return {"active": exp.snapshot(samples_from=samples_from, events_from=events_from)}
+
+    @app.get("/api/lab/apps/{app_name}/history")
+    def history(app_name: str, since: Optional[float] = None):
+        if app_name not in L().cfg.apps:
+            raise HTTPException(404, f"unknown app '{app_name}'")
+        return L().history(app_name, since)
 
     @app.get("/api/lab/experiments")
     def runs():
@@ -157,6 +163,7 @@ def create_lab_app(lab: Optional[Lab] = None) -> FastAPI:
 
         @app.get("/{path:path}", include_in_schema=False)
         def spa(path: str):
-            return FileResponse(STATIC_DIR / "index.html")
+            # index.html names the hashed bundle: never cache it, or a rebuilt dashboard keeps showing the old one.
+            return FileResponse(STATIC_DIR / "index.html", headers={"Cache-Control": "no-cache"})
 
     return app

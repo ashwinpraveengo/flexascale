@@ -6,49 +6,64 @@ This guide provides the complete, authoritative run instructions to set up, depl
 
 ## Quick Start for Project Reviews and Presentations
 
-Use this when the cluster and application are already installed. Full installation is in sections [A–G](#a-repository--python-setup).
+Use this when the cluster and application are already installed. A new laptop needs the one-time setup below first; the full installation is in sections [A–G](#a-repository--python-setup).
 
-**1. Start everything** (≈15 s if Minikube is running, 2–4 min if it has to start):
+**1. Start everything** (≈30 s if Minikube is running, 2–4 min if it has to start):
 
-```bash
-./scripts/start_review.sh --demo        # or: make demo-start   (preflight only: ./scripts/start_review.sh --check)
-```
+| Windows (PowerShell or cmd, repository root) | Linux / macOS / Git Bash |
+| :--- | :--- |
+| `.\fsctl start` | `./fsctl start` |
 
-Wait for `READY`. It starts only port-forwards and the dashboard; it never rebuilds, reinstalls, retrains or downloads anything.
+Wait for `READY`. It checks the tools, starts the existing Minikube profile if needed (never creates one), waits for every pod, opens the shop's ingress (on Windows and macOS through a managed `minikube tunnel`, because the Minikube IP is not reachable from the host there), port-forwards Prometheus and Grafana, restores native-HPA ownership if anything was left frozen, and starts the control center. It never rebuilds, reinstalls, retrains or downloads anything, and it reuses processes that are already healthy. `fsctl start --check` runs the preflight only; `fsctl start --demo` also prints the demo sequence. (`./scripts/start_review.sh` is the same command.)
 
-**2. Open the URLs printed by the script:**
+**2. Open the URLs printed by the command:**
 
 | What | URL |
 | :--- | :--- |
-| FlexaScale control center (Overview, Live lab, Comparison, Auto mode, Models) | http://127.0.0.1:8090/ |
-| Shopping application (Minikube ingress) | http://192.168.49.2/ (`minikube ip -p flexascale`). Login `demo@flexascale.io` / `CustomerPass123!` |
+| FlexaScale control center | http://127.0.0.1:8090/ |
+| Shopping application | http://127.0.0.1/ on Windows/macOS (tunnel), `http://$(minikube ip -p flexascale)/` on Linux. Login `demo@flexascale.io` / `CustomerPass123!` |
 | Prometheus / Grafana | http://localhost:9090/ and http://localhost:3000/ |
 
-**3. Check status at any time:** `./scripts/review_status.sh` (or `make review-status`).
+**3. Status at any time:** `fsctl status` (read-only).
 
-**4. Run a live experiment (Live lab page):**
-1. Autoscaling mode: **Native HPA**, **FlexaScale** or **Auto**. FlexaScale and Auto take the controller lease and freeze a service's HPA before scaling it. Auto decides per service and step who scales it (controller health → policy confidence → SLA risk → efficiency) and logs the rule and reason. With Native HPA, tick *shadow mode* to log what FlexaScale *would* do without changing anything.
-2. Scenario: steady browsing, gradual ramp-up, flash-sale spike, checkout-heavy, traffic drop, or payment latency & failures. Set peak users (about 25; the single Minikube node cannot hold many more replicas), spawn rate and duration (300 s or more for non-preliminary results). *Comparable start* resets the application data and every service to its minimum first.
-3. Press **Start**. Browse the shop and place orders in another tab while Locust runs in the background. **Stop** ends the run early and always restores HPA ownership. A run started elsewhere (for example a benchmark batch) shows a lock that must be ticked before Stop works.
-4. Watch the KPI tiles, the throughput, latency and replica charts, the per-service ownership table and the timeline. In the timeline, *Policy* is a proposal, *Scale request* is a change actually sent, and *Replica change* / *Ready* is what Kubernetes did. **Auto mode** shows the current owner of every service, with the rule and logged reason.
+**4. Live experiment (Live lab page):**
+1. Autoscaling mode: **Native HPA**, **FlexaScale** or **Auto** (plus the two HPA references: 60 s scale-down, and the calibrated *HPA-tuned*). FlexaScale and Auto take the controller Lease and freeze a service's HPA before scaling it; Auto decides per service and step who scales it and logs the rule and reason. With Native HPA, *shadow mode* logs what FlexaScale would do without changing anything.
+2. Scenario: steady browsing, gradual ramp-up, flash-sale spike, checkout-heavy, traffic drop, or payment latency & failures; 25 peak users and 300 s for comparable results. *Comparable start* resets the application data and every service to its minimum first.
+3. **Start**, then watch the **Live Autoscaling Timeline**: desired and ready replicas, the FlexaScale proposal (dashed, a filled dot = a scale request actually sent), HPA's proposal (dotted; its own `status.desiredReplicas` while it owns a service, the rule estimate while FlexaScale does), observed scale-ups/downs, controller ownership, Locust traffic, p50/p95 latency with the SLA line and hatched violation periods, CPU/memory on demand, and an event lane (workload phases, scale requests, Auto handoffs, safety interventions). Pick one service to see its own requests/s and latency from Prometheus. *Pause* freezes the view while data keeps arriving; a finished run becomes a **REPLAY** with play/speed/scrub controls. Gaps mean no telemetry was recorded; nothing is interpolated.
+4. **Stop** ends Locust and the operator and always restores HPA ownership (verified).
 
-**5. Compare:** **Comparison** shows the paired benchmark: each candidate run is paired with the preceding native-HPA run of the same scenario and settings, with means, 95% intervals and the verdict rule fixed in advance (`docs/POLICY_V6.md` §3.1). Below 6 pairs a verdict is marked preliminary. Pick any two runs in the experiment history for a run-vs-run comparison (link format `#compare?a=<run>&b=<run>`). Percentages only appear for comparable, complete runs. Raw data is in `reports/experiments/<run>/run.json` and `telemetry.csv`. The full report is built with `python scripts/build_live_report.py`.
+**5. Compare and inspect:** **Comparison** = the paired benchmark with 95% intervals and the pre-registered verdict rule; **Experiments** = every saved run with its configuration, validity checks (complete, settled start, cleanup verified, AC power) and a replay of its timeline; pick a baseline there and *Compare with baseline*. Raw data: `reports/experiments/<run>/run.json`, `telemetry.csv`, `decisions.jsonl`, Locust CSVs.
 
-**6. Stop safely:** `./scripts/stop_review.sh` (or `make review-stop`). It stops only processes the scripts started, restores every HPA's original bounds and verifies that no FlexaScale lease is held. Minikube, deployments and database data are left untouched.
+**6. Stop safely:** `fsctl stop` (or `./scripts/stop_review.sh`). It stops only the processes the launcher started (never by port), asks a running experiment to stop first, restores every HPA's original bounds and verifies that no FlexaScale Lease is held. Minikube, deployments, Helm releases, volumes and database data are left untouched. `fsctl stop --force-release-lease` clears a Lease left by a dead controller.
+
+**One-time setup on a new laptop** (images are local, not in a registry):
+
+```bash
+python -m venv .venv            # Windows: .venv\Scripts\pip ...; Linux: .venv/bin/pip ...
+.venv/Scripts/pip install -r requirements.txt bcrypt sqlalchemy "psycopg[binary]" pyjwt httpx psutil && .venv/Scripts/pip install -e .
+cd dashboard && npm ci && npm run build && cd ..          # builds the control center into src/flexascale/lab/static
+minikube start -p flexascale --driver=docker --cpus=4 --memory=6g
+./scripts/deploy_monitoring.sh                             # Windows: scripts\deploy_monitoring.ps1 (kube-prometheus-stack)
+./scripts/build_shop_images.sh                             # builds all 17 images inside Minikube's Docker daemon (Git Bash on Windows)
+helm upgrade --install shopping-app charts/shopping-app -n flexascale-apps && kubectl apply -f deploy/kubernetes/hpa.yaml
+kubectl -n flexascale-apps port-forward svc/postgres 54322:5432 &   # then seed once:
+DATABASE_URL="postgresql+psycopg://postgres:postgresPassword123!@127.0.0.1:54322/ecommerce" .venv/Scripts/python apps/database/seed.py
+```
 
 **Troubleshooting**
 
 | Symptom | Fix |
 | :--- | :--- |
-| Minikube stopped / API unreachable | `./scripts/start_review.sh` starts the existing profile. `minikube status -p flexascale`. Docker must be running. |
-| Pods not ready right after a cluster restart | Wait 1–2 min (PostgreSQL first; review/wishlist retry their database setup from `/readyz`). Inspect with `kubectl get pods -A \| grep -v Running`. |
-| Prometheus unavailable / metrics missing | `./scripts/review_status.sh`. Restart the port-forward with `./scripts/stop_review.sh && ./scripts/start_review.sh`. Check `kubectl -n flexascale-monitoring get pods`. Latency shows "missing" until a service receives traffic. |
-| Port 8090/9090/3000 already in use | The script refuses to touch foreign processes. Free the port or set `FLEXASCALE_LAB_PORT`, `FLEXASCALE_PROMETHEUS_PORT` or `FLEXASCALE_GRAFANA_PORT` (also update `prometheus_url` in `config/lab.yaml`). |
-| Dashboard does not load | `cat .runtime/logs/lab.log`. If the UI bundle is missing: `make dashboard-build`. |
-| Model missing ("FlexaScale live runs will be refused") | The model is `models/flexascale_v5/best_model/best_model.zip` (see [W](#w-retraining-and-evaluating-the-policy)). Without it FlexaScale stays in observation mode. |
-| "controller lease held" / HPA left frozen | `./scripts/stop_review.sh` restores HPAs. If a dead controller still holds the lease: `./scripts/stop_review.sh --force-release-lease`. Check with `python -m flexascale.lab.procctl ownership`. |
+| Docker not running | Start Docker Desktop (Windows/macOS) or `sudo systemctl start docker`, then `fsctl start`. |
+| Shop unreachable on Windows/macOS | `fsctl start` runs `minikube tunnel` as a managed process; check `.runtime/logs/tunnel.log`. Port 80 must be free. |
+| Pods not ready right after a cluster restart | Wait 1–2 min (PostgreSQL first). `kubectl get pods -A`. |
+| Dashboard shows CPU "missing" for every service | Prometheus port-forward down (`fsctl status`), or the cluster's cAdvisor has no samples yet. FlexaScale reads container-level series and falls back to pod-level ones (Docker runtime on cgroup v2). |
+| Latency "no requests" for a service | It was scraped but served no requests in the last minute: a genuine 0 req/s, not missing data. |
+| Port 8090/9090/3000 in use | The launcher never touches foreign processes. Free the port or set `FLEXASCALE_LAB_PORT`, `FLEXASCALE_PROMETHEUS_PORT`, `FLEXASCALE_GRAFANA_PORT`. |
+| Dashboard does not load / looks outdated | `.runtime/logs/lab.log`; rebuild with `cd dashboard && npm run build` (the page is served with `no-cache`, so a reload shows the new build). |
+| "controller lease held" / HPA left frozen | `fsctl stop` restores HPAs; `fsctl stop --force-release-lease` if a dead controller holds the Lease. |
 
-Details: [U. Installing FlexaScale on any application](#u-installing-flexascale-on-any-kubernetes-application) · [V. Live Lab and reproducible evaluation](#v-live-autoscaling-lab-and-reproducible-evaluation) · [W. Retraining](#w-retraining-and-evaluating-the-policy) · docs/FINAL_DEMO_RUNBOOK.md
+Details: [U. Installing FlexaScale on any application](#u-installing-flexascale-on-any-kubernetes-application) · [V. Live Lab and reproducible evaluation](#v-live-autoscaling-lab-and-reproducible-evaluation) · [W. Retraining](#w-retraining-and-evaluating-the-policy) · docs/FINAL_DEMO_RUNBOOK.md · docs/POLICY_V9.md (this laptop)
 
 ---
 
@@ -1396,11 +1411,12 @@ FlexaScale needs no change to the application's code. It reads Deployments and H
 
 1. **Prerequisites:** Kubernetes ≥ 1.27, Prometheus scraping cAdvisor and kube-state-metrics (e.g. kube-prometheus-stack), Helm 3, and CPU/memory requests set on the target Deployments (CPU utilisation is measured against the request, as HPA does).
 2. **Metrics available?** `kubectl -n <ns> top pods` and, in Prometheus, `container_cpu_usage_seconds_total{namespace="<ns>"}` and `kube_deployment_spec_replicas{namespace="<ns>"}`.
-3. **Build and load the operator image** (Minikube shown; ≈1.9 GB, CPU-only PyTorch):
+3. **Build and load the operator image** (Minikube shown; ≈1.4 GB, CPU-only PyTorch; image 0.6.0 contains the v5, v7 and v9 models):
    ```bash
-   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.4.0 .
-   minikube -p flexascale image load flexascale:0.4.0
+   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.6.0 .
+   minikube -p flexascale image load flexascale:0.6.0
    ```
+   Build with enough free memory (after a fresh start, with no experiment running). On the second laptop a build inside the Minikube node, run while the host was out of memory and still copying the 7.4 GB Alibaba trace into the image (fixed in `.dockerignore`), restarted the node's control plane and every pod (`docs/POLICY_V9.md` §8, 2026-10-30 02:44). The v9 graph policy for the shop is selected with `-f helm/flexascale/values-v9.yaml`.
 4. **Install in observation mode** (the default: no cluster changes, read-only RBAC):
    ```bash
    helm upgrade --install flexascale helm/flexascale -n flexascale-system --create-namespace \
@@ -1418,6 +1434,8 @@ FlexaScale needs no change to the application's code. It reads Deployments and H
 11. **Uninstall:** `helm uninstall flexascale -n flexascale-system`. The application, its HPAs (restored) and its data are not removed. Check with `python -m flexascale.lab.procctl ownership`.
 
 Upgrades and rollbacks use `helm upgrade` / `helm rollback`. The operator uses the `Recreate` strategy, so an old and a new operator never run together, and the Lease would refuse a second controller anyway. Before every upgrade, rollback and uninstall, a hook Job (chart 0.4.1, `operator.handbackHook`) scales the operator to 0 and waits, so a live operator restores the frozen HPAs and releases the Lease while it still has its write permissions. Without it, Helm changed the Role at the same moment and the HPAs stayed frozen (found in the in-cluster test, `reports/final_readiness_report.md` defect 19). If a controller ever dies without handing back, `python -m flexascale.lab.procctl safe-state` restores every frozen HPA.
+
+The whole lifecycle is scripted on the second application: `bash scripts/helm_lifecycle_test.sh 2>&1 | tee logs/helm_lifecycle_0.6.0.out`. It installs in observe mode, upgrades to live with the v9 model, rolls back and uninstalls. After every step it checks HPA bounds and markers, the Lease and the RBAC, and it ends with a pass/fail count.
 
 Second application used to verify portability: `examples/bookstore/` (5 services, different names, sizes, topology and HPA naming; 3 of 5 services have an HPA). Deploy with:
 ```bash

@@ -3,11 +3,15 @@
 *
 !pyproject.toml
 !src
+# the Alibaba trace (7.4 GB on the second laptop) is training input, never read by the operator
+src/flexascale/data/raw
 !scripts/run_operator.py
 !scripts/run_api.py
 !models/flexascale_v5/best_model
 !models/flexascale_v5/model_card.json
 !models/flexascale_v7/best_model
 !models/flexascale_v7/model_card.json
+!models/flexascale_v9/best_model
+!models/flexascale_v9/model_card.json
 !deploy/flexascale/requirements.txt
 **/__pycache__

@@ -8,7 +8,7 @@ from flexascale.simulator.twin import AppSpec
 from flexascale.simulator.twin_control import Guards, NativeHPA, OperatorLoop, limit_target_policy, simulate, threshold_policy
 from flexascale.simulator.twin_workloads import EVALUATION_SCENARIOS, build
 
-spec = json.loads((ROOT / "config/twin/shopping.json").read_text())
+spec = json.loads((ROOT / "config/twin/shopping.json").read_text(encoding="utf-8"))
 app = AppSpec.from_json(spec)
 wls = [build(app, spec["scenarios"], sc) for sc in EVALUATION_SCENARIOS]
 SEEDS = range(6)

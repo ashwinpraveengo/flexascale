@@ -119,3 +119,51 @@ With one global reward for 16 simultaneous decisions, a good decision for one se
 * *"How do you know run order did not create the saving?"* HPA always ran first, so we also paired each Auto run with the HPA run *after* it: −5.1% (all 12 pairs negative, `scripts/check_auto_run_order.py`). The HPA arm itself was stable across repeats (for example checkout_heavy 1.907 / 1.910 / 1.913 replica-hours).
 * *"Is the cost saving a real bill?"* No. It is an estimate: allocated vCPU and memory × AWS Fargate on-demand list prices. The dashboard labels it as estimated.
 * *"What would you do next?"* Find out why the simulator gain did not transfer (pod start-up delay and the shared PostgreSQL are not modelled; v5 is slow on ramps). Train on the real MSCallGraph topology with variable graph sizes and a per-node action head trained by PPO. Run more live repeats so confidence intervals become possible.
+
+---
+
+## The second laptop (Windows 11, RTX 3050): v9 (`docs/POLICY_V9.md`)
+
+**Why re-measure everything on the new laptop?**
+The testbed changed: Windows 11 with Docker Desktop (a WSL2 VM), a 4-vCPU Minikube node, a different CPU. At 25 users the shop is CPU-pressured here (order-service at 180% of its CPU request in a flash sale), while on the first laptop every service sat at one replica. An HPA calibration or an application twin fitted on one machine does not transfer, so both were redone under rules written before any v9 run.
+
+**What was broken on the new laptop, and how did you find it?**
+By running the system, not by assuming it worked. The lab could not start processes on Windows (it used `/proc` and POSIX process groups), SB3 checkpoints failed to load (a PyTorch zip-stream bug on Windows; the files were intact, every CRC passed), the start scripts sourced a file the `.gitignore` excluded, and `localhost` cost 2 s per Prometheus query (IPv6 tried first). Each has a test now. The telemetry problems were the important ones (next question).
+
+**The dashboard showed CPU missing for every service. Why?**
+With the Docker runtime on cgroup v2, kubelet's cAdvisor exports only pod-level cgroups, with no `container` label, and FlexaScale's query required that label. FlexaScale would have held every service ("telemetry_unavailable"). The client now uses container-level series when they exist and the pod-level series otherwise (`metrics/workload_metrics.py`, `tests/test_workload_metrics.py`).
+
+**Were request rates correct?**
+No. Each shop pod is scraped twice (its ServiceMonitor and the annotation-based `kubernetes-pods` job), and `sum by (pod)` doubled every request rate. Queries now sum per (pod, job) and take the maximum over jobs. The same double scrape existed on the first laptop: v7's twin has api-gateway at about 2× the Locust request rate, which is impossible because every request crosses the gateway once. Per-service request rates from that laptop are 2× too high; latencies, CPU, replica-hours and every end-to-end Locust figure are unaffected. Disclosed in `docs/POLICY_V9.md` §8.
+
+**Missing versus zero?**
+prometheus_client creates a labelled counter only after the first request. A service whose metrics endpoint is scraped (`up == 1`) but has no request series has served nothing: that is a genuine 0 req/s with undefined latency ("no requests"), not missing data. A service that is not scraped is "missing". The dashboard shows the two differently and never shows a zero for missing data.
+
+**Did you use the GPU?**
+Only where the measurement said it helps. Profiling v7's training (`scripts/profile_training.py`): 84% of the time is the PPO update (batched message passing over the call graph), and more CPU threads barely help (2 → 8 threads: +19%). So a GPU can shorten training by up to ~6×. The rule, fixed in advance, was to use the GPU if it reached ≥ 1.5× the best CPU setting. The RTX 3050 reached 1.79×, so v9 was trained on it: 4 runs × 2 M agent-steps in 63 min. Training uses a separate CUDA venv; the live operator keeps CPU inference (one forward pass per decision), so a GPU is never a runtime requirement. The device changes speed, never seeds, protocol or selection.
+
+**So did v9 beat the HPA?**
+No. Against HPA-tuned (350% CPU target, 60 s window; the primary reference, chosen by the calibration rule) both v9 and Auto are **on par / inconclusive**: 11 pairs, replica-hours +0.3% and +0.2%, p95 intervals spanning zero (`reports/v9/evaluation.md`). Against default HPA they use 7–8% fewer replica-hours, but the p95 check fails, so that is on par too. HPA-tuned matches the saving with no model at all. The twin says the same on the live scenarios (HPA-tuned −1.20, v9 −1.26). v9 led only on random workloads that were never run live.
+
+**Why is the p95 difference +155% if it is "on par"?**
+One pair dominates it. v9's block-12 rerun ran at 02:18, about 1.5 hours after the HPA-tuned run of the same block (00:42), when the laptop had run out of physical memory (p95 2,700 ms against 160 ms). The interval is very wide (−165 … +475%), so there is no verdict either way. A sensitivity view without the late reruns (`evaluation_sensitivity.md`, labelled descriptive and added after the verdict) gives p95 +3.8% [−6.2, +13.9]. It changes nothing; the pre-registered verdict is what is reported.
+
+**Is v9 better than v7?**
+Not measurably. v9 passed its gate on validation (−2.47 against v7's −2.91), but it was also selected on that set. On held-out test episodes, paired by episode, the two tie on both laptops' twins: every reward interval includes zero (`reports/v9/v9_vs_v7.md`). v7 was not run live on this laptop, so there is no live head-to-head. Each is on par with the tuned HPA of its own laptop.
+
+**Does the graph (GNN) help?**
+Not measurably. Same seed, graph against no graph, paired on the same test episodes: reward differences of −0.001, +0.16 and +0.71, all with intervals including zero (`reports/v9/ablation.md`). The graph policy uses fewer replicas at a higher p95, so it shifts the trade-off but does not improve the reward. The two seeds of the graph policy differ more (−2.47 against −2.99 on validation) than graph and no-graph do.
+
+**Why were 7 runs invalid, and all of them FlexaScale or Auto?**
+The host-load rule, fixed before any run, rejects a run if the laptop used more than 3.58 cores outside Kubernetes during its load window. FlexaScale and Auto runs use about 1 core more than the HPA arms. It is not the model: the HPA arms run the same v9 model in shadow mode with as many decisions. The difference is the live operator acting on the cluster. Late at night, memory pressure added more. Each invalid run was rerun once, and two reruns failed again, so block 4 has no RL run and block 10 no Auto run. 10 of 12 blocks are complete and the minimum for a verdict is 6. All seven runs are kept with their reasons in `reports/experiments_invalid/README.md`.
+
+**What went wrong during the evaluation?**
+Three things, all logged in `docs/POLICY_V9.md` §8:
+* The lid was closed during run 20's preparation. Modern Standby froze everything for 43 minutes, so that run was stopped before its load and started again.
+* The laptop ran out of physical memory during the night blocks, so latency rose between the first and second repetition of a scenario.
+* Status commands run during run 40's load window most likely pushed it over the host-load limit.
+
+The dashboard also showed v9 as "beats HPA on cost" against default HPA, because it applied the older v6 rule to the pre-registered study. That was fixed so the page shows the pre-registered verdict (defect 37).
+
+**How does the live scaling timeline avoid showing things that did not happen?**
+It draws only recorded samples (every 5 s): desired and ready replicas from the Kubernetes API, proposals from the operator's decision log, traffic and latency from Locust and Prometheus. A scaling marker exists only where two consecutive samples differ in desired replicas. A null value or a gap of more than 2.5 sample intervals breaks the line. A proposal older than its decision interval is not carried forward. HPA's proposal is its own `status.desiredReplicas` while it owns a service and is labelled an *estimate* (the HPA rule on the same telemetry) while FlexaScale owns it. A finished run is labelled REPLAY. New samples glide in through a CSS transform on one SVG group, so the chart is never rebuilt or reset.

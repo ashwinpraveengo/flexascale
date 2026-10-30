@@ -1,8 +1,91 @@
 # FlexaScale Final Readiness Report
 
+> **2026-10-29:** §0 covers the second laptop (Windows 11, RTX 3050): its defects, fixes, verification and the v9 evaluation. Sections 1–11 are the first laptop's record, unchanged.
+
 Date: 2026-10-23, updated 2026-10-24 (v4 policy, six-scenario live benchmark, replica restore for HPA-less Deployments, chart/image 0.3.0) 2026-10-25 (v5 policy, live benchmark with two repeats, chart/image 0.4.0) and 2026-10-26 (16-service shop, v6 policy attempt, Auto mode, redesigned control center; evening: six-scenario tuned-HPA batch, host-load check of every run, in-cluster Helm rollback/uninstall test with a fix in chart 0.4.1). Environment: Fedora 43, Docker, Minikube profile `flexascale` (Kubernetes v1.31, single node, a Docker container with 9 GiB RAM, raised from 6 GiB), Python 3.14 venv.
 
 Status keys: **VERIFIED** (executed and checked here), **PARTIALLY VERIFIED**, **NOT VERIFIED**, **BLOCKED**.
+
+## 0. Second laptop (2026-10-28/29): Windows 11, RTX 3050
+
+Environment: Windows 11 Home 25H2, AMD Ryzen 7 6800H (8 cores / 16 threads), 15.3 GB RAM, NVIDIA RTX 3050 Laptop GPU (4 GB, driver 592, CUDA 13.1), Docker Desktop 29.7 (WSL2 VM, 7.9 GB), Minikube profile `flexascale` (docker driver, 4 vCPU, 6 GB, Kubernetes v1.31), Python 3.12 venv (`.venv`, CPU PyTorch 2.13) plus a separate training venv (`.venv-gpu`, PyTorch 2.13 + CUDA 13.0). Power plan "Turbo"; Modern Standby (S0 low-power idle) laptop.
+
+### 0.1 State found
+
+The cluster still ran the original 4-service demo; none of the 16-service shop's images existed on this laptop. No live experiment could run on Windows, every trained model failed to load, the start scripts depended on an untracked file, and FlexaScale's CPU/memory telemetry was empty for every service. Everything below was found by running the system end to end.
+
+### 0.2 Defects found on the second laptop (all fixed; found by running the system)
+
+| # | Defect | Impact | Fix (test) |
+| :--- | :--- | :--- | :--- |
+| 20 | Lab process manager was POSIX-only (`/proc`, `os.getpgid`, `killpg`, SIGKILL) | No experiment could start on Windows | psutil identity (creation time + command line), own process group, graceful CTRL_BREAK → SIGBREAK before a tree terminate; the operator handles SIGBREAK. Verified live: "Signal 21 received: returning control to HPA" (`lab/processes.py`, `tests/test_lab.py`) |
+| 21 | SB3 checkpoints failed to load on Windows ("PytorchStreamReader failed … file read failed") although every zip CRC passed | Every trained model unusable; FlexaScale refused live runs | PyTorch 2.13 cannot read the member stream SB3 passes; it is buffered to memory first (`rl/sb3_compat.py`; 62 policy/operator tests) |
+| 22 | `scripts/lib/review_common.sh` was never committed (the Python `.gitignore` rule `lib/`) | `start_review.sh` / `stop_review.sh` failed on every fresh clone | Tracked; the bash entry points delegate to one cross-platform launcher, `fsctl start/stop/status` (`lab/launcher.py`, `fsctl`, `fsctl.cmd`) |
+| 23 | Shell scripts checked out with CRLF (`core.autocrlf=true`) | bash scripts break on Windows | `.gitattributes` (`*.sh eol=lf`, `*.cmd eol=crlf`) (`test_shell_scripts_have_lf_line_endings`) |
+| 24 | Minikube IP unreachable from the host with the Docker driver on Windows/macOS | Shop and Locust unreachable | `fsctl start` runs a managed `minikube tunnel`; the lab resolves the reachable ingress URL (`lab/experiments.resolve_app_url`) |
+| 25 | `localhost` port-forwards bound to 127.0.0.1 only | Every Prometheus query took 2.04 s (IPv6 tried first): 22 s per 5 s sample | Port-forwards bind both loopbacks (`lab/portforward.py`); 0.018 s per query |
+| 26 | cAdvisor exports pod-level cgroups only (Docker runtime, cgroup v2); queries required a `container` label | CPU/memory missing for every service: FlexaScale would hold every service (`telemetry_unavailable`) | Container-level series if present, else pod-level (`metrics/workload_metrics.py`, `tests/test_workload_metrics.py`) |
+| 27 | Pods scraped by a ServiceMonitor *and* the annotation job; `sum by (pod)` | Request rates 2× too high, on this laptop and on the first one (v7 twin: gateway ≈ 1.96 × Locust rate) | Sum per (pod, job), max over jobs; disclosed in `docs/POLICY_V9.md` §8 |
+| 28 | A scraped pod without request series reported as "missing" | Idle services looked broken; zero and missing were not distinguishable | `up == 1` and no series → 0 req/s, `no_traffic`; the dashboard shows "no requests" |
+| 29 | Host-load check: cAdvisor gap, upower-only battery history, node-exporter inside the VM | Every Windows run would be "unknown" | Lab records `host` (AC, whole-machine CPU, clock) every 5 s; `check_host_load.py` uses it; pod-level fallback; Windows limit from a measured idle baseline (`tests/test_v9_tools.py`) |
+| 30 | `run_plan.py` training freezer (`pgrep`, SIGSTOP) and battery checks were Linux-only; nothing kept Windows awake | Batches could not pause training, would not wait for AC, and could be cut by idle sleep | psutil suspend/resume and battery; `SetThreadExecutionState` for the runner's lifetime (`tests/test_run_plan.py`) |
+| 31 | 103 text-file reads/writes without an encoding (Windows default cp1252) | Crashes on "Δ", "→" in reports and run files | Explicit UTF-8 everywhere (AST-based rewrite, full suite green) |
+| 32 | Frontend image build copied the host's `node_modules` (Windows binaries) | `npm run build` exit 127 in the image | `apps/shopping-frontend/.dockerignore` |
+| 33 | `index.html` served without a cache policy | A rebuilt dashboard kept showing the old bundle | `Cache-Control: no-cache` for the page; hashed assets stay cacheable |
+| 34 | The dashboard re-downloaded the whole active run (up to ~1 MB) every 3 s | Slow and wasteful; the chart re-rendered from scratch | Index-based incremental API (`samples_from`, `events_from`) and client-side merge (`tests/test_lab_timeline.py`) |
+| 35 | The shop's policy selected every Deployment in the namespace | Four leftover demo Deployments were discovered as shop services | Policies select the shop chart's label `app.kubernetes.io/part-of=flexascale-ecommerce` |
+| 36 | The imitation warm start built its batches on the CPU while the policy was on the GPU | GPU training of every warm-started (focal_bc) run failed at its first batch | Batches go to the policy's device; unchanged on CPU (`rl/imitation_v7.py`; `tests/test_imitation.py`, `tests/test_v7.py`, GPU smoke test) |
+| 37 | Against the default HPA the dashboard judged the pre-registered block studies by the v6 rule, and dropped a valid pair over a duration difference | Comparison page and Overview showed v9 as "Beats HPA on cost" under a "pre-registered" label; the pre-registered verdict is on par / inconclusive | Block studies use their own table (POLICY_V7 §3.5) against either reference; a study pair is not dropped for duration alone (`lab/benchmark.py`, `tests/test_hpa_tuned.py`); the Comparison page describes block pairing and names the reference in "Δ = candidate − …" (`pages/Compare.tsx`). All six v9 comparisons now equal `reports/v9/evaluation.json`, checked in the browser |
+| 38 | The operator image's build allowlist included all of `src/`, so the 7.4 GB Alibaba trace in `src/flexascale/data/raw` went into the image | 9.36 GB image; on an out-of-memory host the copy most likely overloaded the Minikube node (control-plane restart, 02:44) | `.dockerignore` excludes `src/flexascale/data/raw` (training input, never read by the operator): image 1.43 GB |
+| 39 | When a new run started while the dashboard still held the previous one, the server answered the dashboard's incremental request for the new run using the old run's sample count | The second of two back-to-back runs showed "prep" in the header and an empty timeline until it passed the first run's length, and its first events were missing (found running the whole app, 2026-10-30) | A new run's first answer to an incremental request is replaced by a full snapshot (`timeline/feeds.ts`); checked live: HPA run after an Auto run, without a reload, timeline and elapsed time correct from the first samples |
+
+### 0.3 Verified on this laptop
+
+| Check | Result | Status |
+| :--- | :--- | :--- |
+| `pytest` (framework + shop + new tests) | 354 passed, 0 failed on Windows on 2026-10-28 (was 39 failures before the fixes); **362 passed, 0 failed on 2026-10-29 13:27** (with the GPU warm-start fix); **364 passed on 2026-10-30 03:12** after the v9 work (§0.6) | VERIFIED |
+| Shop images (17) built into Minikube; shop chart 1.1.0 installed; database seeded | all 16 services, frontend and PostgreSQL ready; storefront and API through the ingress tunnel | VERIFIED |
+| `fsctl start` / `fsctl stop` / `fsctl status` | full startup in 25–44 s (122 s with a cold Minikube after a reboot); stop restores every HPA and verifies no Lease | VERIFIED |
+| Native-HPA smoke run (Locust + shadow operator) and a FlexaScale v5 flash-sale run | Lease taken, HPAs frozen, 14 scale actions applied, cleanup verified safe; operator received SIGBREAK and handed back gracefully | VERIFIED (demo runs, `reports/experiments_demo/`) |
+| v7 graph policy against this cluster (observe) | 32 decisions in `ppo_graph` mode, no missing telemetry | VERIFIED |
+| Live Autoscaling Timeline (live, replay, single-service view, tooltip, pause) | checked in the browser against a real FlexaScale run | VERIFIED |
+| Second application (bookstore, 5 services, 2 without HPA) deployed | 5/5 ready, 3 HPAs | VERIFIED (in-cluster Helm lifecycle with the v9 model, 33/33 checks: §0.5) |
+| GPU assessment | §2 of docs/POLICY_V9.md | see there |
+
+### 0.4 v9 policy and pre-registered live evaluation (2026-10-28 → 30)
+
+Protocol fixed in `docs/POLICY_V9.md` before the first calibration run; every step, incident and deviation is logged in its §8. Reports: `reports/v9/` (index in its README).
+
+| Step | Result | Status |
+| :--- | :--- | :--- |
+| HPA-tuned calibration (§3; 8 runs + 1 rerun of a host-affected run) | CPU target **350% of request**, 60 s scale-down window (`reports/v9/calibration.md`) | VERIFIED |
+| Twin refitted to this laptop (§5) | against the calibration runs: replica-hours 2.0%, p95 8.9%, mean latency 4.4% mean absolute error (v7's twin: 1.9%, 20.5%, 17.7%); only the steady calibration load was available to check it (`twin_check.md`) | VERIFIED (limited) |
+| GPU rule (§2: train on cuda if ≥ 1.5× the best CPU agent-steps/s) | RTX 3050 **1.79×** → 4 runs × 2,000,000 agent-steps in 63 min; one defect fixed (36) | VERIFIED |
+| Selection (validation, 40 workloads, v7 reward) | focal_bc_s2 **−2.47**, focal_bc_s1 −2.99, no graph −2.92, old reward −3.30, best rule −2.99; seed spread (0.52) is as large as any design effect | VERIFIED |
+| Gate (§5: v9 must beat v7 on the v9 twin's validation set) | v9 −2.47 vs v7 −2.91: **passed**, v9 became the RL arm and the shop's default policy. Selection and gate use the same validation set, which favours v9 | VERIFIED |
+| Live evaluation (§6: 12 blocks × 4 arms, order fixed by seed) | 48 runs + 5 reruns; **7 host-affected, all FlexaScale or Auto** (their runs use about 1 core more outside Kubernetes than the HPA arms; not the model, which the HPA arms also run in shadow mode, but the live operator's work on the cluster, which part not measured; memory pressure later); 46 valid runs | VERIFIED |
+| **Verdict vs HPA-tuned (primary)** | **FlexaScale-RL: on par / inconclusive** (11 pairs; replica-hours +0.3% [−0.2 … +0.7], p95 +155% [−165 … +475]); **FlexaScale-Auto: on par / inconclusive** (11 pairs; replica-hours +0.2%, p95 +41.5% [−22.6 … +105.7]) | VERIFIED |
+| Verdict vs HPA-default | RL and Auto use **7.3% and 7.7% fewer replica-hours** (intervals below 0) but fail the p95 check → on par / inconclusive. HPA-default vs HPA-tuned: **worse** (+10.6% replica-hours [+4.2 … +17.1]) | VERIFIED |
+| Sensitivity (descriptive, added after the verdict) | Without the pairs containing a late rerun (run 1–2 h after their block under memory pressure; one of them is the +1,588% p95 pair): RL vs HPA-tuned replica-hours +0.1%, p95 +3.8% [−6.2 … +13.9]; RL vs HPA-default replica-hours −8.2%, p95 −2.0% [−20.6 … +16.5] (`evaluation_sensitivity.md`). The verdict is unchanged | reported only |
+| Twin test sets (run once, after the live runs) | T1 (6 live scenarios × 5 seeds): **HPA-tuned −1.20**, v9 −1.26, rule −1.28, HPA-default −6.33; T2 (60 random shop workloads): v9 −2.55, rule −2.79, HPA-tuned −3.06; T3 (40 random applications): graph seed 1 −76.0, no graph −76.7, v9 −79.0, HPA-tuned −82.4 (`ablation.md`) | VERIFIED |
+| v9 vs v7 on the held-out test sets (descriptive, added after) | Paired by episode on both laptops' twins: every reward interval includes 0 (this laptop's twin T1 −0.001 [−0.068 … +0.066], T2 +0.007 [−0.31 … +0.32]; T3 −3.65 [−7.74 … +0.43]). **v9 is not measurably better than v7**; the gate's margin came from the selection set. No live head-to-head (`v9_vs_v7.md`) | VERIFIED |
+| Graph ablation (seed 1, paired by episode) | reward Δ −0.001 [−0.026 … +0.024] (T1), +0.16 [−0.36 … +0.68] (T2), +0.71 [−3.30 … +4.72] (T3): **no measurable benefit**; the graph policy uses fewer replicas at higher p95 | VERIFIED |
+
+What it means: on this laptop the v9 policy is as good as a well-tuned HPA, not better. HPA-tuned matches its cost saving over default HPA without any model (both keep most services at their minimum at 25 users). The twin agrees on the live scenarios and shows v9 ahead only on random workloads, which were not run live.
+
+Incidents (all in `docs/POLICY_V9.md` §8, runs filed in `reports/experiments_invalid/`): the lid was closed at 18:25 during run 20's preparation (Modern Standby until 19:08; the runner's sleep inhibition does not cover the lid), so that run was stopped before its load and run again. By 23:47, when it was first measured, the laptop had run out of physical memory (36 MB available, ~20,000 pages/s), and latency of the same scenario rose by up to ~60% between the first and second repetition; arms are compared within blocks. Status commands run during run 40's load window most likely pushed it over the host-load limit.
+
+### 0.5 Helm on this laptop (operator image 0.6.0, chart 0.5.0)
+
+| Check | Result | Status |
+| :--- | :--- | :--- |
+| Chart renders and lints | `helm lint` passes with `values-bookstore.yaml` and with the new `values-v9.yaml`; `helm template` renders ServiceAccount, policy ConfigMap, Role/RoleBinding in the application namespace, operator Deployment and the hand-back hook Job, and the v9 values select `/app/models/flexascale_v9/…` | VERIFIED |
+| Operator image 0.6.0 (v5, v7 and v9 models; `values-v9.yaml` added) | First build at 02:44 failed at `COPY src`: it was copying the 7.4 GB Alibaba trace (defect 38) into a node on an out-of-memory host, and the node's control plane and pods restarted. After a reboot and the `.dockerignore` fix the image is **1.43 GB** (was 9.36 GB) and contains CPU PyTorch 2.15 and the three models (`logs/operator_image_0.6.0.rebuild.log`) | VERIFIED |
+| Install → upgrade (live, v9) → rollback → uninstall on the bookstore | `scripts/helm_lifecycle_test.sh`, 2026-10-30 11:21–11:23: **33 of 33 checks passed** (`logs/helm_lifecycle_0.6.0.out`). Observe: v5 model (`ppo_neighborhood`), HPAs untouched, no Lease, read-only RBAC. Live with v9: Lease taken, 3 HPAs frozen and 2 HPA-less Deployments marked, decisions in `ppo_graph` mode, write RBAC limited to HPAs and the scale subresource. Rollback and uninstall: HPAs back to 1–5, every marker cleared, Lease released, no RBAC left. A first run failed the 3 live checks because Git Bash rewrote `/app/...` in `--set` for `helm.exe` (test-script defect, fixed with `MSYS_NO_PATHCONV=1`); the operator then refused live control on the missing model path, as designed (`logs/helm_lifecycle_0.6.0.pathconv-failed.out`) | VERIFIED |
+
+### 0.6 Tests
+
+`pytest`: **364 passed, 0 failed** on 2026-10-30 03:12 (`logs/pytest_final_v9.out`; 362 before, plus 2 tests for defect 37). The dashboard type-checks and builds (`npm run build`, 03:07).
 
 ## 1. Overall readiness
 

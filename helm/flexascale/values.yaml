@@ -10,7 +10,7 @@
 
 image:
   repository: flexascale
-  tag: "0.4.0"
+  tag: "0.6.0"
   pullPolicy: IfNotPresent
 
 # Application policy (same schema as config/apps/*.yaml, see docs/FINAL_PROJECT_SUMMARY.md).

@@ -1,84 +1,82 @@
 # FlexaScale Final Demo Runbook
 
-Target length: 12–15 minutes live, plus questions. Updated 2026-10-26 for the 16-service shop, Auto mode and the control-center dashboard.
+Target length: 12–15 minutes live, plus questions. Updated 2026-10-29 for the second laptop (Windows 11, Docker Desktop, Minikube), the `fsctl` launcher and the Live Autoscaling Timeline. The same steps work on Linux with `./fsctl`.
 
 ## 0. Before the session (5 min, once)
 
-```bash
-cd ~/flexascale
-timedatectl | grep synchronized       # must say "yes": a wrong host clock breaks Prometheus and cluster tokens
-cat /sys/class/power_supply/BAT*/status   # plug the charger in: on battery the CPU drops to ~1 GHz and every service is ~4x slower
-top -b -n1 -o %CPU | sed -n 7,12p          # close other heavy jobs (model training, builds): they slow every service in the shop
-./scripts/start_review.sh --check     # preflight only, changes nothing (~5 s)
+* **Charger plugged in.** On battery the CPU slows down and every run becomes invalid for comparisons (the lab records AC/battery every 5 s).
+* **Docker Desktop running** (whale icon steady). Close heavy jobs (model training, builds): they compete with the cluster for CPU.
+* **Display stays on.** This laptop uses Modern Standby: when the screen turns off, the machine stands by and a running experiment freezes. During a talk the screen is on anyway; for long unattended batches `scripts/run_plan.py` keeps the display on by itself.
+* Preflight (changes nothing, ~10 s):
+
+```powershell
+.\fsctl start --check
 ```
 
-If it fails, follow the printed `Recovery:` line or the troubleshooting table in RUNNING.md (Quick Start).
+If it fails, the printed `Fix:` line says what to do; the troubleshooting table is at the top of RUNNING.md.
 
 ## 1. Start (one command)
 
-```bash
-./scripts/start_demo.sh               # = ./scripts/start_review.sh --demo
+```powershell
+.\fsctl start --demo          # Linux/macOS: ./fsctl start --demo
 ```
 
-Expected ending (≈15 s when Minikube is already running; 2–4 min if it had to start):
+Expected ending (≈30 s when Minikube is running, 2–4 min after a reboot):
 
 ```
-READY in 14s
-  Presentation dashboard : http://127.0.0.1:8090/
-  Shopping application   : http://192.168.49.2/   (demo login: demo@flexascale.io / CustomerPass123!)
-  Prometheus             : http://localhost:9090/
-  Grafana                : http://localhost:3000/
+READY in 31 s
+  Control center : http://127.0.0.1:8090/
+  Shop           : http://127.0.0.1/   (demo login: demo@flexascale.io / CustomerPass123!)
+  Prometheus     : http://localhost:9090/
+  Grafana        : http://localhost:3000/
 ```
 
-Running it twice is safe: healthy processes are reused, never duplicated.
+Running it twice is safe: healthy processes are reused. On Windows the shop is reached through a managed `minikube tunnel` (the Minikube IP is not routable from Windows); the launcher starts it.
 
 ## 2. Open two browser windows
 
-* Left: **http://127.0.0.1:8090/** (FlexaScale control center). The sun/moon button switches between dark and light themes. Use light on a projector.
-* Right: **http://192.168.49.2/** (the shop). Log in with the demo account.
+* Left: **http://127.0.0.1:8090/** (control center). Dark theme by default; the sun/moon button switches to light (better on some projectors).
+* Right: **http://127.0.0.1/** (the shop). Log in with the demo account.
 
-## 3. Demonstration sequence
+## 3. Demonstration sequence (the eight steps)
 
-A *comparable start* (data reset, every service at its minimum, then a wait until 5.5 min after the previous run's load) is what the benchmark uses. For the live demo, untick **Comparable start** so the run starts at once, and say that this run is a demonstration, not a benchmark run. The benchmark numbers come from the stored runs (step 7). The Comparison page counts any complete run that started at minimum replicas, so after a rehearsal or the demo, move completed demo runs from `reports/experiments/` to `reports/experiments_demo/` to keep the benchmark at its 18 planned pairs.
+For a live demo, untick **Comparable start** so a run starts at once (otherwise it waits until 5.5 min after the previous run's load, so HPA's memory of the last run has expired), and say that demo runs are not benchmark runs. After the demo, move demo runs from `reports/experiments/` to `reports/experiments_demo/`.
 
 | Step | Say | Do / show |
 | :--- | :--- | :--- |
-| 1 | "This is real cluster state, not a simulation." | **Overview**: the status pills (native HPA in control, telemetry age, cluster, Prometheus), 16/16 services reporting, the estimated cost rate (Fargate list prices, labelled as an estimate), the topology of the 16 services coloured by owner, and the alerts panel. Missing values show "—": nothing is estimated. |
-| 2 | "First the baseline: Kubernetes' own HPA." | **Live lab** → mode **Native HPA**, scenario **Flash-sale spike**, 25 users, spawn 5, 300 s, *shadow mode* on, *Comparable start* off → **Start**. Do not exceed ~30 users: it is a single-node cluster. |
-| 3 | "While Locust generates load, I use the shop normally." | In the shop: search, open a product (reviews and recommendations come from two more services), add to cart, check out. Checkout calls pricing, shipping, fraud, payment, inventory and notification. |
-| 4 | "Watch traffic, latency and the HPA reacting." | Throughput and p95 charts, the replica chart stepping up, the timeline: *Replica change … (owner: native HPA)*, *Ready*. The shadow-mode panel shows what FlexaScale would have done, with confidence. Nothing is applied. |
-| 5 | "Now Auto mode: FlexaScale only where the rules allow it." | After completion (or **Stop**): mode **Auto**, same settings → **Start**. Open **Auto mode**: every service with its current owner, the rule that decided it (health, confidence, SLA risk, efficiency) and the logged reason. Point at a service handed back to HPA on SLA risk, and at FlexaScale scale-downs. |
-| 6 | "Safety: one owner per Deployment, always reversible." | **Live lab** → controller ownership: the Lease is held by FlexaScale. Only services FlexaScale owns have their HPA frozen (min = max), and the original bounds are stored on the HPA. **Stop** restores every HPA and verifies it ("Cleanup verified"). |
-| 7 | "The result, measured honestly." | **Comparison**: the paired benchmark *FlexaScale v5 (Auto mode) vs native HPA (default)*. Read the replica-hours, cost, p95 and failure means with their 95% intervals and the verdict. Say that the verdict rule was fixed before the results (`docs/POLICY_V6.md` §3.1). Then switch to *v5*: the RL policy alone used 8% **more** replica-hours. Then *Native HPA, 60 s scale-down (tuned reference)*: 12 pairs, −1.4% replica-hours with 2.3% lower throughput. Say it plainly: a shorter HPA window gives part of the saving; Auto's saving is larger in the point estimate, but the difference is not statistically shown (`docs/POLICY_V6.md` §5.2). |
-| 8 | "Why the RL policy alone does not win." | **Models**: v5 is deployed, with inference health, and v6, trained in a simulator matching the live control loop, still lost to native HPA in simulation. The saving comes from Auto's safe, faster scale-down, not from a smarter policy. |
-| 9 | "Portability." | App selector → *Synthetic bookstore (5 services)*: different names, HPAs named `*-autoscaler`, 2 services without an HPA. The same operator and model, no code change (`config/apps/bookstore.yaml`). |
-| 10 | "Clean shutdown." | `./scripts/stop_review.sh`. It prints *native HPA owns every managed Deployment; FlexaScale holds no lease*. |
+| 1. Cluster and live telemetry | "Real cluster state, refreshed every 5 s; missing values show as '—', never estimated." | **Overview**: status pills (telemetry age, cluster, Prometheus), active controller, replicas, mean CPU, estimated cost rate (labelled as an estimate), the compact timeline recording cluster state. **Service topology**: the 16 discovered services on their call graph, coloured by owner; click order-service to show its callers, callees and live latency. An idle service says "no requests", not 0 ms. |
+| 2. Generate a workload | "Locust drives the shop with realistic user journeys." | **Live lab** → scenario **Flash-sale spike**, 25 users, spawn 5, 300 s. While it runs, use the shop: search, add to cart, check out (checkout calls pricing, shipping, fraud, payment, inventory, notification). |
+| 3. Native HPA run | "First the baseline: Kubernetes' own HPA." | Mode **Native HPA** (shadow mode on) → **Start**. Point at the **Live Autoscaling Timeline**: traffic jumps at the flash sale, latency rises toward the SLA line, the hatched band marks SLA violation, desired replicas step up (green ▲ = observed scale-up), ready follows. The dashed green line is what FlexaScale *would* do (shadow mode: nothing applied). |
+| 4. FlexaScale run, comparable conditions | "Same scenario, same settings, now the learned policy decides." | When it completes: mode **FlexaScale** → **Start**. On the timeline: the ownership strip turns green (FlexaScale holds the Lease and freezes each HPA before scaling), filled green dots are scale requests actually sent, the dotted blue line is the HPA rule's estimate on the same telemetry. Select one service (e.g. order-service) to show its own requests/s, latency and SLO from Prometheus. |
+| 5. Auto mode | "Auto chooses per service, every step, with logged rules." | Mode **Auto** → **Start**, then the **Auto mode** page: each service's owner, the rule (health → confidence → SLA risk → efficiency) and the reason; the ownership strip on its timeline shows handoffs. Point at a service handed back to HPA on SLA risk. |
+| 6. Live scaling graph and real replica changes | "Nothing on this chart is invented." | Back on the timeline: hover for the tooltip (time, desired/ready, both proposals, owner, traffic, p95); **Pause** freezes the view while data keeps arriving; after the run ends the chart becomes a labelled **REPLAY** with play/speed controls. Optional terminal proof: `kubectl -n flexascale-apps get hpa,deploy -w`. |
+| 7. Compare SLA, latency, resources and cost | "The comparison is paired and its rule was fixed before the runs." | **Comparison**: the pre-registered study against the *tuned* HPA (POLICY_V9; 350% CPU target, 60 s window, chosen by the calibration rule) and the default HPA: replica-hours, estimated cost, p95, failures with 95% intervals and the verdict. Expect **v9 and Auto: on par / inconclusive** against HPA-tuned (replica-hours +0.3% / +0.2%), and default HPA **worse** than HPA-tuned (+10.6%). Say it plainly: the learned policy matches a well-tuned HPA here and does not beat it. **Experiments**: open any run → configuration, validity checks (complete, settled start, cleanup verified, AC power) and its replay; *Use as baseline* → *Compare with baseline* for a run-vs-run table. |
+| 8. Results and limitations | "What we can and cannot claim." | Read the verdict as measured (docs/POLICY_V9.md §6/§8, docs/V7_REPORT.md for the first laptop). Limitations: single-node Minikube, 25 users, 300 s runs, run-to-run noise as large as most effects, costs are list-price estimates, the tuned HPA uses one CPU target for all services. |
 
-Short on time? Do steps 1, 5, 6 and 7.
+Short on time? Steps 1, 3, 4 (or 5) and 7.
 
 ## 4. Showing actual scaling
 
-* Timeline kinds: **Policy** (model proposal, not applied), **Scale request** (sent to Kubernetes), **Replica change** (desired replicas changed, with the owner), **Ready** (pods ready), **Auto mode** (an ownership hand-over with its rule and reason).
-* Terminal, if asked: `kubectl -n flexascale-apps get hpa,deploy -w`, and `kubectl -n flexascale-apps get lease flexascale-shopping -o yaml` during a FlexaScale or Auto run.
-* Raw data for any run: `reports/experiments/<run>/run.json`, `telemetry.csv`, `decisions.jsonl` (every Auto decision with rule, inputs and reason).
+* Timeline legend: solid white = desired replicas (`spec.replicas`), cyan area = ready replicas, dashed green = FlexaScale's proposal (not an action), filled green dot = a scale request sent, dotted blue = HPA's proposal (its `status.desiredReplicas` while it owns the service, the rule estimate while FlexaScale does), ▲/▼ = observed scale-up/down, strip = owner, hatched = SLA violated, event lane = workload phases, scale requests, Auto handoffs, safety interventions.
+* Event log (below the timeline in the Live lab): **Policy** (proposal, not applied), **Scale request** (sent), **Replica change** (Kubernetes changed desired replicas, with the owner), **Ready**, **Auto mode** (handoff with rule and reason).
+* Raw data: `reports/experiments/<run>/run.json`, `telemetry.csv`, `decisions.jsonl` (every decision with features, proposal, guards and owner).
 
 ## 5. Troubleshooting during the demo
 
 | Problem | Action |
 | :--- | :--- |
-| Start button returns an error | The message says why (lease held, Locust still running, Prometheus down). `./scripts/stop_review.sh`, then `./scripts/start_review.sh`. |
-| Experiment stuck in *preparing* | Comparable start is on: it holds the HPAs at their minimum until 5.5 min after the previous run's load (HPA downscale window). Untick **Comparable start** to skip this, and say the run is then not comparable. |
-| Stop button locked | The run was started elsewhere (for example a benchmark batch). Tick the lock checkbox only if you really want to end that run. |
-| Cluster becomes slow / API timeouts | Too many replicas for the node. **Stop** the run, wait for `kubectl get --raw /readyz`, then `./scripts/stop_review.sh` (restores frozen HPAs from their annotations). |
-| Charts empty | Samples arrive every 5 s after the workload starts. Check the telemetry pill in the header. |
-| Prometheus rejects samples / "Unauthorized" errors after a laptop sleep | Check the clock (`timedatectl`). See `reports/experiments_invalid/README.md` (2026-10-25 clock incident) for the recovery. |
-| Anything looks unsafe | **Stop**, or `./scripts/stop_review.sh`. Both restore every HPA's original bounds and release the lease. |
+| Start returns an error | The message says why (lease held, Locust still running, Prometheus down). `.\fsctl stop`, then `.\fsctl start`. |
+| Experiment stuck in *preparing* | Comparable start is on (waits for HPA's 5-minute memory to expire). Untick **Comparable start**, and say the run is then not comparable. |
+| Shop unreachable | The tunnel died: `.\fsctl start` restarts it. |
+| Stop button locked | The run was started elsewhere (a batch). Tick the lock checkbox only to really end it. |
+| Charts empty | Samples arrive every 5 s after the workload starts; check the telemetry pill. |
+| Anything looks unsafe | **Stop**, or `.\fsctl stop`: both restore every HPA's original bounds and release the Lease. |
 
 ## 6. Safe cleanup
 
-```bash
-./scripts/stop_review.sh              # idempotent; leaves Minikube, deployments and data untouched
-./scripts/review_status.sh            # optional: confirm "SAFE (native HPA owns scaling)"
+```powershell
+.\fsctl stop                  # idempotent; leaves Minikube, deployments and data untouched
+.\fsctl status                # optional: "native HPA owns scaling"
 ```
 
-Full teardown (destructive, asks for confirmation): `./scripts/teardown_cluster.sh flexascale --delete`.
+Full teardown (destructive, asks for confirmation): `./scripts/teardown_cluster.sh flexascale --delete` (Git Bash).

@@ -9,7 +9,7 @@
 #   to native HPA.
 name: shopping
 namespace: flexascale-apps
-label_selector: ''
+label_selector: app.kubernetes.io/part-of=flexascale-ecommerce   # the shop chart's Deployments only (not other workloads in the namespace)
 include: []
 exclude: [shopping-frontend]
 exclude_datastores: true

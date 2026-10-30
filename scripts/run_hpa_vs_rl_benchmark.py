@@ -264,7 +264,7 @@ def main():
     reports_dir.mkdir(exist_ok=True)
 
     json_path = reports_dir / "benchmark_summary.json"
-    with open(json_path, "w") as f:
+    with open(json_path, "w", encoding="utf-8") as f:
         json.dump({
             "timestamp": time.time(),
             "config": {
@@ -279,7 +279,7 @@ def main():
         }, f, indent=2)
 
     md_path = reports_dir / "benchmark_report.md"
-    with open(md_path, "w") as f:
+    with open(md_path, "w", encoding="utf-8") as f:
         f.write(f"""# FlexaScale vs. Standard Kubernetes HPA Benchmark Report
 
 Generated on: {time.strftime('%Y-%m-%d %H:%M:%S')}  

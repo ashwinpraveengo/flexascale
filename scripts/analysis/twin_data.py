@@ -11,13 +11,13 @@ def load_runs(root="reports/experiments", since="20261025", min_services=16):
         if d.name < since:
             continue
         try:
-            r = json.loads((d / "run.json").read_text())
+            r = json.loads((d / "run.json").read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
         if r.get("state") != "completed" or len(r.get("start_replicas") or {}) < min_services:
             continue
         by_t = defaultdict(lambda: {"services": {}})
-        with open(d / "telemetry.csv") as f:
+        with open(d / "telemetry.csv", encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 t = float(row["t"])
                 s = by_t[t]

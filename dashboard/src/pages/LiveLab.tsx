@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { CONTROLLER_LABEL, Json, OWNER_COLOR, isNativeHpa, TERMINAL, api, fmt, fmtElapsed, seriesColor } from '../api';
 import { LineChart, Series } from '../LineChart';
 import { Card, Empty, ErrorNote, Icon, Meter, OwnerBadge, Stat, StatusBadge } from '../ui';
+import { ScalingTimeline } from '../timeline/ScalingTimeline';
+import { feedOfRun, useLiveHistory } from '../timeline/feeds';
 
 const KIND_LABEL: Record<string, string> = {
   preflight: 'Preflight', ownership: 'Ownership', workload: 'Workload', traffic: 'Traffic', metric: 'Metric',
@@ -83,16 +85,15 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
   const shown = picked.length ? names.filter((n) => picked.includes(n)) : names.slice(0, 8);
   const svcSeries = (field: string): Series[] =>
     shown.map((n) => ({ key: n, label: n.replace(/-service$/, ''), color: colorOf(n), values: samples.map((s) => s.services?.[n]?.[field] ?? null) }));
-  const totalSeries: Series[] = [
-    { key: 'ready', label: 'Ready', color: seriesColor(0), values: samples.map((s) => Object.values(s.services || {}).reduce((a: number, v: Json) => a + (v.ready || 0), 0)) },
-    { key: 'desired', label: 'Desired', color: seriesColor(1), values: samples.map((s) => Object.values(s.services || {}).reduce((a: number, v: Json) => a + (v.desired || 0), 0)) },
-  ];
   const totalDesired = services.reduce((a, s) => a + (s.desired_replicas || 0), 0);
   const totalReady = services.reduce((a, s) => a + (s.ready_replicas || 0), 0);
   const fin = exp?.summary?.workload;
   const lowSample = (last?.total_requests ?? 0) < 100;
   const autoState: Record<string, Json> = exp?.auto_state || {};
   const owners = useMemo(() => services.reduce((acc: Record<string, number>, s) => ((acc[s.owner] = (acc[s.owner] || 0) + 1), acc), {}), [services]);
+  const histFeed = useLiveHistory(app, !exp, 5000, live);
+  const runFeed = useMemo(() => feedOfRun(exp, running ? 'live' : 'replay'), [exp, running]);
+  const feed = exp ? runFeed : histFeed;
 
   return (
     <div className="grid gap-4 xl:grid-cols-[360px_1fr]">
@@ -101,10 +102,12 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
           <div className="space-y-4">
             <div>
               <div className="eyebrow mb-1.5">Autoscaling mode</div>
-              <div className="seg w-full" role="group" aria-label="Autoscaling mode">
+              <div className="grid grid-cols-2 gap-1.5" role="group" aria-label="Autoscaling mode">
                 {controllers.map((k) => (
-                  <button key={k} className="flex-1" aria-pressed={controller === k} disabled={running} onClick={() => setController(k)}>
-                    {CONTROLLER_LABEL[k] || k}
+                  <button key={k} className={`mode-tile ${k === 'hpa' || k === 'flexascale' || k === 'auto' ? '' : 'mode-tile-ref'}`} aria-pressed={controller === k} disabled={running} onClick={() => setController(k)}
+                    style={{ ['--tile' as string]: isNativeHpa(k) ? 'var(--hpa)' : k === 'auto' ? 'var(--auto)' : 'var(--flexa)' }}>
+                    <span className="dot" style={{ background: 'var(--tile)' }} />
+                    <span className="truncate">{CONTROLLER_LABEL[k] || k}</span>
                   </button>
                 ))}
               </div>
@@ -240,21 +243,13 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
           </Card>
         )}
 
+        <ScalingTimeline feed={feed}
+          emptyText={exp ? emptyText : 'No experiment yet: the timeline starts recording live cluster state as soon as this page polls it. Start a run to add Locust traffic, latency and policy decisions.'} />
+
         {exp?.request?.controller === 'auto' && <AutoDecisions state={autoState} running={running} />}
         {exp && <PolicyPanel events={exp.events || []} controller={exp.request.controller} shadow={exp.request.shadow} />}
 
         <div className="grid gap-4 2xl:grid-cols-2">
-          <LineChart title="Throughput" unit="requests / s" x={x} digits={1} empty={emptyText} series={[
-            { key: 'rps', label: 'Requests/s', color: seriesColor(0), values: samples.map((s) => s.rps ?? null) },
-            { key: 'fail', label: 'Failures/s', color: seriesColor(1), values: samples.map((s) => s.fail_rps ?? null) },
-          ]} />
-          <LineChart title="End-to-end latency" unit="ms (Locust, 10 s window)" x={x} empty={emptyText} reference={slo ? { value: slo, label: `SLO p95 ${slo} ms` } : undefined} series={[
-            { key: 'p50', label: 'p50', color: seriesColor(0), values: samples.map((s) => s.p50_ms ?? null) },
-            { key: 'p95', label: 'p95', color: seriesColor(1), values: samples.map((s) => s.p95_ms ?? null) },
-            { key: 'p99', label: 'p99', color: seriesColor(2), values: samples.map((s) => s.p99_ms ?? null) },
-          ]} />
-          <LineChart title="Total replicas" unit="replicas, all managed services" x={x} empty={emptyText} step series={totalSeries} minMax={5} />
-          <LineChart title="Desired replicas per service" unit="replicas" x={x} empty={emptyText} step series={svcSeries('desired')} minMax={3} />
           <LineChart title="CPU per service" unit="% of request (HPA semantics)" x={x} empty={emptyText} reference={{ value: live?.policy?.cpu_target_pct || 70, label: 'target' }} series={svcSeries('cpu_pct')} />
           <LineChart title="Memory per service" unit="% of limit" x={x} empty={emptyText} series={svcSeries('memory_pct')} />
         </div>
@@ -296,7 +291,7 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
           </div>
         </Card>
 
-        <Timeline events={exp?.events || []} />
+        <EventLog events={exp?.events || []} />
       </main>
     </div>
   );
@@ -330,12 +325,12 @@ function AutoDecisions({ state, running }: { state: Record<string, Json>; runnin
   );
 }
 
-function Timeline({ events }: { events: Json[] }) {
+function EventLog({ events }: { events: Json[] }) {
   const kinds = Array.from(new Set(events.map((e) => e.kind)));
   const [hidden, setHidden] = useState<string[]>(['metric']);
   const shown = events.filter((e) => !hidden.includes(e.kind)).slice().reverse();
   return (
-    <Card eyebrow="Timeline" title="Scaling & ownership events"
+    <Card eyebrow="Event log" title="Scaling & ownership events"
       actions={<div className="flex flex-wrap gap-1.5">{kinds.map((k) => (
         <button key={k} className="pill" aria-pressed={!hidden.includes(k)} style={{ opacity: hidden.includes(k) ? 0.45 : 1 }}
           onClick={() => setHidden((h) => (h.includes(k) ? h.filter((x) => x !== k) : [...h, k]))}>{KIND_LABEL[k] || k}</button>

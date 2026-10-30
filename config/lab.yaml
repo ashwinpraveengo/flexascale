@@ -7,13 +7,15 @@ grafana_url: http://localhost:3000
 results_dir: reports/experiments
 sample_interval_seconds: 5
 e2e_p95_slo_ms: 1000                           # end-to-end SLO on Locust p95 (10 s window)
-hpa_tuned: {cpu_target_pct: 250, scale_down_window_s: 60}              # docs/POLICY_V7.md §2.1 calibration
+hpa_tuned: {cpu_target_pct: 350, scale_down_window_s: 60}              # docs/POLICY_V9.md §3 calibration (second laptop)
 apps:
   shopping:
     title: E-commerce shop (16 services)
     policy: config/apps/shopping.yaml
     variants:                                  # docs/POLICY_V7.md §3.2
       v7: config/apps/shopping_v7.yaml
+      v5: config/apps/shopping_v5.yaml                     # the earlier default (v5)
+      v9: config/apps/shopping_v9.yaml                     # docs/POLICY_V9.md §5
       v7_rule: config/apps/shopping_v7_rule.yaml
       v8_latency_rule: config/apps/shopping_v8_latency_rule.yaml   # docs/POLICY_V8.md §2
     url: minikube-ingress

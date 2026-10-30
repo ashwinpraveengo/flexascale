@@ -1,0 +1,110 @@
+[
+ {
+  "timesteps": 0,
+  "reward": -3.149212007309979,
+  "replica_hours": 1.9634722222222223,
+  "p95_ms": 222.57288201936586,
+  "mean_latency_ms": 69.83607024633632,
+  "failure_pct": 0.0,
+  "slo_violation_s": 1.125,
+  "scaling_events": 1.075,
+  "oscillations": 0.35,
+  "n": 40
+ },
+ {
+  "timesteps": 250000,
+  "reward": -3.128383089944712,
+  "replica_hours": 1.9519444444444445,
+  "p95_ms": 230.09968776468367,
+  "mean_latency_ms": 74.26680920544462,
+  "failure_pct": 0.0,
+  "slo_violation_s": 1.875,
+  "scaling_events": 0.55,
+  "oscillations": 0.175,
+  "n": 40
+ },
+ {
+  "timesteps": 500000,
+  "reward": -2.8352010510217185,
+  "replica_hours": 1.9433680555555555,
+  "p95_ms": 233.19142076547283,
+  "mean_latency_ms": 75.26731086203534,
+  "failure_pct": 0.0,
+  "slo_violation_s": 2.0,
+  "scaling_events": 0.35,
+  "oscillations": 0.125,
+  "n": 40
+ },
+ {
+  "timesteps": 750000,
+  "reward": -3.166293306104282,
+  "replica_hours": 1.9441666666666666,
+  "p95_ms": 221.3587107652087,
+  "mean_latency_ms": 71.60332123872168,
+  "failure_pct": 0.0,
+  "slo_violation_s": 2.0,
+  "scaling_events": 0.525,
+  "oscillations": 0.15,
+  "n": 40
+ },
+ {
+  "timesteps": 1000000,
+  "reward": -3.457500212671671,
+  "replica_hours": 1.9363888888888887,
+  "p95_ms": 238.72898344678416,
+  "mean_latency_ms": 76.64156263132355,
+  "failure_pct": 0.0,
+  "slo_violation_s": 3.125,
+  "scaling_events": 0.2,
+  "oscillations": 0.075,
+  "n": 40
+ },
+ {
+  "timesteps": 1250000,
+  "reward": -3.653209310534906,
+  "replica_hours": 1.9348611111111111,
+  "p95_ms": 240.52890190143853,
+  "mean_latency_ms": 78.22541838135714,
+  "failure_pct": 0.0,
+  "slo_violation_s": 3.375,
+  "scaling_events": 0.05,
+  "oscillations": 0.025,
+  "n": 40
+ },
+ {
+  "timesteps": 1500000,
+  "reward": -3.0915244252379686,
+  "replica_hours": 1.935625,
+  "p95_ms": 242.95923479482744,
+  "mean_latency_ms": 76.4122183956879,
+  "failure_pct": 0.0,
+  "slo_violation_s": 2.375,
+  "scaling_events": 0.15,
+  "oscillations": 0.05,
+  "n": 40
+ },
+ {
+  "timesteps": 1750000,
+  "reward": -2.8895671093848256,
+  "replica_hours": 1.9432291666666668,
+  "p95_ms": 215.30459007291833,
+  "mean_latency_ms": 71.19412125910317,
+  "failure_pct": 0.0,
+  "slo_violation_s": 2.0,
+  "scaling_events": 0.225,
+  "oscillations": 0.075,
+  "n": 40
+ },
+ {
+  "timesteps": 2000000,
+  "reward": -2.46601010165631,
+  "replica_hours": 1.9437152777777775,
+  "p95_ms": 224.15170569262978,
+  "mean_latency_ms": 71.82306173567943,
+  "failure_pct": 0.0,
+  "slo_violation_s": 1.0,
+  "scaling_events": 0.5,
+  "oscillations": 0.275,
+  "n": 40
+ }
+]

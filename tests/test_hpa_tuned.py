@@ -195,6 +195,43 @@ def test_benchmark_against_the_tuned_hpa_pairs_within_blocks_and_uses_the_v7_rul
     assert {m["model"]: m for m in default["models"]}["v7" + batch]["pairs"][0]["baseline"] == "d1"
 
 
+def test_pre_registered_studies_use_their_table_against_the_default_hpa_too():
+    """scripts/analyze_v7.py applies docs/POLICY_V7.md §3.5 against both references; the dashboard must say the same."""
+    from flexascale.lab.benchmark import STUDY_SUFFIXES, VERDICT_RULE, VERDICT_RULE_V7
+
+    def cmp(a, b):  # cheaper, p95 interval includes 0 but its mean is +40%: "beats on cost" by the v6 rule, not by §3.5
+        p95 = {"r1": 120.0, "r2": -40.0, "r3": 40.0}.get(b, 0.0)
+        return {"comparable": True, "rows": [{"metric": "Replica-hours", "pct_change": -5.0},
+                                             {"metric": "p95 latency (ms)", "pct_change": p95},
+                                             {"metric": "Failure rate (%)", "delta": 0.0}]}
+
+    runs = [r for i in (1, 2, 3) for r in (_run(f"d{i}", "hpa", 10 * i, f"v9-b0{i}-hpa_default"),
+                                           _run(f"r{i}", "flexascale", 10 * i + 1, f"v9-b0{i}-rl"))]
+    runs += [_run("old", "hpa", 100), _run("fs", "flexascale", 101)]
+    models = {m["model"]: m for m in benchmark(runs, cmp)["models"]}
+    study = models["v7" + STUDY_SUFFIXES["v9-"]]
+    assert study["verdict_rule"] == VERDICT_RULE_V7 and study["verdict"] == "On par / inconclusive"
+    assert models["v7"]["verdict_rule"] == VERDICT_RULE                  # unlabelled runs keep the dashboard's original rule
+
+
+def test_a_duration_difference_alone_drops_a_pair_only_outside_a_study():
+    """In a block study a run's validity is its own (complete, settled start; §3.4), as in scripts/analyze_v7.py."""
+    from flexascale.lab.benchmark import STUDY_SUFFIXES
+
+    def cmp(a, b):  # as Lab.compare: a flagged pair has its values but no pct_change
+        issues = ["durations differ by more than 10% (311s vs 354s)"] + (["at least one run is incomplete"] if b == "r2" else [])
+        return {"comparable": False, "issues": issues,
+                "rows": [{"metric": "Replica-hours", "baseline": 2.0, "candidate": 1.9, "pct_change": None}]}
+
+    runs = [_run("d1", "hpa", 1, "v9-b01-hpa_default"), _run("r1", "flexascale", 2, "v9-b01-rl"),
+            _run("d2", "hpa", 3, "v9-b02-hpa_default"), _run("r2", "flexascale", 4, "v9-b02-rl"),
+            _run("old", "hpa", 5), _run("fs", "flexascale", 6)]
+    models = {m["model"]: m for m in benchmark(runs, cmp)["models"]}
+    pairs = models["v7" + STUDY_SUFFIXES["v9-"]]["pairs"]
+    assert [p["candidate"] for p in pairs] == ["r1"] and pairs[0]["replica_hours_pct"] == -5.0
+    assert "v7" not in models
+
+
 def test_flash_sale_study_is_never_pooled_with_the_batch():
     from flexascale.lab.benchmark import SPIKE_SUFFIX, STUDY_SUFFIXES
 

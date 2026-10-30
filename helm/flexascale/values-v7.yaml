@@ -1,11 +1,11 @@
 # FlexaScale v7 graph policy (docs/POLICY_V7.md §4) for the bundled shop, in-cluster.
-# Needs the 0.5.0 operator image, which contains models/flexascale_v7 (scripts/promote_v7.py, then
-#   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.5.0 . && minikube -p flexascale image load flexascale:0.5.0).
+# Needs the 0.6.0 operator image (0.5.0 or later), which contains models/flexascale_v7 (scripts/promote_v7.py, then
+#   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.6.0 .   (inside Minikube: eval $(minikube -p flexascale docker-env) first)
 # Install (observation only, the default):
 #   helm upgrade --install flexascale helm/flexascale -n flexascale-system -f helm/flexascale/values-v7.yaml
 # Live control is explicit: add --set policy.mode=live
 image:
-  tag: "0.5.0"
+  tag: "0.6.0"
 policy:
   model_path: /app/models/flexascale_v7/best_model/best_model.zip
   max_step: 3                       # the v7 guards the policy was trained under (simulator/twin_control.V7_GUARDS)

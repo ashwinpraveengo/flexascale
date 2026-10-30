@@ -1,0 +1,11 @@
+run,folder,controller,scenario,load_start,load_end,host_cores,k8s_cores,outside_cores,battery_s,host_affected,reason,cpu_mhz,app_cpu_ms_per_request,host_source,limit_cores
+20261028-231912-shopping-hpa_tuned-calibration_steady,reports/experiments_invalid,hpa_tuned,calibration_steady,2026-10-28 23:20:19,23:25:37,4.54,0.7,3.85,0,True,3.8 cores outside Kubernetes,,31.04,psutil host samples,3.576
+20261028-232543-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-28 23:37:10,23:42:28,3.07,0.64,2.43,0,False,,,27.67,psutil host samples,3.576
+20261028-234234-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-28 23:48:49,23:54:08,3.19,0.67,2.52,0,False,,,28.31,psutil host samples,3.576
+20261028-235416-shopping-hpa_tuned-calibration_steady,reports/experiments_invalid,hpa_tuned,calibration_steady,2026-10-29 00:00:29,00:39:38,1.95,0.01,1.93,0,False,,,35.0,psutil host samples,3.576
+20261029-101022-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-29 10:16:17,10:21:32,2.11,0.57,1.54,0,False,,,24.32,psutil host samples,3.576
+20261029-102134-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-29 10:27:53,10:33:08,2.2,0.57,1.63,0,False,,,24.79,psutil host samples,3.576
+20261029-103315-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-29 10:44:13,10:49:29,2.09,0.55,1.54,0,False,,,24.2,psutil host samples,3.576
+20261029-104937-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-29 10:55:48,11:01:04,2.54,0.59,1.95,0,False,,,25.73,psutil host samples,3.576
+20261029-110108-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-29 11:12:17,11:17:32,2.38,0.57,1.8,0,False,,,24.86,psutil host samples,3.576
+20261029-124341-shopping-hpa_tuned-calibration_steady,reports/experiments,hpa_tuned,calibration_steady,2026-10-29 12:49:38,12:54:54,2.64,0.58,2.06,0,False,,,25.44,psutil host samples,3.576

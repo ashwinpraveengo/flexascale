@@ -1,0 +1,32 @@
+23:19:12 Windows: idle sleep inhibited while the plan runs
+23:19:12 plan reports/v9/calibration_plan.json: 8 runs, 0 already done
+23:19:12 [1/8] started 20261028-231912-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-150)
+23:25:43 [1/8] completed 20261028-231912-shopping-hpa_tuned-calibration_steady p95=170.0 mean=57.4 fail%=0.155 replica_h=1.359914 safe=True error=None
+23:25:43 [2/8] started 20261028-232543-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-350)
+23:42:34 [2/8] completed 20261028-232543-shopping-hpa_tuned-calibration_steady p95=140.0 mean=40.7 fail%=0.075 replica_h=1.360225 safe=True error=None
+23:42:34 [3/8] started 20261028-234234-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-70)
+23:54:16 [3/8] completed 20261028-234234-shopping-hpa_tuned-calibration_steady p95=140.0 mean=38.7 fail%=0.038 replica_h=1.435371 safe=True error=None
+23:54:16 [4/8] started 20261028-235416-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-70)
+Traceback (most recent call last):
+  File "D:\Programming\flexascale\scripts\run_plan.py", line 199, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "D:\Programming\flexascale\scripts\run_plan.py", line 186, in main
+    final = wait_for(started["id"], timeout=body.get("duration", 300) + 1200, suspend=args.suspend)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\scripts\run_plan.py", line 144, in wait_for
+    raise TimeoutError(run_id)
+TimeoutError: 20261028-235416-shopping-hpa_tuned-calibration_steady
+10:10:22 Windows: sleep and display-off (Modern Standby) inhibited while the plan runs
+10:10:22 plan reports/v9/calibration_plan.json: 8 runs, 3 already done
+10:10:22 [4/8] started 20261029-101022-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-70)
+10:21:34 [4/8] completed 20261029-101022-shopping-hpa_tuned-calibration_steady p95=130.0 mean=33.9 fail%=0.056 replica_h=1.41143 safe=True error=None
+10:21:34 [5/8] started 20261029-102134-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-250)
+10:33:15 [5/8] completed 20261029-102134-shopping-hpa_tuned-calibration_steady p95=120.0 mean=33.7 fail%=0.096 replica_h=1.359155 safe=True error=None
+10:33:15 [6/8] started 20261029-103315-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-150)
+10:49:37 [6/8] completed 20261029-103315-shopping-hpa_tuned-calibration_steady p95=100.0 mean=33.2 fail%=0.077 replica_h=1.359934 safe=True error=None
+10:49:37 [7/8] started 20261029-104937-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-250)
+11:01:08 [7/8] completed 20261029-104937-shopping-hpa_tuned-calibration_steady p95=120.0 mean=34.2 fail%=0.113 replica_h=1.35989 safe=True error=None
+11:01:08 [8/8] started 20261029-110108-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-350)
+11:17:40 [8/8] completed 20261029-110108-shopping-hpa_tuned-calibration_steady p95=130.0 mean=34.0 fail%=0.019 replica_h=1.359733 safe=True error=None
+11:17:40 plan complete

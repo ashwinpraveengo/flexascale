@@ -67,3 +67,47 @@ Moved by `scripts/rerun_plan.py`, which also wrote the one-time rerun plan `repo
 ## 2026-10-27 19:16: first run of the §3.6 flash-sale study, stopped while preparing (docs/POLICY_V7.md §5, 19:19)
 
 `20261027-191609-shopping-hpa_tuned-flash_sale` was stopped at 19:19:22, before its load started (no workload data). The study it belonged to was withdrawn because of the CPU-clock confound found in the 12-block batch.
+
+## 20261028-235416-shopping-hpa_tuned-calibration_steady (v9 calibration run 4 of 8, second laptop)
+
+The laptop entered Modern Standby at 00:00:50, 21 s into the load window, and resumed at 00:39:11 (Windows System log, Kernel-Power 506/507). Load, metrics and controller were frozen for 38 min. The batch runner had requested `ES_SYSTEM_REQUIRED`, which does not prevent standby on Modern Standby (S0 low-power idle) laptops, where the display turning off is the standby trigger; it now also requests `ES_DISPLAY_REQUIRED` (`scripts/run_plan.py`). Rerun once under the pre-registered rule (docs/POLICY_V9.md §4, §8).
+
+## 20261028-231912-shopping-hpa_tuned-calibration_steady (v9 calibration run 1 of 8, second laptop)
+
+Host-affected (docs/POLICY_V9.md §4): 3.85 cores of whole-machine CPU outside the Kubernetes containers during its load window (23:20:19–23:25:37) against the limit of 3.58 (idle baseline 1.58 + 2.0). The GPU PyTorch installation was finishing at that time. Moved by `scripts/rerun_plan.py`; rerun once (`reports/v9/calibration_plan.reruns.json`).
+
+## 20261029-111947-shopping-hpa_tuned-calibration_steady (the rerun of run 1, stopped before its load)
+
+Stopped at 11:21 during the comparable-start wait, before Locust started (no samples, no outcome data; cleanup verified safe), because the laptop had to be moved. Not a run: the one rerun of run 1 is still to be made.
+
+## 20261029-182503-shopping-auto-gradual_ramp (v9 evaluation run 20, stopped before its load)
+
+The laptop lid was closed at 18:25:16, during the run's comparable-start wait (HPAs held at minimum), and Windows stayed in Modern Standby until 19:08:27. The runner exited on its deadline; the lab resumed the preparation after the wake. Stopped at 19:11, still in preparation (no samples, no outcome data; cleanup verified safe). Not a run: run 20 was started again in its place (`20261029-191230`).
+
+## 20261029-172624-shopping-flexascale-flash_sale (v9 evaluation run 15 of 48, FlexaScale, flash_sale)
+
+Host-affected (docs/POLICY_V9.md §4): 3.65 cores of whole-machine CPU outside the Kubernetes containers during its load window (17:32:44–17:38:06) against the limit of 3.58 (idle baseline 1.58 + 2.0). The laptop had been woken and was in use at 17:26. Moved by `scripts/rerun_plan.py`; rerun once (`reports/v9/evaluation_plan.reruns.json`).
+
+## 20261029-233744-shopping-auto-flash_sale (v9 evaluation run 40 of 48, Auto, flash_sale)
+
+Host-affected (docs/POLICY_V9.md §4): 3.98 cores of whole-machine CPU outside the Kubernetes containers during its load window (23:44:09–23:49:49) against the limit of 3.58 (idle baseline 1.58 + 2.0). Memory was under pressure at the time (measured: 36 MB available at 23:47 and 290 MB at 01:30, about 16 000–20 000 pages/s). The assistant's status commands (process, memory and event-log queries, 23:47–23:49) ran inside its load window. Moved by `scripts/rerun_plan.py`; rerun once (`reports/v9/evaluation_plan.reruns.json`).
+
+## 20261029-234956-shopping-flexascale-gradual_ramp (v9 evaluation run 41 of 48, FlexaScale, gradual_ramp)
+
+Host-affected (docs/POLICY_V9.md §4): 3.59 cores of whole-machine CPU outside the Kubernetes containers during its load window (23:56:23–00:01:51) against the limit of 3.58 (idle baseline 1.58 + 2.0). Memory was under pressure at the time (measured: 36 MB available at 23:47 and 290 MB at 01:30, about 16 000–20 000 pages/s). Moved by `scripts/rerun_plan.py`; rerun once (`reports/v9/evaluation_plan.reruns.json`).
+
+## 20261030-005356-shopping-auto-traffic_drop (v9 evaluation run 46 of 48, Auto, traffic_drop)
+
+Host-affected (docs/POLICY_V9.md §4): 3.63 cores of whole-machine CPU outside the Kubernetes containers during its load window (01:00:16–01:05:47) against the limit of 3.58 (idle baseline 1.58 + 2.0). Memory was under pressure at the time (measured: 36 MB available at 23:47 and 290 MB at 01:30, about 16 000–20 000 pages/s). Moved by `scripts/rerun_plan.py`; rerun once (`reports/v9/evaluation_plan.reruns.json`).
+
+## 20261030-010548-shopping-flexascale-traffic_drop (v9 evaluation run 47 of 48, FlexaScale, traffic_drop)
+
+Host-affected (docs/POLICY_V9.md §4): 3.62 cores of whole-machine CPU outside the Kubernetes containers during its load window (01:12:20–01:17:53) against the limit of 3.58 (idle baseline 1.58 + 2.0). Memory was under pressure at the time (measured: 36 MB available at 23:47 and 290 MB at 01:30, about 16 000–20 000 pages/s). Moved by `scripts/rerun_plan.py`; rerun once (`reports/v9/evaluation_plan.reruns.json`).
+
+## 20261030-013122-shopping-flexascale-flash_sale (the one rerun of v9 evaluation block 4, FlexaScale, flash_sale)
+
+Host-affected (docs/POLICY_V9.md §4): 3.62 cores outside the Kubernetes containers during its load window (01:36:04–01:41:37) against 3.58. Memory was under pressure (290 MB available at 01:30). Reruns are never rerun: block 4 has no valid run of this arm.
+
+## 20261030-014144-shopping-auto-flash_sale (the one rerun of v9 evaluation block 10, Auto, flash_sale)
+
+Host-affected (docs/POLICY_V9.md §4): 3.61 cores outside the Kubernetes containers during its load window (01:48:02–01:53:38) against 3.58. Memory was under pressure (290 MB available at 01:30). Reruns are never rerun: block 10 has no valid run of this arm.

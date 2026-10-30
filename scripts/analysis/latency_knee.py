@@ -5,12 +5,12 @@ BINS = [0, .05, .1, .15, .2, .25, .3, .35, .4, .45, .5, 1.0]
 data = collections.defaultdict(lambda: collections.defaultdict(list))
 for d in sorted(Path("reports/experiments").glob("2026102[56]-*")):
     try:
-        r = json.loads((d / "run.json").read_text())
+        r = json.loads((d / "run.json").read_text(encoding="utf-8"))
     except Exception:
         continue
     if r.get("state") != "completed" or len(r.get("start_replicas") or {}) < 16:
         continue
-    with open(d / "telemetry.csv") as f:
+    with open(d / "telemetry.csv", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             try:
                 cores, ready, lat = float(row["cpu_cores"]), int(row["ready"]), float(row["latency_ms"])

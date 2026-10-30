@@ -80,11 +80,11 @@ def main() -> int:
     else:
         if not args.arms:
             ap.error(f"{args.which} needs --arms")
-        arms = json.loads(Path(args.arms).read_text())
+        arms = json.loads(Path(args.arms).read_text(encoding="utf-8"))
         build = {"evaluation": evaluation, "spike": spike, "replication": replication}[args.which]
         plan, out = build(arms), args.out or f"reports/v7/{args.which}_plan.json"
     Path(out).parent.mkdir(parents=True, exist_ok=True)
-    Path(out).write_text(json.dumps(plan, indent=1) + "\n")
+    Path(out).write_text(json.dumps(plan, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {out}: {len(plan)} runs")
     for i, p in enumerate(plan, 1):
         print(f"  {i:2d} {p['scenario']:20s} {p['controller']:10s} {p.get('policy_variant') or '':14s} "

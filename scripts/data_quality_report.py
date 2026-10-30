@@ -21,7 +21,7 @@ FIELDS = ["cpu_utilization", "memory_utilization", "replica_count", "request_rat
 def main() -> int:
     full = pd.read_csv(PROC / "alibaba_service_state.csv")
     splits = {s: pd.read_csv(PROC / f"alibaba_service_state_{s}.csv") for s in ("train", "val", "test")}
-    prov = json.loads((PROC / "PROVENANCE.json").read_text())
+    prov = json.loads((PROC / "PROVENANCE.json").read_text(encoding="utf-8"))
 
     ts = np.sort(full["timestamp"].unique())
     interval = np.diff(ts)
@@ -61,7 +61,7 @@ def main() -> int:
         "share_replicas_over_50": big_replicas,
         "distributions": {f: {k: float(desc.loc[f, k]) for k in ("mean", "std", "min", "5%", "50%", "95%", "max")} for f in FIELDS},
     }
-    Path("reports/data_quality_report.json").write_text(json.dumps(report, indent=2, default=str))
+    Path("reports/data_quality_report.json").write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
 
     L = [
         "# Data-Quality Report: Alibaba Microservices v2021 Service States",
@@ -132,7 +132,7 @@ def main() -> int:
         "larger still. No experiment here showed that more trace time would improve the model (the limiting factor is the reward "
         "design, see reports/simulation_evaluation.md), so the download was not justified for this release.",
     ]
-    Path("reports/data_quality_report.md").write_text("\n".join(L) + "\n")
+    Path("reports/data_quality_report.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     print("Wrote reports/data_quality_report.md")
     return 0
 

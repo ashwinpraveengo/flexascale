@@ -1,0 +1,76 @@
+FlexaScale startup (review)  profile=flexascale  repo=D:\Programming\flexascale
+
+== 1/8 Tools
+  [ OK ] docker
+  [ OK ] minikube
+  [ OK ] kubectl
+  [ OK ] helm
+  [ OK ] Python environment (D:\Programming\flexascale\.venv\Scripts\python.exe) with flexascale and locust
+
+== 2/8 Docker and Minikube
+  [ OK ] Docker daemon reachable
+  [WARN] Minikube profile 'flexascale' is Stopped/Stopped; starting the existing profile (2-4 min)...
+  [ OK ] Minikube profile 'flexascale' running
+  [ OK ] Kubernetes API ready
+
+== 3/8 Namespaces and workloads
+  [ OK ] namespace flexascale-apps
+  [ OK ] namespace flexascale-monitoring
+  [ OK ] flexascale-apps/api-gateway ready
+  [ OK ] flexascale-apps/cart-service ready
+  [ OK ] flexascale-apps/catalog-service ready
+  [ OK ] flexascale-apps/fraud-service ready
+  [ OK ] flexascale-apps/frontend ready
+  [ OK ] flexascale-apps/inventory ready
+  [ OK ] flexascale-apps/inventory-service ready
+  [ OK ] flexascale-apps/notification-service ready
+  [ OK ] flexascale-apps/order-service ready
+  [ OK ] flexascale-apps/orders ready
+  [ OK ] flexascale-apps/payment-service ready
+  [ OK ] flexascale-apps/payments ready
+  [ OK ] flexascale-apps/postgres ready
+  [ OK ] flexascale-apps/pricing-service ready
+  [ OK ] flexascale-apps/promotion-service ready
+  [ OK ] flexascale-apps/recommendation-service ready
+  [ OK ] flexascale-apps/review-service ready
+  [ OK ] flexascale-apps/search-service ready
+  [ OK ] flexascale-apps/shipping-service ready
+  [ OK ] flexascale-apps/shopping-frontend ready
+  [ OK ] flexascale-apps/user-service ready
+  [ OK ] flexascale-apps/wishlist-service ready
+  [ OK ] flexascale-monitoring/monitoring-grafana ready
+  [ OK ] flexascale-monitoring/monitoring-kube-state-metrics ready
+  [ OK ] flexascale-monitoring/prometheus-monitoring-kube-prometheus-prometheus ready
+
+== 4/8 Shopping application (ingress)
+  [WARN] the Minikube IP is not reachable from this host (Docker driver on Windows/macOS); starting `minikube tunnel`
+  [ OK ] tunnel started (pid 24712)
+  [ OK ] storefront http://127.0.0.1/
+  [ OK ] API gateway -> catalog via ingress
+
+== 5/8 Port-forwards (Prometheus, Grafana)
+  [ OK ] pf-prometheus started (pid 6560)
+  [ OK ] pf-grafana started (pid 23540)
+  [ OK ] pf-bookstore started (pid 1528)
+
+== 6/8 Prometheus targets and metrics
+  [ OK ] 50 application scrape targets up
+  [ OK ] kube-state-metrics series present
+
+== 7/8 FlexaScale prerequisites and controller ownership
+  [ OK ] trained PPO+GNN model: models/flexascale_v9/best_model/best_model.zip
+  [ OK ] shopping policy valid (mode: observe by default)
+  [ OK ] native HPA owns all managed Deployments; no FlexaScale lease held
+
+== 8/8 FlexaScale control center (dashboard)
+  [ OK ] lab started (pid 30632)
+  [ OK ] dashboard UI served
+
+READY in 137 s
+  Control center : http://127.0.0.1:8090/
+  Shop           : http://127.0.0.1/   (demo login: demo@flexascale.io / CustomerPass123!)
+  Prometheus     : http://localhost:9090/
+  Grafana        : http://localhost:3000/
+  Bookstore      : http://localhost:18081/
+  Status         : fsctl status        Stop safely: fsctl stop
+exit=0

@@ -17,8 +17,10 @@ def _load():
     return mod
 
 
-def _state(pid):
-    return Path(f"/proc/{pid}/stat").read_text().split()[2]
+def _stopped(pid):
+    import psutil
+
+    return psutil.Process(pid).status() == psutil.STATUS_STOPPED
 
 
 def test_freeze_and_thaw_a_matching_process():
@@ -29,10 +31,10 @@ def test_freeze_and_thaw_a_matching_process():
         time.sleep(0.3)
         mod.freeze(marker)
         time.sleep(0.2)
-        assert proc.pid in mod.FROZEN and _state(proc.pid) == "T"
+        assert proc.pid in mod.FROZEN and _stopped(proc.pid)
         mod.thaw()
         time.sleep(0.2)
-        assert not mod.FROZEN and _state(proc.pid) in ("S", "R")
+        assert not mod.FROZEN and not _stopped(proc.pid)
     finally:
         proc.kill()
 

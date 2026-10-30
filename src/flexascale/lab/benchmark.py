@@ -9,7 +9,10 @@ the pair is checked with ``Lab.compare``. Runs labelled with a ``block``
 default-HPA run of the same block instead, whatever their order inside the
 block. Pairs are grouped by controller and model. For each group the paired differences (candidate - HPA) are averaged and
 given a 95% t-interval, and the verdict follows the rule fixed in
-docs/POLICY_V6.md section 3.1 before any v6 result was seen.
+docs/POLICY_V6.md section 3.1 before any v6 result was seen. The pre-registered block studies (STUDY_SUFFIXES) use
+their own table, docs/POLICY_V7.md §3.5, against either reference, and their runs' validity is the per-run rule of
+§3.4 (complete, settled start), so a pair is not dropped for a duration difference alone: the same verdicts as
+scripts/analyze_v7.py.
 """
 
 from __future__ import annotations
@@ -18,6 +21,8 @@ import json
 import math
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
+
+from flexascale.evaluation.cost import percent_change
 
 # two-sided 95% Student t critical values by degrees of freedom
 _T95 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
@@ -28,7 +33,8 @@ REFERENCES = {"hpa": "native HPA (default)", "hpa_tuned": "native HPA, tuned"}
 SPIKE_SUFFIX = " · flash-sale study (POLICY_V7 §3.6)"
 # each pre-registered study is its own group, never pooled with another (docs/POLICY_V7.md §3.6, §3.7, §5)
 STUDY_SUFFIXES = {"v7s-": SPIKE_SUFFIX, "v7r-": " · clock-controlled replication (POLICY_V7 §3.7)",
-                  "v7-": " · 12-block batch, CPU-clock confounded (POLICY_V7 §5)"}
+                  "v7-": " · 12-block batch, CPU-clock confounded (POLICY_V7 §5)",
+                  "v9-": " · second laptop, pre-registered (POLICY_V9 §6)"}
 VERDICT_RULE_V7 = ("Verdict rule (docs/POLICY_V7.md §3.5, fixed before the v7 runs): beats on cost = replica-hours interval below 0, "
                    "p95 interval not entirely above 0 with mean <= +10%, failure interval not entirely above 0 with mean <= +0.10 pp, "
                    "throughput mean >= -2%, end-to-end SLO-violation mean <= +5 s, oscillations mean <= +5, and replica-hours lower "
@@ -155,6 +161,7 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
         k = (r["request"]["app"], r["request"]["scenario"], r["request"]["users"], r["request"]["duration"])
         keyed.setdefault(k, []).append(r)
     groups: Dict[str, List[Dict[str, Any]]] = {}
+    studies = set()  # tags of pre-registered block studies
     for k, group in keyed.items():
         group.sort(key=lambda r: r.get("started_at") or 0)
         for cand in (r for r in group if r["request"]["controller"] in {"hpa", "flexascale", "auto", "hpa_fast", "hpa_tuned"} - {reference}):
@@ -170,12 +177,23 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
             if not hpa:
                 continue
             cmp = compare(hpa[-1]["id"], cand["id"])
-            if not cmp.get("comparable"):
+            bid = str(_block_id(block) or "")
+            study = next((sfx for pre, sfx in STUDY_SUFFIXES.items() if bid.startswith(pre)), "")
+            if not (cmp.get("comparable") or (study and cmp.get("rows") and
+                                              all(i.startswith("durations differ") for i in cmp.get("issues") or []))):
                 continue
             row = {x["metric"]: x for x in cmp["rows"]}
-            pct = lambda m: (row.get(m) or {}).get("pct_change")
-            bid = str(_block_id(block) or "")
-            tag = model_tag(cand) + next((sfx for pre, sfx in STUDY_SUFFIXES.items() if bid.startswith(pre)), "")
+
+            def pct(m):  # Lab.compare leaves pct_change empty for a flagged pair; a study pair kept above gets it here
+                r = row.get(m) or {}
+                if r.get("pct_change") is not None or cmp.get("comparable"):
+                    return r.get("pct_change")
+                p = percent_change(r.get("baseline"), r.get("candidate"))
+                return round(p, 2) if p is not None else None
+
+            tag = model_tag(cand) + study
+            if study:
+                studies.add(tag)
             groups.setdefault(tag, []).append({
                 "scenario": k[1], "baseline": hpa[-1]["id"], "candidate": cand["id"], "started_at": cand.get("started_at"),
                 "replica_hours_pct": pct("Replica-hours"),
@@ -192,7 +210,8 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
         pairs.sort(key=lambda p: p["started_at"] or 0)
         pooled = {k: mean_ci([p[k] for p in pairs if p.get(k) is not None])
                   for k in ("replica_hours_pct", "cost_pct", "p95_pct", "failure_pp", "throughput_pct", "e2e_slo_s", "oscillations")}
-        if reference == "hpa_tuned":
+        table_v7 = reference == "hpa_tuned" or tag in studies
+        if table_v7:
             by_scen: Dict[str, List[float]] = {}
             for p in pairs:
                 if p["replica_hours_pct"] is not None:
@@ -202,9 +221,9 @@ def benchmark(runs: List[Dict[str, Any]], compare: Callable[[str, str], Dict[str
         else:
             text, level = verdict(pooled)
         bases = sorted({p["cost_basis"] for p in pairs})
-        models.append({"model": tag, "n_pairs": len(pairs), "scenarios": len({p["scenario"] for p in pairs}),
+        models.append({"model": tag, "study": tag in studies, "n_pairs": len(pairs), "scenarios": len({p["scenario"] for p in pairs}),
                        "pooled": pooled, "cost_basis": " + ".join(bases), "verdict": text, "verdict_level": level,
-                       "verdict_rule": VERDICT_RULE_V7 if reference == "hpa_tuned" else VERDICT_RULE,
+                       "verdict_rule": VERDICT_RULE_V7 if table_v7 else VERDICT_RULE,
                        "pairs": pairs, "latest": max(p["started_at"] or 0 for p in pairs)})
     models.sort(key=lambda m: -m["latest"])
     recent = [{"id": r["id"], "controller": r["request"]["controller"], "scenario": r["request"]["scenario"],
@@ -226,7 +245,7 @@ def load_runs(results_dir: Path) -> List[Dict[str, Any]]:
     out = []
     for path in sorted(results_dir.glob("*/run.json")):
         try:
-            out.append(json.loads(path.read_text()))
+            out.append(json.loads(path.read_text(encoding="utf-8")))
         except (OSError, ValueError):
             continue
     return out

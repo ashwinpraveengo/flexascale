@@ -15,6 +15,11 @@ downloads/
 eggs/
 .eggs/
 lib/
+# FlexaScale shell helpers: the Python-template rule above would drop them
+!scripts/lib/
+# Alibaba v2021 trace (7.4 GB; files up to 2.7 GB exceed GitHub's 100 MB limit). Fetch it with
+# src/flexascale/data/raw/alibaba/v2021/fetchData.sh; the scripts next to it stay tracked.
+src/flexascale/data/raw/**/data/
 lib64/
 parts/
 sdist/
@@ -124,6 +129,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv-*/
 env/
 venv/
 ENV/

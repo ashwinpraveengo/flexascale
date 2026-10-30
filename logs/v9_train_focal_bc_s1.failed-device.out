@@ -1,0 +1,48 @@
+teacher rule (best on validation): limit_target(0.6/0.3)
+=== training focal_bc_s1 {'use_graph': True, 'reward': 'v7', 'seed': 1, 'design': 'focal', 'warm_start': True} (2000000 steps)
+D:\Programming\flexascale\.venv-gpu\Lib\site-packages\stable_baselines3\common\on_policy_algorithm.py:150: UserWarning: You are trying to run PPO on the GPU, but it is primarily intended to run on the CPU when not using a CNN policy (you are using ActorCriticPolicy which should be a MlpPolicy). See https://github.com/DLR-RM/stable-baselines3/issues/1245 for more info. You can pass `device='cpu'` or `export CUDA_VISIBLE_DEVICES=` to force using the CPU.Note: The model will train, but the GPU utilization will be poor and the training might take longer than on CPU.
+  warnings.warn(
+Traceback (most recent call last):
+  File "D:\Programming\flexascale\scripts\train_v7.py", line 450, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "D:\Programming\flexascale\scripts\train_v7.py", line 397, in main
+    summary["runs"][name] = train_run(name, RUNS[name], app, cal, args.focal_steps if focal else args.steps,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\scripts\train_v7.py", line 287, in train_run
+    bc = warm_start_focal(model, lambda sd: TwinEnv(app, cal, reward=_RC(kind=spec["reward"]), seed=sd),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\src\flexascale\rl\imitation_v7.py", line 149, in warm_start_focal
+    values, log_prob, _ = policy.evaluate_actions(torch.as_tensor(o), lab_t)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\.venv-gpu\Lib\site-packages\stable_baselines3\common\policies.py", line 730, in evaluate_actions
+    features = self.extract_features(obs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\.venv-gpu\Lib\site-packages\stable_baselines3\common\policies.py", line 672, in extract_features
+    return super().extract_features(obs, self.features_extractor if features_extractor is None else features_extractor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\.venv-gpu\Lib\site-packages\stable_baselines3\common\policies.py", line 131, in extract_features
+    return features_extractor(preprocessed_obs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\.venv-gpu\Lib\site-packages\torch\nn\modules\module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\.venv-gpu\Lib\site-packages\torch\nn\modules\module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\src\flexascale\rl\graph_policy.py", line 85, in forward
+    h, _, pooled = self.embed(graph)
+                   ^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\src\flexascale\rl\graph_policy.py", line 54, in embed
+    h = torch.relu(self.inp(x)) * m
+                   ^^^^^^^^^^^
+  File "D:\Programming\flexascale\.venv-gpu\Lib\site-packages\torch\nn\modules\module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\.venv-gpu\Lib\site-packages\torch\nn\modules\module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Programming\flexascale\.venv-gpu\Lib\site-packages\torch\nn\modules\linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected all tensors to be on the same device, but got mat2 is on cuda:0, different from other tensors on cpu (when checking argument in method wrapper_CUDA_mm)

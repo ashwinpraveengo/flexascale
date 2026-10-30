@@ -5,7 +5,7 @@ rows = collections.defaultdict(lambda: collections.defaultdict(list))   # (ctrl)
 runs = collections.Counter()
 for d in sorted(Path("reports/experiments").glob("2026102[56]-*")):
     try:
-        r = json.loads((d / "run.json").read_text())
+        r = json.loads((d / "run.json").read_text(encoding="utf-8"))
     except Exception:
         continue
     if r.get("state") != "completed" or len(r.get("start_replicas") or {}) < 16:
@@ -13,7 +13,7 @@ for d in sorted(Path("reports/experiments").glob("2026102[56]-*")):
     ctrl = r["request"]["controller"]
     runs[ctrl] += 1
     t0 = r["started_at"]
-    with open(d / "telemetry.csv") as f:
+    with open(d / "telemetry.csv", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             if float(row["t"]) < t0:
                 continue

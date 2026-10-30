@@ -1,0 +1,5 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),1,2026-10-29T20:44:43Z,2026-10-29T20:44:43Z
+POST,POST /api/cart/{user_id}/items,HTTPError('404 Client Error: Not Found for url: POST /api/cart/{user_id}/items'),3,2026-10-29T20:43:38Z,2026-10-29T20:43:38Z
+POST,POST /api/shipping/quote,HTTPError('502 Server Error: Bad Gateway for url: POST /api/shipping/quote'),1,2026-10-29T20:42:51Z,2026-10-29T20:42:51Z
+GET,GET /api/recommendations/{id},HTTPError('502 Server Error: Bad Gateway for url: GET /api/recommendations/{id}'),1,2026-10-29T20:43:38Z,2026-10-29T20:43:38Z

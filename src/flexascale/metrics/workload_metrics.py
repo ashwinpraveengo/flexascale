@@ -13,6 +13,21 @@ Metrics that are not available are reported as ``None`` and listed in
 ``missing``; nothing is synthesised. Application-level request metrics
 (``http_requests_total`` / ``http_request_duration_seconds``) are optional:
 without them FlexaScale runs in a CPU/memory-only degraded mode.
+
+Three cluster differences are handled explicitly, because each one silently
+corrupted telemetry on a real cluster:
+
+* **Pod-level cAdvisor only.** With the Docker runtime on cgroup v2 (e.g. Minikube's
+  Docker driver on WSL2) kubelet reports CPU/memory per pod cgroup, without a
+  ``container`` label. Container-level series are used when they exist; otherwise
+  the pod-level cgroup series (``container=""``, ``pod`` set) is used.
+* **A pod scraped by several jobs** (a ServiceMonitor *and* an annotation-based
+  ``kubernetes-pods`` job) exposes the same counter twice. Request metrics are
+  summed per (pod, job) and the maximum over jobs is taken, so nothing is counted twice.
+* **Zero vs missing.** prometheus_client creates labelled series only after the
+  first request. A pod whose metrics endpoint is scraped (``up == 1``) but has no
+  request series has served no requests: its request rate is a genuine 0 and its
+  latency is undefined (``no_traffic``), not missing.
 """
 
 from __future__ import annotations
@@ -47,6 +62,7 @@ class WorkloadMetrics:
     latency_p99_ms: Optional[float] = None
     sample_age_s: Optional[float] = None
     stale: bool = False
+    no_traffic: bool = False          # scraped, but no requests in the window: rps 0, latency undefined
     missing: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -138,6 +154,15 @@ class WorkloadMetricsClient:
                 out[pod] = val
         return out
 
+    @staticmethod
+    def _prefer(primary: Optional[Dict[str, float]], fallback: Optional[Dict[str, float]]) -> Optional[Dict[str, float]]:
+        """Per pod: the primary value if present, else the fallback (None only if both queries failed)."""
+        if primary is None and fallback is None:
+            return None
+        out = dict(fallback or {})
+        out.update(primary or {})
+        return out
+
     def collect(
         self,
         namespace: str,
@@ -157,25 +182,38 @@ class WorkloadMetricsClient:
         if not deployments:
             return result
 
-        cpu = self._by_pod(
+        # cAdvisor: container-level series if present, else the pod-level cgroup (see module docstring).
+        cpu_c = self._by_pod(
             f'sum by (pod) (rate(container_cpu_usage_seconds_total{{namespace="{ns}",container!="",container!="POD"}}[{w}]))'
         )
-        mem = self._by_pod(
+        cpu_p = self._by_pod(
+            f'sum by (pod) (rate(container_cpu_usage_seconds_total{{namespace="{ns}",container="",pod!=""}}[{w}]))'
+        )
+        mem_c = self._by_pod(
             f'sum by (pod) (container_memory_working_set_bytes{{namespace="{ns}",container!="",container!="POD"}})'
         )
-        age = self._by_pod(
-            f'time() - max by (pod) (timestamp(container_cpu_usage_seconds_total{{namespace="{ns}",container!=""}}))'
+        mem_p = self._by_pod(
+            f'sum by (pod) (container_memory_working_set_bytes{{namespace="{ns}",container="",pod!=""}})'
         )
+        age = self._by_pod(
+            f'time() - max by (pod) (timestamp(container_cpu_usage_seconds_total{{namespace="{ns}",pod!=""}}))'
+        )
+        cpu = self._prefer(cpu_c, cpu_p)
+        mem = self._prefer(mem_c, mem_p)
         ksm_cpu_req = self._by_pod(
             f'sum by (pod) (kube_pod_container_resource_requests{{namespace="{ns}",resource="cpu"}})'
         ) if not cpu_request_cores else None
-        rps = self._by_pod(f'sum by (pod) (rate(http_requests_total{{namespace="{ns}"}}[{w}]))')
-        err = self._by_pod(f'sum by (pod) (rate(http_requests_total{{namespace="{ns}",status=~"5.."}}[{w}]))')
-        lat_sum = self._by_pod(f'sum by (pod) (rate(http_request_duration_seconds_sum{{namespace="{ns}"}}[{w}]))')
-        lat_cnt = self._by_pod(f'sum by (pod) (rate(http_request_duration_seconds_count{{namespace="{ns}"}}[{w}]))')
-        buckets_raw = self.query(
-            f'sum by (pod, le) (rate(http_request_duration_seconds_bucket{{namespace="{ns}"}}[{w}]))'
-        )
+
+        def once(metric: str, extra: str = "", by: str = "pod") -> str:
+            # sum per (pod, job), then max over jobs: a pod scraped by two jobs is counted once
+            return (f'max by ({by}) (sum by ({by}, job) (rate({metric}{{namespace="{ns}"{extra}}}[{w}])))')
+
+        rps = self._by_pod(once("http_requests_total"))
+        err = self._by_pod(once("http_requests_total", ',status=~"5.."'))
+        lat_sum = self._by_pod(once("http_request_duration_seconds_sum"))
+        lat_cnt = self._by_pod(once("http_request_duration_seconds_count"))
+        buckets_raw = self.query(once("http_request_duration_seconds_bucket", by="pod, le"))
+        scraped = self._by_pod(f'max by (pod) (up{{namespace="{ns}"}})')
 
         def group(series: Optional[Dict[str, float]]) -> Dict[str, List[float]]:
             grouped: Dict[str, List[float]] = {}
@@ -188,6 +226,7 @@ class WorkloadMetricsClient:
         cpu_g, mem_g, age_g = group(cpu), group(mem), group(age)
         rps_g, err_g, ls_g, lc_g = group(rps), group(err), group(lat_sum), group(lat_cnt)
         req_g = group(ksm_cpu_req)
+        up_g = group(scraped)
 
         bucket_g: Dict[str, Dict[float, float]] = {}
         for item in buckets_raw or []:
@@ -240,13 +279,20 @@ class WorkloadMetricsClient:
             if not pods_cpu:
                 m.stale = True
 
+            # Request metrics exist for every pod whose endpoint is up; a pod that is up but has no
+            # request series has served nothing yet (genuine zero, not missing data).
+            up_pods = sum(1 for v in up_g.get(dep, []) if v >= 1)
             if rps_g.get(dep):
                 m.request_rate = sum(rps_g[dep])
                 m.error_rate = sum(err_g.get(dep, [0.0]))
+            elif up_pods:
+                m.request_rate, m.error_rate = 0.0, 0.0
             else:
                 m.missing.append("request_rate")
             if lc_g.get(dep) and sum(lc_g[dep]) > 0:
                 m.latency_mean_ms = 1000.0 * sum(ls_g.get(dep, [0.0])) / sum(lc_g[dep])
+            elif m.request_rate == 0.0:
+                m.no_traffic = True       # latency is undefined without requests
             else:
                 m.missing.append("latency")
             if dep in bucket_g:

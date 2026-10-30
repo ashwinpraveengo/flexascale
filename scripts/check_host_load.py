@@ -11,6 +11,14 @@ is descriptive (it mostly counts busy cores), and the application's CPU-seconds 
 fast the application ran (docs/POLICY_V7.md §3.7). Writes reports/host_load_by_run.csv.
 
     python scripts/check_host_load.py [--results reports/experiments reports/experiments_invalid ...]
+
+Windows / Docker Desktop (docs/POLICY_V9.md §4): node-exporter runs inside the WSL2 VM and there is no
+upower history, so for runs whose samples carry the lab's ``host`` record (psutil, every 5 s) the host CPU
+is the whole machine's (it includes the VM running Minikube) and battery time is counted from those
+samples. Such runs use the limit ``--windows-limit`` (default: reports/v9/host_baseline.json, measured
+idle before the batch, plus 2.0 cores), because the idle machine already runs Windows and the VM.
+Kubernetes CPU falls back to pod-level cAdvisor series where there is no ``container`` label (Docker
+runtime on cgroup v2), the same fallback as the operator's telemetry.
 """
 
 import argparse
@@ -26,11 +34,13 @@ from typing import Callable, List, Optional, Tuple
 
 OUTSIDE_LIMIT_CORES = 2.0
 HOST_BUSY = 'sum(increase(node_cpu_seconds_total{{mode!~"idle|iowait|steal"}}[{w}s]))'
-K8S_BUSY = 'sum(increase(container_cpu_usage_seconds_total{{container!="",pod!=""}}[{w}s]))'
+K8S_BUSY = ('sum(increase(container_cpu_usage_seconds_total{{container!="",pod!=""}}[{w}s]))'
+            ' or sum(increase(container_cpu_usage_seconds_total{{container="",pod!=""}}[{w}s]))')
 # mean CPU clock over the load window (descriptive; arms must not differ in it, docs/POLICY_V7.md §5 2026-10-27 19:19)
 CPU_MHZ = 'avg(avg_over_time(node_cpu_scaling_frequency_hertz[{w}s])) / 1e6'
 # the application's own CPU-seconds in the load window; per Locust request it shows how fast the shop ran (§3.7 parity)
-APP_CPU = 'sum(increase(container_cpu_usage_seconds_total{{namespace="{ns}",container!=""}}[{w}s]))'
+APP_CPU = ('sum(increase(container_cpu_usage_seconds_total{{namespace="{ns}",container!=""}}[{w}s]))'
+           ' or sum(increase(container_cpu_usage_seconds_total{{namespace="{ns}",container="",pod!=""}}[{w}s]))')
 
 
 def battery_intervals(path: Optional[str]) -> Optional[List[Tuple[float, float]]]:
@@ -38,7 +48,7 @@ def battery_intervals(path: Optional[str]) -> Optional[List[Tuple[float, float]]
     if not path or not os.path.exists(path):
         return None
     out, start = [], None
-    for line in Path(path).read_text().splitlines():
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
         parts = line.split()
         if len(parts) < 3:
             continue
@@ -76,9 +86,30 @@ def classify(outside_cores: Optional[float], battery_s: Optional[float], limit: 
     return False, ""
 
 
+def host_samples(run: dict) -> Tuple[Optional[float], Optional[float]]:
+    """(mean whole-machine cores, seconds on battery) over the load window, from the lab's per-sample ``host``
+    record; (None, None) for runs recorded before it existed."""
+    hosts = [(x.get("elapsed") or 0, x["host"]) for x in run.get("samples") or [] if x.get("host")]
+    hosts = [h for e, h in hosts if e >= 0]
+    if not hosts:
+        return None, None
+    cores = [h["cpu_cores"] for h in hosts if h.get("cpu_cores") is not None]
+    ac = [h["on_ac"] for h in hosts if h.get("on_ac") is not None]
+    interval = (run.get("sample_interval_s") or 5)
+    return (sum(cores) / len(cores) if cores else None), (sum(interval for x in ac if not x) if ac else None)
+
+
+def default_windows_limit() -> float:
+    path = Path("reports/v9/host_baseline.json")
+    try:
+        return float(json.loads(path.read_text(encoding="utf-8"))["limit_cores"])
+    except (OSError, ValueError, KeyError):
+        return OUTSIDE_LIMIT_CORES
+
+
 def locust_requests(run_dir: Path) -> Optional[int]:
     try:
-        with open(run_dir / "locust_stats.csv") as f:
+        with open(run_dir / "locust_stats.csv", encoding="utf-8") as f:
             return sum(int(r["Request Count"]) for r in csv.DictReader(f) if r.get("Name") != "Aggregated")
     except (OSError, ValueError, KeyError):
         return None
@@ -102,6 +133,8 @@ def main() -> None:
     ap.add_argument("--battery-history", default=default_battery_history())
     ap.add_argument("--since", default="", help="only runs whose id starts at or after this prefix (default: all)")
     ap.add_argument("--out", default="reports/host_load_by_run.csv")
+    ap.add_argument("--windows-limit", type=float, default=default_windows_limit(),
+                    help="outside-load limit (cores) for runs with psutil host samples (default: %(default)s)")
     args = ap.parse_args()
 
     q = prometheus_query(args.prometheus_url)
@@ -111,7 +144,7 @@ def main() -> None:
         for path in sorted(Path(base).glob("*/run.json")):
             if path.parent.name < args.since:
                 continue
-            run = json.loads(path.read_text())
+            run = json.loads(path.read_text(encoding="utf-8"))
             a, b = run.get("started_at"), run.get("ended_at")
             if run.get("state") != "completed" or not a or not b:
                 continue
@@ -122,7 +155,15 @@ def main() -> None:
             reqs = locust_requests(path.parent)
             outside = (host - k8s) / w if host is not None and k8s is not None else None
             bat = overlap_s(a, b, battery) if battery is not None else None
-            affected, reason = classify(outside, bat)
+            limit, source = OUTSIDE_LIMIT_CORES, "node-exporter"
+            ps_cores, ps_battery = host_samples(run)
+            if ps_cores is not None:  # Windows/Docker Desktop: the machine's own view (§ docstring)
+                host = ps_cores * w
+                outside = ps_cores - k8s / w if k8s is not None else None
+                limit, source = args.windows_limit, "psutil host samples"
+            if ps_battery is not None and battery is None:
+                bat = ps_battery
+            affected, reason = classify(outside, bat, limit)
             rows.append({
                 "run": run["id"], "folder": base, "controller": run["request"]["controller"], "scenario": run["request"]["scenario"],
                 "load_start": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a)), "load_end": time.strftime("%H:%M:%S", time.localtime(b)),
@@ -130,10 +171,11 @@ def main() -> None:
                 "outside_cores": None if outside is None else round(outside, 2), "battery_s": None if bat is None else round(bat),
                 "host_affected": affected, "reason": reason, "cpu_mhz": None if mhz is None else round(mhz),
                 "app_cpu_ms_per_request": round(1000 * app_cpu / reqs, 2) if app_cpu is not None and reqs else None,
+                "host_source": source, "limit_cores": limit,
             })
     rows.sort(key=lambda r: r["load_start"])
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    with open(args.out, "w", newline="") as f:
+    with open(args.out, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]) if rows else ["run"])
         w.writeheader()
         w.writerows(rows)

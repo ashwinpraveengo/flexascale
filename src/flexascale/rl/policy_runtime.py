@@ -129,7 +129,7 @@ class PolicyRuntime:
         self.card = None
         for card_path in (self.model_path.parent / "model_card.json", self.model_path.parent.parent / "model_card.json"):
             if card_path.is_file():
-                self.card = json.loads(card_path.read_text())
+                self.card = json.loads(card_path.read_text(encoding="utf-8"))
                 break
         self.extractor = type(self.model.policy.features_extractor).__name__
         if int(((self.card or {}).get("observation") or {}).get("version", 0)) >= 3:

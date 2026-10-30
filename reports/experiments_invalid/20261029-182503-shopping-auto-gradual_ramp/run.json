@@ -1,0 +1,517 @@
+{
+  "id": "20261029-182503-shopping-auto-gradual_ramp",
+  "request": {
+    "app": "shopping",
+    "controller": "auto",
+    "scenario": "gradual_ramp",
+    "users": 25,
+    "spawn_rate": 5.0,
+    "duration": 300,
+    "reset_replicas": true,
+    "shadow": true,
+    "policy_variant": "v9",
+    "hpa_cpu_target_pct": 350,
+    "hpa_scale_down_window_s": 60,
+    "block": "v9-b05-auto"
+  },
+  "app_title": "E-commerce shop (16 services)",
+  "namespace": "flexascale-apps",
+  "app_url": "http://127.0.0.1",
+  "state": "stopped",
+  "created_at": 1793278503.4218059,
+  "started_at": null,
+  "ended_at": 1793281320.9188492,
+  "error": null,
+  "events": [
+    {
+      "t": 1793278505.3737967,
+      "elapsed": null,
+      "kind": "preflight",
+      "message": "Target E-commerce shop (16 services) at http://127.0.0.1 (namespace flexascale-apps)"
+    },
+    {
+      "t": 1793278505.8608491,
+      "elapsed": null,
+      "kind": "preflight",
+      "message": "Application data reset (2 configured steps)"
+    },
+    {
+      "t": 1793278506.159749,
+      "elapsed": null,
+      "kind": "preflight",
+      "message": "16 eligible services: api-gateway, cart-service, catalog-service, fraud-service, inventory-service, notification-service, order-service, payment-service, pricing-service, promotion-service, recommendation-service, review-service, search-service, shipping-service, user-service, wishlist-service",
+      "services": [
+        "api-gateway",
+        "cart-service",
+        "catalog-service",
+        "fraud-service",
+        "inventory-service",
+        "notification-service",
+        "order-service",
+        "payment-service",
+        "pricing-service",
+        "promotion-service",
+        "recommendation-service",
+        "review-service",
+        "search-service",
+        "shipping-service",
+        "user-service",
+        "wishlist-service"
+      ]
+    },
+    {
+      "t": 1793278511.3694563,
+      "elapsed": null,
+      "kind": "preflight",
+      "message": "Resetting replicas to minimum (HPAs held at their minimum during the reset)"
+    },
+    {
+      "t": 1793278511.665728,
+      "elapsed": null,
+      "kind": "preflight",
+      "message": "Holding HPAs at their minimum for 309 s more: the HPA downscale window since the previous load must expire for a comparable start"
+    },
+    {
+      "t": 1793281111.8478491,
+      "elapsed": null,
+      "kind": "ownership",
+      "message": "HPAs restored to their original bounds after the reset: api-gateway-hpa, cart-service-hpa, catalog-service-hpa, fraud-service-hpa, inventory-service-hpa, notification-service-hpa, order-service-hpa, payment-service-hpa, pricing-service-hpa, promotion-service-hpa, recommendation-service-hpa, review-service-hpa, search-service-hpa, shipping-service-hpa, user-service-hpa, wishlist-service-hpa"
+    },
+    {
+      "t": 1793281116.2998707,
+      "elapsed": null,
+      "kind": "preflight",
+      "message": "HPA scaled back up from its stabilisation window; waiting for it to settle (max 6 min)"
+    },
+    {
+      "t": 1793281287.537982,
+      "elapsed": null,
+      "kind": "preflight",
+      "message": "WARNING: start not fully settled: api-gateway=1, cart-service=1, catalog-service=2, fraud-service=1, inventory-service=1, notification-service=1, order-service=1, payment-service=1, pricing-service=1, promotion-service=1, recommendation-service=1, review-service=1, search-service=1, shipping-service=1, user-service=1, wishlist-service=1",
+      "initial_replicas": {
+        "api-gateway": 1,
+        "cart-service": 1,
+        "catalog-service": 2,
+        "fraud-service": 1,
+        "inventory-service": 1,
+        "notification-service": 1,
+        "order-service": 1,
+        "payment-service": 1,
+        "pricing-service": 1,
+        "promotion-service": 1,
+        "recommendation-service": 1,
+        "review-service": 1,
+        "search-service": 1,
+        "shipping-service": 1,
+        "user-service": 1,
+        "wishlist-service": 1
+      },
+      "settled": false
+    },
+    {
+      "t": 1793281292.771264,
+      "elapsed": null,
+      "kind": "ownership",
+      "message": "Native HPA used on hand-back: CPU target 350%, scale-down window 60 s; restored after the run"
+    },
+    {
+      "t": 1793281302.7955835,
+      "elapsed": null,
+      "kind": "ownership",
+      "message": "FlexaScale operator holds the controller lease; HPAs are frozen per service before any scale",
+      "lease": "ROG-Strix-Dattanand-b63635"
+    },
+    {
+      "t": 1793281302.7955835,
+      "elapsed": null,
+      "kind": "auto",
+      "message": "Auto mode: each service is assigned to FlexaScale or native HPA by the rules health -> confidence -> SLA risk -> efficiency, one owner at a time"
+    },
+    {
+      "t": 1793281302.7955835,
+      "elapsed": null,
+      "kind": "experiment",
+      "message": "Stopped: stopped during preparation"
+    },
+    {
+      "t": 1793281320.9188492,
+      "elapsed": null,
+      "kind": "ownership",
+      "message": "Cleanup: native HPA ownership verified",
+      "cleanup": {
+        "locust": "not_managed",
+        "operator": "stopped",
+        "hpas_restored": [
+          "api-gateway-hpa",
+          "cart-service-hpa",
+          "catalog-service-hpa",
+          "fraud-service-hpa",
+          "inventory-service-hpa",
+          "notification-service-hpa",
+          "order-service-hpa",
+          "payment-service-hpa",
+          "pricing-service-hpa",
+          "promotion-service-hpa",
+          "recommendation-service-hpa",
+          "review-service-hpa",
+          "search-service-hpa",
+          "shipping-service-hpa",
+          "user-service-hpa",
+          "wishlist-service-hpa",
+          "api-gateway-hpa",
+          "cart-service-hpa",
+          "catalog-service-hpa",
+          "fraud-service-hpa",
+          "inventory-service-hpa",
+          "notification-service-hpa",
+          "order-service-hpa",
+          "payment-service-hpa",
+          "pricing-service-hpa",
+          "promotion-service-hpa",
+          "recommendation-service-hpa",
+          "review-service-hpa",
+          "search-service-hpa",
+          "shipping-service-hpa",
+          "user-service-hpa",
+          "wishlist-service-hpa"
+        ],
+        "lease_holder_after": null,
+        "frozen_hpas_after": [],
+        "safe": true
+      }
+    },
+    {
+      "t": 1793281320.9281607,
+      "elapsed": null,
+      "kind": "experiment",
+      "message": "Experiment stopped",
+      "state": "stopped"
+    }
+  ],
+  "samples": [],
+  "sample_interval_s": 5,
+  "summary": {
+    "complete": false,
+    "settled_start": false,
+    "reset_check_passed": false,
+    "preliminary": true,
+    "actual_duration_s": 2817.5,
+    "samples": 0,
+    "workload": {},
+    "slo": {
+      "e2e_p95_slo_ms": 1000,
+      "e2e_violation_seconds": 0.0,
+      "e2e_violation_fraction": null,
+      "service_mean_slo_ms": null,
+      "service_violation_seconds": 0.0
+    },
+    "utilization": {
+      "avg_cpu_pct_of_request": null,
+      "peak_cpu_pct_of_request": null,
+      "avg_memory_pct": null
+    },
+    "replicas": {
+      "avg_total_desired": null,
+      "peak_total_desired": null
+    },
+    "stability": {
+      "scaling_events": 0,
+      "oscillations": 0
+    },
+    "resources": null,
+    "decisions": {
+      "total": 16,
+      "applied": 0,
+      "proposed_changes": 15,
+      "flexascale_owned": 0,
+      "hpa_fallbacks": 16,
+      "policy_modes": [
+        "ppo_graph"
+      ]
+    }
+  },
+  "cleanup": {
+    "locust": "not_managed",
+    "operator": "stopped",
+    "hpas_restored": [
+      "api-gateway-hpa",
+      "cart-service-hpa",
+      "catalog-service-hpa",
+      "fraud-service-hpa",
+      "inventory-service-hpa",
+      "notification-service-hpa",
+      "order-service-hpa",
+      "payment-service-hpa",
+      "pricing-service-hpa",
+      "promotion-service-hpa",
+      "recommendation-service-hpa",
+      "review-service-hpa",
+      "search-service-hpa",
+      "shipping-service-hpa",
+      "user-service-hpa",
+      "wishlist-service-hpa",
+      "api-gateway-hpa",
+      "cart-service-hpa",
+      "catalog-service-hpa",
+      "fraud-service-hpa",
+      "inventory-service-hpa",
+      "notification-service-hpa",
+      "order-service-hpa",
+      "payment-service-hpa",
+      "pricing-service-hpa",
+      "promotion-service-hpa",
+      "recommendation-service-hpa",
+      "review-service-hpa",
+      "search-service-hpa",
+      "shipping-service-hpa",
+      "user-service-hpa",
+      "wishlist-service-hpa"
+    ],
+    "lease_holder_after": null,
+    "frozen_hpas_after": [],
+    "safe": true
+  },
+  "model": {
+    "model_path": "models\\flexascale_v9\\best_model\\best_model.zip",
+    "sha256": "2f95764bfdeb7c2bba728c60932f0bfa7a408611a1a0b076ff0415314f680772",
+    "extractor": "GraphFocalExtractor",
+    "trained_services": 20,
+    "observation_dim": 640,
+    "observation_version": 3,
+    "observation_fields": [
+      "cpu_limit_frac",
+      "cpu_limit_trend",
+      "rps_trend",
+      "latency_inflation",
+      "replica_frac",
+      "ready_frac",
+      "cpu_per_request",
+      "burstiness",
+      "since_scale_up",
+      "since_scale_down"
+    ],
+    "max_replicas": 10,
+    "decision_slot": null,
+    "action_deltas": [
+      -1,
+      0,
+      1,
+      2,
+      3
+    ],
+    "decision": "focal",
+    "num_timesteps": 2000000,
+    "model_card": true,
+    "trained_at": null,
+    "units": "see src/flexascale/rl/features_v3.py",
+    "validation": {
+      "timesteps": 2000000,
+      "reward": -2.46601010165631,
+      "replica_hours": 1.9437152777777775,
+      "p95_ms": 224.15170569262978,
+      "mean_latency_ms": 71.82306173567943,
+      "failure_pct": 0.0,
+      "slo_violation_s": 1.0,
+      "scaling_events": 0.5,
+      "oscillations": 0.275,
+      "n": 40
+    }
+  },
+  "initial_replicas": {
+    "api-gateway": 1,
+    "cart-service": 1,
+    "catalog-service": 2,
+    "fraud-service": 1,
+    "inventory-service": 1,
+    "notification-service": 1,
+    "order-service": 1,
+    "payment-service": 1,
+    "pricing-service": 1,
+    "promotion-service": 1,
+    "recommendation-service": 1,
+    "review-service": 1,
+    "search-service": 1,
+    "shipping-service": 1,
+    "user-service": 1,
+    "wishlist-service": 1
+  },
+  "start_replicas": {
+    "api-gateway": 1,
+    "cart-service": 1,
+    "catalog-service": 2,
+    "fraud-service": 1,
+    "inventory-service": 1,
+    "notification-service": 1,
+    "order-service": 1,
+    "payment-service": 1,
+    "pricing-service": 1,
+    "promotion-service": 1,
+    "recommendation-service": 1,
+    "review-service": 1,
+    "search-service": 1,
+    "shipping-service": 1,
+    "user-service": 1,
+    "wishlist-service": 1
+  },
+  "slo": {
+    "e2e_p95_ms": 1000,
+    "service_mean_ms": null
+  },
+  "auto_state": {},
+  "auto_counts": {},
+  "policy": {
+    "name": "shopping",
+    "namespace": "flexascale-apps",
+    "label_selector": "app.kubernetes.io/part-of=flexascale-ecommerce",
+    "include": [],
+    "exclude": [
+      "shopping-frontend"
+    ],
+    "exclude_patterns": [
+      "^flexascale-.*",
+      ".*prometheus.*",
+      ".*grafana.*",
+      ".*alertmanager.*",
+      ".*kube-state-metrics.*"
+    ],
+    "exclude_datastores": true,
+    "mode": "observe",
+    "min_replicas": 1,
+    "max_replicas": 10,
+    "max_step": 3,
+    "max_scale_down_step": 1,
+    "max_total_replicas": 48,
+    "services": {},
+    "cpu_target_pct": 70,
+    "scale_down_block_cpu_pct": 400.0,
+    "scale_down_block_memory_pct": 90,
+    "slo_latency_ms": null,
+    "confidence_threshold": 0.0,
+    "deactivation_threshold": 0.0,
+    "cooldown_seconds": 15,
+    "scale_down_cooldown_seconds": 30.0,
+    "scale_up_cooldown_seconds": 20.0,
+    "hpa_fallback": true,
+    "lease_seconds": 30,
+    "poll_interval_seconds": 10,
+    "stale_after_seconds": 120,
+    "prometheus_url": "http://localhost:9090",
+    "model_path": "models/flexascale_v9/best_model/best_model.zip",
+    "topology": [
+      [
+        "api-gateway",
+        "user-service"
+      ],
+      [
+        "api-gateway",
+        "catalog-service"
+      ],
+      [
+        "api-gateway",
+        "cart-service"
+      ],
+      [
+        "api-gateway",
+        "order-service"
+      ],
+      [
+        "cart-service",
+        "catalog-service"
+      ],
+      [
+        "cart-service",
+        "inventory-service"
+      ],
+      [
+        "order-service",
+        "catalog-service"
+      ],
+      [
+        "order-service",
+        "inventory-service"
+      ],
+      [
+        "order-service",
+        "payment-service"
+      ],
+      [
+        "order-service",
+        "cart-service"
+      ],
+      [
+        "order-service",
+        "shipping-service"
+      ],
+      [
+        "order-service",
+        "fraud-service"
+      ],
+      [
+        "order-service",
+        "notification-service"
+      ],
+      [
+        "cart-service",
+        "pricing-service"
+      ],
+      [
+        "api-gateway",
+        "search-service"
+      ],
+      [
+        "api-gateway",
+        "recommendation-service"
+      ],
+      [
+        "api-gateway",
+        "review-service"
+      ],
+      [
+        "api-gateway",
+        "wishlist-service"
+      ],
+      [
+        "api-gateway",
+        "shipping-service"
+      ],
+      [
+        "search-service",
+        "catalog-service"
+      ],
+      [
+        "search-service",
+        "pricing-service"
+      ],
+      [
+        "pricing-service",
+        "promotion-service"
+      ],
+      [
+        "recommendation-service",
+        "catalog-service"
+      ],
+      [
+        "recommendation-service",
+        "review-service"
+      ],
+      [
+        "wishlist-service",
+        "catalog-service"
+      ]
+    ],
+    "cost": {
+      "currency": "USD",
+      "cpu_per_vcpu_hour": 0.04048,
+      "memory_per_gib_hour": 0.004445,
+      "memory_weight": 0.125,
+      "label": "estimated at AWS Fargate on-demand list prices (us-east-1), not a bill"
+    },
+    "auto": {
+      "sla_latency_ratio": 1.0,
+      "cpu_risk_pct": 400.0,
+      "dwell_steps": 2,
+      "hpa_target_pct": 350.0
+    },
+    "controller_rule": {}
+  }
+}

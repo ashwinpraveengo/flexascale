@@ -1,0 +1,10 @@
+11:19:47 Windows: sleep and display-off (Modern Standby) inhibited while the plan runs
+11:19:47 plan reports/v9/calibration_plan.reruns.json: 1 runs, 0 already done
+11:19:47 [1/1] started 20261029-111947-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-150)
+11:21:27 [1/1] stopped 20261029-111947-shopping-hpa_tuned-calibration_steady p95=None mean=None fail%=None replica_h=None safe=True error=None
+11:21:27 plan complete
+12:43:41 Windows: sleep and display-off (Modern Standby) inhibited while the plan runs
+12:43:41 plan reports/v9/calibration_plan.reruns.json: 1 runs, 0 already done
+12:43:41 [1/1] started 20261029-124341-shopping-hpa_tuned-calibration_steady (hpa_tuned, calibration_steady, block v9cal-150)
+12:55:02 [1/1] completed 20261029-124341-shopping-hpa_tuned-calibration_steady p95=130.0 mean=34.2 fail%=0.038 replica_h=1.359621 safe=True error=None
+12:55:02 plan complete

@@ -81,7 +81,8 @@ def main() -> int:
     ap.add_argument("--results", default="reports/experiments")
     ap.add_argument("--out", default="reports/live_benchmark_report.md")
     ap.add_argument("--csv", default="reports/live_benchmark_summary.csv")
-    ap.add_argument("--host-load", default="reports/host_load_by_run.csv", help="output of scripts/check_host_load.py, if present")
+    ap.add_argument("--host-load", default="reports/host_load_by_run.csv,reports/v9/host_load_calibration.csv,reports/v9/host_load_evaluation.csv",
+                    help="outputs of scripts/check_host_load.py, comma separated (missing files are skipped)")
     args = ap.parse_args()
 
     runs = load_runs(Path(args.results))
@@ -113,7 +114,7 @@ def main() -> int:
             "settled_start": next((e.get("settled") for e in r.get("events", []) if "settled" in e), None),
         })
     Path(args.csv).parent.mkdir(parents=True, exist_ok=True)
-    with open(args.csv, "w", newline="") as f:
+    with open(args.csv, "w", newline="", encoding="utf-8") as f:
         if rows:
             w = csv.DictWriter(f, fieldnames=list(rows[0]))
             w.writeheader()
@@ -123,6 +124,9 @@ def main() -> int:
     bench = benchmark(runs, lab.compare)
     order = {"auto": 0, "flexascale": 1, "reference": 2}
     groups = sorted(bench["models"], key=lambda m: (order[group_kind(m["model"])], -m["latest"]))
+    # pre-registered block studies have their own analysis (scripts/analyze_v7.py); summarised here, not re-analysed
+    studies = [m for m in groups if m.get("study")]
+    groups = [m for m in groups if not m.get("study")]
     complete = [r for r in runs if (r.get("summary") or {}).get("complete")]
     services = max((len(r.get("start_replicas") or {}) for r in complete), default=0)
 
@@ -156,6 +160,19 @@ def main() -> int:
         verdict = m["verdict"] if n >= 6 else f"preliminary ({n} pair{'' if n == 1 else 's'})"
         L.append(f"| {name} | {m['n_pairs']} | {m['scenarios']} | "
                  + " | ".join(ci_cell(m["pooled"].get(k), unit) for k, _, unit in METRICS) + f" | {m['cost_basis']} | {verdict} |")
+
+    if studies:
+        L += ["", "## Pre-registered block studies (against default HPA)", "",
+              "Runs labelled with a block (`v7-`, `v7s-`, `v7r-`, `v9-`) belong to pre-registered studies. Each arm is paired with "
+              "the default-HPA run of the same block, and the verdict follows the studies' own table (`docs/POLICY_V7.md` §3.5). "
+              "Their primary reference is the *tuned* HPA, and their full analysis (validity, both references, per-scenario, "
+              "excluded runs) is in `reports/v7/evaluation.md`, `reports/v7/replication.md` and `reports/v9/evaluation.md` "
+              "(`scripts/analyze_v7.py`). The dashboard's Comparison page shows the same verdicts.", "",
+              "| Arm · study | Pairs | Scenarios | " + " | ".join(label for _, label, _ in METRICS) + " | Verdict |",
+              "| :--- | ---: | ---: | " + " | ".join("---:" for _ in METRICS) + " | :--- |"]
+        for m in studies:
+            L.append(f"| {m['model']} | {m['n_pairs']} | {m['scenarios']} | "
+                     + " | ".join(ci_cell(m["pooled"].get(k), unit) for k, _, unit in METRICS) + f" | {m['verdict']} |")
 
     for m in groups:
         kind = group_kind(m["model"])
@@ -233,9 +250,10 @@ def main() -> int:
                      f"{signed(diff['mean'], d, unit)} [{signed(lo, d)} … {signed(hi, d)}] | {reading} |")
 
     host = {}
-    if Path(args.host_load).exists():
-        with open(args.host_load, newline="") as f:
-            host = {h["run"]: h for h in csv.DictReader(f)}
+    for path in args.host_load.split(","):
+        if Path(path).exists():
+            with open(path, newline="", encoding="utf-8") as f:
+                host.update({h["run"]: h for h in csv.DictReader(f)})
 
     def host_cell(run_id):
         h = host.get(run_id)
@@ -248,7 +266,8 @@ def main() -> int:
 
     L += ["", "## Runs", "",
           f"*Outside load* is the host CPU used outside the Kubernetes containers during the load window, and any time on battery "
-          f"(`{args.host_load}`, from `scripts/check_host_load.py`; ⚠ = host-affected under `docs/POLICY_V6.md` §5.2).", "",
+          f"(`{args.host_load.replace(',', '`, `')}`, from `scripts/check_host_load.py`; ⚠ = host-affected under "
+          "`docs/POLICY_V6.md` §5.2, or `docs/POLICY_V9.md` §4 for the second laptop).", "",
           "| Run | Controller | Model | Scenario | Users | State | Req/s | Fail % | p95 | Avg repl. | Replica-h | Est. cost $ | Cleanup safe | Outside load |",
           "| :--- | :--- | :--- | :--- | ---: | :--- | ---: | ---: | ---: | ---: | ---: | ---: | :--- | :--- |"]
     for r in rows:
@@ -303,7 +322,7 @@ def main() -> int:
         "- `requests` (Locust final stats) and `requests_seen_in_samples` (last 5 s sample) are both in the CSV; they differ only "
         "by requests completed after the last sample.",
     ]
-    Path(args.out).write_text("\n".join(L) + "\n")
+    Path(args.out).write_text("\n".join(L) + "\n", encoding="utf-8")
     print(f"Wrote {args.out} ({len(runs)} runs, {sum(m['n_pairs'] for m in groups)} pairs in {len(groups)} groups)")
     return 0
 

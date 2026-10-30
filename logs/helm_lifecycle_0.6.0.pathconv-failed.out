@@ -1,0 +1,107 @@
+
+=== 11:18:08 0. baseline
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS no release fs-bookstore yet
+  PASS HPAs at their original bounds (1-5)
+  PASS no FlexaScale markers on HPAs or Deployments
+  PASS Lease not held
+1 chart(s) linted, 0 chart(s) failed
+
+=== 11:18:10 1. helm install (observe, revision 1)
+Release "fs-bookstore" does not exist. Installing it now.
+NAME: fs-bookstore
+LAST DEPLOYED: Fri Oct 30 11:18:10 2026
+NAMESPACE: flexascale-system
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+  PASS operator ready
+  PASS policy mode observe
+/usr/local/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+tail: cannot open 'C:/Program Files/Git/var/log/flexascale/decisions.jsonl' for reading: No such file or directory
+command terminated with exit code 1
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS HPAs unchanged in observe
+  PASS no markers in observe
+  PASS Lease not taken in observe
+  PASS RBAC observe: list deployments
+  PASS RBAC observe: no patch on HPAs
+  PASS RBAC observe: no scale update
+
+=== 11:18:44 2. helm upgrade (live, v9 model, revision 2)
+Release "fs-bookstore" has been upgraded. Happy Helming!
+NAME: fs-bookstore
+LAST DEPLOYED: Fri Oct 30 11:18:45 2026
+NAMESPACE: flexascale-system
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+  PASS operator ready
+  PASS policy mode live
+  FAIL Lease taken within 60 s
+/usr/local/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+2026-10-30 05:49:00,920 [ERROR] flexascale.operator.app_operator: [OPERATOR] Trained model unavailable (PPO model not found: C:/Program Files/Git/app/models/flexascale_v9/best_model/best_model.zip); decisions use the CPU heuristic.
+tail: cannot open 'C:/Program Files/Git/var/log/flexascale/decisions.jsonl' for reading: No such file or directory
+command terminated with exit code 1
+grep: C:/Program Files/Git/var/log/flexascale/decisions.jsonl: No such file or directory
+command terminated with exit code 2
+  FAIL v9 model loaded without error (operator_start event)
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  FAIL 3 HPAs and 2 HPA-less Deployments marked (5 markers)
+  PASS RBAC live: patch HPAs
+  PASS RBAC live: update deployments/scale
+  PASS RBAC live: no delete deployments
+  PASS RBAC live: no secrets
+
+=== 11:20:23 3. helm rollback to revision 1 (observe)
+Rollback was a success! Happy Helming!
+  PASS operator ready
+  PASS policy mode observe again
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS HPAs restored to 1-5
+  PASS every marker cleared
+  PASS Lease released
+  PASS RBAC observe again: no patch on HPAs
+
+=== 11:20:45 4. helm uninstall
+release "fs-bookstore" uninstalled
+NAME                         MIN   MAX   FROZEN_BY
+recommendations-autoscaler   1     5     <none>
+search-autoscaler            1     5     <none>
+storefront-autoscaler        1     5     <none>
+  lease holder: ''  markers: 0
+  PASS release gone
+  PASS no operator left
+  PASS no Role or RoleBinding left in flexascale-bookstore
+  PASS HPAs at 1-5
+  PASS no markers
+  PASS Lease released
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+cart              1/1     1            1           36h
+pricing           1/1     1            1           36h
+recommendations   1/1     1            1           36h
+search            1/1     1            1           36h
+storefront        1/1     1            1           36h
+
+=== 11:21:01 result: 30 passed, 3 failed
+exit=1

@@ -1,0 +1,49 @@
+teacher rule (best on validation): limit_target(0.6/0.3)
+=== training focal_bc_s1 {'use_graph': True, 'reward': 'v7', 'seed': 1, 'design': 'focal', 'warm_start': True} (2000000 steps)
+D:\Programming\flexascale\.venv-gpu\Lib\site-packages\stable_baselines3\common\on_policy_algorithm.py:150: UserWarning: You are trying to run PPO on the GPU, but it is primarily intended to run on the CPU when not using a CNN policy (you are using ActorCriticPolicy which should be a MlpPolicy). See https://github.com/DLR-RM/stable-baselines3/issues/1245 for more info. You can pass `device='cpu'` or `export CUDA_VISIBLE_DEVICES=` to force using the CPU.Note: The model will train, but the GPU utilization will be poor and the training might take longer than on CPU.
+  warnings.warn(
+13:23:13 focal_bc_s1 warm start from limit_target(0.6/0.3): {'teacher': 'limit_target(0.6/0.3 of limit)', 'episodes': 400, 'epsilon': 0.2, 'samples': 248838, 'label_counts': {'-1': 120100, '0': 128547, '1': 181, '2': 10, '3': 0}, 'agreement_heldout': 0.9923, 'recall_per_action_heldout': {'-1': 0.998, '0': 0.987, '1': 1.0}, 'recall_per_action_augmented_heldout': {'-1': 0.997, '0': 0.985, '1': 0.973, '2': 0.836, '3': 0.939}, 'value_mse_heldout': 5.2875, 'return_var_heldout': 11.8299}
+13:23:20 focal_bc_s1        0 val reward     -3.30 repl-h 1.963 p95    228 slo   1.9 *best* (warm start)
+13:24:44 focal_bc_s1   250000 val reward     -3.60 repl-h 1.978 p95    204 slo   1.1
+13:26:18 focal_bc_s1   500000 val reward     -3.36 repl-h 1.971 p95    222 slo   1.1
+13:27:57 focal_bc_s1   750000 val reward     -3.16 repl-h 1.940 p95    240 slo   2.2 *best*
+13:29:26 focal_bc_s1  1000000 val reward     -2.99 repl-h 1.939 p95    244 slo   2.0 *best*
+13:30:56 focal_bc_s1  1250000 val reward     -3.37 repl-h 1.939 p95    241 slo   2.9
+13:32:23 focal_bc_s1  1500000 val reward     -3.69 repl-h 1.934 p95    240 slo   3.2
+13:33:52 focal_bc_s1  1750000 val reward     -3.85 repl-h 1.941 p95    244 slo   2.6
+13:35:22 focal_bc_s1  2000000 val reward     -3.34 repl-h 1.954 p95    243 slo   2.0
+=== training focal_bc_s2 {'use_graph': True, 'reward': 'v7', 'seed': 2, 'design': 'focal', 'warm_start': True} (2000000 steps)
+13:38:45 focal_bc_s2 warm start from limit_target(0.6/0.3): {'teacher': 'limit_target(0.6/0.3 of limit)', 'episodes': 400, 'epsilon': 0.2, 'samples': 266142, 'label_counts': {'-1': 131287, '0': 134617, '1': 225, '2': 7, '3': 6}, 'agreement_heldout': 0.9902, 'recall_per_action_heldout': {'-1': 0.99, '0': 0.99, '1': 1.0, '2': 0.0}, 'recall_per_action_augmented_heldout': {'-1': 0.99, '0': 0.988, '1': 0.942, '2': 0.896, '3': 0.938}, 'value_mse_heldout': 5.5813, 'return_var_heldout': 12.6008}
+13:38:52 focal_bc_s2        0 val reward     -3.15 repl-h 1.963 p95    223 slo   1.1 *best* (warm start)
+13:40:20 focal_bc_s2   250000 val reward     -3.13 repl-h 1.952 p95    230 slo   1.9 *best*
+13:41:49 focal_bc_s2   500000 val reward     -2.84 repl-h 1.943 p95    233 slo   2.0 *best*
+13:43:17 focal_bc_s2   750000 val reward     -3.17 repl-h 1.944 p95    221 slo   2.0
+13:44:45 focal_bc_s2  1000000 val reward     -3.46 repl-h 1.936 p95    239 slo   3.1
+13:46:13 focal_bc_s2  1250000 val reward     -3.65 repl-h 1.935 p95    241 slo   3.4
+13:47:41 focal_bc_s2  1500000 val reward     -3.09 repl-h 1.936 p95    243 slo   2.4
+13:49:08 focal_bc_s2  1750000 val reward     -2.89 repl-h 1.943 p95    215 slo   2.0
+13:50:35 focal_bc_s2  2000000 val reward     -2.47 repl-h 1.944 p95    224 slo   1.0 *best*
+=== training focal_bc_nograph_s1 {'use_graph': False, 'reward': 'v7', 'seed': 1, 'design': 'focal', 'warm_start': True} (2000000 steps)
+13:52:57 focal_bc_nograph_s1 warm start from limit_target(0.6/0.3): {'teacher': 'limit_target(0.6/0.3 of limit)', 'episodes': 400, 'epsilon': 0.2, 'samples': 248838, 'label_counts': {'-1': 120100, '0': 128547, '1': 181, '2': 10, '3': 0}, 'agreement_heldout': 0.9934, 'recall_per_action_heldout': {'-1': 0.996, '0': 0.991, '1': 1.0}, 'recall_per_action_augmented_heldout': {'-1': 0.996, '0': 0.988, '1': 0.98, '2': 0.787, '3': 0.959}, 'value_mse_heldout': 7.0837, 'return_var_heldout': 11.8299}
+13:53:02 focal_bc_nograph_s1        0 val reward     -3.39 repl-h 1.966 p95    222 slo   1.5 *best* (warm start)
+13:54:12 focal_bc_nograph_s1   250000 val reward     -3.75 repl-h 1.993 p95    194 slo   0.6
+13:55:23 focal_bc_nograph_s1   500000 val reward     -7.48 repl-h 2.108 p95    163 slo   0.0
+13:56:37 focal_bc_nograph_s1   750000 val reward     -4.24 repl-h 2.005 p95    201 slo   1.0
+13:57:50 focal_bc_nograph_s1  1000000 val reward     -3.76 repl-h 1.994 p95    189 slo   0.6
+13:59:03 focal_bc_nograph_s1  1250000 val reward     -3.76 repl-h 1.993 p95    199 slo   1.0
+14:00:17 focal_bc_nograph_s1  1500000 val reward     -3.39 repl-h 1.984 p95    200 slo   1.0
+14:01:29 focal_bc_nograph_s1  1750000 val reward     -2.92 repl-h 1.965 p95    202 slo   1.0 *best*
+14:02:42 focal_bc_nograph_s1  2000000 val reward     -3.55 repl-h 1.994 p95    181 slo   0.2
+=== training focal_bc_v5reward_s1 {'use_graph': True, 'reward': 'v5', 'seed': 1, 'design': 'focal', 'warm_start': True} (2000000 steps)
+14:05:52 focal_bc_v5reward_s1 warm start from limit_target(0.6/0.3): {'teacher': 'limit_target(0.6/0.3 of limit)', 'episodes': 400, 'epsilon': 0.2, 'samples': 248838, 'label_counts': {'-1': 120100, '0': 128547, '1': 181, '2': 10, '3': 0}, 'agreement_heldout': 0.9923, 'recall_per_action_heldout': {'-1': 0.998, '0': 0.987, '1': 1.0}, 'recall_per_action_augmented_heldout': {'-1': 0.997, '0': 0.985, '1': 0.973, '2': 0.836, '3': 0.939}, 'value_mse_heldout': 5.2875, 'return_var_heldout': 11.8299}
+14:05:58 focal_bc_v5reward_s1        0 val reward     -3.30 repl-h 1.963 p95    228 slo   1.9 *best* (warm start)
+14:07:12 focal_bc_v5reward_s1   250000 val reward     -3.66 repl-h 1.937 p95    240 slo   3.4
+14:08:25 focal_bc_v5reward_s1   500000 val reward     -4.44 repl-h 1.951 p95    239 slo   3.4
+14:09:48 focal_bc_v5reward_s1   750000 val reward     -3.77 repl-h 1.954 p95    239 slo   3.0
+14:11:15 focal_bc_v5reward_s1  1000000 val reward     -3.64 repl-h 1.935 p95    241 slo   3.4
+14:12:41 focal_bc_v5reward_s1  1250000 val reward     -3.60 repl-h 1.933 p95    241 slo   3.4
+14:14:09 focal_bc_v5reward_s1  1500000 val reward     -3.60 repl-h 1.933 p95    241 slo   3.4
+14:15:35 focal_bc_v5reward_s1  1750000 val reward     -3.60 repl-h 1.933 p95    241 slo   3.4
+14:17:03 focal_bc_v5reward_s1  2000000 val reward     -3.60 repl-h 1.933 p95    241 slo   3.4
+selected model: focal_bc_s2 | selected rule: limit_target(0.6/0.3)
+wrote reports\v9\training_v7.json (selection only; test sets not run)

@@ -1,0 +1,54 @@
+run,folder,controller,scenario,load_start,load_end,host_cores,k8s_cores,outside_cores,battery_s,host_affected,reason,cpu_mhz,app_cpu_ms_per_request,host_source,limit_cores
+20261029-142402-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-29 14:34:39,14:39:50,2.1,0.46,1.64,0,False,,,17.54,psutil host samples,3.576
+20261029-143954-shopping-hpa_tuned-steady_browsing,reports/experiments,hpa_tuned,steady_browsing,2026-10-29 14:46:17,14:51:32,2.12,0.46,1.66,0,False,,,17.57,psutil host samples,3.576
+20261029-145135-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-29 15:02:50,15:08:11,3.14,0.54,2.6,0,False,,,18.61,psutil host samples,3.576
+20261029-150817-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-29 15:14:33,15:19:54,3.19,0.53,2.65,0,False,,,18.5,psutil host samples,3.576
+20261029-151959-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-29 15:26:23,15:31:45,3.9,1.02,2.88,0,False,,,39.88,psutil host samples,3.576
+20261029-153150-shopping-hpa_tuned-checkout_heavy,reports/experiments,hpa_tuned,checkout_heavy,2026-10-29 15:38:05,15:43:22,2.53,0.92,1.61,0,False,,,37.25,psutil host samples,3.576
+20261029-154332-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-29 15:54:30,15:59:50,3.85,1.02,2.84,0,False,,,40.05,psutil host samples,3.576
+20261029-155953-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-29 16:06:07,16:11:18,2.59,0.95,1.64,0,False,,,38.35,psutil host samples,3.576
+20261029-161125-shopping-hpa_tuned-payment_degradation,reports/experiments,hpa_tuned,payment_degradation,2026-10-29 16:22:31,16:27:47,2.41,0.66,1.75,0,False,,,34.12,psutil host samples,3.576
+20261029-162756-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-29 16:34:09,16:39:29,3.57,0.77,2.8,0,False,,,37.82,psutil host samples,3.576
+20261029-163938-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-29 16:45:47,16:50:57,2.3,0.68,1.62,0,False,,,34.2,psutil host samples,3.576
+20261029-165059-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-29 16:57:31,17:02:54,3.65,0.75,2.9,0,False,,,36.62,psutil host samples,3.576
+20261029-170301-shopping-hpa_tuned-flash_sale,reports/experiments,hpa_tuned,flash_sale,2026-10-29 17:09:14,17:14:32,2.6,0.9,1.69,0,False,,,48.72,psutil host samples,3.576
+20261029-171432-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-29 17:20:53,17:26:17,3.99,1.06,2.93,0,False,,,53.25,psutil host samples,3.576
+20261029-172624-shopping-flexascale-flash_sale,reports/experiments_invalid,flexascale,flash_sale,2026-10-29 17:32:44,17:38:06,4.7,1.06,3.65,0,True,3.6 cores outside Kubernetes,,59.11,psutil host samples,3.576
+20261029-173816-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-29 17:44:24,17:49:35,3.43,1.18,2.25,0,False,,,58.44,psutil host samples,3.576
+20261029-174938-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-29 17:56:17,18:01:42,3.61,0.55,3.07,0,False,,,27.35,psutil host samples,3.576
+20261029-180150-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-29 18:08:00,18:13:11,2.3,0.46,1.84,0,False,,,25.15,psutil host samples,3.576
+20261029-181311-shopping-hpa_tuned-gradual_ramp,reports/experiments,hpa_tuned,gradual_ramp,2026-10-29 18:19:40,18:24:58,2.11,0.45,1.65,0,False,,,25.53,psutil host samples,3.576
+20261029-191230-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-29 19:18:45,19:24:09,3.78,0.55,3.23,0,False,,,27.93,psutil host samples,3.576
+20261029-192411-shopping-hpa_tuned-traffic_drop,reports/experiments,hpa_tuned,traffic_drop,2026-10-29 19:30:31,19:35:49,2.5,0.4,2.1,0,False,,,28.05,psutil host samples,3.576
+20261029-193553-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-29 19:42:21,19:47:46,3.6,0.46,3.15,0,False,,,28.02,psutil host samples,3.576
+20261029-194754-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-29 19:54:03,19:59:14,2.22,0.39,1.83,0,False,,,25.93,psutil host samples,3.576
+20261029-195916-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-29 20:05:44,20:11:08,3.75,0.45,3.3,0,False,,,28.59,psutil host samples,3.576
+20261029-201117-shopping-flexascale-steady_browsing,reports/experiments,flexascale,steady_browsing,2026-10-29 20:17:41,20:23:08,3.98,0.58,3.4,0,False,,,20.74,psutil host samples,3.576
+20261029-202309-shopping-auto-steady_browsing,reports/experiments,auto,steady_browsing,2026-10-29 20:29:32,20:34:59,3.97,0.59,3.37,0,False,,,20.08,psutil host samples,3.576
+20261029-203500-shopping-hpa_tuned-steady_browsing,reports/experiments,hpa_tuned,steady_browsing,2026-10-29 20:41:21,20:46:39,2.39,0.49,1.89,0,False,,,18.57,psutil host samples,3.576
+20261029-204642-shopping-hpa-steady_browsing,reports/experiments,hpa,steady_browsing,2026-10-29 20:57:43,21:02:54,2.49,0.51,1.98,0,False,,,18.86,psutil host samples,3.576
+20261029-210303-shopping-flexascale-checkout_heavy,reports/experiments,flexascale,checkout_heavy,2026-10-29 21:09:31,21:15:00,4.45,1.11,3.34,0,False,,,45.47,psutil host samples,3.576
+20261029-211505-shopping-hpa_tuned-checkout_heavy,reports/experiments,hpa_tuned,checkout_heavy,2026-10-29 21:21:18,21:26:37,2.91,0.99,1.92,0,False,,,41.46,psutil host samples,3.576
+20261029-212647-shopping-auto-checkout_heavy,reports/experiments,auto,checkout_heavy,2026-10-29 21:37:53,21:43:23,4.51,1.11,3.4,0,False,,,46.11,psutil host samples,3.576
+20261029-214328-shopping-hpa-checkout_heavy,reports/experiments,hpa,checkout_heavy,2026-10-29 21:54:49,22:00:01,3.13,1.05,2.08,0,False,,,43.04,psutil host samples,3.576
+20261029-220010-shopping-flexascale-payment_degradation,reports/experiments,flexascale,payment_degradation,2026-10-29 22:12:04,22:17:32,4.2,0.85,3.35,0,False,,,41.85,psutil host samples,3.576
+20261029-221734-shopping-hpa_tuned-payment_degradation,reports/experiments,hpa_tuned,payment_degradation,2026-10-29 22:28:42,22:34:01,2.68,0.83,1.84,0,False,,,39.69,psutil host samples,3.576
+20261029-223406-shopping-auto-payment_degradation,reports/experiments,auto,payment_degradation,2026-10-29 22:40:25,22:45:53,4.2,0.84,3.36,0,False,,,42.14,psutil host samples,3.576
+20261029-224557-shopping-hpa-payment_degradation,reports/experiments,hpa,payment_degradation,2026-10-29 22:52:06,22:57:18,2.66,0.78,1.88,0,False,,,39.31,psutil host samples,3.576
+20261029-225719-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-29 23:08:58,23:14:31,4.52,1.05,3.46,0,False,,,58.63,psutil host samples,3.576
+20261029-231441-shopping-hpa_tuned-flash_sale,reports/experiments,hpa_tuned,flash_sale,2026-10-29 23:20:51,23:26:11,3.06,0.97,2.09,0,False,,,54.13,psutil host samples,3.576
+20261029-232612-shopping-hpa-flash_sale,reports/experiments,hpa,flash_sale,2026-10-29 23:32:24,23:37:35,4.13,1.77,2.36,0,False,,,79.72,psutil host samples,3.576
+20261029-233744-shopping-auto-flash_sale,reports/experiments_invalid,auto,flash_sale,2026-10-29 23:44:09,23:49:49,5.4,1.41,3.98,0,True,4.0 cores outside Kubernetes,,71.51,psutil host samples,3.576
+20261029-234956-shopping-flexascale-gradual_ramp,reports/experiments_invalid,flexascale,gradual_ramp,2026-10-29 23:56:23,00:01:51,4.32,0.73,3.59,0,True,3.6 cores outside Kubernetes,,35.21,psutil host samples,3.576
+20261030-000158-shopping-auto-gradual_ramp,reports/experiments,auto,gradual_ramp,2026-10-30 00:08:16,00:13:45,4.36,0.9,3.46,0,False,,,37.67,psutil host samples,3.576
+20261030-001350-shopping-hpa_tuned-gradual_ramp,reports/experiments,hpa_tuned,gradual_ramp,2026-10-30 00:20:13,00:25:37,2.78,0.6,2.18,0,False,,,31.86,psutil host samples,3.576
+20261030-002542-shopping-hpa-gradual_ramp,reports/experiments,hpa,gradual_ramp,2026-10-30 00:36:45,00:41:55,2.73,0.59,2.14,0,False,,,30.28,psutil host samples,3.576
+20261030-004204-shopping-hpa_tuned-traffic_drop,reports/experiments,hpa_tuned,traffic_drop,2026-10-30 00:48:31,00:53:52,2.57,0.44,2.14,0,False,,,27.63,psutil host samples,3.576
+20261030-005356-shopping-auto-traffic_drop,reports/experiments_invalid,auto,traffic_drop,2026-10-30 01:00:16,01:05:47,4.27,0.64,3.63,0,True,3.6 cores outside Kubernetes,,37.72,psutil host samples,3.576
+20261030-010548-shopping-flexascale-traffic_drop,reports/experiments_invalid,flexascale,traffic_drop,2026-10-30 01:12:20,01:17:53,4.2,0.58,3.62,0,True,3.6 cores outside Kubernetes,,35.22,psutil host samples,3.576
+20261030-011800-shopping-hpa-traffic_drop,reports/experiments,hpa,traffic_drop,2026-10-30 01:24:10,01:29:21,2.82,0.7,2.12,0,False,,,37.8,psutil host samples,3.576
+20261030-013122-shopping-flexascale-flash_sale,reports/experiments,flexascale,flash_sale,2026-10-30 01:36:04,01:41:37,4.97,1.35,3.62,0,True,3.6 cores outside Kubernetes,,67.36,psutil host samples,3.576
+20261030-014144-shopping-auto-flash_sale,reports/experiments,auto,flash_sale,2026-10-30 01:48:02,01:53:38,5.08,1.47,3.61,0,True,3.6 cores outside Kubernetes,,75.61,psutil host samples,3.576
+20261030-015346-shopping-flexascale-gradual_ramp,reports/experiments,flexascale,gradual_ramp,2026-10-30 02:00:16,02:05:54,4.46,0.91,3.55,0,False,,,37.23,psutil host samples,3.576
+20261030-020558-shopping-auto-traffic_drop,reports/experiments,auto,traffic_drop,2026-10-30 02:12:26,02:18:20,4.47,1.06,3.41,0,False,,,50.47,psutil host samples,3.576
+20261030-021821-shopping-flexascale-traffic_drop,reports/experiments,flexascale,traffic_drop,2026-10-30 02:24:56,02:30:39,4.58,1.26,3.32,0,False,,,60.19,psutil host samples,3.576

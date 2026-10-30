@@ -1,6 +1,6 @@
 # Live Benchmark: native HPA vs FlexaScale and Auto mode
 
-Generated 2026-10-26 20:39 by `scripts/build_live_report.py` from the raw runs in `reports/experiments/`. Per-run numbers are in `reports/live_benchmark_summary.csv`. Pairing, statistics and verdicts use `flexascale.lab.benchmark`, the same code as the dashboard's Comparison page.
+Generated 2026-10-30 03:13 by `scripts/build_live_report.py` from the raw runs in `reports/experiments/`. Per-run numbers are in `reports/live_benchmark_summary.csv`. Pairing, statistics and verdicts use `flexascale.lab.benchmark`, the same code as the dashboard's Comparison page.
 
 **Setup.** Minikube (1 node), the application's own HPAs (CPU target 70% of request, 1–10 replicas; the shop has 16 managed services in the most recent runs). Locust scenarios from `load-testing/scenarios.py` through the ingress, 25 users, 300 s. Before every run the lab resets application data and scales every service to its minimum, and waits until the previous run's HPA scale-down window has passed (comparable start). Costs are estimates (allocated vCPU and memory × AWS Fargate on-demand list prices, or a unitless resource proxy where no prices were configured), not a bill.
 
@@ -17,6 +17,20 @@ Generated 2026-10-26 20:39 by `scripts/build_live_report.py` from the raw runs i
 | FlexaScale v4 | 6 | 6 | +6.0% [-6.3 … +18.4] | +6.0% [-6.3 … +18.4] | -2.4% [-44.9 … +40.1] | -0.53 pp [-7.72 … +6.67] | +4.5% [-2.8 … +11.8] | resource-cost proxy | On par with HPA |
 | FlexaScale v3 | 3 | 3 | +77.5% [+27.3 … +127.8] | +77.5% [+27.3 … +127.8] | +24.6% [-30.1 … +79.3] | +0.52 pp [+0.31 … +0.73] | -6.7% [-26.8 … +13.4] | resource-cost proxy | preliminary (3 pairs) |
 | Native HPA, 60 s scale-down | 12 | 6 | -1.4% [-2.6 … -0.2] | -1.4% [-2.7 … -0.2] | +5.8% [-5.5 … +17.1] | +0.05 pp [-0.02 … +0.12] | -2.3% [-4.6 … -0.0] | estimated (list prices) | Beats HPA on cost |
+
+## Pre-registered block studies (against default HPA)
+
+Runs labelled with a block (`v7-`, `v7s-`, `v7r-`, `v9-`) belong to pre-registered studies. Each arm is paired with the default-HPA run of the same block, and the verdict follows the studies' own table (`docs/POLICY_V7.md` §3.5). Their primary reference is the *tuned* HPA, and their full analysis (validity, both references, per-scenario, excluded runs) is in `reports/v7/evaluation.md`, `reports/v7/replication.md` and `reports/v9/evaluation.md` (`scripts/analyze_v7.py`). The dashboard's Comparison page shows the same verdicts.
+
+| Arm · study | Pairs | Scenarios | Δ replica-h % | Δ cost % | Δ p95 % | Δ failures pp | Δ throughput % | Verdict |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :--- |
+| v9 (Auto mode) · second laptop, pre-registered (POLICY_V9 §6) | 11 | 6 | -7.7% [-12.3 … -3.2] | -7.9% [-12.5 … -3.2] | +17.6% [-6.0 … +41.2] | +0.09 pp [-0.10 … +0.27] | -1.4% [-4.5 … +1.6] | On par / inconclusive |
+| v7 (Auto mode) · 12-block batch, CPU-clock confounded (POLICY_V7 §5) | 12 | 6 | -13.0% [-17.0 … -9.0] | -13.2% [-17.3 … -9.1] | -27.9% [-38.2 … -17.6] | -0.24 pp [-0.58 … +0.10] | +5.3% [+0.9 … +9.6] | Beats on cost |
+| v9 · second laptop, pre-registered (POLICY_V9 §6) | 11 | 6 | -7.3% [-11.5 … -3.2] | -7.4% [-11.7 … -3.2] | +53.5% [-49.4 … +156.4] | +0.04 pp [-0.21 … +0.29] | -0.8% [-5.7 … +4.1] | On par / inconclusive |
+| v7 · 12-block batch, CPU-clock confounded (POLICY_V7 §5) | 12 | 6 | -13.1% [-17.3 … -8.9] | -13.3% [-17.6 … -9.0] | -10.0% [-47.6 … +27.6] | -0.25 pp [-0.65 … +0.15] | +4.5% [+0.0 … +9.0] | Beats on cost |
+| Rule limit_target(0.6/0.3) · 12-block batch, CPU-clock confounded (POLICY_V7 §5) | 12 | 6 | -13.2% [-17.5 … -9.0] | -13.4% [-17.7 … -9.1] | -27.0% [-38.1 … -15.8] | -0.31 pp [-0.70 … +0.08] | +5.6% [+0.6 … +10.6] | Beats on cost |
+| Native HPA, tuned (350% CPU, 60 s scale-down) · second laptop, pre-registered (POLICY_V9 §6) | 12 | 6 | -9.0% [-13.9 … -4.1] | -9.1% [-14.0 … -4.1] | -10.7% [-27.5 … +6.1] | -0.04 pp [-0.17 … +0.08] | +2.0% [-1.0 … +5.0] | Beats on cost |
+| Native HPA, tuned (250% CPU, 60 s scale-down) · 12-block batch, CPU-clock confounded (POLICY_V7 §5) | 12 | 6 | -13.1% [-17.4 … -8.9] | -13.3% [-17.6 … -9.1] | -5.9% [-18.8 … +6.9] | -0.17 pp [-0.58 … +0.23] | +2.0% [-0.7 … +4.7] | Beats on cost |
 
 ## FlexaScale v5 (Auto mode) vs native HPA
 
@@ -198,7 +212,7 @@ Both are paired differences against default HPA, so they are compared through th
 
 ## Runs
 
-*Outside load* is the host CPU used outside the Kubernetes containers during the load window, and any time on battery (`reports/host_load_by_run.csv`, from `scripts/check_host_load.py`; ⚠ = host-affected under `docs/POLICY_V6.md` §5.2).
+*Outside load* is the host CPU used outside the Kubernetes containers during the load window, and any time on battery (`reports/host_load_by_run.csv`, `reports/v9/host_load_calibration.csv`, `reports/v9/host_load_evaluation.csv`, from `scripts/check_host_load.py`; ⚠ = host-affected under `docs/POLICY_V6.md` §5.2, or `docs/POLICY_V9.md` §4 for the second laptop).
 
 | Run | Controller | Model | Scenario | Users | State | Req/s | Fail % | p95 | Avg repl. | Replica-h | Est. cost $ | Cleanup safe | Outside load |
 | :--- | :--- | :--- | :--- | ---: | :--- | ---: | ---: | ---: | ---: | ---: | ---: | :--- | :--- |
@@ -321,6 +335,176 @@ Both are paired differences against default HPA, so they are compared through th
 | 20261026-195537-shopping-hpa_fast-checkout_heavy | hpa_fast | — | checkout_heavy | 25 | completed | 19.62 | 1.30 | 450 | 22.38 | 1.8547 | 0.0084 | True | 1.5 cores |
 | 20261026-200708-shopping-hpa-traffic_drop | hpa | — | traffic_drop | 25 | completed | 9.05 | 0.15 | 180 | 18.24 | 1.5362 | 0.0070 | True | 1.2 cores |
 | 20261026-202339-shopping-hpa_fast-traffic_drop | hpa_fast | — | traffic_drop | 25 | completed | 8.73 | 0.11 | 180 | 17.71 | 1.4900 | 0.0068 | True | 0.8 cores |
+| 20261027-004540-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.25 | 0.41 | 240 | 16.00 | 1.3566 | 0.0061 | True | 1.4 cores |
+| 20261027-005147-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 16.95 | 0.27 | 220 | 16.00 | 1.3568 | 0.0061 | True | 1.3 cores |
+| 20261027-014406-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.43 | 0.32 | 200 | 18.62 | 1.5610 | 0.0071 | True | 0.8 cores |
+| 20261027-015005-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.39 | 0.19 | 210 | 16.00 | 1.3568 | 0.0061 | True | 1.0 cores |
+| 20261027-020623-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.28 | 0.35 | 210 | 18.76 | 1.5760 | 0.0071 | True | 1.1 cores |
+| 20261027-021746-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.37 | 0.29 | 210 | 16.00 | 1.3563 | 0.0061 | True | 1.1 cores |
+| 20261027-022925-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.32 | 0.33 | 210 | 16.62 | 1.4054 | 0.0064 | True | 0.9 cores |
+| 20261027-024524-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.15 | 0.31 | 210 | 16.00 | 1.3566 | 0.0061 | True | 0.9 cores |
+| 20261027-034420-shopping-hpa_tuned-steady_browsing | hpa_tuned | — | steady_browsing | 25 | completed | 18.30 | 0.04 | 70 | 16.00 | 1.3567 | 0.0061 | True | 0.7 cores |
+| 20261027-035524-shopping-hpa-steady_browsing | hpa | — | steady_browsing | 25 | completed | 18.88 | 0.02 | 71 | 17.37 | 1.4652 | 0.0066 | True | 0.7 cores |
+| 20261027-040643-shopping-flexascale-steady_browsing | flexascale | unknown | steady_browsing | 25 | completed | 19.01 | 0.04 | 65 | 16.00 | 1.3564 | 0.0061 | True | 1.2 cores |
+| 20261027-041820-shopping-flexascale-steady_browsing | flexascale | flexascale_v7 | steady_browsing | 25 | completed | 18.40 | 0.02 | 64 | 16.00 | 1.3564 | 0.0061 | True | 1.3 cores |
+| 20261027-042957-shopping-auto-steady_browsing | auto | flexascale_v7 | steady_browsing | 25 | completed | 18.26 | 0.02 | 66 | 16.00 | 1.3567 | 0.0061 | True | 1.2 cores |
+| 20261027-044632-shopping-flexascale-checkout_heavy | flexascale | unknown | checkout_heavy | 25 | completed | 19.56 | 1.06 | 420 | 16.00 | 1.3564 | 0.0061 | True | 1.3 cores |
+| 20261027-045807-shopping-flexascale-checkout_heavy | flexascale | flexascale_v7 | checkout_heavy | 25 | completed | 19.80 | 1.14 | 440 | 16.00 | 1.3565 | 0.0061 | True | 1.4 cores |
+| 20261027-051443-shopping-hpa-checkout_heavy | hpa | — | checkout_heavy | 25 | completed | 19.03 | 1.28 | 580 | 21.43 | 1.7823 | 0.0081 | True | 0.8 cores |
+| 20261027-053125-shopping-auto-checkout_heavy | auto | flexascale_v7 | checkout_heavy | 25 | completed | 19.28 | 1.10 | 500 | 16.44 | 1.3926 | 0.0063 | True | 1.4 cores |
+| 20261027-054255-shopping-hpa_tuned-checkout_heavy | hpa_tuned | — | checkout_heavy | 25 | completed | 18.49 | 1.55 | 670 | 16.00 | 1.3566 | 0.0061 | True | 0.8 cores |
+| 20261027-055933-shopping-flexascale-payment_degradation | flexascale | unknown | payment_degradation | 25 | completed | 15.54 | 0.34 | 220 | 16.00 | 1.3563 | 0.0061 | True | 1.3 cores |
+| 20261027-061627-shopping-hpa_tuned-payment_degradation | hpa_tuned | — | payment_degradation | 25 | completed | 15.60 | 0.17 | 250 | 16.00 | 1.3567 | 0.0061 | True | 0.8 cores |
+| 20261027-062753-shopping-hpa-payment_degradation | hpa | — | payment_degradation | 25 | completed | 15.43 | 0.26 | 250 | 18.79 | 1.5789 | 0.0072 | True | 0.7 cores |
+| 20261027-064413-shopping-auto-payment_degradation | auto | flexascale_v7 | payment_degradation | 25 | completed | 15.35 | 0.39 | 220 | 16.00 | 1.3566 | 0.0061 | True | 1.3 cores |
+| 20261027-065544-shopping-flexascale-payment_degradation | flexascale | flexascale_v7 | payment_degradation | 25 | completed | 14.88 | 0.56 | 680 | 16.00 | 1.3563 | 0.0061 | True | 1.4 cores |
+| 20261027-071234-shopping-flexascale-flash_sale | flexascale | unknown | flash_sale | 25 | completed | 13.64 | 0.37 | 660 | 16.38 | 1.3870 | 0.0063 | True | 1.4 cores |
+| 20261027-072409-shopping-flexascale-flash_sale | flexascale | flexascale_v7 | flash_sale | 25 | completed | 13.19 | 0.40 | 910 | 16.44 | 1.3925 | 0.0063 | True | 1.4 cores |
+| 20261027-074033-shopping-hpa-flash_sale | hpa | — | flash_sale | 25 | completed | 11.41 | 0.50 | 1,600 | 20.08 | 1.6722 | 0.0076 | True | 0.8 cores |
+| 20261027-075152-shopping-auto-flash_sale | auto | flexascale_v7 | flash_sale | 25 | completed | 12.90 | 0.39 | 880 | 16.48 | 1.3955 | 0.0063 | True | 1.4 cores |
+| 20261027-080826-shopping-hpa_tuned-flash_sale | hpa_tuned | — | flash_sale | 25 | completed | 11.70 | 0.57 | 1,500 | 16.51 | 1.3955 | 0.0063 | True | 0.8 cores |
+| 20261027-081950-shopping-auto-gradual_ramp | auto | flexascale_v7 | gradual_ramp | 25 | completed | 12.12 | 0.08 | 240 | 16.00 | 1.3567 | 0.0061 | True | 1.3 cores |
+| 20261027-083628-shopping-hpa-gradual_ramp | hpa | — | gradual_ramp | 25 | completed | 11.73 | 0.11 | 310 | 16.76 | 1.4067 | 0.0064 | True | 0.7 cores |
+| 20261027-084748-shopping-hpa_tuned-gradual_ramp | hpa_tuned | — | gradual_ramp | 25 | completed | 12.01 | 0.11 | 230 | 16.00 | 1.3567 | 0.0061 | True | 0.7 cores |
+| 20261027-090424-shopping-flexascale-gradual_ramp | flexascale | flexascale_v7 | gradual_ramp | 25 | completed | 12.00 | 0.08 | 240 | 16.00 | 1.3566 | 0.0061 | True | 1.3 cores |
+| 20261027-091600-shopping-flexascale-gradual_ramp | flexascale | unknown | gradual_ramp | 25 | completed | 12.04 | 0.03 | 190 | 16.00 | 1.3564 | 0.0061 | True | 1.2 cores |
+| 20261027-093242-shopping-flexascale-traffic_drop | flexascale | unknown | traffic_drop | 25 | completed | 8.37 | 0.04 | 270 | 16.00 | 1.3565 | 0.0061 | True | 1.2 cores |
+| 20261027-094417-shopping-hpa_tuned-traffic_drop | hpa_tuned | — | traffic_drop | 25 | completed | 8.69 | 0.27 | 250 | 16.00 | 1.3565 | 0.0061 | True | 0.7 cores |
+| 20261027-095541-shopping-flexascale-traffic_drop | flexascale | flexascale_v7 | traffic_drop | 25 | completed | 8.43 | 0.08 | 300 | 16.00 | 1.3566 | 0.0061 | True | 1.2 cores |
+| 20261027-100716-shopping-hpa-traffic_drop | hpa | — | traffic_drop | 25 | completed | 8.71 | 0.19 | 290 | 19.37 | 1.6237 | 0.0074 | True | 0.7 cores |
+| 20261027-101834-shopping-auto-traffic_drop | auto | flexascale_v7 | traffic_drop | 25 | completed | 8.57 | 0.23 | 230 | 16.00 | 1.3566 | 0.0061 | True | 1.2 cores |
+| 20261027-103005-shopping-flexascale-steady_browsing | flexascale | flexascale_v7 | steady_browsing | 25 | completed | 18.35 | 0.00 | 100 | 16.00 | 1.3564 | 0.0061 | True | 1.3 cores |
+| 20261027-104140-shopping-auto-steady_browsing | auto | flexascale_v7 | steady_browsing | 25 | completed | 18.54 | 0.00 | 95 | 16.00 | 1.3565 | 0.0061 | True | 1.3 cores |
+| 20261027-105308-shopping-flexascale-steady_browsing | flexascale | unknown | steady_browsing | 25 | completed | 18.50 | 0.00 | 97 | 16.00 | 1.3565 | 0.0061 | True | 1.3 cores |
+| 20261027-110932-shopping-hpa_tuned-steady_browsing | hpa_tuned | — | steady_browsing | 25 | completed | 18.65 | 0.02 | 100 | 16.00 | 1.3566 | 0.0061 | True | 0.7 cores |
+| 20261027-112056-shopping-hpa-steady_browsing | hpa | — | steady_browsing | 25 | completed | 18.29 | 0.02 | 110 | 17.59 | 1.4847 | 0.0067 | True | 0.8 cores |
+| 20261027-113714-shopping-hpa-checkout_heavy | hpa | — | checkout_heavy | 25 | completed | 13.06 | 4.59 | 3,900 | 20.94 | 1.7638 | 0.0080 | True | 1.0 cores |
+| 20261027-114841-shopping-flexascale-checkout_heavy | flexascale | flexascale_v7 | checkout_heavy | 25 | completed | 14.78 | 2.42 | 2,500 | 16.00 | 1.3563 | 0.0061 | True | 1.5 cores |
+| 20261027-120019-shopping-flexascale-checkout_heavy | flexascale | unknown | checkout_heavy | 25 | completed | 15.19 | 2.36 | 2,300 | 16.00 | 1.3563 | 0.0061 | True | 1.4 cores |
+| 20261027-121155-shopping-hpa_tuned-checkout_heavy | hpa_tuned | — | checkout_heavy | 25 | completed | 14.58 | 2.42 | 2,500 | 16.00 | 1.3566 | 0.0061 | True | 0.9 cores |
+| 20261027-122820-shopping-auto-checkout_heavy | auto | flexascale_v7 | checkout_heavy | 25 | completed | 14.83 | 2.69 | 2,200 | 16.00 | 1.3568 | 0.0061 | True | 1.4 cores |
+| 20261027-123948-shopping-hpa-payment_degradation | hpa | — | payment_degradation | 25 | completed | 14.01 | 0.57 | 1,500 | 18.79 | 1.5791 | 0.0072 | True | 0.9 cores |
+| 20261027-125616-shopping-flexascale-payment_degradation | flexascale | flexascale_v7 | payment_degradation | 25 | completed | 14.74 | 0.63 | 920 | 16.00 | 1.3565 | 0.0061 | True | 1.4 cores |
+| 20261027-130756-shopping-hpa_tuned-payment_degradation | hpa_tuned | — | payment_degradation | 25 | completed | 14.31 | 0.65 | 1,300 | 16.00 | 1.3565 | 0.0061 | True | 0.8 cores |
+| 20261027-132422-shopping-auto-payment_degradation | auto | flexascale_v7 | payment_degradation | 25 | completed | 14.95 | 0.27 | 770 | 16.00 | 1.3567 | 0.0061 | True | 2.0 cores |
+| 20261027-133552-shopping-flexascale-payment_degradation | flexascale | unknown | payment_degradation | 25 | completed | 14.46 | 0.09 | 1,000 | 16.00 | 1.3565 | 0.0061 | True | 1.9 cores |
+| 20261027-135240-shopping-flexascale-flash_sale | flexascale | unknown | flash_sale | 25 | completed | 12.66 | 0.55 | 1,000 | 16.35 | 1.3842 | 0.0063 | True | 1.5 cores |
+| 20261027-140418-shopping-hpa_tuned-flash_sale | hpa_tuned | — | flash_sale | 25 | completed | 11.50 | 0.58 | 1,700 | 16.48 | 1.3928 | 0.0063 | True | 0.8 cores |
+| 20261027-141542-shopping-flexascale-flash_sale | flexascale | flexascale_v7 | flash_sale | 25 | completed | 12.48 | 0.21 | 1,200 | 16.62 | 1.4052 | 0.0064 | True | 1.4 cores |
+| 20261027-143242-shopping-hpa-flash_sale | hpa | — | flash_sale | 25 | completed | 10.67 | 0.62 | 2,000 | 19.05 | 1.5905 | 0.0072 | True | 0.9 cores |
+| 20261027-144925-shopping-auto-flash_sale | auto | flexascale_v7 | flash_sale | 25 | completed | 12.71 | 0.50 | 900 | 16.41 | 1.3900 | 0.0063 | True | 1.4 cores |
+| 20261027-150056-shopping-hpa_tuned-gradual_ramp | hpa_tuned | — | gradual_ramp | 25 | completed | 11.41 | 0.17 | 460 | 16.00 | 1.3572 | 0.0061 | True | 1.8 cores |
+| 20261027-172740-shopping-flexascale-gradual_ramp | flexascale | unknown | gradual_ramp | 25 | completed | 11.82 | 0.06 | 240 | 16.00 | 1.3564 | 0.0061 | True | 1.4 cores |
+| 20261027-173350-shopping-hpa-gradual_ramp | hpa | — | gradual_ramp | 25 | completed | 11.57 | 0.23 | 320 | 16.67 | 1.4010 | 0.0063 | True | 0.8 cores |
+| 20261027-175019-shopping-flexascale-gradual_ramp | flexascale | flexascale_v7 | gradual_ramp | 25 | completed | 11.96 | 0.08 | 210 | 16.00 | 1.3565 | 0.0061 | True | 1.3 cores |
+| 20261027-180157-shopping-auto-gradual_ramp | auto | flexascale_v7 | gradual_ramp | 25 | completed | 12.39 | 0.11 | 230 | 16.00 | 1.3564 | 0.0061 | True | 1.4 cores |
+| 20261027-181829-shopping-auto-traffic_drop | auto | flexascale_v7 | traffic_drop | 25 | completed | 8.51 | 0.08 | 300 | 16.00 | 1.3566 | 0.0061 | True | 1.3 cores |
+| 20261027-182956-shopping-hpa_tuned-traffic_drop | hpa_tuned | — | traffic_drop | 25 | completed | 8.43 | 0.12 | 360 | 16.00 | 1.3566 | 0.0061 | True | 0.7 cores |
+| 20261027-184120-shopping-hpa-traffic_drop | hpa | — | traffic_drop | 25 | completed | 8.27 | 0.36 | 400 | 18.86 | 1.5846 | 0.0072 | True | 0.8 cores |
+| 20261027-185240-shopping-flexascale-traffic_drop | flexascale | unknown | traffic_drop | 25 | completed | 8.53 | 0.08 | 360 | 16.00 | 1.3565 | 0.0061 | True | 1.2 cores |
+| 20261027-190417-shopping-flexascale-traffic_drop | flexascale | flexascale_v7 | traffic_drop | 25 | completed | 8.47 | 0.16 | 250 | 16.00 | 1.3564 | 0.0061 | True | 1.3 cores |
+| 20261027-201526-shopping-auto-steady_browsing | auto | flexascale_v7 | steady_browsing | 25 | completed | 18.56 | 0.00 | 41 | 16.00 | 1.3563 | 0.0061 | True | 0.9 cores |
+| 20261027-202330-shopping-flexascale-steady_browsing | flexascale | unknown | steady_browsing | 25 | completed | 18.51 | 0.04 | 54 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261027-203459-shopping-flexascale-steady_browsing | flexascale | flexascale_v7 | steady_browsing | 25 | completed | 18.36 | 0.00 | 49 | 16.00 | 1.3562 | 0.0061 | True | 1.0 cores |
+| 20261027-204627-shopping-hpa_tuned-steady_browsing | hpa_tuned | — | steady_browsing | 25 | completed | 18.87 | 0.02 | 42 | 16.00 | 1.3562 | 0.0061 | True | 0.4 cores |
+| 20261027-205750-shopping-flexascale-checkout_heavy | flexascale | flexascale_v7 | checkout_heavy | 25 | completed | 19.97 | 0.55 | 600 | 16.00 | 1.3562 | 0.0061 | True | 1.1 cores |
+| 20261027-210918-shopping-flexascale-checkout_heavy | flexascale | unknown | checkout_heavy | 25 | completed | 19.52 | 0.73 | 630 | 16.00 | 1.3562 | 0.0061 | True | 1.1 cores |
+| 20261027-212047-shopping-auto-checkout_heavy | auto | flexascale_v7 | checkout_heavy | 25 | completed | 19.86 | 0.62 | 630 | 16.00 | 1.3562 | 0.0061 | True | 1.1 cores |
+| 20261027-213720-shopping-hpa_tuned-checkout_heavy | hpa_tuned | — | checkout_heavy | 25 | completed | 18.90 | 0.81 | 720 | 16.00 | 1.3565 | 0.0061 | True | 0.8 cores |
+| 20261028-000947-shopping-auto-payment_degradation | auto | flexascale_v7 | payment_degradation | 25 | completed | 15.66 | 0.25 | 200 | 16.00 | 1.3562 | 0.0061 | True | 1.1 cores |
+| 20261028-001548-shopping-flexascale-payment_degradation | flexascale | flexascale_v7 | payment_degradation | 25 | completed | 15.87 | 0.08 | 210 | 16.00 | 1.3563 | 0.0061 | True | 1.0 cores |
+| 20261028-002716-shopping-flexascale-payment_degradation | flexascale | unknown | payment_degradation | 25 | completed | 15.73 | 0.19 | 230 | 16.00 | 1.3562 | 0.0061 | True | 1.0 cores |
+| 20261028-003845-shopping-hpa_tuned-payment_degradation | hpa_tuned | — | payment_degradation | 25 | completed | 15.80 | 0.21 | 230 | 16.00 | 1.3562 | 0.0061 | True | 0.5 cores |
+| 20261028-005008-shopping-hpa_tuned-flash_sale | hpa_tuned | — | flash_sale | 25 | completed | 16.05 | 0.25 | 350 | 16.43 | 1.3882 | 0.0063 | True | 0.6 cores |
+| 20261028-010624-shopping-flexascale-flash_sale | flexascale | flexascale_v7 | flash_sale | 25 | completed | 15.47 | 0.30 | 570 | 16.48 | 1.3951 | 0.0063 | True | 1.2 cores |
+| 20261028-011753-shopping-auto-flash_sale | auto | flexascale_v7 | flash_sale | 25 | completed | 15.63 | 0.15 | 470 | 16.44 | 1.3923 | 0.0063 | True | 1.1 cores |
+| 20261028-012918-shopping-flexascale-flash_sale | flexascale | unknown | flash_sale | 25 | completed | 15.67 | 0.28 | 450 | 16.35 | 1.3840 | 0.0063 | True | 1.0 cores |
+| 20261028-014047-shopping-flexascale-gradual_ramp | flexascale | flexascale_v7 | gradual_ramp | 25 | completed | 12.49 | 0.05 | 120 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-015216-shopping-hpa_tuned-gradual_ramp | hpa_tuned | — | gradual_ramp | 25 | completed | 12.35 | 0.00 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.4 cores |
+| 20261028-020826-shopping-auto-gradual_ramp | auto | flexascale_v7 | gradual_ramp | 25 | completed | 12.34 | 0.11 | 140 | 16.00 | 1.3562 | 0.0061 | True | 1.0 cores |
+| 20261028-021953-shopping-flexascale-gradual_ramp | flexascale | unknown | gradual_ramp | 25 | completed | 12.30 | 0.00 | 140 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-023121-shopping-auto-traffic_drop | auto | flexascale_v7 | traffic_drop | 25 | completed | 8.87 | 0.04 | 140 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-024248-shopping-flexascale-traffic_drop | flexascale | flexascale_v7 | traffic_drop | 25 | completed | 8.61 | 0.00 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-025416-shopping-hpa_tuned-traffic_drop | hpa_tuned | — | traffic_drop | 25 | completed | 8.80 | 0.04 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.4 cores |
+| 20261028-030539-shopping-flexascale-traffic_drop | flexascale | unknown | traffic_drop | 25 | completed | 8.81 | 0.04 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-031707-shopping-hpa_tuned-steady_browsing | hpa_tuned | — | steady_browsing | 25 | completed | 18.50 | 0.02 | 48 | 16.00 | 1.3563 | 0.0061 | True | 0.4 cores |
+| 20261028-032830-shopping-flexascale-steady_browsing | flexascale | flexascale_v7 | steady_browsing | 25 | completed | 18.78 | 0.02 | 48 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-033958-shopping-flexascale-steady_browsing | flexascale | unknown | steady_browsing | 25 | completed | 18.58 | 0.02 | 45 | 16.00 | 1.3563 | 0.0061 | True | 0.9 cores |
+| 20261028-035127-shopping-auto-steady_browsing | auto | flexascale_v7 | steady_browsing | 25 | completed | 18.44 | 0.00 | 43 | 16.00 | 1.3562 | 0.0061 | True | 1.0 cores |
+| 20261028-040254-shopping-auto-checkout_heavy | auto | flexascale_v7 | checkout_heavy | 25 | completed | 19.67 | 0.68 | 660 | 16.00 | 1.3563 | 0.0061 | True | 1.1 cores |
+| 20261028-041417-shopping-flexascale-checkout_heavy | flexascale | flexascale_v7 | checkout_heavy | 25 | completed | 19.11 | 0.85 | 750 | 16.00 | 1.3562 | 0.0061 | True | 1.1 cores |
+| 20261028-042549-shopping-flexascale-checkout_heavy | flexascale | unknown | checkout_heavy | 25 | completed | 19.91 | 0.80 | 650 | 16.00 | 1.3562 | 0.0061 | True | 1.1 cores |
+| 20261028-043716-shopping-hpa_tuned-checkout_heavy | hpa_tuned | — | checkout_heavy | 25 | completed | 19.36 | 0.65 | 740 | 16.00 | 1.3562 | 0.0061 | True | 0.5 cores |
+| 20261028-044839-shopping-hpa_tuned-payment_degradation | hpa_tuned | — | payment_degradation | 25 | completed | 15.85 | 0.10 | 200 | 16.00 | 1.3562 | 0.0061 | True | 0.5 cores |
+| 20261028-050518-shopping-auto-payment_degradation | auto | flexascale_v7 | payment_degradation | 25 | completed | 15.64 | 0.28 | 230 | 16.00 | 1.3563 | 0.0061 | True | 1.0 cores |
+| 20261028-051644-shopping-flexascale-payment_degradation | flexascale | unknown | payment_degradation | 25 | completed | 15.59 | 0.17 | 270 | 16.00 | 1.3562 | 0.0061 | True | 1.0 cores |
+| 20261028-052811-shopping-flexascale-payment_degradation | flexascale | flexascale_v7 | payment_degradation | 25 | completed | 15.46 | 0.32 | 290 | 16.00 | 1.3562 | 0.0061 | True | 1.0 cores |
+| 20261028-053942-shopping-auto-flash_sale | auto | flexascale_v7 | flash_sale | 25 | completed | 15.38 | 0.39 | 470 | 16.44 | 1.3923 | 0.0063 | True | 1.1 cores |
+| 20261028-055106-shopping-hpa_tuned-flash_sale | hpa_tuned | — | flash_sale | 25 | completed | 15.51 | 0.26 | 520 | 16.33 | 1.3826 | 0.0063 | True | 0.5 cores |
+| 20261028-060717-shopping-flexascale-flash_sale | flexascale | unknown | flash_sale | 25 | completed | 15.41 | 0.26 | 470 | 16.35 | 1.3840 | 0.0063 | True | 1.0 cores |
+| 20261028-061846-shopping-flexascale-flash_sale | flexascale | flexascale_v7 | flash_sale | 25 | completed | 15.07 | 0.26 | 510 | 16.44 | 1.3923 | 0.0063 | True | 1.1 cores |
+| 20261028-063015-shopping-auto-gradual_ramp | auto | flexascale_v7 | gradual_ramp | 25 | completed | 12.24 | 0.08 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-064141-shopping-flexascale-gradual_ramp | flexascale | flexascale_v7 | gradual_ramp | 25 | completed | 12.58 | 0.03 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-065308-shopping-hpa_tuned-gradual_ramp | hpa_tuned | — | gradual_ramp | 25 | completed | 12.17 | 0.00 | 120 | 16.00 | 1.3562 | 0.0061 | True | 0.4 cores |
+| 20261028-070431-shopping-flexascale-gradual_ramp | flexascale | unknown | gradual_ramp | 25 | completed | 12.41 | 0.05 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-071559-shopping-flexascale-traffic_drop | flexascale | flexascale_v7 | traffic_drop | 25 | completed | 8.83 | 0.04 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-072728-shopping-hpa_tuned-traffic_drop | hpa_tuned | — | traffic_drop | 25 | completed | 8.88 | 0.00 | 150 | 16.00 | 1.3562 | 0.0061 | True | 0.4 cores |
+| 20261028-073850-shopping-auto-traffic_drop | auto | flexascale_v7 | traffic_drop | 25 | completed | 8.86 | 0.04 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-075017-shopping-flexascale-traffic_drop | flexascale | unknown | traffic_drop | 25 | completed | 8.80 | 0.08 | 130 | 16.00 | 1.3562 | 0.0061 | True | 0.9 cores |
+| 20261028-232543-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.79 | 0.07 | 140 | 16.00 | 1.3602 | 0.0062 | True | 2.4 cores |
+| 20261028-234234-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.80 | 0.04 | 140 | 16.98 | 1.4354 | 0.0065 | True | 2.5 cores |
+| 20261029-101022-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.71 | 0.06 | 130 | 16.65 | 1.4114 | 0.0064 | True | 1.5 cores |
+| 20261029-102134-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.38 | 0.10 | 120 | 16.00 | 1.3592 | 0.0062 | True | 1.6 cores |
+| 20261029-103315-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.40 | 0.08 | 100 | 16.00 | 1.3599 | 0.0062 | True | 1.5 cores |
+| 20261029-104937-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.63 | 0.11 | 120 | 16.00 | 1.3599 | 0.0062 | True | 1.9 cores |
+| 20261029-110108-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.63 | 0.02 | 130 | 16.00 | 1.3597 | 0.0062 | True | 1.8 cores |
+| 20261029-124341-shopping-hpa_tuned-calibration_steady | hpa_tuned | — | calibration_steady | 25 | completed | 17.47 | 0.04 | 130 | 16.00 | 1.3596 | 0.0062 | True | 2.1 cores |
+| 20261029-142402-shopping-hpa-steady_browsing | hpa | — | steady_browsing | 25 | completed | 18.31 | 0.02 | 60 | 16.62 | 1.4083 | 0.0064 | True | 1.6 cores |
+| 20261029-143954-shopping-hpa_tuned-steady_browsing | hpa_tuned | — | steady_browsing | 25 | completed | 18.44 | 0.00 | 55 | 16.00 | 1.3598 | 0.0062 | True | 1.7 cores |
+| 20261029-145135-shopping-flexascale-steady_browsing | flexascale | flexascale_v9 | steady_browsing | 25 | completed | 18.76 | 0.00 | 57 | 16.00 | 1.3597 | 0.0062 | True | 2.6 cores |
+| 20261029-150817-shopping-auto-steady_browsing | auto | flexascale_v9 | steady_browsing | 25 | completed | 18.50 | 0.02 | 59 | 16.00 | 1.3596 | 0.0062 | True | 2.6 cores |
+| 20261029-151959-shopping-flexascale-checkout_heavy | flexascale | flexascale_v9 | checkout_heavy | 25 | completed | 21.39 | 0.67 | 170 | 16.00 | 1.3601 | 0.0062 | True | 2.9 cores |
+| 20261029-153150-shopping-hpa_tuned-checkout_heavy | hpa_tuned | — | checkout_heavy | 25 | completed | 21.47 | 0.71 | 160 | 16.00 | 1.3601 | 0.0062 | True | 1.6 cores |
+| 20261029-154332-shopping-auto-checkout_heavy | auto | flexascale_v9 | checkout_heavy | 25 | completed | 21.06 | 0.74 | 170 | 16.00 | 1.3598 | 0.0062 | True | 2.8 cores |
+| 20261029-155953-shopping-hpa-checkout_heavy | hpa | — | checkout_heavy | 25 | completed | 21.42 | 0.61 | 160 | 19.05 | 1.6051 | 0.0073 | True | 1.6 cores |
+| 20261029-161125-shopping-hpa_tuned-payment_degradation | hpa_tuned | — | payment_degradation | 25 | completed | 15.75 | 0.19 | 150 | 16.00 | 1.3596 | 0.0062 | True | 1.8 cores |
+| 20261029-162756-shopping-auto-payment_degradation | auto | flexascale_v9 | payment_degradation | 25 | completed | 15.65 | 0.11 | 160 | 16.00 | 1.3598 | 0.0062 | True | 2.8 cores |
+| 20261029-163938-shopping-hpa-payment_degradation | hpa | — | payment_degradation | 25 | completed | 15.79 | 0.23 | 150 | 16.79 | 1.4185 | 0.0064 | True | 1.6 cores |
+| 20261029-165059-shopping-flexascale-payment_degradation | flexascale | flexascale_v9 | payment_degradation | 25 | completed | 15.85 | 0.17 | 160 | 16.00 | 1.3601 | 0.0062 | True | 2.9 cores |
+| 20261029-170301-shopping-hpa_tuned-flash_sale | hpa_tuned | — | flash_sale | 25 | completed | 16.15 | 0.43 | 320 | 16.33 | 1.3865 | 0.0063 | True | 1.7 cores |
+| 20261029-171432-shopping-auto-flash_sale | auto | flexascale_v9 | flash_sale | 25 | completed | 16.95 | 0.35 | 200 | 16.60 | 1.4100 | 0.0064 | True | 2.9 cores |
+| 20261029-173816-shopping-hpa-flash_sale | hpa | — | flash_sale | 25 | completed | 15.62 | 0.30 | 410 | 22.25 | 1.8291 | 0.0083 | True | 2.2 cores |
+| 20261029-174938-shopping-flexascale-gradual_ramp | flexascale | flexascale_v9 | gradual_ramp | 25 | completed | 12.33 | 0.08 | 100 | 16.00 | 1.3599 | 0.0062 | True | 3.1 cores |
+| 20261029-180150-shopping-hpa-gradual_ramp | hpa | — | gradual_ramp | 25 | completed | 12.36 | 0.05 | 92 | 16.33 | 1.3839 | 0.0063 | True | 1.8 cores |
+| 20261029-181311-shopping-hpa_tuned-gradual_ramp | hpa_tuned | — | gradual_ramp | 25 | completed | 12.19 | 0.00 | 78 | 16.00 | 1.3606 | 0.0062 | True | 1.6 cores |
+| 20261029-191230-shopping-auto-gradual_ramp | auto | flexascale_v9 | gradual_ramp | 25 | completed | 12.29 | 0.05 | 120 | 16.00 | 1.3601 | 0.0062 | True | 3.2 cores |
+| 20261029-192411-shopping-hpa_tuned-traffic_drop | hpa_tuned | — | traffic_drop | 25 | completed | 9.04 | 0.04 | 99 | 16.00 | 1.3602 | 0.0062 | True | 2.1 cores |
+| 20261029-193553-shopping-flexascale-traffic_drop | flexascale | flexascale_v9 | traffic_drop | 25 | completed | 8.95 | 0.15 | 91 | 16.00 | 1.3605 | 0.0062 | True | 3.1 cores |
+| 20261029-194754-shopping-hpa-traffic_drop | hpa | — | traffic_drop | 25 | completed | 9.09 | 0.04 | 79 | 16.70 | 1.4159 | 0.0064 | True | 1.8 cores |
+| 20261029-195916-shopping-auto-traffic_drop | auto | flexascale_v9 | traffic_drop | 25 | completed | 8.83 | 0.04 | 130 | 16.00 | 1.3604 | 0.0062 | True | 3.3 cores |
+| 20261029-201117-shopping-flexascale-steady_browsing | flexascale | flexascale_v9 | steady_browsing | 25 | completed | 18.60 | 0.02 | 61 | 16.00 | 1.3601 | 0.0062 | True | 3.4 cores |
+| 20261029-202309-shopping-auto-steady_browsing | auto | flexascale_v9 | steady_browsing | 25 | completed | 18.66 | 0.02 | 62 | 16.00 | 1.3604 | 0.0062 | True | 3.4 cores |
+| 20261029-203500-shopping-hpa_tuned-steady_browsing | hpa_tuned | — | steady_browsing | 25 | completed | 18.64 | 0.02 | 56 | 16.00 | 1.3605 | 0.0062 | True | 1.9 cores |
+| 20261029-204642-shopping-hpa-steady_browsing | hpa | — | steady_browsing | 25 | completed | 18.81 | 0.04 | 56 | 16.62 | 1.4092 | 0.0064 | True | 2.0 cores |
+| 20261029-210303-shopping-flexascale-checkout_heavy | flexascale | flexascale_v9 | checkout_heavy | 25 | completed | 20.80 | 0.72 | 190 | 16.00 | 1.3603 | 0.0062 | True | 3.3 cores |
+| 20261029-211505-shopping-hpa_tuned-checkout_heavy | hpa_tuned | — | checkout_heavy | 25 | completed | 21.14 | 0.95 | 170 | 16.00 | 1.3601 | 0.0062 | True | 1.9 cores |
+| 20261029-212647-shopping-auto-checkout_heavy | auto | flexascale_v9 | checkout_heavy | 25 | completed | 20.61 | 0.85 | 190 | 16.00 | 1.3604 | 0.0062 | True | 3.4 cores |
+| 20261029-214328-shopping-hpa-checkout_heavy | hpa | — | checkout_heavy | 25 | completed | 20.89 | 0.70 | 180 | 18.73 | 1.5782 | 0.0072 | True | 2.1 cores |
+| 20261029-220010-shopping-flexascale-payment_degradation | flexascale | flexascale_v9 | payment_degradation | 25 | completed | 15.46 | 0.24 | 180 | 16.00 | 1.3607 | 0.0062 | True | 3.4 cores |
+| 20261029-221734-shopping-hpa_tuned-payment_degradation | hpa_tuned | — | payment_degradation | 25 | completed | 15.44 | 0.13 | 190 | 16.00 | 1.3601 | 0.0062 | True | 1.8 cores |
+| 20261029-223406-shopping-auto-payment_degradation | auto | flexascale_v9 | payment_degradation | 25 | completed | 15.61 | 0.13 | 180 | 16.00 | 1.3604 | 0.0062 | True | 3.4 cores |
+| 20261029-224557-shopping-hpa-payment_degradation | hpa | — | payment_degradation | 25 | completed | 15.66 | 0.30 | 180 | 17.46 | 1.4771 | 0.0067 | True | 1.9 cores |
+| 20261029-225719-shopping-flexascale-flash_sale | flexascale | flexascale_v9 | flash_sale | 25 | completed | 15.12 | 0.37 | 330 | 16.62 | 1.4117 | 0.0064 | True | 3.5 cores |
+| 20261029-231441-shopping-hpa_tuned-flash_sale | hpa_tuned | — | flash_sale | 25 | completed | 15.24 | 0.37 | 400 | 16.48 | 1.3976 | 0.0063 | True | 2.1 cores |
+| 20261029-232612-shopping-hpa-flash_sale | hpa | — | flash_sale | 25 | completed | 13.36 | 0.92 | 930 | 21.42 | 1.7660 | 0.0080 | True | 2.4 cores |
+| 20261030-000158-shopping-auto-gradual_ramp | auto | flexascale_v9 | gradual_ramp | 25 | completed | 10.86 | 0.95 | 260 | 16.00 | 1.3682 | 0.0062 | True | 3.5 cores |
+| 20261030-001350-shopping-hpa_tuned-gradual_ramp | hpa_tuned | — | gradual_ramp | 25 | completed | 12.05 | 0.03 | 170 | 16.00 | 1.3613 | 0.0062 | True | 2.2 cores |
+| 20261030-002542-shopping-hpa-gradual_ramp | hpa | — | gradual_ramp | 25 | completed | 12.01 | 0.08 | 150 | 16.46 | 1.3911 | 0.0063 | True | 2.1 cores |
+| 20261030-004204-shopping-hpa_tuned-traffic_drop | hpa_tuned | — | traffic_drop | 25 | completed | 8.91 | 0.11 | 160 | 16.00 | 1.3607 | 0.0062 | True | 2.1 cores |
+| 20261030-011800-shopping-hpa-traffic_drop | hpa | — | traffic_drop | 25 | completed | 8.22 | 0.20 | 450 | 17.42 | 1.4581 | 0.0066 | True | 2.1 cores |
+| 20261030-015346-shopping-flexascale-gradual_ramp | flexascale | flexascale_v9 | gradual_ramp | 25 | completed | 11.87 | 0.03 | 310 | 16.00 | 1.3612 | 0.0062 | True | 3.5 cores |
+| 20261030-020558-shopping-auto-traffic_drop | auto | flexascale_v9 | traffic_drop | 25 | completed | 7.62 | 0.26 | 670 | 16.00 | 1.3563 | 0.0061 | True | 3.4 cores |
+| 20261030-021821-shopping-flexascale-traffic_drop | flexascale | flexascale_v9 | traffic_drop | 25 | completed | 6.67 | 1.24 | 2,700 | 16.15 | 1.3897 | 0.0063 | True | 3.3 cores |
 
 ## Exclusions and history
 
@@ -340,5 +524,5 @@ Both are paired differences against default HPA, so they are compared through th
 
 ## Data checks
 
-- Runs found: 119; complete: 109. Runs whose cleanup was not verified safe: `20261022-234747-shopping-flexascale-flash_sale` (completed), `20261023-000028-shopping-hpa-steady_browsing` (failed), `20261023-000038-shopping-flexascale-steady_browsing` (failed), `20261023-000048-shopping-hpa-gradual_ramp` (failed), `20261023-000058-shopping-flexascale-gradual_ramp` (failed), `20261023-000108-shopping-hpa-checkout_heavy` (failed), `20261023-000118-shopping-flexascale-checkout_heavy` (failed), `20261023-000128-shopping-hpa-traffic_drop` (failed), `20261023-000138-shopping-flexascale-traffic_drop` (failed).
+- Runs found: 289; complete: 279. Runs whose cleanup was not verified safe: `20261022-234747-shopping-flexascale-flash_sale` (completed), `20261023-000028-shopping-hpa-steady_browsing` (failed), `20261023-000038-shopping-flexascale-steady_browsing` (failed), `20261023-000048-shopping-hpa-gradual_ramp` (failed), `20261023-000058-shopping-flexascale-gradual_ramp` (failed), `20261023-000108-shopping-hpa-checkout_heavy` (failed), `20261023-000118-shopping-flexascale-checkout_heavy` (failed), `20261023-000128-shopping-hpa-traffic_drop` (failed), `20261023-000138-shopping-flexascale-traffic_drop` (failed).
 - `requests` (Locust final stats) and `requests_seen_in_samples` (last 5 s sample) are both in the CSV; they differ only by requests completed after the last sample.

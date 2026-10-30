@@ -52,7 +52,7 @@ def main() -> int:
     ap.add_argument("--hpa-target", type=int, help="override (only before a calibration result exists)")
     args = ap.parse_args()
 
-    tr = json.loads(Path(args.training).read_text())
+    tr = json.loads(Path(args.training).read_text(encoding="utf-8"))
     run = tr.get("selected")
     if not run:
         print("no selected model in", args.training)
@@ -62,7 +62,7 @@ def main() -> int:
     if args.hpa_target:
         target = args.hpa_target
     else:
-        target = json.loads(Path(args.calibration).read_text())["selected_cpu_target_pct"]
+        target = json.loads(Path(args.calibration).read_text(encoding="utf-8"))["selected_cpu_target_pct"]
 
     src = ROOT / "models" / "flexascale_v7" / run / "best_model.zip"
     dst_dir = ROOT / "models" / "flexascale_v7" / "best_model"
@@ -91,10 +91,10 @@ def main() -> int:
         "protocol": "docs/POLICY_V7.md §4.3",
     }
     text = json.dumps(card, indent=1, default=str) + "\n"
-    (dst_dir / "model_card.json").write_text(text)
-    (dst_dir.parent / "model_card.json").write_text(text)  # where the dashboard's Models page and Dockerfile look
+    (dst_dir / "model_card.json").write_text(text, encoding="utf-8")
+    (dst_dir.parent / "model_card.json").write_text(text, encoding="utf-8")  # where the dashboard's Models page and Dockerfile look
 
-    base = yaml.safe_load((ROOT / "config" / "apps" / "shopping.yaml").read_text())
+    base = yaml.safe_load((ROOT / "config" / "apps" / "shopping.yaml").read_text(encoding="utf-8"))
     pol = dict(base)
     pol.update({
         "max_step": V7_GUARDS.max_step, "max_scale_down_step": V7_GUARDS.max_scale_down_step,
@@ -106,15 +106,15 @@ def main() -> int:
                  "hpa_target_pct": float(target)},
     })
     out = ROOT / "config" / "apps" / "shopping_v7.yaml"
-    out.write_text(POLICY_HEADER + yaml.safe_dump(pol, sort_keys=False, default_flow_style=None))
+    out.write_text(POLICY_HEADER + yaml.safe_dump(pol, sort_keys=False, default_flow_style=None), encoding="utf-8")
     rule = dict(pol)
     rule["controller_rule"] = {"type": "limit_target", "target": t, "down": d}
     (ROOT / "config" / "apps" / "shopping_v7_rule.yaml").write_text(
         POLICY_HEADER.replace("the v7 graph policy", f"the hand-written rule {rule_name} instead of a model (attribution arm)")
-        + yaml.safe_dump(rule, sort_keys=False, default_flow_style=None))
+        + yaml.safe_dump(rule, sort_keys=False, default_flow_style=None), encoding="utf-8")
 
     lab_path = ROOT / "config" / "lab.yaml"
-    text = lab_path.read_text()
+    text = lab_path.read_text(encoding="utf-8")
     if "variants:" not in text:
         text = text.replace("    policy: config/apps/shopping.yaml\n",
                             "    policy: config/apps/shopping.yaml\n    variants:                                  # docs/POLICY_V7.md §3.2\n"
@@ -122,7 +122,7 @@ def main() -> int:
     text = re.sub(r"\nhpa_tuned:.*\n", "\n", text)
     text = re.sub(r"^(e2e_p95_slo_ms: 1000.*)$", lambda m: m.group(1) + f"\nhpa_tuned: {{cpu_target_pct: {target}, scale_down_window_s: 60}}"
                   "              # docs/POLICY_V7.md §2.1 calibration", text, count=1, flags=re.M)
-    lab_path.write_text(text)
+    lab_path.write_text(text, encoding="utf-8")
 
     hpa_fields = {"hpa_cpu_target_pct": target, "hpa_scale_down_window_s": 60}
     arms = {"hpa_default": {"controller": "hpa"},
@@ -130,7 +130,7 @@ def main() -> int:
             "rl": {"controller": "flexascale", "policy_variant": "v7", **hpa_fields},
             "auto": {"controller": "auto", "policy_variant": "v7", **hpa_fields},
             "heuristic": {"controller": "flexascale", "policy_variant": "v7_rule", **hpa_fields}}
-    (ROOT / "reports" / "v7" / "arms.json").write_text(json.dumps(arms, indent=1) + "\n")
+    (ROOT / "reports" / "v7" / "arms.json").write_text(json.dumps(arms, indent=1) + "\n", encoding="utf-8")
     print(f"promoted {run} -> {dst_dir}; rule {rule_name}; HPA-tuned target {target}%; wrote shopping_v7*.yaml, lab.yaml, arms.json")
     return 0
 

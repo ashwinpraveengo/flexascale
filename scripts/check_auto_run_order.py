@@ -4,7 +4,7 @@ import json, glob, math
 from flexascale.lab.benchmark import mean_ci
 runs = []
 for p in sorted(glob.glob('reports/experiments/20261026-*/run.json')):
-    r = json.load(open(p))
+    r = json.load(open(p, encoding="utf-8"))
     if r['started_at'] < __import__('datetime').datetime(2026,10,26,4,34).timestamp() or not (r.get('summary') or {}).get('complete'):  # clean batch only (>= 04:35)
         continue
     runs.append(r)

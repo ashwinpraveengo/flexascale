@@ -25,6 +25,8 @@ const P: Record<string, string> = {
   layers: 'M12 2l10 6-10 6L2 8zM2 16l10 6 10-6',
   clock: 'M12 22a10 10 0 100-20 10 10 0 000 20zM12 6v6l4 2',
   refresh: 'M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0114.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0020.5 15',
+  graph: 'M5 6a2 2 0 100-4 2 2 0 000 4zM19 6a2 2 0 100-4 2 2 0 000 4zM12 22a2 2 0 100-4 2 2 0 000 4zM5 6l6.5 12M19 6l-6.5 12M7 4h10',
+  history: 'M3 12a9 9 0 109-9 9.7 9.7 0 00-6.7 2.8L3 8M3 3v5h5M12 7v5l4 2',
 };
 
 export function Icon({ name, size = 16, className = '', style }: { name: keyof typeof P | string; size?: number; className?: string; style?: React.CSSProperties }) {

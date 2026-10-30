@@ -40,7 +40,7 @@ from flexascale.config.safety_config import SafetyConfig
 from flexascale.discovery.workloads import WorkloadDiscovery, WorkloadInfo
 from flexascale.k8s.kube import Kube
 from flexascale.metrics.workload_metrics import WorkloadMetrics, WorkloadMetricsClient
-from flexascale.operator.auto_mode import AutoArbiter, AutoConfig
+from flexascale.operator.auto_mode import AutoArbiter, AutoConfig, hpa_recommendation
 from flexascale.rl.features_v3 import FeatureTracker
 from flexascale.rl.policy_runtime import PolicyOutput, PolicyRuntime
 from flexascale.safety.hpa_manager import HPAManager
@@ -458,6 +458,11 @@ class AppOperator:
             "hpa": workload.hpa.name if workload.hpa else None,
         }
 
+        # What native HPA's rule would ask for from the same telemetry (one sync, no stabilisation): an
+        # estimate for the dashboard timeline, labelled as such, never used to scale.
+        if m.cpu_pct is not None:
+            record["hpa_recommendation"] = hpa_recommendation(current, m.cpu_pct, p.cpu_target_pct, 0.1, lo, hi)
+
         telemetry_ok = m.cpu_pct is not None and not m.stale
         if not telemetry_ok:
             reasons.append("telemetry_unavailable" if m.cpu_pct is None else "telemetry_stale")
@@ -469,6 +474,7 @@ class AppOperator:
         else:
             delta = max(-p.max_scale_down_step, min(p.max_step, self._delta(action, output, idx)))
             proposed = max(lo, min(hi, current + delta))
+            record["policy_replicas"] = int(proposed)  # the policy's own proposal, before the safety guards
             if current < lo or current > hi:
                 proposed = max(lo, min(hi, current))
                 reasons.append("restore_replica_bounds")
@@ -617,5 +623,5 @@ class AppOperator:
             return
         self.status_file.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.status_file.with_suffix(".tmp")
-        tmp.write_text(json.dumps(self.status(), default=str, indent=2))
+        tmp.write_text(json.dumps(self.status(), default=str, indent=2), encoding="utf-8")
         tmp.replace(self.status_file)

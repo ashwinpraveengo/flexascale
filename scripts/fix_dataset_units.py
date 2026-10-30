@@ -81,7 +81,7 @@ def main() -> int:
 
     if not args.dry_run and results:
         prov_path = PROCESSED_DIR / "PROVENANCE.json"
-        prov = json.loads(prov_path.read_text()) if prov_path.exists() else {}
+        prov = json.loads(prov_path.read_text(encoding="utf-8")) if prov_path.exists() else {}
         prov.update({
             "source": "Alibaba cluster-trace-microservices-v2021 (https://github.com/alibaba/clusterdata)",
             "raw_files": [
@@ -107,7 +107,7 @@ def main() -> int:
                 "factor": 100.0,
                 "files": results,
             })
-        prov_path.write_text(json.dumps(prov, indent=2) + "\n")
+        prov_path.write_text(json.dumps(prov, indent=2) + "\n", encoding="utf-8")
         print(f"Provenance written to {prov_path}")
     return 0
 

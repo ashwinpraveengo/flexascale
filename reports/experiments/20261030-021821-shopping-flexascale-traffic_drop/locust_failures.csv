@@ -1,0 +1,12 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/orders/checkout [Success],HTTPError('400 Client Error: Bad Request for url: POST /api/orders/checkout [Success]'),1,2026-10-29T20:56:51Z,2026-10-29T20:56:51Z
+POST,POST /api/shipping/quote,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/shipping/quote'),1,2026-10-29T20:56:38Z,2026-10-29T20:56:38Z
+GET,GET /api/categories,HTTPError('504 Server Error: Gateway Timeout for url: GET /api/categories'),1,2026-10-29T20:55:18Z,2026-10-29T20:55:18Z
+POST,POST /api/cart/{user_id}/items,HTTPError('502 Server Error: Bad Gateway for url: POST /api/cart/{user_id}/items'),2,2026-10-29T20:56:38Z,2026-10-29T20:57:04Z
+GET,GET /api/products/{id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/products/{id}'),2,2026-10-29T20:55:18Z,2026-10-29T20:55:18Z
+POST,POST /api/cart/{user_id}/items,HTTPError('504 Server Error: Gateway Timeout for url: POST /api/cart/{user_id}/items'),6,2026-10-29T20:56:35Z,2026-10-29T20:56:38Z
+GET,GET /api/reviews/{id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/reviews/{id}'),4,2026-10-29T20:56:35Z,2026-10-29T20:56:38Z
+GET,GET /api/search?q=[search],HTTPError('504 Server Error: Gateway Timeout for url: GET /api/search?q=[search]'),2,2026-10-29T20:56:38Z,2026-10-29T20:56:38Z
+GET,GET /api/orders/user/{user_id},HTTPError('504 Server Error: Gateway Timeout for url: GET /api/orders/user/{user_id}'),1,2026-10-29T20:55:18Z,2026-10-29T20:55:18Z
+GET,GET /api/products,HTTPError('504 Server Error: Gateway Timeout for url: GET /api/products'),2,2026-10-29T20:55:18Z,2026-10-29T20:56:38Z
+POST,POST /api/orders/checkout [Success],HTTPError('504 Server Error: Gateway Timeout for url: POST /api/orders/checkout [Success]'),3,2026-10-29T20:56:00Z,2026-10-29T20:56:38Z

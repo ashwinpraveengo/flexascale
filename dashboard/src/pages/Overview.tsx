@@ -2,6 +2,8 @@ import { ReactNode, useMemo, useState } from 'react';
 import { CONTROLLER_LABEL, Json, deltaDigits, isNativeHpa, OWNER_COLOR, fmt, fmtAgo, fmtElapsed, fmtMoney, fmtSigned } from '../api';
 import { Card, Empty, ErrorNote, Icon, Level, Meter, OwnerBadge, Skeleton, Sparkline, Stat, StatusBadge, useHistory } from '../ui';
 import { Topology } from '../Topology';
+import { ScalingTimeline } from '../timeline/ScalingTimeline';
+import { feedOfRun, useLiveHistory } from '../timeline/feeds';
 
 /** Fewer paired runs than this: no verdict, the result is shown as preliminary. */
 export const MIN_PAIRS = 6;
@@ -85,6 +87,9 @@ export function Overview({ overview, live, liveErr, active, app, bench, onNaviga
   const fsModels = (bench?.models || []).filter((m: Json) => !String(m.model).startsWith('Native HPA'));
   const verdict = fsModels.find((m: Json) => String(m.model).includes('Auto')) || fsModels[0];
   const sNode = sel ? services.find((s) => s.name === sel) : null;
+  const histFeed = useLiveHistory(app, !exp, 5000, live);
+  const runFeed = useMemo(() => feedOfRun(exp, running ? 'live' : 'replay'), [exp, running]);
+  const feed = exp ? runFeed : histFeed;
 
   if (!live && !liveErr) {
     return (
@@ -119,6 +124,9 @@ export function Overview({ overview, live, liveErr, active, app, bench, onNaviga
       </div>
 
       <WorkloadStrip exp={exp} running={!!running} last={last} services={services} />
+
+      <ScalingTimeline feed={feed} compact strips={false}
+        emptyText="Recording live cluster state from now on (5 s). Start an experiment in the Live lab for traffic, latency and policy decisions." />
 
       <div className="grid gap-4 xl:grid-cols-[1fr_380px]">
         <Card eyebrow="Application topology" title={`${services.length} services · ${live?.namespace || ''}`}

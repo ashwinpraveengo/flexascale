@@ -22,10 +22,12 @@ import dataclasses
 import json
 import logging
 import os
+import socket
 import subprocess
 import sys
 import threading
 import time
+from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -107,7 +109,7 @@ class LabConfig:
 
     @classmethod
     def load(cls, path: str | Path) -> "LabConfig":
-        data = yaml.safe_load(Path(path).read_text()) or {}
+        data = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
         apps = {
             name: LabApp(
                 name=name,
@@ -205,7 +207,7 @@ def read_locust_history(path: Path) -> Optional[Dict[str, Any]]:
         return None
     last = None
     try:
-        with path.open(newline="") as f:
+        with path.open(newline="", encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 if row.get("Name") == "Aggregated":
                     last = row
@@ -230,7 +232,7 @@ def read_locust_final(path: Path) -> Optional[Dict[str, Any]]:
     if not path.is_file():
         return None
     try:
-        with path.open(newline="") as f:
+        with path.open(newline="", encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 if row.get("Name") == "Aggregated":
                     req = int(_float(row.get("Request Count")) or 0)
@@ -280,14 +282,48 @@ def start_settled(run: Dict[str, Any]) -> Optional[bool]:
     return (run.get("summary") or {}).get("settled_start")
 
 
+def _reachable(host: str, port: int = 80, timeout: float = 1.5) -> bool:
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
 def resolve_app_url(app: LabApp, profile: str) -> str:
+    """``minikube-ingress``: the Minikube IP if this host can reach it (Linux), else the ingress
+    through ``minikube tunnel`` on 127.0.0.1 (Docker driver on Windows/macOS; fsctl start runs it)."""
     if app.url != "minikube-ingress":
         return app.url
     try:
         ip = subprocess.run(["minikube", "ip", "-p", profile], capture_output=True, text=True, timeout=15).stdout.strip()
     except (OSError, subprocess.TimeoutExpired):
         ip = ""
+    if ip and _reachable(ip):
+        return f"http://{ip}"
+    if _reachable("127.0.0.1"):
+        return "http://127.0.0.1"
     return f"http://{ip}" if ip else ""
+
+
+def host_snapshot() -> Dict[str, Any]:
+    """Host conditions for the run's validity checks (scripts/check_host_load.py): AC power, whole-machine
+    CPU in cores since the previous call (on Windows/macOS this includes the Docker VM running Minikube)
+    and the current CPU clock. Values the platform does not provide are None."""
+    out: Dict[str, Any] = {"on_ac": None, "battery_pct": None, "cpu_cores": None, "cpu_mhz": None}
+    try:
+        import psutil
+
+        bat = psutil.sensors_battery()
+        if bat is not None:
+            out["on_ac"] = bat.power_plugged
+            out["battery_pct"] = round(bat.percent, 1)
+        out["cpu_cores"] = round(psutil.cpu_percent(None) / 100.0 * (psutil.cpu_count() or 1), 2)
+        freq = psutil.cpu_freq()
+        out["cpu_mhz"] = round(freq.current) if freq else None
+    except Exception:
+        pass
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -327,6 +363,7 @@ class Experiment:
         self._locust_log_offset = 0
         self._prev: Dict[str, Dict[str, Any]] = {}
         self._e2e_violating = False
+        self._proposals: Dict[str, Dict[str, Any]] = {}
         self.auto_state: Dict[str, Dict[str, Any]] = {}
         self.auto_counts: Dict[str, int] = {}
         self.thread = threading.Thread(target=self._run, name=f"experiment-{self.id}", daemon=True)
@@ -342,9 +379,20 @@ class Experiment:
             self.events.append(ev)
         logger.info("[LAB] %s: %s", kind, message)
 
-    def snapshot(self, max_samples: int = 720) -> Dict[str, Any]:
+    def snapshot(self, max_samples: int = 720, samples_from: Optional[int] = None,
+                 events_from: Optional[int] = None) -> Dict[str, Any]:
+        """Incremental polling (the dashboard timeline): ``samples_from`` / ``events_from`` return only the
+        entries from that index on. Both lists are append-only, so an index never skips or repeats an entry
+        (a time cursor could: an event may be stamped before a sample that is appended after it)."""
         with self._lock:
+            delta = samples_from is not None or events_from is not None
+            samples = self.samples[max(0, samples_from or 0):] if delta else self.samples[-max_samples:]
+            events = self.events[max(0, events_from or 0):] if delta else self.events
             return {
+                "delta": delta,
+                "samples_offset": max(0, samples_from or 0) if delta else len(self.samples) - len(samples),
+                "samples_total": len(self.samples),
+                "events_total": len(self.events),
                 "id": self.id,
                 "request": dataclasses.asdict(self.req),
                 "app_title": self.app.title,
@@ -355,8 +403,9 @@ class Experiment:
                 "started_at": self.started_at,
                 "ended_at": self.ended_at,
                 "error": self.error,
-                "events": list(self.events),
-                "samples": list(self.samples[-max_samples:]),
+                "events": list(events),
+                "samples": list(samples),
+                "sample_interval_s": self.lab.cfg.sample_interval_seconds,
                 "summary": self.summary,
                 "cleanup": self.cleanup,
                 "model": self.model_info,
@@ -592,7 +641,7 @@ class Experiment:
                 raise RuntimeError(f"operator exited during start-up (see {self.dir / 'operator.log'})")
             if status_file.is_file():
                 try:
-                    status = json.loads(status_file.read_text())
+                    status = json.loads(status_file.read_text(encoding="utf-8"))
                 except ValueError:
                     status = {}
                 if status.get("step", 0) >= 1 or status.get("effective_mode") == mode:
@@ -740,9 +789,14 @@ class Experiment:
                 "memory_bytes": m.memory_bytes if m else None,
                 "request_rate": m.request_rate if m else None,
                 "latency_ms": m.latency_mean_ms if m else None,
+                "latency_p50_ms": m.latency_p50_ms if m else None,
                 "latency_p95_ms": m.latency_p95_ms if m else None,
+                "latency_p99_ms": m.latency_p99_ms if m else None,
+                "error_rate": m.error_rate if m else None,
+                "no_traffic": bool(m.no_traffic) if m else False,
                 "stale": bool(m.stale) if m else True,
                 "missing": list(m.missing) if m else ["all"],
+                **self._proposal_fields(w.name, now),
             }
             services[w.name] = svc
             self._replica_events(w.name, svc)
@@ -755,6 +809,7 @@ class Experiment:
         sample = {
             "t": now,
             "elapsed": round(now - (self.started_at or now), 1),
+            "host": host_snapshot(),
             **{k: locust.get(k) for k in ("users", "rps", "fail_rps", "p50_ms", "p95_ms", "p99_ms", "total_requests", "total_failures")},
             "e2e_slo_violation": e2e_violation,
             "services": services,
@@ -795,9 +850,28 @@ class Experiment:
                            service=name, cpu_pct=round(after, 1))
         self._prev[name]["cpu_above"] = above
 
+    def _proposal_fields(self, name: str, now: float) -> Dict[str, Any]:
+        """The operator's latest decision for a service, if it is recent enough to belong to this sample.
+
+        ``fs_policy`` is the policy's own proposal, ``fs_proposed`` what FlexaScale asked for after the
+        safety guards (only while it owns the service), ``hpa_rule`` the native-HPA rule estimate from the
+        same telemetry. Older decisions give None, so the timeline shows a gap, not a carried-over value.
+        """
+        d = self._proposals.get(name)
+        fresh = d is not None and now - d["ts"] <= max(2.5 * self.policy.poll_interval_seconds, 2 * self.lab.cfg.sample_interval_seconds)
+        if not fresh:
+            return {"fs_policy": None, "fs_proposed": None, "fs_controller": None, "fs_applied": None, "hpa_rule": None}
+        return {"fs_policy": d.get("policy_replicas"), "fs_proposed": d.get("proposed") if d.get("controller") == "flexascale" else None,
+                "fs_controller": d.get("controller"), "fs_applied": d.get("applied"), "hpa_rule": d.get("hpa_recommendation")}
+
     def _decision_events(self, decisions: List[Dict[str, Any]]) -> None:
         pending: Dict[Any, List[Dict[str, Any]]] = {}
         for d in decisions:
+            if d.get("type") == "decision" and d.get("service"):
+                self._proposals[d["service"]] = {
+                    "ts": d.get("ts") or time.time(), "policy_replicas": d.get("policy_replicas"),
+                    "proposed": d.get("proposed_replicas"), "controller": d.get("controller"),
+                    "applied": bool(d.get("applied")), "hpa_recommendation": d.get("hpa_recommendation")}
             if d.get("type") == "event":
                 ev = d.get("event")
                 if ev in ("lease_lost", "no_eligible_workloads"):
@@ -869,7 +943,7 @@ class Experiment:
         decisions = []
         dpath = self.dir / "decisions.jsonl"
         if dpath.is_file():
-            for line in dpath.read_text().splitlines():
+            for line in dpath.read_text(encoding="utf-8").splitlines():
                 try:
                     d = json.loads(line)
                 except ValueError:
@@ -918,13 +992,15 @@ class Experiment:
 
     def _write_files(self, final_state: str) -> None:
         snap = self.snapshot(max_samples=10 ** 6)
+        for key in ("delta", "samples_offset", "samples_total", "events_total"):  # polling metadata, not results
+            snap.pop(key, None)
         snap["state"] = final_state
         snap["policy"] = self.policy.to_dict()
-        (self.dir / "run.json").write_text(json.dumps(snap, indent=2, default=str))
+        (self.dir / "run.json").write_text(json.dumps(snap, indent=2, default=str), encoding="utf-8")
         fields = ["t", "elapsed", "users", "rps", "fail_rps", "p50_ms", "p95_ms", "p99_ms", "e2e_slo_violation",
                   "service", "desired", "ready", "hpa_desired", "hpa_min", "hpa_max", "frozen", "cpu_pct", "memory_pct",
                   "cpu_cores", "memory_bytes", "request_rate", "latency_ms", "latency_p95_ms", "stale"]
-        with (self.dir / "telemetry.csv").open("w", newline="") as f:
+        with (self.dir / "telemetry.csv").open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
             writer.writeheader()
             for s in self.samples:
@@ -949,6 +1025,9 @@ class Lab:
         self._lock = threading.Lock()
         self._discoveries: Dict[str, WorkloadDiscovery] = {}
         self._live_cache: Dict[str, Any] = {}
+        self._runs_cache: Dict[str, Tuple[float, Dict[str, Any]]] = {}
+        # Rolling history of /live results (only while someone polls them), for the live timeline outside experiments.
+        self._history: Dict[str, "deque[Dict[str, Any]]"] = {}
         self._urls: Dict[str, str] = {}
         self.last_load_end = self._last_recorded_load_end()
 
@@ -957,7 +1036,7 @@ class Lab:
         latest = 0.0
         for path in (ROOT / self.cfg.results_dir).glob("*/run.json"):
             try:
-                data = json.loads(path.read_text())
+                data = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 continue
             if data.get("started_at") and data.get("ended_at"):
@@ -1041,7 +1120,7 @@ class Lab:
         status_path = self.pm.runtime_dir / "operator_status.json"
         if self.pm.is_running("operator") and status_path.is_file():
             try:
-                op_status = json.loads(status_path.read_text())
+                op_status = json.loads(status_path.read_text(encoding="utf-8"))
             except ValueError:
                 op_status = None
         services = []
@@ -1076,7 +1155,35 @@ class Lab:
                        "cost": dataclasses.asdict(policy.cost), "auto": policy.auto, "auto_valid": not policy.validate()},
         }
         self._live_cache[app] = {"ts": time.time(), "data": data}
+        self._record_history(app, data)
         return data
+
+    def _record_history(self, app: str, data: Dict[str, Any]) -> None:
+        hist = self._history.setdefault(app, deque(maxlen=720))  # 1 h at the 5 s sample interval
+        t = data["timestamp"]
+        if hist and t - hist[-1]["t"] < 0.8 * self.cfg.sample_interval_seconds:
+            return
+        services = {}
+        for s in data["services"]:
+            if s.get("owner") == "excluded":
+                continue
+            m = s.get("metrics") or {}
+            hpa = s.get("hpa") or {}
+            services[s["name"]] = {
+                "desired": s.get("desired_replicas"), "ready": s.get("ready_replicas"),
+                "hpa_desired": hpa.get("desired_replicas"), "frozen": bool(hpa.get("frozen")), "owner": s.get("owner"),
+                **{k: m.get(k) for k in ("cpu_pct", "memory_pct", "request_rate", "error_rate", "latency_mean_ms",
+                                         "latency_p95_ms", "no_traffic", "stale", "missing")},
+            }
+        hist.append({"t": t, "services": services, "lease_held": bool(data["lease"].get("holder")) and not data["lease"].get("expired")})
+
+    def history(self, app: str, since: Optional[float] = None) -> Dict[str, Any]:
+        """Live telemetry recorded from /live calls (empty until the dashboard has polled for a while)."""
+        hist = list(self._history.get(app, ()))
+        if since is not None:
+            hist = [h for h in hist if h["t"] > since]
+        return {"app": app, "points": hist, "sample_interval_s": self.cfg.sample_interval_seconds,
+                "note": "recorded while the dashboard polls /live; not a Prometheus range query"}
 
     # -- experiments --------------------------------------------------------
 
@@ -1110,22 +1217,47 @@ class Lab:
             exp.thread.join(timeout=90)
 
     def runs(self) -> List[Dict[str, Any]]:
+        """Saved runs, newest first, with the validity facts the Experiments page shows. Rows are cached
+        per run.json modification time (each file is up to ~1 MB)."""
         base = ROOT / self.cfg.results_dir
         out = []
         for path in sorted(base.glob("*/run.json"), reverse=True):
             try:
-                data = json.loads(path.read_text())
+                mtime = path.stat().st_mtime
+            except OSError:
+                continue
+            cached = self._runs_cache.get(str(path))
+            if cached and cached[0] == mtime:
+                out.append(cached[1])
+                continue
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
             except ValueError:
                 continue
-            s = data.get("summary") or {}
-            out.append({
-                "id": data["id"], "request": data["request"], "state": data["state"],
-                "started_at": data.get("started_at"), "complete": s.get("complete"), "preliminary": s.get("preliminary"),
-                "throughput_rps": (s.get("workload") or {}).get("throughput_rps"),
-                "p95_ms": (s.get("workload") or {}).get("p95_ms"),
-                "replica_hours": (s.get("resources") or {}).get("replica_hours"),
-            })
+            row = self._run_row(data)
+            self._runs_cache[str(path)] = (mtime, row)
+            out.append(row)
         return out
+
+    @staticmethod
+    def _run_row(data: Dict[str, Any]) -> Dict[str, Any]:
+        s = data.get("summary") or {}
+        hosts = [x.get("host") for x in data.get("samples") or [] if x.get("host")]
+        on_ac = [h.get("on_ac") for h in hosts if h.get("on_ac") is not None]
+        return {
+            "id": data["id"], "request": data["request"], "state": data["state"],
+            "started_at": data.get("started_at"), "ended_at": data.get("ended_at"),
+            "complete": s.get("complete"), "preliminary": s.get("preliminary"),
+            "settled_start": start_settled(data), "cleanup_safe": (data.get("cleanup") or {}).get("safe"),
+            "error": data.get("error"), "block": (data.get("request") or {}).get("block"),
+            "model": ((data.get("model") or {}).get("model_path")),
+            "on_battery_samples": (sum(1 for x in on_ac if not x) if on_ac else None),
+            "throughput_rps": (s.get("workload") or {}).get("throughput_rps"),
+            "p95_ms": (s.get("workload") or {}).get("p95_ms"),
+            "failure_rate_pct": (s.get("workload") or {}).get("failure_rate_pct"),
+            "replica_hours": (s.get("resources") or {}).get("replica_hours"),
+            "estimated_cost": (s.get("resources") or {}).get("estimated_cost"),
+        }
 
     def run(self, run_id: str) -> Dict[str, Any]:
         if self.active is not None and self.active.id == run_id:
@@ -1133,7 +1265,7 @@ class Lab:
         path = ROOT / self.cfg.results_dir / run_id / "run.json"
         if "/" in run_id or ".." in run_id or not path.is_file():
             raise KeyError(run_id)
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
 
     def benchmark(self, app: Optional[str] = None, reference: str = "hpa") -> Dict[str, Any]:
         from flexascale.lab.benchmark import benchmark, load_runs

@@ -134,11 +134,11 @@ def select() -> dict:
     out = V4_DIR / "best_model"
     out.mkdir(parents=True, exist_ok=True)
     shutil.copy(best["path"], out / "best_model.zip")
-    card = json.loads((Path(best["seed_dir"]) / "model_card.json").read_text())
+    card = json.loads((Path(best["seed_dir"]) / "model_card.json").read_text(encoding="utf-8"))
     card["selection"] = {"protocol": "highest mean reward per step on 200 fixed validation-service episodes",
                          "selected": best["candidate"], "candidates": cands}
-    (out / "model_card.json").write_text(json.dumps(card, indent=2))
-    (V4_DIR / "model_card.json").write_text(json.dumps(card, indent=2))  # listed by the dashboard
+    (out / "model_card.json").write_text(json.dumps(card, indent=2), encoding="utf-8")
+    (V4_DIR / "model_card.json").write_text(json.dumps(card, indent=2), encoding="utf-8")  # listed by the dashboard
     print(f"selected {best['candidate']} -> {out}/best_model.zip")
     return card["selection"]
 
@@ -184,7 +184,7 @@ def main() -> int:
     out = {"generated_at": time.strftime("%Y-%m-%d %H:%M:%S"), "episodes": len(seeds), "reward_weights": WEIGHTS,
            "selection": selection, "summary": summary, "paired_v4_minus": paired, "groups": groups}
     Path("reports").mkdir(exist_ok=True)
-    Path("reports/simulation_evaluation_v4.json").write_text(json.dumps(out, indent=2))
+    Path("reports/simulation_evaluation_v4.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
 
     f = lambda mc, d=3: f"{mc[0]:.{d}f} ± {mc[1]:.{d}f}"
     L = ["# Simulation Evaluation: v4 policy (dependency-aware simulator)", "",
@@ -211,7 +211,7 @@ def main() -> int:
                  f"{d['hpa_rule']['reward']:+.3f} |")
     L += ["", "Reward weights: " + ", ".join(f"{k} {v}" for k, v in WEIGHTS.items()) +
           ". The simulator is a model; live results are in reports/live_benchmark_report.md."]
-    Path("reports/simulation_evaluation_v4.md").write_text("\n".join(L) + "\n")
+    Path("reports/simulation_evaluation_v4.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     print("Wrote reports/simulation_evaluation_v4.{md,json}")
     return 0
 

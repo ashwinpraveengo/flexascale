@@ -3,7 +3,7 @@
 # rises to 2x/4x/8x its own lowest recent latency (+1/+2/+3), which a CPU-based rule or HPA cannot see.
 name: shopping
 namespace: flexascale-apps
-label_selector: ''
+label_selector: app.kubernetes.io/part-of=flexascale-ecommerce   # the shop chart's Deployments only (not other workloads in the namespace)
 include: []
 exclude: [shopping-frontend]
 exclude_datastores: true

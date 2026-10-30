@@ -1,0 +1,13 @@
+{
+  "measured_at": "2026-10-28 23:18:58",
+  "seconds": 180,
+  "samples": 36,
+  "host_cores_mean": 1.744,
+  "host_cores_max": 3.136,
+  "k8s_cores": 0.167,
+  "idle_outside_cores": 1.576,
+  "limit_cores": 3.576,
+  "on_ac": true,
+  "logical_cpus": 16,
+  "rule": "docs/POLICY_V9.md \u00a74: host-affected if mean(host) - k8s over the load window > limit_cores"
+}

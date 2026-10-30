@@ -115,7 +115,8 @@ def warm_start_focal(model, make_env: Callable[[int], TwinEnv], rule, episodes: 
     the actor only: their state differs from the one whose return was observed.
     """
     data = collect_focal(make_env, rule, episodes, epsilon, float(model.gamma), seed)
-    obs_all, labels_all, returns_all = data["obs"], data["labels"], torch.as_tensor(data["returns"])
+    dev = model.policy.device  # batches go where the policy is (cuda when training on the GPU, docs/POLICY_V9.md §2)
+    obs_all, labels_all, returns_all = data["obs"], data["labels"], torch.as_tensor(data["returns"], device=dev)
     n = len(obs_all)
     rng = np.random.default_rng(seed)
     idx = rng.permutation(n)
@@ -131,7 +132,8 @@ def warm_start_focal(model, make_env: Callable[[int], TwinEnv], rule, episodes: 
         cpu_aug[c], lab_aug[c] = r[:, 0], limit_target_label(r, target, down)
     counts = np.bincount(np.concatenate([labels_all[tr]] + [lab_aug[c, tr] for c in range(copies)]),
                          minlength=len(ACTION_DELTAS)).astype(float)
-    class_w = torch.as_tensor(np.where(counts > 0, counts.sum() / (len(counts) * np.maximum(counts, 1)), 0.0), dtype=torch.float32)
+    class_w = torch.as_tensor(np.where(counts > 0, counts.sum() / (len(counts) * np.maximum(counts, 1)), 0.0),
+                              dtype=torch.float32, device=dev)
     class_w = torch.clamp(class_w, max=50.0)
     policy = model.policy
     policy.set_training_mode(True)
@@ -145,11 +147,11 @@ def warm_start_focal(model, make_env: Callable[[int], TwinEnv], rule, episodes: 
             pos = np.flatnonzero(c > 0)
             o[pos, cpu_col[s[pos]]] = cpu_aug[c[pos] - 1, s[pos]]
             lab[pos] = lab_aug[c[pos] - 1, s[pos]]
-            lab_t = torch.as_tensor(lab)
-            values, log_prob, _ = policy.evaluate_actions(torch.as_tensor(o), lab_t)
+            lab_t = torch.as_tensor(lab, device=dev)
+            values, log_prob, _ = policy.evaluate_actions(torch.as_tensor(o, device=dev), lab_t)
             w = class_w[lab_t]
             loss = -(w * log_prob).sum() / w.sum()
-            orig = torch.as_tensor(c == 0)
+            orig = torch.as_tensor(c == 0, device=dev)
             if orig.any():
                 loss = loss + value_weight * torch.nn.functional.mse_loss(values.flatten()[orig], returns_all[s][orig])
             opt.zero_grad()
@@ -160,7 +162,7 @@ def warm_start_focal(model, make_env: Callable[[int], TwinEnv], rule, episodes: 
     labels_va = labels_all[va]
     with torch.no_grad():
         pred, _ = model.predict(obs_all[va], deterministic=True)
-        values = policy.predict_values(torch.as_tensor(obs_all[va])).flatten()
+        values = policy.predict_values(torch.as_tensor(obs_all[va], device=dev)).flatten()
     recall_aug = {}
     if copies:  # held-out copies, freshly rescaled (the original held-out set has almost no scale-ups)
         o, r = obs_all[va], rows[va].copy()

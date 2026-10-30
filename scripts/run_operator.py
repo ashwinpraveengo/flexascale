@@ -146,6 +146,8 @@ def run_policy_operator(args) -> int:
 
     signal.signal(signal.SIGTERM, _graceful)
     signal.signal(signal.SIGINT, _graceful)
+    if hasattr(signal, "SIGBREAK"):  # Windows: the lab's graceful stop is CTRL_BREAK (lab/processes.py)
+        signal.signal(signal.SIGBREAK, _graceful)
     operator.run(max_steps=args.max_steps)
     return 0
 

@@ -29,6 +29,7 @@ from flexascale.lab.benchmark import mean_ci  # noqa: E402
 LABEL = re.compile(r"^v7-b(\d+)-(.+)$")
 SPIKE_LABEL = re.compile(r"^v7s-b(\d+)-(.+)$")  # confirmatory flash-sale study (§3.6, withdrawn)
 REPLICATION_LABEL = re.compile(r"^v7r-b(\d+)-(.+)$")  # clock-controlled replication (§3.7)
+V9_LABEL = re.compile(r"^v9-b(\d+)-(.+)$")  # second laptop, docs/POLICY_V9.md §6 (same table and parity rule as §3.7)
 PARITY_TOLERANCE_PCT = 10.0  # §3.7: a candidate whose shop ran > 10% faster per request in steady_browsing gets no verdict
 ARM_TITLES = {"hpa_default": "HPA-default", "hpa_tuned": "HPA-tuned", "rl": "FlexaScale-RL", "auto": "FlexaScale-Auto",
               "heuristic": "FlexaScale-heuristic"}
@@ -114,16 +115,16 @@ def main() -> int:
     ap.add_argument("--results", default=str(ROOT / "reports" / "experiments"))
     ap.add_argument("--host-load", default=str(ROOT / "reports" / "host_load_by_run.csv"))
     ap.add_argument("--out")
-    ap.add_argument("--study", choices=["evaluation", "spike", "replication"], default="evaluation",
+    ap.add_argument("--study", choices=["evaluation", "spike", "replication", "v9"], default="evaluation",
                     help="evaluation: the 12-block batch (§3, v7-bNN-<arm>); spike: the flash-sale study (§3.6, v7s-bNN-<arm>); "
                          "replication: the clock-controlled replication (§3.7, v7r-bNN-<arm>)")
     args = ap.parse_args()
     spike = args.study == "spike"
-    label = {"evaluation": LABEL, "spike": SPIKE_LABEL, "replication": REPLICATION_LABEL}[args.study]
-    args.out = args.out or str(ROOT / "reports" / "v7" / args.study)
+    label = {"evaluation": LABEL, "spike": SPIKE_LABEL, "replication": REPLICATION_LABEL, "v9": V9_LABEL}[args.study]
+    args.out = args.out or (str(ROOT / "reports" / "v9" / "evaluation") if args.study == "v9" else str(ROOT / "reports" / "v7" / args.study))
     flags, clock, app_cpu = {}, {}, {}
     if Path(args.host_load).exists():
-        with open(args.host_load) as f:
+        with open(args.host_load, encoding="utf-8") as f:
             rows = list(csv.DictReader(f))
             flags = {r["run"]: (r.get("host_affected"), r.get("reason") or "") for r in rows}
             clock = {r["run"]: float(r["cpu_mhz"]) for r in rows if r.get("cpu_mhz") not in (None, "", "None")}
@@ -133,7 +134,7 @@ def main() -> int:
     blocks = defaultdict(dict)      # block -> arm -> run
     excluded, scen_of = [], {}
     for p in sorted(Path(args.results).glob("*/run.json")):
-        r = json.loads(p.read_text())
+        r = json.loads(p.read_text(encoding="utf-8"))
         mt = label.match(str((r.get("request") or {}).get("block") or ""))
         if not mt:
             continue
@@ -162,7 +163,8 @@ def main() -> int:
     result = {"blocks": {b: {a: r["id"] for a, r in v.items()} for b, v in sorted(blocks.items())}, "excluded": excluded,
               "comparisons": {}, "arms": {}}
     title = {"evaluation": "# v7 live evaluation (docs/POLICY_V7.md §3)", "spike": "# v7 confirmatory flash-sale study (docs/POLICY_V7.md §3.6)",
-             "replication": "# v7 clock-controlled replication (docs/POLICY_V7.md §3.7)"}[args.study]
+             "replication": "# v7 clock-controlled replication (docs/POLICY_V7.md §3.7)",
+             "v9": "# v9 live evaluation on the second laptop (docs/POLICY_V9.md §6)"}[args.study]
     lines = [title, "",
              f"{sum(len(v) for v in blocks.values())} valid runs in {len(blocks)} blocks; {len(excluded)} excluded. "
              "Pairs are within block; Δ = candidate − reference; 95% t-intervals over pairs; d_z = mean / SD of the paired differences.", ""]
@@ -216,7 +218,7 @@ def main() -> int:
             steady = [p for p in pairs if p["scenario"] == "steady_browsing"]
             ca, ra = [app_cpu.get(p["candidate"]) for p in steady], [app_cpu.get(p["reference"]) for p in steady]
             parity = (100.0 * (sum(ca) - sum(ra)) / sum(ra)) if steady and None not in ca + ra else None
-            if args.study == "replication" and (parity is None or parity < -PARITY_TOLERANCE_PCT):
+            if args.study in ("replication", "v9") and (parity is None or parity < -PARITY_TOLERANCE_PCT):
                 text = "No verdict: environment parity " + ("not measured" if parity is None else
                                                             f"failed (shop CPU per request {parity:+.1f}% in steady_browsing)")
             result["comparisons"][f"{cand} vs {ref}"] = {"pairs": pairs, "stats": st, "verdict": text, "checks": checks,
@@ -274,8 +276,8 @@ def main() -> int:
         lines += ["", "## Excluded runs", ""] + [f"* `{e['run']}` (block {e['block']}, {e['arm']}): {e['reason']}" for e in excluded]
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.with_suffix(".md").write_text("\n".join(lines) + "\n")
-    out.with_suffix(".json").write_text(json.dumps(result, indent=1, default=str))
+    out.with_suffix(".md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    out.with_suffix(".json").write_text(json.dumps(result, indent=1, default=str), encoding="utf-8")
     print("\n".join(lines))
     return 0
 

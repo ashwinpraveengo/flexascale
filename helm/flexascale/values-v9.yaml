@@ -1,0 +1,46 @@
+# FlexaScale v9 graph policy (docs/POLICY_V9.md §5; the shop's default policy since 2026-10-29) for the bundled shop, in-cluster.
+# Same guards and call graph as v7 (values-v7.yaml); only the model differs. Needs the 0.6.0 operator image, which contains
+# models/flexascale_v9 (scripts/promote_v9.py, then
+#   docker build -f deploy/flexascale/Dockerfile -t flexascale:0.6.0 .   (inside Minikube: eval $(minikube -p flexascale docker-env) first)
+# Install (observation only, the default):
+#   helm upgrade --install flexascale helm/flexascale -n flexascale-system -f helm/flexascale/values-v9.yaml
+# Live control is explicit: add --set policy.mode=live
+image:
+  tag: "0.6.0"
+policy:
+  model_path: /app/models/flexascale_v9/best_model/best_model.zip
+  max_step: 3                       # the v7 guards the policy was trained under (simulator/twin_control.V7_GUARDS)
+  max_scale_down_step: 1
+  scale_up_cooldown_seconds: 20
+  scale_down_cooldown_seconds: 30
+  scale_down_block_cpu_pct: 400     # never scale down a pod at >= 80% of its 500m CPU limit (400% of request)
+  slo_latency_ms: null              # v7 reads each service's latency against its own low-load latency
+  confidence_threshold: 0.0         # trained without a confidence gate; health fallback still applies
+  deactivation_threshold: 0.0
+  # The shop's call graph (the GNN's message passing runs over it); without it, edges are inferred from traffic.
+  topology:
+    - [api-gateway, user-service]
+    - [api-gateway, catalog-service]
+    - [api-gateway, cart-service]
+    - [api-gateway, order-service]
+    - [cart-service, catalog-service]
+    - [cart-service, inventory-service]
+    - [order-service, catalog-service]
+    - [order-service, inventory-service]
+    - [order-service, payment-service]
+    - [order-service, cart-service]
+    - [order-service, shipping-service]
+    - [order-service, fraud-service]
+    - [order-service, notification-service]
+    - [cart-service, pricing-service]
+    - [api-gateway, search-service]
+    - [api-gateway, recommendation-service]
+    - [api-gateway, review-service]
+    - [api-gateway, wishlist-service]
+    - [api-gateway, shipping-service]
+    - [search-service, catalog-service]
+    - [search-service, pricing-service]
+    - [pricing-service, promotion-service]
+    - [recommendation-service, catalog-service]
+    - [recommendation-service, review-service]
+    - [wishlist-service, catalog-service]

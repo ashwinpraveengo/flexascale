@@ -156,7 +156,7 @@ def main() -> int:
         "paired_vs_hpa_rule": paired,
         "runtime_seconds": round(time.time() - started, 1),
     }
-    Path(args.out + ".json").write_text(json.dumps(report, indent=2))
+    Path(args.out + ".json").write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     lines = [
         "# Held-out Simulation Evaluation",
@@ -193,7 +193,7 @@ def main() -> int:
         "- The simulator uses an M/M/1-style latency model over trace demand. Simulation results do not prove live performance; "
         "see the live experiment reports for that.",
     ]
-    Path(args.out + ".md").write_text("\n".join(lines) + "\n")
+    Path(args.out + ".md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"Wrote {args.out}.json and {args.out}.md")
     return 0
 

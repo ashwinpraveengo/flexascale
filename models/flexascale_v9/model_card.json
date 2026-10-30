@@ -1,0 +1,212 @@
+{
+ "name": "flexascale_v9",
+ "created": "2026-10-29T14:19:03+0530",
+ "selected_run": "focal_bc_s2",
+ "source_checkpoint": "models\\flexascale_v9\\focal_bc_s2\\best_model.zip",
+ "observation": {
+  "version": 3,
+  "n_max": 20,
+  "per_service_fields": [
+   "cpu_limit_frac",
+   "cpu_limit_trend",
+   "rps_trend",
+   "latency_inflation",
+   "replica_frac",
+   "ready_frac",
+   "cpu_per_request",
+   "burstiness",
+   "since_scale_up",
+   "since_scale_down"
+  ],
+  "low": [
+   0.0,
+   -1.0,
+   0.0,
+   -1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "high": [
+   2.0,
+   1.0,
+   3.0,
+   4.0,
+   1.0,
+   1.0,
+   1.0,
+   3.0,
+   1.0,
+   1.0
+  ],
+  "max_replicas": 10,
+  "units": "see src/flexascale/rl/features_v3.py",
+  "graph": "the application's call graph (policy topology)"
+ },
+ "action": {
+  "deltas": [
+   -1,
+   0,
+   1,
+   2,
+   3
+  ]
+ },
+ "policy": {
+  "class": "stable_baselines3 ActorCriticPolicy + flexascale.rl.graph_policy.GraphFocalExtractor",
+  "decision": "focal (one row per service: the application + a one-hot of the service)",
+  "hidden": 64,
+  "rounds": 2,
+  "use_graph": true
+ },
+ "training": {
+  "simulator": "application twin fitted to the second laptop (config/twin/shopping_v9.json)",
+  "reward": {
+   "replica": 1.0,
+   "p95_inflation": 6.0,
+   "p95_inflation_cap": 4.0,
+   "slo": 10.0,
+   "failure_pct": 5.0,
+   "scaling_event": 0.25,
+   "scale": 0.1,
+   "kind": "v7"
+  },
+  "guards": {
+   "max_step": 3,
+   "max_scale_down_step": 1,
+   "scale_up_cooldown_s": 20.0,
+   "scale_down_cooldown_s": 30.0,
+   "scale_down_block_cpu_pct": 400.0,
+   "scale_down_block_slo_ratio": null,
+   "slo_ms": null
+  },
+  "device": "cuda (RTX 3050 Laptop GPU; logs/v9_train.out)",
+  "runs": {
+   "focal_bc_s1": {
+    "design": "focal",
+    "use_graph": true,
+    "reward": "v7",
+    "seed": 1,
+    "steps": 2000000,
+    "minutes": 12.1,
+    "best": {
+     "timesteps": 1000000,
+     "reward": -2.990377628820609,
+     "replica_hours": 1.9387152777777779,
+     "p95_ms": 244.43188651668441,
+     "mean_latency_ms": 76.62262357066479,
+     "failure_pct": 0.0,
+     "slo_violation_s": 2.0,
+     "scaling_events": 0.45,
+     "oscillations": 0.225,
+     "n": 40
+    }
+   },
+   "focal_bc_s2": {
+    "design": "focal",
+    "use_graph": true,
+    "reward": "v7",
+    "seed": 2,
+    "steps": 2000000,
+    "minutes": 11.8,
+    "best": {
+     "timesteps": 2000000,
+     "reward": -2.46601010165631,
+     "replica_hours": 1.9437152777777775,
+     "p95_ms": 224.15170569262978,
+     "mean_latency_ms": 71.82306173567943,
+     "failure_pct": 0.0,
+     "slo_violation_s": 1.0,
+     "scaling_events": 0.5,
+     "oscillations": 0.275,
+     "n": 40
+    }
+   },
+   "focal_bc_nograph_s1": {
+    "design": "focal",
+    "use_graph": false,
+    "reward": "v7",
+    "seed": 1,
+    "steps": 2000000,
+    "minutes": 9.7,
+    "best": {
+     "timesteps": 1750000,
+     "reward": -2.922291441724824,
+     "replica_hours": 1.9652083333333334,
+     "p95_ms": 201.74375223286432,
+     "mean_latency_ms": 67.08851377073152,
+     "failure_pct": 0.0,
+     "slo_violation_s": 1.0,
+     "scaling_events": 0.825,
+     "oscillations": 0.225,
+     "n": 40
+    }
+   },
+   "focal_bc_v5reward_s1": {
+    "design": "focal",
+    "use_graph": true,
+    "reward": "v5",
+    "seed": 1,
+    "steps": 2000000,
+    "minutes": 11.1,
+    "best": {
+     "timesteps": 0,
+     "reward": -3.2993537711311034,
+     "replica_hours": 1.9625694444444446,
+     "p95_ms": 227.67789026827577,
+     "mean_latency_ms": 73.24416680405336,
+     "failure_pct": 0.0,
+     "slo_violation_s": 1.875,
+     "scaling_events": 0.75,
+     "oscillations": 0.275,
+     "n": 40
+    }
+   }
+  }
+ },
+ "validation": {
+  "timesteps": 2000000,
+  "reward": -2.46601010165631,
+  "replica_hours": 1.9437152777777775,
+  "p95_ms": 224.15170569262978,
+  "mean_latency_ms": 71.82306173567943,
+  "failure_pct": 0.0,
+  "slo_violation_s": 1.0,
+  "scaling_events": 0.5,
+  "oscillations": 0.275,
+  "n": 40
+ },
+ "gate": {
+  "passed": true,
+  "candidates": {
+   "v9 (focal_bc_s2)": {
+    "path": "models\\flexascale_v9\\focal_bc_s2\\best_model.zip",
+    "reward": -2.46601010165631,
+    "replica_hours": 1.9437152777777775,
+    "p95_ms": 224.15170569262978,
+    "mean_latency_ms": 71.82306173567943,
+    "failure_pct": 0.0,
+    "slo_violation_s": 1.0,
+    "scaling_events": 0.5,
+    "oscillations": 0.275,
+    "n": 40
+   },
+   "v7 (deployed graph policy)": {
+    "path": "models\\flexascale_v7\\best_model\\best_model.zip",
+    "reward": -2.9072325541655686,
+    "replica_hours": 1.956388888888889,
+    "p95_ms": 228.94176489664173,
+    "mean_latency_ms": 73.4004318752059,
+    "failure_pct": 0.0,
+    "slo_violation_s": 1.75,
+    "scaling_events": 0.575,
+    "oscillations": 0.2,
+    "n": 40
+   }
+  }
+ },
+ "protocol": "docs/POLICY_V9.md \u00a75"
+}

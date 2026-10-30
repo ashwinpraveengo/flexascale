@@ -113,6 +113,8 @@ class FlexaScaleOperator:
         try:
             signal.signal(signal.SIGINT, self._handle_shutdown_signal)
             signal.signal(signal.SIGTERM, self._handle_shutdown_signal)
+            if hasattr(signal, "SIGBREAK"):  # Windows graceful stop (CTRL_BREAK)
+                signal.signal(signal.SIGBREAK, self._handle_shutdown_signal)
         except (ValueError, AttributeError):
             # Signal handling might not be supported in some thread environments
             pass

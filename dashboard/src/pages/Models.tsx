@@ -15,16 +15,23 @@ export function Models({ deployed, live }: { deployed?: string; live?: Json }) {
   const opModel = op?.model;
   const services = (live?.services || []).filter((s: Json) => s.eligible).length;
   const slots = card?.num_services;
+  const graphModel = card?.observation?.version === 3 || String(card?.policy?.class || '').includes('Graph');
+  const nMax = card?.observation?.n_max;
   return (
     <div className="space-y-4">
       <Card eyebrow="Deployed policy & inference" title={deployed ? `models/${deployed}` : 'No model configured'}
         actions={<StatusBadge level={!deployed ? 'critical' : card ? 'good' : 'critical'} label={!deployed ? 'not configured' : card ? 'artifact + model card present' : 'model card missing'} />}>
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 text-sm">
           <KV wrap k="Artifact" v={<span title={live?.policy?.model_path}>{live?.policy?.model_path || '—'}</span>} />
-          <KV k="Policy type" v={card ? `${card.model?.includes('GNN') ? 'PPO + GNN' : 'PPO'}${card.observation?.decision_slot === 0 ? ', per-service (focal)' : ''}` : '—'} />
+          <KV k="Policy type" v={card ? (graphModel ? `PPO + graph network (${card.policy?.rounds ?? 2} message-passing rounds on the call graph), one decision per service`
+            : `${card.model?.includes('GNN') ? 'PPO + GNN' : 'PPO'}${card.observation?.decision_slot === 0 ? ', per-service (focal)' : ''}`) : '—'} />
           <KV k="Actions" v={card?.action?.deltas ? card.action.deltas.map((d: number) => (d > 0 ? `+${d}` : `${d}`)).join(' ') + ' replicas' : '−1 0 +1 replicas'} />
-          <KV k="Observation" v={card ? `v${card.observation?.version ?? 1} · ${card.observation?.dim ?? '?'} inputs` : '—'} />
-          <KV wrap k="Topology compatibility" v={slots && services ? (services === slots ? `${services} services: direct` : `${services} services → ${slots}-service neighbourhood windows`) : '—'} />
+          <KV k="Observation" v={card ? (graphModel ? `v3 · ${card.observation?.per_service_fields?.length ?? '?'} unit-free inputs per service`
+            : `v${card.observation?.version ?? 1} · ${card.observation?.dim ?? '?'} inputs`) : '—'} />
+          <KV wrap k="Topology compatibility" v={graphModel && nMax && services
+            ? (services <= nMax ? <StatusBadge level="good" label={`${services} services ≤ ${nMax} graph slots: every service, real call graph`} />
+              : <StatusBadge level="critical" label={`${services} services > ${nMax} slots: not compatible`} />)
+            : slots && services ? (services === slots ? `${services} services: direct` : `${services} services → ${slots}-service neighbourhood windows`) : '—'} />
           <KV k="Inference (operator)" v={op ? (opModel ? <StatusBadge level="good" label={`loaded · ${op.effective_mode} · step ${op.step}`} /> : <StatusBadge level="critical" label={`unavailable: ${op.model_error || 'unknown'}`} />)
             : <span className="muted">no operator running (loaded per experiment)</span>} />
           <KV k="Loaded model sha256" v={opModel?.sha256 ? <span className="tnum" title={opModel.sha256}>{String(opModel.sha256).slice(0, 16)}…</span> : '—'} />

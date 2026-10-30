@@ -1,0 +1,892 @@
+{
+ "name": "shopping",
+ "services": [
+  {
+   "name": "api-gateway",
+   "cpu_per_req": 0.003111,
+   "idle_cores": 0.0,
+   "base_latency_ms": 25.96,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "cart-service",
+   "cpu_per_req": 0.009895,
+   "idle_cores": 0.0,
+   "base_latency_ms": 27.51,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "catalog-service",
+   "cpu_per_req": 0.003379,
+   "idle_cores": 0.00297,
+   "base_latency_ms": 5.6,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "fraud-service",
+   "cpu_per_req": 0.00182,
+   "idle_cores": 0.00133,
+   "base_latency_ms": 0.91,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "inventory-service",
+   "cpu_per_req": 0.005162,
+   "idle_cores": 0.00133,
+   "base_latency_ms": 7.41,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "notification-service",
+   "cpu_per_req": 0.001907,
+   "idle_cores": 0.00121,
+   "base_latency_ms": 0.94,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "order-service",
+   "cpu_per_req": 0.020325,
+   "idle_cores": 0.00101,
+   "base_latency_ms": 110.48,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "payment-service",
+   "cpu_per_req": 0.004985,
+   "idle_cores": 0.00133,
+   "base_latency_ms": 57.34,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "pricing-service",
+   "cpu_per_req": 0.002788,
+   "idle_cores": 0.00048,
+   "base_latency_ms": 3.57,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "promotion-service",
+   "cpu_per_req": 0.001449,
+   "idle_cores": 0.00095,
+   "base_latency_ms": 0.84,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "recommendation-service",
+   "cpu_per_req": 0.004558,
+   "idle_cores": 0.00178,
+   "base_latency_ms": 15.79,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "review-service",
+   "cpu_per_req": 0.003175,
+   "idle_cores": 0.00107,
+   "base_latency_ms": 2.91,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "search-service",
+   "cpu_per_req": 0.004071,
+   "idle_cores": 0.00171,
+   "base_latency_ms": 14.99,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "shipping-service",
+   "cpu_per_req": 0.001342,
+   "idle_cores": 0.00139,
+   "base_latency_ms": 0.88,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  },
+  {
+   "name": "user-service",
+   "cpu_per_req": 0.139351,
+   "idle_cores": 0.00265,
+   "base_latency_ms": 308.7,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": true
+  },
+  {
+   "name": "wishlist-service",
+   "cpu_per_req": 0.006154,
+   "idle_cores": 0.00222,
+   "base_latency_ms": 12.73,
+   "cpu_limit": 0.5,
+   "cpu_request": 0.1,
+   "min_replicas": 1,
+   "max_replicas": 10,
+   "serial": false
+  }
+ ],
+ "edges": [
+  [
+   "api-gateway",
+   "user-service"
+  ],
+  [
+   "api-gateway",
+   "catalog-service"
+  ],
+  [
+   "api-gateway",
+   "cart-service"
+  ],
+  [
+   "api-gateway",
+   "order-service"
+  ],
+  [
+   "cart-service",
+   "catalog-service"
+  ],
+  [
+   "cart-service",
+   "inventory-service"
+  ],
+  [
+   "order-service",
+   "catalog-service"
+  ],
+  [
+   "order-service",
+   "inventory-service"
+  ],
+  [
+   "order-service",
+   "payment-service"
+  ],
+  [
+   "order-service",
+   "cart-service"
+  ],
+  [
+   "order-service",
+   "shipping-service"
+  ],
+  [
+   "order-service",
+   "fraud-service"
+  ],
+  [
+   "order-service",
+   "notification-service"
+  ],
+  [
+   "cart-service",
+   "pricing-service"
+  ],
+  [
+   "api-gateway",
+   "search-service"
+  ],
+  [
+   "api-gateway",
+   "recommendation-service"
+  ],
+  [
+   "api-gateway",
+   "review-service"
+  ],
+  [
+   "api-gateway",
+   "wishlist-service"
+  ],
+  [
+   "api-gateway",
+   "shipping-service"
+  ],
+  [
+   "search-service",
+   "catalog-service"
+  ],
+  [
+   "search-service",
+   "pricing-service"
+  ],
+  [
+   "pricing-service",
+   "promotion-service"
+  ],
+  [
+   "recommendation-service",
+   "catalog-service"
+  ],
+  [
+   "recommendation-service",
+   "review-service"
+  ],
+  [
+   "wishlist-service",
+   "catalog-service"
+  ]
+ ],
+ "fanout": {
+  "api-gateway->user-service": 0.0028,
+  "api-gateway->catalog-service": 1.0,
+  "api-gateway->cart-service": 0.3155,
+  "api-gateway->order-service": 0.0731,
+  "cart-service->catalog-service": 1.0,
+  "cart-service->inventory-service": 0.2359,
+  "order-service->catalog-service": 1.0,
+  "order-service->inventory-service": 0.2359,
+  "order-service->payment-service": 0.6595,
+  "order-service->cart-service": 0.3155,
+  "order-service->shipping-service": 0.0666,
+  "order-service->fraud-service": 0.6555,
+  "order-service->notification-service": 0.6597,
+  "cart-service->pricing-service": 0.83,
+  "api-gateway->search-service": 0.0774,
+  "api-gateway->recommendation-service": 0.1069,
+  "api-gateway->review-service": 0.1917,
+  "api-gateway->wishlist-service": 0.0966,
+  "api-gateway->shipping-service": 0.0666,
+  "search-service->catalog-service": 1.0,
+  "search-service->pricing-service": 0.83,
+  "pricing-service->promotion-service": 1.0,
+  "recommendation-service->catalog-service": 1.0,
+  "recommendation-service->review-service": 0.1917,
+  "wishlist-service->catalog-service": 1.0
+ },
+ "entry": "api-gateway",
+ "scenarios": {
+  "calibration_steady": {
+   "rps_per_user": 0.708,
+   "ratios": {
+    "api-gateway": 1.0095,
+    "cart-service": 0.3423,
+    "catalog-service": 1.7863,
+    "fraud-service": 0.0481,
+    "inventory-service": 0.0986,
+    "notification-service": 0.0487,
+    "order-service": 0.0741,
+    "payment-service": 0.0474,
+    "pricing-service": 0.3499,
+    "promotion-service": 0.3507,
+    "recommendation-service": 0.1075,
+    "review-service": 0.2148,
+    "search-service": 0.0781,
+    "shipping-service": 0.0728,
+    "user-service": 0.0,
+    "wishlist-service": 0.0985
+   },
+   "classes": {
+    "browse": {
+     "share": 0.68401,
+     "base_ms": 18.6,
+     "sigma": 0.737,
+     "services": [
+      "catalog-service",
+      "search-service",
+      "review-service",
+      "recommendation-service",
+      "wishlist-service"
+     ]
+    },
+    "cart": {
+     "share": 0.24337,
+     "base_ms": 43.7,
+     "sigma": 0.428,
+     "services": [
+      "cart-service"
+     ]
+    },
+    "checkout": {
+     "share": 0.04697,
+     "base_ms": 169.4,
+     "sigma": 0.271,
+     "services": [
+      "order-service"
+     ]
+    },
+    "login": {
+     "share": 0.00227,
+     "base_ms": 328.7,
+     "sigma": 0.3,
+     "services": [
+      "user-service"
+     ]
+    },
+    "orders_view": {
+     "share": 0.02338,
+     "base_ms": 25.2,
+     "sigma": 0.192,
+     "services": [
+      "order-service"
+     ]
+    }
+   },
+   "samples": 408
+  },
+  "checkout_heavy": {
+   "rps_per_user": 0.818,
+   "classes": {
+    "browse": {
+     "share": 0.33022,
+     "base_ms": 18.6,
+     "sigma": 0.737,
+     "services": [
+      "catalog-service",
+      "search-service",
+      "review-service",
+      "recommendation-service",
+      "wishlist-service"
+     ]
+    },
+    "cart": {
+     "share": 0.28458,
+     "base_ms": 43.7,
+     "sigma": 0.428,
+     "services": [
+      "cart-service"
+     ]
+    },
+    "checkout": {
+     "share": 0.35424,
+     "base_ms": 169.4,
+     "sigma": 0.271,
+     "services": [
+      "order-service"
+     ]
+    },
+    "login": {
+     "share": 0.00279,
+     "base_ms": 328.7,
+     "sigma": 0.3,
+     "services": [
+      "user-service"
+     ]
+    },
+    "orders_view": {
+     "share": 0.02816,
+     "base_ms": 25.2,
+     "sigma": 0.192,
+     "services": [
+      "order-service"
+     ]
+    }
+   },
+   "samples": 0,
+   "ratios": {
+    "api-gateway": 0.9781,
+    "cart-service": 0.6813,
+    "catalog-service": 1.3869,
+    "fraud-service": 0.3438,
+    "inventory-service": 0.6865,
+    "notification-service": 0.3434,
+    "order-service": 0.3757,
+    "payment-service": 0.3441,
+    "pricing-service": 0.3414,
+    "promotion-service": 0.3392,
+    "recommendation-service": 0.0336,
+    "review-service": 0.0673,
+    "search-service": 0.0256,
+    "shipping-service": 0.3714,
+    "user-service": 0.0,
+    "wishlist-service": 0.1134
+   },
+   "note": "imported from config/twin/shopping.json: per-user rate and class shares as fitted there, service rates x 0.5, class latencies from this fit's calibration_steady"
+  },
+  "flash_sale": {
+   "rps_per_user": 1.2,
+   "classes": {
+    "browse": {
+     "share": 0.29559,
+     "base_ms": 18.6,
+     "sigma": 0.737,
+     "services": [
+      "catalog-service",
+      "search-service",
+      "review-service",
+      "recommendation-service",
+      "wishlist-service"
+     ]
+    },
+    "cart": {
+     "share": 0.05965,
+     "base_ms": 43.7,
+     "sigma": 0.428,
+     "services": [
+      "cart-service"
+     ]
+    },
+    "checkout": {
+     "share": 0.638,
+     "base_ms": 169.4,
+     "sigma": 0.271,
+     "services": [
+      "order-service"
+     ]
+    },
+    "login": {
+     "share": 0.00109,
+     "base_ms": 328.7,
+     "sigma": 0.3,
+     "services": [
+      "user-service"
+     ]
+    },
+    "orders_view": {
+     "share": 0.00567,
+     "base_ms": 25.2,
+     "sigma": 0.192,
+     "services": [
+      "order-service"
+     ]
+    }
+   },
+   "samples": 0,
+   "ratios": {
+    "api-gateway": 0.9784,
+    "cart-service": 0.7042,
+    "catalog-service": 1.0036,
+    "fraud-service": 0.6427,
+    "inventory-service": 1.2586,
+    "notification-service": 0.6456,
+    "order-service": 0.6361,
+    "payment-service": 0.6354,
+    "pricing-service": 0.0903,
+    "promotion-service": 0.0901,
+    "recommendation-service": 0.049,
+    "review-service": 0.0997,
+    "search-service": 0.0362,
+    "shipping-service": 0.6482,
+    "user-service": 0.0,
+    "wishlist-service": 0.0227
+   },
+   "note": "imported from config/twin/shopping.json: per-user rate and class shares as fitted there, service rates x 0.5, class latencies from this fit's calibration_steady"
+  },
+  "gradual_ramp": {
+   "rps_per_user": 0.7,
+   "classes": {
+    "browse": {
+     "share": 0.74449,
+     "base_ms": 18.6,
+     "sigma": 0.737,
+     "services": [
+      "catalog-service",
+      "search-service",
+      "review-service",
+      "recommendation-service",
+      "wishlist-service"
+     ]
+    },
+    "cart": {
+     "share": 0.19558,
+     "base_ms": 43.7,
+     "sigma": 0.428,
+     "services": [
+      "cart-service"
+     ]
+    },
+    "checkout": {
+     "share": 0.03745,
+     "base_ms": 169.4,
+     "sigma": 0.271,
+     "services": [
+      "order-service"
+     ]
+    },
+    "login": {
+     "share": 0.00273,
+     "base_ms": 328.7,
+     "sigma": 0.3,
+     "services": [
+      "user-service"
+     ]
+    },
+    "orders_view": {
+     "share": 0.01975,
+     "base_ms": 25.2,
+     "sigma": 0.192,
+     "services": [
+      "order-service"
+     ]
+    }
+   },
+   "samples": 0,
+   "ratios": {
+    "api-gateway": 0.9038,
+    "cart-service": 0.2465,
+    "catalog-service": 1.4294,
+    "fraud-service": 0.0337,
+    "inventory-service": 0.0679,
+    "notification-service": 0.0342,
+    "order-service": 0.0531,
+    "payment-service": 0.0336,
+    "pricing-service": 0.2777,
+    "promotion-service": 0.2772,
+    "recommendation-service": 0.1062,
+    "review-service": 0.2134,
+    "search-service": 0.0832,
+    "shipping-service": 0.0519,
+    "user-service": 0.0027,
+    "wishlist-service": 0.0703
+   },
+   "note": "imported from config/twin/shopping.json: per-user rate and class shares as fitted there, service rates x 0.5, class latencies from this fit's calibration_steady"
+  },
+  "payment_degradation": {
+   "rps_per_user": 0.624,
+   "classes": {
+    "browse": {
+     "share": 0.47404,
+     "base_ms": 18.6,
+     "sigma": 0.737,
+     "services": [
+      "catalog-service",
+      "search-service",
+      "review-service",
+      "recommendation-service",
+      "wishlist-service"
+     ]
+    },
+    "cart": {
+     "share": 0.1539,
+     "base_ms": 43.7,
+     "sigma": 0.428,
+     "services": [
+      "cart-service"
+     ]
+    },
+    "checkout": {
+     "share": 0.35542,
+     "base_ms": 169.4,
+     "sigma": 0.271,
+     "services": [
+      "order-service"
+     ]
+    },
+    "login": {
+     "share": 0.0015,
+     "base_ms": 328.7,
+     "sigma": 0.3,
+     "services": [
+      "user-service"
+     ]
+    },
+    "orders_view": {
+     "share": 0.01515,
+     "base_ms": 25.2,
+     "sigma": 0.192,
+     "services": [
+      "order-service"
+     ]
+    }
+   },
+   "samples": 0,
+   "ratios": {
+    "api-gateway": 0.9856,
+    "cart-service": 0.453,
+    "catalog-service": 1.2924,
+    "fraud-service": 0.3518,
+    "inventory-service": 0.7047,
+    "notification-service": 0.2633,
+    "order-service": 0.3664,
+    "payment-service": 0.3533,
+    "pricing-service": 0.221,
+    "promotion-service": 0.2218,
+    "recommendation-service": 0.0706,
+    "review-service": 0.1409,
+    "search-service": 0.0544,
+    "shipping-service": 0.368,
+    "user-service": 0.0,
+    "wishlist-service": 0.0639
+   },
+   "note": "imported from config/twin/shopping.json: per-user rate and class shares as fitted there, service rates x 0.5, class latencies from this fit's calibration_steady"
+  },
+  "steady_browsing": {
+   "rps_per_user": 0.74,
+   "classes": {
+    "browse": {
+     "share": 0.8773,
+     "base_ms": 18.6,
+     "sigma": 0.737,
+     "services": [
+      "catalog-service",
+      "search-service",
+      "review-service",
+      "recommendation-service",
+      "wishlist-service"
+     ]
+    },
+    "cart": {
+     "share": 0.09409,
+     "base_ms": 43.7,
+     "sigma": 0.428,
+     "services": [
+      "cart-service"
+     ]
+    },
+    "checkout": {
+     "share": 0.01903,
+     "base_ms": 169.4,
+     "sigma": 0.271,
+     "services": [
+      "order-service"
+     ]
+    },
+    "login": {
+     "share": 0.0009,
+     "base_ms": 328.7,
+     "sigma": 0.3,
+     "services": [
+      "user-service"
+     ]
+    },
+    "orders_view": {
+     "share": 0.00868,
+     "base_ms": 25.2,
+     "sigma": 0.192,
+     "services": [
+      "order-service"
+     ]
+    }
+   },
+   "samples": 0,
+   "ratios": {
+    "api-gateway": 0.9776,
+    "cart-service": 0.1309,
+    "catalog-service": 1.1482,
+    "fraud-service": 0.0198,
+    "inventory-service": 0.0391,
+    "notification-service": 0.0194,
+    "order-service": 0.028,
+    "payment-service": 0.0195,
+    "pricing-service": 0.2008,
+    "promotion-service": 0.1996,
+    "recommendation-service": 0.1497,
+    "review-service": 0.2987,
+    "search-service": 0.1161,
+    "shipping-service": 0.0291,
+    "user-service": 0.0,
+    "wishlist-service": 0.0358
+   },
+   "note": "imported from config/twin/shopping.json: per-user rate and class shares as fitted there, service rates x 0.5, class latencies from this fit's calibration_steady"
+  },
+  "traffic_drop": {
+   "rps_per_user": 0.704,
+   "classes": {
+    "browse": {
+     "share": 0.74399,
+     "base_ms": 18.6,
+     "sigma": 0.737,
+     "services": [
+      "catalog-service",
+      "search-service",
+      "review-service",
+      "recommendation-service",
+      "wishlist-service"
+     ]
+    },
+    "cart": {
+     "share": 0.19444,
+     "base_ms": 43.7,
+     "sigma": 0.428,
+     "services": [
+      "cart-service"
+     ]
+    },
+    "checkout": {
+     "share": 0.03915,
+     "base_ms": 169.4,
+     "sigma": 0.271,
+     "services": [
+      "order-service"
+     ]
+    },
+    "login": {
+     "share": 0.00383,
+     "base_ms": 328.7,
+     "sigma": 0.3,
+     "services": [
+      "user-service"
+     ]
+    },
+    "orders_view": {
+     "share": 0.01859,
+     "base_ms": 25.2,
+     "sigma": 0.192,
+     "services": [
+      "order-service"
+     ]
+    }
+   },
+   "samples": 0,
+   "ratios": {
+    "api-gateway": 1.0137,
+    "cart-service": 0.3172,
+    "catalog-service": 1.6593,
+    "fraud-service": 0.0432,
+    "inventory-service": 0.0859,
+    "notification-service": 0.0439,
+    "order-service": 0.0645,
+    "payment-service": 0.0437,
+    "pricing-service": 0.3373,
+    "promotion-service": 0.3403,
+    "recommendation-service": 0.1171,
+    "review-service": 0.2355,
+    "search-service": 0.089,
+    "shipping-service": 0.0644,
+    "user-service": 0.0,
+    "wishlist-service": 0.0915
+   },
+   "note": "imported from config/twin/shopping.json: per-user rate and class shares as fitted there, service rates x 0.5, class latencies from this fit's calibration_steady"
+  }
+ },
+ "fit": {
+  "runs": 8,
+  "services": {
+   "api-gateway": {
+    "n": 504,
+    "r2": 0.792
+   },
+   "cart-service": {
+    "n": 504,
+    "r2": 0.769
+   },
+   "catalog-service": {
+    "n": 504,
+    "r2": 0.784
+   },
+   "fraud-service": {
+    "n": 504,
+    "r2": 0.039
+   },
+   "inventory-service": {
+    "n": 504,
+    "r2": 0.748
+   },
+   "notification-service": {
+    "n": 504,
+    "r2": 0.058
+   },
+   "order-service": {
+    "n": 504,
+    "r2": 0.659
+   },
+   "payment-service": {
+    "n": 504,
+    "r2": 0.687
+   },
+   "pricing-service": {
+    "n": 504,
+    "r2": 0.755
+   },
+   "promotion-service": {
+    "n": 504,
+    "r2": 0.765
+   },
+   "recommendation-service": {
+    "n": 504,
+    "r2": 0.327
+   },
+   "review-service": {
+    "n": 504,
+    "r2": 0.767
+   },
+   "search-service": {
+    "n": 504,
+    "r2": 0.23
+   },
+   "shipping-service": {
+    "n": 504,
+    "r2": 0.544
+   },
+   "user-service": {
+    "n": 504,
+    "r2": 0.716
+   },
+   "wishlist-service": {
+    "n": 504,
+    "r2": 0.329
+   }
+  },
+  "since": "20261028-23",
+  "imported_scenarios": {
+   "checkout_heavy": "imported",
+   "flash_sale": "imported",
+   "gradual_ramp": "imported",
+   "payment_degradation": "imported",
+   "steady_browsing": "imported",
+   "traffic_drop": "imported",
+   "check:calibration_steady": {
+    "api-gateway": 1.053,
+    "cart-service": 1.214,
+    "catalog-service": 1.157,
+    "fraud-service": 1.251,
+    "inventory-service": 1.282,
+    "notification-service": 1.247,
+    "order-service": 1.259,
+    "payment-service": 1.228,
+    "pricing-service": 1.138,
+    "promotion-service": 1.136,
+    "recommendation-service": 0.963,
+    "review-service": 0.957,
+    "search-service": 0.907,
+    "shipping-service": 1.253,
+    "user-service": 0.0,
+    "wishlist-service": 1.218
+   }
+  },
+  "source": "reports/experiments, 16-service runs whose folder sorts at or after 20261028-23"
+ }
+}
