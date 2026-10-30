@@ -42,7 +42,10 @@ def _subprocess_runner(args: Sequence[str], stdin: Optional[str], timeout: float
             timeout=timeout,
             check=False,
         )
-        return KubeResult(res.returncode == 0, res.stdout, res.stderr.strip())
+        err = res.stderr.strip()
+        if res.returncode != 0 and not err:  # e.g. kubectl killed by a signal sent to the operator's process group
+            err = f"kubectl exited with code {res.returncode} and no message"
+        return KubeResult(res.returncode == 0, res.stdout, err)
     except FileNotFoundError:
         return KubeResult(False, "", "kubectl not found on PATH")
     except subprocess.TimeoutExpired:

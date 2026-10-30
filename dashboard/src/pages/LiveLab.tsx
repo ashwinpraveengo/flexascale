@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { CONTROLLER_LABEL, Json, OWNER_COLOR, isNativeHpa, TERMINAL, api, fmt, fmtElapsed, seriesColor } from '../api';
+import { useEffect, useMemo, useState } from 'react';
+import { CONTROLLER_LABEL, Json, OWNER_COLOR, isNativeHpa, TERMINAL, api, fmt, fmtElapsed, fmtLat, seriesColor } from '../api';
 import { LineChart, Series } from '../LineChart';
 import { Card, Empty, ErrorNote, Icon, Meter, OwnerBadge, Stat, StatusBadge } from '../ui';
 import { ScalingTimeline } from '../timeline/ScalingTimeline';
@@ -8,7 +8,7 @@ import { feedOfRun, useLiveHistory } from '../timeline/feeds';
 const KIND_LABEL: Record<string, string> = {
   preflight: 'Preflight', ownership: 'Ownership', workload: 'Workload', traffic: 'Traffic', metric: 'Metric',
   decision: 'Policy', scale_request: 'Scale request', replicas: 'Replica change', ready: 'Ready', safety: 'Safety',
-  auto: 'Auto mode', warning: 'Warning', error: 'Error', experiment: 'Experiment',
+  auto: 'Auto mode', fallback: 'Fallback', warning: 'Warning', error: 'Error', experiment: 'Experiment',
 };
 
 const CONTROLLER_HELP: Record<string, string> = {
@@ -44,6 +44,19 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
   const [startedHere, setStartedHere] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
   const foreign = running && exp?.id !== startedHere;
+  // While a run is active the (disabled) form shows that run's settings, not stale local choices.
+  const activeReq = running ? exp?.request : null;
+  useEffect(() => {
+    if (!activeReq) return;
+    setController(activeReq.controller);
+    setVariant(activeReq.policy_variant || '');
+    setScenario(activeReq.scenario);
+    setUsers(activeReq.users);
+    setSpawn(activeReq.spawn_rate);
+    setDuration(activeReq.duration);
+    setReset(!!activeReq.reset_replicas);
+    setShadow(!!activeReq.shadow);
+  }, [exp?.id, !!activeReq]);
   const stopLocked = foreign && !unlocked;
   const emptyText = running ? (exp.state === 'running' ? 'Waiting for the first samples…' : 'Preparing a comparable start: no load yet.') : undefined;
 
@@ -215,14 +228,21 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
           </div>
           {exp && <div className="mt-3"><Meter value={last?.elapsed || 0} max={exp.request.duration} label="progress" /></div>}
           {exp?.error && <div className="mt-3"><ErrorNote error={exp.error} /></div>}
+          {exp?.operator_failure && (
+            <div className="mt-3 card-flat p-3 text-sm flex gap-2.5" role="alert" style={{ borderColor: 'var(--critical)' }}>
+              <Icon name="error" size={16} style={{ color: 'var(--critical)' }} className="mt-0.5 shrink-0" />
+              <div><b>Fallback to native HPA at +{fmtElapsed(exp.operator_failure.elapsed)}:</b> {exp.operator_failure.reason}. The watchdog restored
+                every HPA{exp.operator_failure.restored?.length ? ` (${exp.operator_failure.restored.length} services)` : ''}; the rest of this run is native HPA.</div>
+            </div>
+          )}
         </Card>
 
-        <div className="grid gap-3 grid-cols-2 md:grid-cols-4 2xl:grid-cols-7">
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-4 min-[1900px]:grid-cols-7">
           <Stat label="Elapsed" value={exp ? fmtElapsed(last?.elapsed ?? null) : '—'} sub={exp ? `of ${fmtElapsed(exp.request.duration)}` : undefined} />
           <Stat label="Users" value={fmt(last?.users)} />
           <Stat label="Throughput" value={fmt(last?.rps, 1)} sub="req/s, 10 s window" />
           <Stat label="Error rate" value={last?.rps ? fmt((100 * (last.fail_rps || 0)) / last.rps, 1, '%') : '—'} sub={`${fmt(last?.total_failures)} of ${fmt(last?.total_requests)}`} />
-          <Stat label="p50 / p95" value={last?.p95_ms != null ? `${fmt(last.p50_ms)} / ${fmt(last.p95_ms)}` : '—'} sub={lowSample && last ? 'few samples: indicative' : `p99 ${fmt(last?.p99_ms)} ms`} />
+          <Stat label="p50 / p95" value={last?.p95_ms != null ? `${fmt(last.p50_ms)} / ${fmt(last.p95_ms)}` : '—'} sub={lowSample && last ? 'few samples: indicative' : `p90 ${fmt(last?.p90_ms)} · p99 ${fmt(last?.p99_ms)} ms`} />
           <Stat label="Replicas" value={`${totalReady} / ${totalDesired}`} sub="ready / desired" />
           <Stat label="E2E SLA" value={last?.p95_ms == null ? '—' : last.e2e_slo_violation ? 'Violated' : 'Met'}
             level={last?.p95_ms == null ? undefined : last.e2e_slo_violation ? 'critical' : 'good'} sub={slo ? `p95 ≤ ${fmt(slo)} ms` : undefined} />
@@ -231,7 +251,7 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
         {fin && (
           <Card eyebrow={`Whole-run result${exp.summary.preliminary ? ' (preliminary)' : ''}`} title={`${fmt(fin.throughput_rps, 2)} req/s · p95 ${fmt(fin.p95_ms)} ms · failures ${fmt(fin.failure_rate_pct, 2)}%`}>
             <div className="text-sm ink2 tnum flex flex-wrap gap-x-5 gap-y-1">
-              <span>{fmt(fin.total_requests)} requests</span><span>p50 {fmt(fin.p50_ms)} ms</span><span>p99 {fmt(fin.p99_ms)} ms</span>
+              <span>{fmt(fin.total_requests)} requests</span><span>p50 {fmt(fin.p50_ms)} ms</span><span>p90 {fmt(fin.p90_ms)} ms</span><span>p99 {fmt(fin.p99_ms)} ms</span>
               <span>replica-hours {fmt(exp.summary.resources?.replica_hours, 4)}</span>
               <span>{exp.summary.resources?.cost_model === 'priced'
                 ? `estimated ${exp.summary.resources?.cost_currency} ${fmt(exp.summary.resources?.estimated_cost, 5)} (list prices, not a bill)`
@@ -280,7 +300,7 @@ export function LiveLab({ meta, live, liveErr, active, app, shopUrl, grafana, pr
                       <td>{s.ready_replicas} / {s.desired_replicas}</td>
                       <td>{s.hpa ? `${s.hpa.min_replicas}–${s.hpa.max_replicas}${s.hpa.original_min_replicas != null ? ` (frozen; was ${s.hpa.original_min_replicas}–${s.hpa.original_max_replicas})` : ''}` : 'no HPA'}</td>
                       <td>{fmt(m.cpu_pct, 1)}</td><td>{fmt(m.memory_pct, 1)}</td><td>{fmt(m.request_rate, 2)}</td>
-                      <td>{fmt(m.latency_mean_ms, 1)}</td><td>{fmt(m.latency_p95_ms, 0)}</td>
+                      <td>{fmt(m.latency_mean_ms, 1)}</td><td title={`p50 ${fmtLat(m, 'latency_p50_ms')} · p90 ${fmtLat(m, 'latency_p90_ms')} · p95 ${fmtLat(m, 'latency_p95_ms')} · p99 ${fmtLat(m, 'latency_p99_ms')} ms (1 min window)`}>{fmtLat(m, 'latency_p95_ms')}</td>
                       <td className="text-xs">{m.stale ? <StatusBadge level="critical" label="stale" /> : m.missing?.length ? <span className="muted">missing {m.missing.join(', ')}</span> : <StatusBadge level="good" label="ok" />}</td>
                     </tr>
                   );
@@ -355,10 +375,10 @@ function EventLog({ events }: { events: Json[] }) {
 function PolicyPanel({ events, controller, shadow }: { events: Json[]; controller: string; shadow: boolean }) {
   const proposals = events.filter((e) => e.kind === 'decision');
   const applied = events.filter((e) => e.kind === 'scale_request');
-  const safety = events.filter((e) => e.kind === 'safety' || (e.kind === 'auto' && e.owner === 'hpa'));
+  const safety = events.filter((e) => e.kind === 'safety' || e.kind === 'fallback' || (e.kind === 'auto' && e.owner === 'hpa'));
   if (isNativeHpa(controller) && !shadow) return null;
   const recent = [...proposals.slice(-4), ...applied.slice(-6), ...safety.slice(-4)].sort((a, b) => (a.t || 0) - (b.t || 0)).slice(-10).reverse();
-  const tag: Record<string, [string, string]> = { decision: ['Proposed', 'var(--muted)'], scale_request: ['Applied', 'var(--flexa)'], safety: ['Safety', 'var(--serious)'], auto: ['→ HPA', 'var(--hpa)'] };
+  const tag: Record<string, [string, string]> = { decision: ['Proposed', 'var(--muted)'], scale_request: ['Applied', 'var(--flexa)'], safety: ['Safety', 'var(--serious)'], fallback: ['Fallback', 'var(--critical)'], auto: ['→ HPA', 'var(--hpa)'] };
   return (
     <Card eyebrow={isNativeHpa(controller) ? 'FlexaScale shadow mode' : 'FlexaScale policy'} title={isNativeHpa(controller) ? 'What FlexaScale would have done (nothing applied)' : 'Policy proposals, applied actions and safety interventions'}>
       <div className="grid grid-cols-3 gap-3 mb-4">

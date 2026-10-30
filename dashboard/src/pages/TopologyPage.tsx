@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Json, fmt } from '../api';
+import { Json, fmt, fmtLat } from '../api';
 import { Topology } from '../Topology';
 import { Card, Empty, ErrorNote, KV, OwnerBadge, Stat, StatusBadge } from '../ui';
 
@@ -56,7 +56,7 @@ export function TopologyPage({ live, liveErr }: { live: Json; liveErr: string | 
                 <KV k="Requests" v={`${fmt(node.cpu_request_cores, 2)} CPU · ${fmt((node.memory_request_bytes || 0) / 2 ** 20)} MiB`} mono />
                 <KV k="CPU / memory" v={`${fmt(node.metrics?.cpu_pct)}% / ${fmt(node.metrics?.memory_pct)}%`} mono />
                 <KV k="Requests/s" v={node.metrics?.no_traffic ? '0 (no requests)' : fmt(node.metrics?.request_rate, 2)} mono />
-                <KV k="Latency mean / p95" v={node.metrics?.no_traffic ? 'no requests' : `${fmt(node.metrics?.latency_mean_ms, 1)} / ${fmt(node.metrics?.latency_p95_ms)} ms`} mono />
+                <KV k="Latency mean / p95" v={node.metrics?.no_traffic ? 'no requests' : `${fmt(node.metrics?.latency_mean_ms, 1)} / ${fmtLat(node.metrics, 'latency_p95_ms')} ms (p90 ${fmtLat(node.metrics, 'latency_p90_ms')}, p99 ${fmtLat(node.metrics, 'latency_p99_ms')})`} mono />
                 <KV k="Telemetry" v={node.metrics?.stale ? <StatusBadge level="critical" label="stale" /> : node.metrics?.missing?.length ? `missing ${node.metrics.missing.join(', ')}` : <StatusBadge level="good" label="complete" />} />
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">

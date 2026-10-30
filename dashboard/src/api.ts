@@ -118,3 +118,10 @@ export function fmtMoney(v: number | null | undefined, currency = 'USD', digits 
 }
 
 export const TERMINAL = ['completed', 'stopped', 'failed', 'interrupted'];
+
+/** A per-service latency percentile; '≥ x' when it fell in the histogram's +Inf bucket (x is a lower bound). */
+export function fmtLat(m: Json, key: string, digits = 0): string {
+  const v = m?.[key];
+  if (v == null) return m?.no_traffic ? 'no requests' : '—';
+  return `${(m.latency_capped || []).includes(key) ? '≥ ' : ''}${fmt(v, digits)}`;
+}

@@ -111,3 +111,14 @@ def test_null_latency_slo_reaches_the_operator_as_null():
         cm = next(d for d in yaml.safe_load_all(out) if d and d["kind"] == "ConfigMap")
         policy = yaml.safe_load(cm["data"]["policy.yaml"])
         assert policy["slo_latency_ms"] is None and policy["max_step"] == 3
+
+
+def test_operator_selector_is_release_specific_for_new_installs():
+    """Two releases in one namespace must not select each other's pods (found in-cluster 2026-10-31)."""
+    for release in ("a", "b"):
+        args = ["helm", "template", release, str(ROOT / "helm/flexascale"), "-n", "flexascale-system"]
+        out = subprocess.run(args, capture_output=True, text=True, timeout=60, check=True).stdout
+        dep = next(d for d in yaml.safe_load_all(out) if d and d["kind"] == "Deployment" and d["metadata"]["name"].endswith("-operator"))
+        sel = dep["spec"]["selector"]["matchLabels"]
+        assert sel["app.kubernetes.io/instance"] == release
+        assert sel.items() <= dep["spec"]["template"]["metadata"]["labels"].items()

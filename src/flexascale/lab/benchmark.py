@@ -90,7 +90,8 @@ def model_tag(run: Dict[str, Any]) -> str:
         tag = f"Rule {rule.get('type')}({rule.get('target')}/{rule.get('down')})"
         return f"{tag} (Auto mode)" if run["request"]["controller"] == "auto" else tag
     path = ((run.get("model") or {}).get("model_path") or "")
-    tag = next((p for p in Path(path).parts if p.startswith("flexascale_")), path or "unknown")
+    # Runs recorded on Windows store backslash paths; split on both separators on every host.
+    tag = next((p for p in path.replace("\\", "/").split("/") if p.startswith("flexascale_")), path or "unknown")
     tag = tag.replace("flexascale_", "")
     controller = run["request"]["controller"]
     if controller == "hpa":

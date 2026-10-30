@@ -43,7 +43,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 POD_SUFFIX = re.compile(r"^(?P<dep>.+)-[a-z0-9]{5,10}-[a-z0-9]{5}$")
-QUANTILES = (0.50, 0.95, 0.99)
+QUANTILES = (0.50, 0.90, 0.95, 0.99)
 
 
 @dataclass
@@ -58,11 +58,15 @@ class WorkloadMetrics:
     error_rate: Optional[float] = None
     latency_mean_ms: Optional[float] = None
     latency_p50_ms: Optional[float] = None
+    latency_p90_ms: Optional[float] = None
     latency_p95_ms: Optional[float] = None
     latency_p99_ms: Optional[float] = None
     sample_age_s: Optional[float] = None
     stale: bool = False
     no_traffic: bool = False          # scraped, but no requests in the window: rps 0, latency undefined
+    latency_capped: List[str] = field(default_factory=list)
+    """Percentiles that fall in the histogram's +Inf bucket: the value shown is the largest finite bucket bound,
+    a lower bound of the true percentile (e.g. 'latency_p99_ms' >= 10000 ms)."""
     missing: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -297,9 +301,13 @@ class WorkloadMetricsClient:
                 m.missing.append("latency")
             if dep in bucket_g:
                 pairs = list(bucket_g[dep].items())
-                for q, attr in zip(QUANTILES, ("latency_p50_ms", "latency_p95_ms", "latency_p99_ms")):
+                finite = [c for b, c in sorted(pairs) if b != float("inf")]
+                total = max((c for _, c in pairs), default=0.0)
+                for q, attr in zip(QUANTILES, ("latency_p50_ms", "latency_p90_ms", "latency_p95_ms", "latency_p99_ms")):
                     v = histogram_quantile(q, pairs)
                     setattr(m, attr, None if v is None else v * 1000.0)
+                    if v is not None and finite and total > 0 and q * total > finite[-1]:
+                        m.latency_capped.append(attr)
         return result
 
     @staticmethod

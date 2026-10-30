@@ -50,10 +50,10 @@ const LEVEL: Record<Level, { color: string; icon: string; label: string }> = {
 };
 
 /** Status is never colour alone: icon + label + colour. */
-export function StatusBadge({ level, label, title }: { level: Level; label?: string; title?: string }) {
+export function StatusBadge({ level, label, title, wrap }: { level: Level; label?: string; title?: string; wrap?: boolean }) {
   const l = LEVEL[level];
   return (
-    <span className="pill" title={title}>
+    <span className={wrap ? 'pill pill-wrap' : 'pill'} title={title}>
       <Icon name={l.icon} size={13} style={{ color: l.color }} />
       <span>{label ?? l.label}</span>
     </span>

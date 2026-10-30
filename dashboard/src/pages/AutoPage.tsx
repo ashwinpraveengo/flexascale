@@ -56,7 +56,7 @@ export function AutoPage({ live, active, onNavigate }: { live: Json; active: Jso
         actions={<button className="btn btn-primary text-sm" onClick={() => onNavigate('live')}><Icon name="play" size={13} />Run in Auto mode</button>}>
         <p className="text-sm ink2 leading-relaxed max-w-5xl">
           Every operator step (every {fmt(policy.poll_interval_seconds)} s), for each service, FlexaScale's proposal and native HPA's
-          recommendation (<code>ceil(replicas × CPU / {fmt(policy.cpu_target_pct)}%)</code>) are computed from the same telemetry. The rules are
+          recommendation (<code>ceil(replicas × CPU / {fmt(policy.auto?.hpa_target_pct ?? policy.cpu_target_pct)}%)</code>) are computed from the same telemetry. The rules are
           checked in order; the first that applies decides the owner. A <b>recommendation</b> is not an action: only the owner's change is sent to
           Kubernetes. Ownership is exclusive: FlexaScale freezes a service's HPA (min = max) before scaling it and restores the original bounds on
           hand-back, under one Lease per application. Stopping a run, losing the Lease or the operator exiting returns every service to native HPA.

@@ -408,7 +408,7 @@ To apply or refresh the Grafana dashboard JSON:
 
 ```bash
 # Apply updated dashboard ConfigMap into flexascale-monitoring namespace
-kubectl apply -f k8s/grafana-dashboard-configmap.yaml
+kubectl apply -f observability/grafana/dashboard-configmap.yaml
 
 # Restart Grafana deployment to trigger immediate reload
 kubectl rollout restart deployment monitoring-grafana -n flexascale-monitoring

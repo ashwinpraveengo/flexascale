@@ -18,6 +18,7 @@ apps:
       v9: config/apps/shopping_v9.yaml                     # docs/POLICY_V9.md §5
       v7_rule: config/apps/shopping_v7_rule.yaml
       v8_latency_rule: config/apps/shopping_v8_latency_rule.yaml   # docs/POLICY_V8.md §2
+      verify_sla_risk: config/apps/shopping_verify_sla.yaml       # controlled Auto SLA-risk demo (results/verification/)
     url: minikube-ingress
     locustfile: load-testing/scenarios.py
     reset_requests:                            # same data at the start of every run

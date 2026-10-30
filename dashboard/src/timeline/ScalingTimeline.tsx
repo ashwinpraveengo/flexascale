@@ -704,11 +704,11 @@ function Tooltip({ x, y, width, p, v, sel, start, events, marks }: {
   ];
   if (isSvc) {
     rows.push(['Requests/s', valueOrState(v.rps, 2, '', { missing: miss('request_rate'), noTraffic: v.noTraffic, stale: v.stale })]);
-    rows.push(['Latency mean / p95', <span key="l">{valueOrState(v.latency, 1, ' ms', { missing: miss('latency'), noTraffic: v.noTraffic })} / {valueOrState(v.latencyP95, 0, ' ms', { noTraffic: v.noTraffic })}</span>]);
+    rows.push(['Latency mean / p95', <span key="l">{valueOrState(v.latency, 1, ' ms', { missing: miss('latency'), noTraffic: v.noTraffic })} / {v.latencyP95Capped ? '≥ ' : ''}{valueOrState(v.latencyP95, 0, ' ms', { noTraffic: v.noTraffic })}</span>]);
     rows.push(['CPU / memory', <span key="c">{valueOrState(v.cpu, 0, '%', { missing: miss('cpu'), stale: v.stale })} / {valueOrState(v.mem, 0, '%', { missing: miss('memory') })}</span>]);
   } else {
     rows.push(['Users / req/s', p.users != null || p.rps != null ? <span className="tnum">{fmt(p.users)} / {fmt(p.rps, 1)}</span> : <span className="muted">no workload</span>]);
-    rows.push(['p50 / p95', p.p95 != null ? <span className="tnum">{fmt(p.p50)} / {fmt(p.p95)} ms{p.e2eViolation ? <b style={{ color: 'var(--critical)' }}> SLA violated</b> : null}</span> : <span className="muted">—</span>]);
+    rows.push(['p50 / p90 / p95 / p99', p.p95 != null ? <span className="tnum">{fmt(p.p50)} / {fmt(p.p90)} / {fmt(p.p95)} / {fmt(p.p99)} ms{p.e2eViolation ? <b style={{ color: 'var(--critical)' }}> SLA violated</b> : null}</span> : <span className="muted">—</span>]);
     rows.push(['Mean CPU / memory', <span key="c">{valueOrState(v.cpu, 0, '%', {})} / {valueOrState(v.mem, 0, '%', {})}</span>]);
   }
   return (

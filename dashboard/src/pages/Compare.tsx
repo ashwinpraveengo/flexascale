@@ -48,9 +48,12 @@ export function Compare({ app }: { app: string }) {
         <>
           <Card eyebrow="Paired benchmark" title={`${candidateName(current.model)} vs ${bench.data?.reference_label || 'native HPA (default)'}`}
             actions={models.length > 1 && (
-              <div className="seg" role="group" aria-label="Model">
-                {models.map((m) => <button key={m.model} aria-pressed={m.model === current.model} onClick={() => setModel(m.model)}>{m.model}</button>)}
-              </div>
+              <label className="flex items-center gap-2 text-xs muted max-w-full">
+                <span className="shrink-0">Candidate</span>
+                <select className="field !w-auto max-w-[min(520px,70vw)] !py-1.5 text-sm" value={current.model} onChange={(e) => setModel(e.target.value)} aria-label="Candidate model">
+                  {models.map((m) => <option key={m.model} value={m.model}>{m.model} · {m.n_pairs} pair{m.n_pairs === 1 ? '' : 's'}</option>)}
+                </select>
+              </label>
             )}>
             <div className="flex flex-wrap items-center gap-2 mb-4 text-sm">
               <StatusBadge level={current.n_pairs < MIN_PAIRS ? 'warning' : current.verdict_level} label={current.n_pairs < MIN_PAIRS ? `Preliminary: ${current.n_pairs} of ≥ ${MIN_PAIRS} pairs needed for a verdict` : current.verdict} />
@@ -283,6 +286,7 @@ function RunVsRun({ a, b, comparable, issues }: { a: string; b: string; comparab
   const rows: [string, (r: Json) => number | null, number, string, 'lower' | 'higher' | 'context'][] = [
     ['Throughput', (r) => g(r, 'summary.workload.throughput_rps'), 2, 'req/s', 'higher'],
     ['p50 latency', (r) => g(r, 'summary.workload.p50_ms'), 0, 'ms', 'lower'],
+    ['p90 latency', (r) => g(r, 'summary.workload.p90_ms'), 0, 'ms', 'lower'],
     ['p95 latency', (r) => g(r, 'summary.workload.p95_ms'), 0, 'ms', 'lower'],
     ['p99 latency', (r) => g(r, 'summary.workload.p99_ms'), 0, 'ms', 'lower'],
     ['Failure rate', (r) => g(r, 'summary.workload.failure_rate_pct'), 2, '%', 'lower'],

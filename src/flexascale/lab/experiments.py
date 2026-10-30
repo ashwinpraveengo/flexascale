@@ -74,6 +74,8 @@ HPA_TARGET_LIMITS = (10, 1000)
 HPA_WINDOW_LIMITS = (0, 3600)
 LIMITS = {"users": (1, 500), "spawn_rate": (0.1, 100.0), "duration": (30, 3600)}
 TERMINAL_STATES = ("completed", "stopped", "failed", "interrupted")
+OPERATOR_STALL_STEPS = 4
+"""Watchdog: a live operator whose status has not advanced for this many poll intervals is treated as hung."""
 HPA_DOWNSCALE_WINDOW_S = 330  # Kubernetes default scale-down stabilisation (300 s) + margin
 
 
@@ -220,6 +222,7 @@ def read_locust_history(path: Path) -> Optional[Dict[str, Any]]:
         "rps": _float(last.get("Requests/s")),
         "fail_rps": _float(last.get("Failures/s")),
         "p50_ms": _float(last.get("50%")),
+        "p90_ms": _float(last.get("90%")),
         "p95_ms": _float(last.get("95%")),
         "p99_ms": _float(last.get("99%")),
         "total_requests": int(_float(last.get("Total Request Count")) or 0),
@@ -244,6 +247,7 @@ def read_locust_final(path: Path) -> Optional[Dict[str, Any]]:
                         "throughput_rps": _float(row.get("Requests/s")),
                         "mean_latency_ms": _float(row.get("Average Response Time")),
                         "p50_ms": _float(row.get("50%")),
+                        "p90_ms": _float(row.get("90%")),
                         "p95_ms": _float(row.get("95%")),
                         "p99_ms": _float(row.get("99%")),
                         "max_ms": _float(row.get("Max Response Time")),
@@ -366,6 +370,8 @@ class Experiment:
         self._proposals: Dict[str, Dict[str, Any]] = {}
         self.auto_state: Dict[str, Dict[str, Any]] = {}
         self.auto_counts: Dict[str, int] = {}
+        self.operator_failure: Optional[Dict[str, Any]] = None
+        """Set when the live FlexaScale operator died or stopped stepping mid-run (the run continued under native HPA)."""
         self.thread = threading.Thread(target=self._run, name=f"experiment-{self.id}", daemon=True)
 
     # -- bookkeeping ---------------------------------------------------------
@@ -414,6 +420,7 @@ class Experiment:
                 "slo": {"e2e_p95_ms": self.lab.cfg.e2e_p95_slo_ms, "service_mean_ms": self.policy.slo_latency_ms},
                 "auto_state": dict(self.auto_state),
                 "auto_counts": dict(self.auto_counts),
+                "operator_failure": self.operator_failure,
             }
 
     # -- lifecycle -----------------------------------------------------------
@@ -689,6 +696,7 @@ class Experiment:
         while True:
             t0 = time.time()
             self._sample()
+            self._check_operator()
             if self._stop.is_set():
                 raise InterruptedError("stop requested")
             if not self.lab.pm.is_running("locust"):
@@ -698,6 +706,41 @@ class Experiment:
                 self.event("warning", "Workload exceeded its duration by 60 s; stopping it")
                 break
             self._stop.wait(max(0.5, interval - (time.time() - t0)))
+
+    def _check_operator(self) -> None:
+        """Watchdog for FlexaScale / Auto runs: hand every service back to native HPA if the operator is unhealthy.
+
+        The operator restores HPAs itself on SIGTERM, SIGINT or a failed step, but not when it is killed or hangs.
+        It is unhealthy when its process has exited, or when its status file has not advanced for
+        ``OPERATOR_STALL_STEPS`` poll intervals. The watchdog then stops it (if alive), restores every frozen HPA and
+        every HPA-less Deployment's replicas, and records the failure; the run continues under native HPA.
+        """
+        if self.req.controller not in ("flexascale", "auto") or self.operator_failure is not None:
+            return
+        lab = self.lab
+        now = time.time()
+        reason = None
+        if not lab.pm.is_running("operator"):
+            reason = "operator process exited"
+        else:
+            status_file = lab.pm.runtime_dir / "operator_status.json"
+            try:
+                updated = float(json.loads(status_file.read_text(encoding="utf-8")).get("updated_at") or 0.0)
+            except (OSError, ValueError, TypeError):
+                updated = 0.0
+            limit = OPERATOR_STALL_STEPS * self.policy.poll_interval_seconds
+            if updated and now - updated > limit:
+                reason = f"operator status not updated for {now - updated:.0f} s (limit {limit:.0f} s)"
+        if reason is None:
+            return
+        stopped = lab.pm.stop("operator", timeout=20, first_signal=15) if lab.pm.is_running("operator") else None
+        hpa_mgr = lab.hpa_manager(self.req.app)
+        restored = hpa_mgr.restore_all_frozen() + hpa_mgr.restore_unmanaged_replicas()
+        self.operator_failure = {"ts": now, "elapsed": round(now - (self.started_at or now), 1), "reason": reason,
+                                 "restored": restored, "operator_stop": stopped}
+        self.event("fallback", f"FlexaScale unhealthy ({reason}): every service returned to native HPA"
+                               + (f" (restored {', '.join(restored)})" if restored else ""),
+                   reason=reason, restored=restored)
 
     def _teardown(self) -> None:
         lab = self.lab
@@ -790,8 +833,10 @@ class Experiment:
                 "request_rate": m.request_rate if m else None,
                 "latency_ms": m.latency_mean_ms if m else None,
                 "latency_p50_ms": m.latency_p50_ms if m else None,
+                "latency_p90_ms": m.latency_p90_ms if m else None,
                 "latency_p95_ms": m.latency_p95_ms if m else None,
                 "latency_p99_ms": m.latency_p99_ms if m else None,
+                "latency_capped": list(m.latency_capped) if m else [],
                 "error_rate": m.error_rate if m else None,
                 "no_traffic": bool(m.no_traffic) if m else False,
                 "stale": bool(m.stale) if m else True,
@@ -810,7 +855,7 @@ class Experiment:
             "t": now,
             "elapsed": round(now - (self.started_at or now), 1),
             "host": host_snapshot(),
-            **{k: locust.get(k) for k in ("users", "rps", "fail_rps", "p50_ms", "p95_ms", "p99_ms", "total_requests", "total_failures")},
+            **{k: locust.get(k) for k in ("users", "rps", "fail_rps", "p50_ms", "p90_ms", "p95_ms", "p99_ms", "total_requests", "total_failures")},
             "e2e_slo_violation": e2e_violation,
             "services": services,
         }
@@ -884,9 +929,13 @@ class Experiment:
             if auto and d.get("mode") == "live":
                 prev = self.auto_state.get(svc)
                 if prev is None or prev.get("owner") != auto.get("owner"):
-                    who = "FlexaScale" if auto["owner"] == "flexascale" else "native HPA"
-                    self.event("auto", f"{svc} -> {who} ({auto['rule'].replace('_', ' ')}): {auto['reason']}",
-                               service=svc, owner=auto["owner"], rule=auto["rule"])
+                    name = {"flexascale": "FlexaScale", "hpa": "native HPA"}
+                    who, rule = name.get(auto["owner"], auto["owner"]), auto["rule"].replace("_", " ")
+                    if auto.get("candidate") and auto["candidate"] != auto["owner"]:  # hysteresis: switch pending
+                        msg = f"{svc} stays with {who}; {rule} rule chose {name.get(auto['candidate'], auto['candidate'])}: {auto['reason']}"
+                    else:
+                        msg = f"{svc} -> {who} ({rule}): {auto['reason']}"
+                    self.event("auto", msg, service=svc, owner=auto["owner"], rule=auto["rule"])
                 self.auto_state[svc] = auto
                 self.auto_counts[auto["rule"]] = self.auto_counts.get(auto["rule"], 0) + 1
             if d.get("applied"):
@@ -997,15 +1046,16 @@ class Experiment:
         snap["state"] = final_state
         snap["policy"] = self.policy.to_dict()
         (self.dir / "run.json").write_text(json.dumps(snap, indent=2, default=str), encoding="utf-8")
-        fields = ["t", "elapsed", "users", "rps", "fail_rps", "p50_ms", "p95_ms", "p99_ms", "e2e_slo_violation",
+        fields = ["t", "elapsed", "users", "rps", "fail_rps", "p50_ms", "p90_ms", "p95_ms", "p99_ms", "e2e_slo_violation",
                   "service", "desired", "ready", "hpa_desired", "hpa_min", "hpa_max", "frozen", "cpu_pct", "memory_pct",
-                  "cpu_cores", "memory_bytes", "request_rate", "latency_ms", "latency_p95_ms", "stale"]
+                  "cpu_cores", "memory_bytes", "request_rate", "latency_ms", "latency_p50_ms", "latency_p90_ms", "latency_p95_ms", "latency_p99_ms",
+                  "error_rate", "stale"]
         with (self.dir / "telemetry.csv").open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
             writer.writeheader()
             for s in self.samples:
                 for name, svc in s["services"].items():
-                    writer.writerow({**{k: s.get(k) for k in fields[:9]}, "service": name, **svc})
+                    writer.writerow({**{k: s.get(k) for k in fields[:10]}, "service": name, **svc})
 
 
 # ---------------------------------------------------------------------------
@@ -1173,7 +1223,7 @@ class Lab:
                 "desired": s.get("desired_replicas"), "ready": s.get("ready_replicas"),
                 "hpa_desired": hpa.get("desired_replicas"), "frozen": bool(hpa.get("frozen")), "owner": s.get("owner"),
                 **{k: m.get(k) for k in ("cpu_pct", "memory_pct", "request_rate", "error_rate", "latency_mean_ms",
-                                         "latency_p95_ms", "no_traffic", "stale", "missing")},
+                                         "latency_p50_ms", "latency_p90_ms", "latency_p95_ms", "latency_p99_ms", "no_traffic", "stale", "missing")},
             }
         hist.append({"t": t, "services": services, "lease_held": bool(data["lease"].get("holder")) and not data["lease"].get("expired")})
 
@@ -1265,7 +1315,12 @@ class Lab:
         path = ROOT / self.cfg.results_dir / run_id / "run.json"
         if "/" in run_id or ".." in run_id or not path.is_file():
             raise KeyError(run_id)
-        return json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
+        workload = (data.get("summary") or {}).get("workload")
+        if isinstance(workload, dict) and "p90_ms" not in workload:
+            # Runs recorded before p90 was summarised: read it from the run's own Locust CSV (never estimated).
+            workload["p90_ms"] = (read_locust_final(path.parent / "locust_stats.csv") or {}).get("p90_ms")
+        return data
 
     def benchmark(self, app: Optional[str] = None, reference: str = "hpa") -> Dict[str, Any]:
         from flexascale.lab.benchmark import benchmark, load_runs
@@ -1302,6 +1357,7 @@ class Lab:
             ("Total requests", "workload.total_requests", "higher"),
             ("Failure rate (%)", "workload.failure_rate_pct", "lower"),
             ("p50 latency (ms)", "workload.p50_ms", "lower"),
+            ("p90 latency (ms)", "workload.p90_ms", "lower"),
             ("p95 latency (ms)", "workload.p95_ms", "lower"),
             ("p99 latency (ms)", "workload.p99_ms", "lower"),
             ("E2E p95 SLO violation (s)", "slo.e2e_violation_seconds", "lower"),

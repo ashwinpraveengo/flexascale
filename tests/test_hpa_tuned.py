@@ -245,3 +245,11 @@ def test_flash_sale_study_is_never_pooled_with_the_batch():
     assert [p["baseline"] for p in models["v7" + STUDY_SUFFIXES["v7-"]]["pairs"]] == ["t1"]
     assert [p["baseline"] for p in models["v7" + SPIKE_SUFFIX]["pairs"]] == ["t2"]
     assert [p["baseline"] for p in models["v7" + STUDY_SUFFIXES["v7r-"]]["pairs"]] == ["t3"]
+
+
+def test_model_tag_reads_windows_and_posix_paths():
+    from flexascale.lab.benchmark import model_tag
+
+    for path in ("models\\flexascale_v9\\best_model\\best_model.zip", "models/flexascale_v9/best_model/best_model.zip"):
+        run = {"request": {"controller": "auto"}, "model": {"model_path": path}, "policy": {}}
+        assert model_tag(run) == "v9 (Auto mode)"

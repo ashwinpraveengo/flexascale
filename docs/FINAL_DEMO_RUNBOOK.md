@@ -15,6 +15,10 @@ Target length: 12–15 minutes live, plus questions. Updated 2026-10-29 for the 
 
 If it fails, the printed `Fix:` line says what to do; the troubleshooting table is at the top of RUNNING.md.
 
+* **Which FlexaScale policy?** On the second laptop (Windows) use the default policy (v9). On the first laptop (Fedora)
+  choose **FlexaScale policy → v7** in the Live lab: v9 was fitted to the second laptop and holds every service at its
+  minimum on the first one (checked live 2026-10-31, `results/verification/`).
+
 ## 1. Start (one command)
 
 ```powershell

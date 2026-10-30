@@ -1,5 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { CONTROLLER_LABEL, Json, deltaDigits, isNativeHpa, OWNER_COLOR, fmt, fmtAgo, fmtElapsed, fmtMoney, fmtSigned } from '../api';
+import { CONTROLLER_LABEL, Json, deltaDigits, isNativeHpa, OWNER_COLOR, fmt, fmtAgo, fmtElapsed, fmtMoney, fmtSigned, fmtLat } from '../api';
 import { Card, Empty, ErrorNote, Icon, Level, Meter, OwnerBadge, Skeleton, Sparkline, Stat, StatusBadge, useHistory } from '../ui';
 import { Topology } from '../Topology';
 import { ScalingTimeline } from '../timeline/ScalingTimeline';
@@ -53,6 +53,7 @@ export function deriveAlerts(overview: Json, live: Json, active: Json): Alert[] 
     out.push({ level: 'warning', title: `CPU telemetry missing for ${noCpu.length} service(s)`, detail: noCpu.map((s) => s.name).join(', ') + ' (FlexaScale holds these services)' });
   const lease = live?.lease;
   if (lease?.holder && !lease.expired && !running) out.push({ level: 'serious', title: 'Controller lease held outside an experiment', detail: `held by ${lease.holder}` });
+  if (active?.operator_failure) out.push({ level: 'critical', title: 'FlexaScale fell back to native HPA', detail: `${active.operator_failure.reason} at +${Math.round(active.operator_failure.elapsed)} s; HPAs restored` });
   if (active?.state === 'failed') out.push({ level: 'serious', title: 'Last experiment failed', detail: active.error || active.id });
   if (active?.cleanup && active.cleanup.safe === false) out.push({ level: 'critical', title: 'Cleanup not verified', detail: 'verify HPA ownership manually (./scripts/stop_review.sh)' });
   const budget = live?.policy?.max_total_replicas;
@@ -145,7 +146,7 @@ export function Overview({ overview, live, liveErr, active, app, bench, onNaviga
                 ['HPA range', sNode.hpa ? `${sNode.hpa.min_replicas}–${sNode.hpa.max_replicas}` : 'no HPA'],
                 ['CPU', `${fmt(sNode.metrics?.cpu_pct)}%`],
                 ['Req/s', fmt(sNode.metrics?.request_rate, 2)],
-                ['Latency mean / p95', `${fmt(sNode.metrics?.latency_mean_ms)} / ${fmt(sNode.metrics?.latency_p95_ms)} ms`],
+                ['Latency mean / p95', `${fmt(sNode.metrics?.latency_mean_ms)} / ${fmtLat(sNode.metrics, 'latency_p95_ms')} ms`],
               ].map(([k, v]) => (
                 <div key={String(k)} className="min-w-0"><div className="eyebrow">{k}</div><div className="tnum truncate">{v}</div></div>
               ))}
@@ -268,7 +269,7 @@ function RunCostChart({ runs }: { runs: Json[] }) {
   );
 }
 
-const EVENT_KINDS: Record<string, string> = { scale_request: 'Scale', replicas: 'Replicas', auto: 'Owner', safety: 'Safety', ownership: 'Ownership' };
+const EVENT_KINDS: Record<string, string> = { fallback: 'Fallback', scale_request: 'Scale', replicas: 'Replicas', auto: 'Owner', safety: 'Safety', ownership: 'Ownership' };
 
 function RecentEvents({ events }: { events: Json[] }) {
   const recent = events.filter((e) => EVENT_KINDS[e.kind]).slice(-6).reverse();
@@ -317,9 +318,10 @@ function WorkloadStrip({ exp, running: active, last, services }: { exp: Json; ru
         <span className="eyebrow">Workload now {running ? '· Locust, 10 s window' : ''}</span>
         {!running && <span className="text-xs muted">{active ? 'Experiment preparing (comparable start): no load yet.' : 'Idle: no load generator running. Start a scenario in the Live lab.'}</span>}
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7">
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
         {cell('Throughput', running && last?.rps != null ? `${fmt(last.rps, 1)} req/s` : '—', running ? `${fmt(last?.users)} virtual users` : active ? 'preparing' : 'idle')}
         {cell('p50 latency', running && last?.p50_ms != null ? `${fmt(last.p50_ms)} ms` : '—')}
+        {cell('p90 latency', running && last?.p90_ms != null ? `${fmt(last.p90_ms)} ms` : '—')}
         {cell('p95 latency', running && last?.p95_ms != null ? `${fmt(last.p95_ms)} ms` : '—', slo ? `SLO ≤ ${fmt(slo)} ms` : undefined, running && last?.e2e_slo_violation ? 'critical' : null)}
         {cell('p99 latency', running && last?.p99_ms != null ? `${fmt(last.p99_ms)} ms` : '—')}
         {cell('Error rate', running && errPct != null ? `${fmt(errPct, 1)}%` : '—', running && last?.total_requests != null ? `${fmt(last.total_failures)} of ${fmt(last.total_requests)}` : undefined,

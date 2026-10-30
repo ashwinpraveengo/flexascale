@@ -37,10 +37,10 @@ export function Experiments({ app, meta, onNavigate }: { app: string; meta: Json
   };
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(440px,560px)_1fr]">
+    <div className="grid gap-4 2xl:grid-cols-[minmax(600px,700px)_1fr]">
       <Card eyebrow="Experiment history" title={`${shown.length} of ${all.length} saved runs`} pad={false}
         actions={<button className="btn btn-ghost !p-2" onClick={runs.reload} aria-label="Reload"><Icon name="refresh" size={15} /></button>}>
-        <div className="px-4 sm:px-5 pb-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="px-4 sm:px-5 pb-3 grid grid-cols-2 gap-2">
           <select className="field text-sm" value={controller} onChange={(e) => setController(e.target.value)} aria-label="Controller">
             <option value="">All controllers</option>
             {controllers.map((c) => <option key={c} value={c}>{CONTROLLER_LABEL[c] || c}</option>)}
@@ -60,14 +60,14 @@ export function Experiments({ app, meta, onNavigate }: { app: string; meta: Json
         ) : (
           <div className="overflow-auto scroll-thin max-h-[calc(100vh-260px)]">
             <table className="data w-full text-sm tnum">
-              <thead><tr><th>Run</th><th>Controller</th><th className="text-right">req/s</th><th className="text-right">p95</th><th className="text-right">replica-h</th><th>Validity</th></tr></thead>
+              <thead><tr><th>Run</th><th>Controller</th><th className="text-right">req/s</th><th className="text-right">p95 ms</th><th className="text-right">replica-h</th><th>Validity</th></tr></thead>
               <tbody>
                 {shown.map((r) => {
                   const v = validity(r);
                   return (
                     <tr key={r.id} onClick={() => select(r.id)} className="cursor-pointer" aria-selected={selected === r.id}
                       style={selected === r.id ? { background: 'var(--accent-soft)' } : undefined}>
-                      <td className="max-w-[230px]">
+                      <td className="max-w-[200px]">
                         <div className="truncate font-medium" title={r.id}>{r.request.scenario.replace(/_/g, ' ')}</div>
                         <div className="text-xs muted truncate">{r.started_at ? new Date(r.started_at * 1000).toLocaleString() : r.id.slice(0, 15)}{r.block ? ` · ${r.block}` : ''}</div>
                       </td>
@@ -76,7 +76,7 @@ export function Experiments({ app, meta, onNavigate }: { app: string; meta: Json
                           {CONTROLLER_LABEL[r.request.controller] || r.request.controller}</span>
                       </td>
                       <td className="text-right">{fmt(r.throughput_rps, 1)}</td>
-                      <td className="text-right">{r.p95_ms != null ? `${fmt(r.p95_ms)} ms` : '—'}</td>
+                      <td className="text-right">{fmt(r.p95_ms)}</td>
                       <td className="text-right">{fmt(r.replica_hours, 3)}</td>
                       <td title={v.reasons.join('; ') || 'complete, settled start, cleanup verified'}>
                         {v.ok ? <StatusBadge level="good" label={r.preliminary ? 'valid · short' : 'valid'} /> : <StatusBadge level={r.state === 'failed' ? 'critical' : 'warning'} label={v.reasons[0]} />}
@@ -128,23 +128,23 @@ function RunDetail({ run, row, baseline, onBaseline, onNavigate }: { run: Json; 
           <button className="btn text-xs" onClick={() => onBaseline(baseline === run.id ? null : run.id)}>{baseline === run.id ? 'Baseline selected ✓' : 'Use as baseline'}</button>
         </div>
       }>
-      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-6 gap-3 text-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm">
         <KV k="State" v={<StatusBadge level={run.state === 'completed' ? 'good' : run.state === 'failed' ? 'critical' : 'warning'} label={run.state} />} />
         <KV k="Users / spawn" v={`${req.users} / ${req.spawn_rate}/s`} mono />
-        <KV k="Duration" v={`${req.duration} s (measured ${fmt(s.actual_duration_s)} s)`} mono />
+        <KV k="Duration" v={`${req.duration} s (measured ${fmt(s.actual_duration_s)} s)`} mono wrap />
         <KV k="Comparable start" v={req.reset_replicas ? 'yes' : 'no'} />
         <KV k="Cleanup" v={run.cleanup?.safe ? 'verified safe' : run.cleanup ? 'NOT verified' : '—'} />
-        <KV k="Host power" v={hosts.length ? (battery ? `${battery} samples on battery` : 'AC throughout') : 'not recorded'} />
+        <KV k="Host power" v={hosts.length ? (battery ? `${battery} samples on battery` : 'AC throughout') : 'not recorded'} wrap />
         <KV k="Throughput" v={`${fmt(w.throughput_rps, 2)} req/s`} mono />
-        <KV k="p50 / p95 / p99" v={`${fmt(w.p50_ms)} / ${fmt(w.p95_ms)} / ${fmt(w.p99_ms)} ms`} mono />
-        <KV k="Failures" v={`${fmt(w.failure_rate_pct, 2)}% of ${fmt(w.total_requests)}`} mono />
+        <KV k="p50 / p90 / p95 / p99" v={`${fmt(w.p50_ms)} / ${fmt(w.p90_ms)} / ${fmt(w.p95_ms)} / ${fmt(w.p99_ms)} ms`} mono wrap />
+        <KV k="Failures" v={`${fmt(w.failure_rate_pct, 2)}% of ${fmt(w.total_requests)} requests`} mono wrap />
         <KV k="Replica-hours" v={fmt(res.replica_hours, 4)} mono />
         <KV k={res.cost_model === 'priced' ? 'Estimated cost' : 'Cost proxy'} v={res.cost_model === 'priced' ? fmtMoney(res.estimated_cost, res.cost_currency, 5) : fmt(res.resource_cost_proxy, 5)} mono />
         <KV k="SLA violated" v={s.slo?.e2e_violation_seconds != null ? `${fmt(s.slo.e2e_violation_seconds)} s` : '—'} mono />
         {req.controller === 'hpa_tuned' && <KV k="HPA settings" v={`${req.hpa_cpu_target_pct}% CPU, ${req.hpa_scale_down_window_s} s window`} />}
         {req.policy_variant && <KV k="Policy variant" v={req.policy_variant} />}
         {req.block && <KV k="Block" v={req.block} />}
-        {run.model?.model_path && <KV k="Model" v={String(run.model.model_path).replace(/\\/g, '/').split('/').slice(-3).join('/')} wrap />}
+        {run.model?.model_path && <div className="col-span-2 sm:col-span-3"><KV k="Model" v={String(run.model.model_path).replace(/\\/g, '/')} wrap mono /></div>}
       </div>
       {!v.ok && <p className="text-xs mt-3" style={{ color: 'var(--serious)' }}>Not used in comparisons: {v.reasons.join('; ')}.</p>}
       {run.error && <div className="mt-3"><ErrorNote error={run.error} /></div>}

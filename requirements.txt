@@ -7,6 +7,11 @@ stable-baselines3
 fastapi
 uvicorn
 prometheus-api-client
-python-dotenv
 pytest
 pyyaml
+requests
+psutil
+locust
+httpx
+# The shop's own tests (tests/shopping-app) also need: bcrypt sqlalchemy "psycopg[binary]" pyjwt (see RUNNING.md)
+# The operator image uses deploy/flexascale/requirements.txt instead.

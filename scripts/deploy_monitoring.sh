@@ -16,7 +16,7 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
   -f k8s/prometheus-values.yaml
 
 echo -e "\n[3/3] Applying FlexaScale Grafana Dashboard ConfigMap..."
-kubectl apply -f k8s/grafana-dashboard-configmap.yaml
+kubectl apply -f observability/grafana/dashboard-configmap.yaml
 
 echo -e "\n=========================================================="
 echo " Monitoring Stack Deployment Completed Successfully!"

@@ -289,3 +289,72 @@ def test_unsettled_start_is_not_comparable(lab):
     write_run(lab, "b", "flexascale", settled=False)
     out = lab.compare("a", "b")
     assert not out["comparable"] and any("settled" in i for i in out["issues"])
+
+
+# ---------------------------------------------------------------- p90 and the operator watchdog
+
+
+def test_locust_p90_is_read(tmp_path):
+    (tmp_path / "h.csv").write_text(HISTORY)
+    (tmp_path / "f.csv").write_text(FINAL)
+    assert read_locust_final(tmp_path / "f.csv")["p90_ms"] == 60
+    assert "p90_ms" in read_locust_history(tmp_path / "h.csv")
+
+
+class _StubHPA:
+    def __init__(self):
+        self.calls = 0
+
+    def restore_all_frozen(self):
+        self.calls += 1
+        return ["api-gateway"]
+
+    def restore_unmanaged_replicas(self):
+        return []
+
+
+def _watched(lab, monkeypatch, controller="auto"):
+    exp = exp_mod.Experiment(lab, ExperimentRequest("shopping", controller, "flash_sale", users=5, duration=30))
+    exp.started_at = time.time() - 20
+    stub = _StubHPA()
+    monkeypatch.setattr(lab, "hpa_manager", lambda app: stub)
+    return exp, stub
+
+
+def test_watchdog_hands_back_to_hpa_when_operator_exits(lab, monkeypatch):
+    exp, stub = _watched(lab, monkeypatch)
+    monkeypatch.setattr(lab.pm, "is_running", lambda name: False)
+    exp._check_operator()
+    assert exp.operator_failure["reason"] == "operator process exited"
+    assert exp.operator_failure["restored"] == ["api-gateway"]
+    assert any(e["kind"] == "fallback" for e in exp.events)
+    exp._check_operator()  # reported once
+    assert stub.calls == 1 and sum(e["kind"] == "fallback" for e in exp.events) == 1
+
+
+def test_watchdog_stops_a_hung_operator(lab, monkeypatch):
+    exp, stub = _watched(lab, monkeypatch, controller="flexascale")
+    stopped = []
+    monkeypatch.setattr(lab.pm, "is_running", lambda name: not stopped)
+    monkeypatch.setattr(lab.pm, "stop", lambda name, **kw: stopped.append(name) or "stopped")
+    status = lab.pm.runtime_dir / "operator_status.json"
+    status.parent.mkdir(parents=True, exist_ok=True)
+    status.write_text(json.dumps({"updated_at": time.time()}))
+    exp._check_operator()
+    assert exp.operator_failure is None  # fresh status: healthy
+    status.write_text(json.dumps({"updated_at": time.time() - 10 * exp.policy.poll_interval_seconds}))
+    exp._check_operator()
+    assert stopped == ["operator"] and "not updated" in exp.operator_failure["reason"] and stub.calls == 1
+
+
+def test_watchdog_ignores_native_hpa_runs(lab, monkeypatch):
+    exp, stub = _watched(lab, monkeypatch, controller="hpa")
+    monkeypatch.setattr(lab.pm, "is_running", lambda name: False)
+    exp._check_operator()
+    assert exp.operator_failure is None and stub.calls == 0
+
+
+def test_old_runs_get_p90_from_their_locust_csv(lab):
+    write_run(lab, "old", "hpa")
+    (Path(lab.cfg.results_dir) / "old" / "locust_stats.csv").write_text(FINAL)
+    assert lab.run("old")["summary"]["workload"]["p90_ms"] == 60

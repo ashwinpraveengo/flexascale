@@ -183,3 +183,12 @@ data/raw/
 .runtime/
 node_modules/
 logs/tb/
+
+# Editor / temporary files
+*.tmp
+*.bak
+*.swp
+*~
+.vscode/
+# Local builds of the dashboard outside the served bundle
+dashboard/dist/

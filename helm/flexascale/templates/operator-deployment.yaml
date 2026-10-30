@@ -12,8 +12,15 @@ spec:
   strategy:
     type: Recreate          # never run old and new operator side by side
   selector:
-    matchLabels:  # same selector as chart 0.1.0: Deployment selectors are immutable, keeps upgrades working
+    matchLabels:
+      # Release-specific, so two releases in one namespace never select each other's pods (chart 0.5.1).
+      # Deployment selectors are immutable: a Deployment created by chart <= 0.5.0 keeps its old selector on upgrade.
+      {{- $existing := lookup "apps/v1" "Deployment" .Release.Namespace (printf "%s-operator" .Release.Name) }}
+      {{- $old := and $existing (not (hasKey ((($existing.spec).selector).matchLabels | default dict) "app.kubernetes.io/instance")) }}
       app.kubernetes.io/name: flexascale
+      {{- if not $old }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- end }}
       app.kubernetes.io/component: operator
   template:
     metadata:

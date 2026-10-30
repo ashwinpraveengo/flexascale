@@ -32,6 +32,8 @@ cannot() { ! can "$@"; }
 mode_is() { kubectl -n $NS get configmap $REL-policy -o jsonpath='{.data}' | grep -q "mode: $1"; }
 operator_ready() { kubectl -n $NS rollout status deploy/$REL-operator --timeout=300s >/dev/null; }
 show() { hpas; echo "  lease holder: '$(holder)'  markers: $(frozen)"; }
+# The operator pod of THIS release (another release in the namespace must never be read by mistake).
+opod() { kubectl -n $NS get pod -l app.kubernetes.io/instance=$REL,app.kubernetes.io/component=operator --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}'; }
 
 step "0. baseline"
 show
@@ -46,8 +48,8 @@ helm upgrade --install $REL $CHART -n $NS --create-namespace -f $VALUES --wait -
 check "operator ready" operator_ready
 check "policy mode observe" mode_is observe
 sleep 30
-kubectl -n $NS logs deploy/$REL-operator --tail=15
-kubectl -n $NS exec deploy/$REL-operator -- tail -n 2 /var/log/flexascale/decisions.jsonl | cut -c1-400
+kubectl -n $NS logs "$(opod)" --tail=15
+kubectl -n $NS exec "$(opod)" -- tail -n 2 /var/log/flexascale/decisions.jsonl | cut -c1-400
 show
 check "HPAs unchanged in observe" bounds_original
 check "no markers in observe" no_markers
@@ -62,9 +64,9 @@ check "operator ready" operator_ready
 check "policy mode live" mode_is live
 check "Lease taken within 60 s" held
 sleep 20
-kubectl -n $NS logs deploy/$REL-operator --tail=15
-kubectl -n $NS exec deploy/$REL-operator -- tail -n 2 /var/log/flexascale/decisions.jsonl | cut -c1-400
-check "v9 model loaded without error (operator_start event)" bash -c "kubectl -n $NS exec deploy/$REL-operator -- grep -m1 operator_start /var/log/flexascale/decisions.jsonl | grep flexascale_v9 | grep -q '\"model_error\": null'"
+kubectl -n $NS logs "$(opod)" --tail=15
+kubectl -n $NS exec "$(opod)" -- tail -n 2 /var/log/flexascale/decisions.jsonl | cut -c1-400
+check "v9 model loaded without error (operator_start event)" bash -c "kubectl -n $NS exec "$(opod)" -- grep -m1 operator_start /var/log/flexascale/decisions.jsonl | grep flexascale_v9 | grep -q '\"model_error\": null'"
 show
 check "3 HPAs and 2 HPA-less Deployments marked (5 markers)" bash -c "[ \"\$(kubectl -n $APP get hpa,deploy -o jsonpath='{range .items[*]}{.metadata.annotations.flexascale\.io/frozen-by}{.metadata.annotations.flexascale\.io/original-replicas}{\"\n\"}{end}' | grep -c .)\" -ge 5 ]"
 check "RBAC live: patch HPAs" can patch horizontalpodautoscalers

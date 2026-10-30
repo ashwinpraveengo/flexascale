@@ -1,6 +1,75 @@
 # FlexaScale Final Readiness Report
 
 > **2026-10-29:** §0 covers the second laptop (Windows 11, RTX 3050): its defects, fixes, verification and the v9 evaluation. Sections 1–11 are the first laptop's record, unchanged.
+>
+> **2026-10-31:** §00 is the final completion pass on the first laptop (Fedora 43): end-to-end verification of the three
+> controller modes on the live cluster, Helm on both releases, telemetry fixes, dashboard polish, `results/`,
+> `docs/learning/` and repository cleanup. It supersedes the status lines of the older sections where they differ.
+
+## 00. Final completion pass (2026-10-31, first laptop)
+
+Environment: Fedora 43, Minikube profile `flexascale` (Kubernetes v1.31, 1 node, 9 GiB), Python 3.14 venv, no NVIDIA
+GPU on this laptop. Branch `flexascale-v7`, starting from `main` at `fd8e100` (the second laptop's v9 work).
+
+### 00.1 Defects found and fixed in this pass
+
+| # | Defect | Impact | Fix (test) |
+| :--- | :--- | :--- | :--- |
+| 40 | p90 latency was never collected (only p50/p95/p99) | Dashboard and reports could not show p90 | p90 from the same histogram/window per service and from Locust, in live samples, summaries, `telemetry.csv`, Compare, Experiments, Overview, Live lab, timeline tooltip; older runs read it from their own Locust CSV (`tests/test_workload_metrics.py`, `tests/test_lab.py`) |
+| 41 | A percentile beyond the largest histogram bucket (10 s) was shown as exactly 10000 ms | Understated latency of overloaded services | Flagged as a lower bound (`latency_capped`), shown as "≥ 10000" (`test_percentiles_in_the_inf_bucket_are_flagged_as_lower_bounds`) |
+| 42 | A FlexaScale operator that was killed (SIGKILL) or hung left every HPA frozen until the run ended | No autoscaler for the rest of the run | Lab watchdog: operator exited, or status not advanced for 4 poll intervals → stop it, restore every HPA, `fallback` event and `operator_failure` record, red banner/alert in the dashboard; verified live (§00.3) (`test_watchdog_*`) |
+| 43 | Helm chart: the operator Deployment's selector had no release label, so two releases in one namespace selected each other's pods | `kubectl logs/exec deploy/<release>-operator` read the wrong release's pod (found by the lifecycle test failing 1 of 33 checks with the main release installed) | Chart 0.5.1: release-specific selector for new installs; an existing Deployment keeps its immutable selector (Helm `lookup`), so upgrades keep working; lifecycle script selects pods by instance label (`test_operator_selector_is_release_specific_for_new_installs`) |
+| 44 | Model paths recorded on Windows (`models\flexascale_v9\…`) were not parsed on Linux | Comparison page labelled candidates with raw Windows paths | Split on both separators (`test_model_tag_reads_windows_and_posix_paths`) |
+| 45 | Dashboard layout: Comparison model tabs overflowed and clipped; Experiments filters and table clipped; run-detail and Live-lab tiles truncated values ("18 / 6…", "Viola…"); v7/v9 model cards showed blank or wrong fields; Auto page showed HPA's formula with 70% instead of Auto's 350% | Unreadable or misleading values in a presentation | Candidate dropdown; wider list and 2-column filters; wrapping 3-column detail grid; 7 tiles only on very wide screens; twin model cards (training, simulator, reward, validation, gate); Auto page uses `auto.hpa_target_pct` |
+| 46 | `k8s/grafana-dashboard*.{json,yaml}`, applied by `scripts/deploy_monitoring.sh` and RUNNING.md, still had the 7-container panels; the fixed copy (defect 17) lived in `observability/grafana/` | Re-running the monitoring setup would have reverted the live Grafana dashboard | One source: the stale copies removed, script and docs point at `observability/grafana/dashboard-configmap.yaml` (the live ConfigMap is that file) |
+| 47 | `kubectl` killed by a signal returned an empty error | "hpa_freeze_failed: freeze_failed: " with no reason (one occurrence, during an operator shutdown) | The exit code is reported when stderr is empty |
+| 48 | Auto hysteresis events read "X -> native HPA (efficiency) … waiting 1/2" | Looked like a switch to HPA while it was a pending switch to FlexaScale | "X stays with native HPA; efficiency rule chose FlexaScale … (waiting 1/2)" |
+| 49 | `requirements.txt` listed an unused package (python-dotenv) and lacked four used ones (requests, psutil, locust, httpx) | A fresh install could not run the lab or the tests | Updated; the operator image keeps its own `deploy/flexascale/requirements.txt` |
+| 50 | Live-lab form kept showing its own defaults while a run started elsewhere was active | Displayed mode/users did not match the running experiment | The disabled form mirrors the active run's request |
+
+### 00.2 Final status
+
+| Area | What was checked | Status |
+| :--- | :--- | :--- |
+| Test suite | `pytest`: **VERIFICATION_TESTS** (was 364 at the start of this pass; 9 new tests for the fixes above) | VERIFIED |
+| Startup / shutdown | `./fsctl start` (cold Minikube: 57 s, 8 steps, READY) and `./fsctl stop` (HPAs restored, no Lease, processes stopped) on this laptop | VERIFIED |
+| Metrics pipeline | 16/16 services scraped (ServiceMonitor 15 s + annotation job 30 s, de-duplicated), cAdvisor 10 s; CPU/memory per service; zero vs missing distinguished (`no_traffic`); only `shopping-frontend` (nginx, no `/metrics`, excluded from scaling) is down as a target | VERIFIED |
+| Per-service latency | Every service with traffic reports mean and p50/p90/p95/p99 from its own histogram (not the gateway's), consistent order p50 ≤ p90 ≤ p95 ≤ p99; idle services "no requests" | VERIFIED |
+| State aggregation / features | v3 features computed by the same `FeatureTracker` in training and live; `policy_input` logged per decision (10 values per service) | VERIFIED |
+| Dependency graph + GNN | 25 policy edges, sorted node order, 16 ≤ 20 slots; `ppo_graph` inference (GraphFocalExtractor) in every live decision; model sha256 recorded | VERIFIED |
+| PPO policy loading | v9 (`2f95764b…`) and v7 (`5d4fcc20…`) load on Linux; failure → heuristic + live refused (unit tests) | VERIFIED |
+| Safety guards and execution | bounds, budget, readiness, cooldowns, blocks, telemetry checks recorded per decision; FlexaScale scale requests applied and confirmed by Kubernetes (desired, then ready) | VERIFIED (§00.3) |
+| Exclusive ownership | No applied action without FlexaScale ownership and an HPA freeze in any verification run; Lease held only during live runs; cleanup verified safe after every run | VERIFIED |
+| Native HPA mode | HPA scaled order 1→3, catalog 1→3 under a 40-user flash sale; FlexaScale shadow logged 496 proposals, applied 0 | VERIFIED |
+| FlexaScale mode | v9: live, Lease, 512 accepted decisions but only holds (v9 is fitted to the other laptop); v7 (this laptop's model): VERIFICATION_FS_V7 | VERIFICATION_FS_V7_STATUS |
+| Auto mode selects FlexaScale and applies scaling | Default policy: order-service 1→2 by the v9 policy under Auto (rule efficiency), desired confirmed at +295 s, ready at +305 s; after the outage, 6 FlexaScale scale-downs applied; VERIFICATION_AUTO_V7 | VERIFIED |
+| Auto mode selects HPA (SLA risk) and mixed ownership | VERIFICATION_AUTO_SLA | VERIFICATION_AUTO_SLA_STATUS |
+| Fallback: telemetry unavailable | Prometheus stopped for 60 s: all 16 services → HPA in the same step (controller_health), HPAs unfrozen, HPA scaled meanwhile; back to FlexaScale after 2 steps | VERIFIED |
+| Fallback: FlexaScale unhealthy | Operator SIGKILLed: watchdog restored 16 HPAs 1 s later; HPA scaled the rest of the run; cleanup safe | VERIFIED |
+| Dashboard | All 7 pages render with real data (screenshots in `results/screenshots/`); live run, replay, Auto table, Comparison, Models | VERIFIED |
+| Live scaling timeline | Desired/ready, FlexaScale and HPA proposals, scale-request markers, owner band, traffic and latency from real samples; live and replay | VERIFIED |
+| Helm (bookstore) | Chart 0.5.1, image 0.6.0 built here and loaded into Minikube: install (observe) → upgrade (live, v9) → rollback → uninstall, **33/33 checks** (`logs/helm_lifecycle_0.5.1.linux.out`); the first attempt found defect 43 (`…selector-defect.out`) | VERIFIED |
+| Helm (main release) | `flexascale` 0.4.1 → 0.5.1 (image 0.6.0, v7, observe), rollback to 0.4.1, forward again (rev 12); shop release, 18 Deployments, PVC uid and data unchanged (`logs/helm_main_release_0.5.1.out`) | VERIFIED |
+| Images | Built locally (not in a registry): `build_shop_images.sh` and the operator Dockerfile; documented in RUNNING.md | VERIFIED (documented; a fresh cluster still needs the build) |
+| Training (Part 8) | No new training: this laptop has no NVIDIA GPU; v9 (GPU-trained on the second laptop) is not measurably better than v7 on held-out twin tests and is on par live; more training is not justified by any evidence. v7 and v9 stay as they are; nothing was overwritten | NOT RUN (decision documented) |
+| Results folder | `results/RESULTS.md`, data, charts, screenshots, verification | VERIFIED |
+| Learning docs | `docs/learning/FLEXASCALE_COMPLETE_EXPLANATION.md`, `docs/learning/FLEXASCALE_DASHBOARD_COMPLETE_GUIDE.md` | VERIFIED |
+
+### 00.3 Live verification of the controller modes
+
+See `results/verification/README.md` (generated from the runs' own decision logs, lab events and kubectl snapshots).
+Incident: the laptop idle-suspended from 00:51 to 03:04 during one verification run; that run is in
+`reports/experiments_invalid/` and was repeated under a `systemd-inhibit` sleep lock.
+
+### 00.4 Remaining limitations
+
+* Auto mode's default thresholds were calibrated on the second laptop (CPU risk 400%, HPA estimate at 350%) and the shop
+  has no per-service latency SLO, so on this laptop at 40 users Auto kept FlexaScale (v9) in charge while end-to-end p95
+  reached 6 s; the SLA-risk rule itself works (controlled variant). Per-laptop calibration and an end-to-end SLO input
+  for Auto are future work.
+* The default policy (v9) suits the second laptop; on this laptop use the v7 variant for demonstrations.
+* Single-node Minikube, 25–40 users; images not in a registry; FlexaScale is on par with a tuned HPA, not better.
+
 
 Date: 2026-10-23, updated 2026-10-24 (v4 policy, six-scenario live benchmark, replica restore for HPA-less Deployments, chart/image 0.3.0) 2026-10-25 (v5 policy, live benchmark with two repeats, chart/image 0.4.0) and 2026-10-26 (16-service shop, v6 policy attempt, Auto mode, redesigned control center; evening: six-scenario tuned-HPA batch, host-load check of every run, in-cluster Helm rollback/uninstall test with a fix in chart 0.4.1). Environment: Fedora 43, Docker, Minikube profile `flexascale` (Kubernetes v1.31, single node, a Docker container with 9 GiB RAM, raised from 6 GiB), Python 3.14 venv.
 

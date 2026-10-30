@@ -23,6 +23,7 @@ export interface SvcPoint {
   errRate: number | null;
   latency: number | null;
   latencyP95: number | null;
+  latencyP95Capped?: boolean;
   noTraffic: boolean;
   stale: boolean;
   missing: string[];
@@ -45,6 +46,7 @@ export interface TPoint {
   rps: number | null;
   failRps: number | null;
   p50: number | null;
+  p90: number | null;
   p95: number | null;
   p99: number | null;
   e2eViolation: boolean | null;
@@ -102,6 +104,7 @@ export function fromExperimentSample(s: Json, fsRun: boolean): TPoint {
       errRate: num(v.error_rate),
       latency: num(v.latency_ms),
       latencyP95: num(v.latency_p95_ms),
+      latencyP95Capped: Array.isArray(v.latency_capped) && v.latency_capped.includes('latency_p95_ms'),
       noTraffic: !!v.no_traffic,
       stale: !!v.stale,
       missing: Array.isArray(v.missing) ? v.missing : [],
@@ -119,6 +122,7 @@ export function fromExperimentSample(s: Json, fsRun: boolean): TPoint {
     rps: num(s.rps),
     failRps: num(s.fail_rps),
     p50: num(s.p50_ms),
+    p90: num(s.p90_ms),
     p95: num(s.p95_ms),
     p99: num(s.p99_ms),
     e2eViolation: s.p95_ms == null ? null : !!s.e2e_slo_violation,
@@ -141,7 +145,7 @@ export function fromHistoryPoint(h: Json): TPoint {
       hpaProposal: owner === 'hpa' ? num(v.hpa_desired) : null, hpaProposalKind: owner === 'hpa' && num(v.hpa_desired) != null ? 'hpa_status' : null,
     };
   }
-  return { t: h.t, elapsed: null, users: null, rps: null, failRps: null, p50: null, p95: null, p99: null, e2eViolation: null, services };
+  return { t: h.t, elapsed: null, users: null, rps: null, failRps: null, p50: null, p90: null, p95: null, p99: null, e2eViolation: null, services };
 }
 
 export function fromEvent(e: Json): TEvent {
@@ -179,6 +183,7 @@ export interface View {
   rps: number | null;
   latency: number | null;
   latencyP95: number | null;
+  latencyP95Capped?: boolean;
   cpu: number | null;
   mem: number | null;
   owner: Owner | 'mixed' | null;
@@ -208,7 +213,7 @@ export function viewOf(p: TPoint, service: string): View {
         latencyP95: null, cpu: null, mem: null, owner: null, fsOwned: 0, hpaOwned: 0, noTraffic: false, stale: true, missing: ['all'] };
     }
     return { desired: s.desired, ready: s.ready, fsPolicy: s.fsPolicy, fsProposed: s.fsProposed, hpaProposal: s.hpaProposal,
-      hpaProposalKind: s.hpaProposalKind, rps: s.rps, latency: s.latency, latencyP95: s.latencyP95, cpu: s.cpu, mem: s.mem,
+      hpaProposalKind: s.hpaProposalKind, rps: s.rps, latency: s.latency, latencyP95: s.latencyP95, latencyP95Capped: s.latencyP95Capped, cpu: s.cpu, mem: s.mem,
       owner: s.owner, fsOwned: s.owner === 'flexascale' ? 1 : 0, hpaOwned: s.owner === 'hpa' ? 1 : 0, noTraffic: s.noTraffic,
       stale: s.stale, missing: s.missing };
   }
@@ -315,6 +320,7 @@ export const LANE_KINDS: Record<string, { label: string; color: string; glyph: '
   scale_request: { label: 'FlexaScale scale request', color: 'var(--flexa)', glyph: 'diamond' },
   auto: { label: 'Auto handoff', color: 'var(--auto)', glyph: 'swap' },
   safety: { label: 'Safety intervention', color: 'var(--serious)', glyph: 'warn' },
+  fallback: { label: 'Fallback to HPA (FlexaScale unhealthy)', color: 'var(--critical)', glyph: 'warn' },
   ownership: { label: 'Ownership', color: 'var(--muted)', glyph: 'dot' },
 };
 

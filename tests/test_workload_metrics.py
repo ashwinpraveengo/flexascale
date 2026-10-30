@@ -91,3 +91,21 @@ def test_missing_cpu_is_never_invented():
     m = collect(FakeProm(answers(**{'container_cpu_usage_seconds_total{namespace="ns",container="",pod!=""}': [],
                                     "timestamp(container_cpu_usage_seconds_total": []})))
     assert m.cpu_pct is None and "cpu" in m.missing and m.stale
+
+
+def test_latency_percentiles_include_p90_from_one_histogram():
+    buckets = [{"metric": {"pod": POD, "le": le}, "value": [0, str(c)]}
+               for le, c in (("0.01", 50), ("0.1", 90), ("1", 100), ("+Inf", 100))]
+    m = collect(FakeProm(answers(**{"http_request_duration_seconds_bucket": buckets})))
+    assert m.latency_p50_ms == pytest.approx(10.0)
+    assert m.latency_p90_ms == pytest.approx(100.0)
+    assert m.latency_p50_ms <= m.latency_p90_ms <= m.latency_p95_ms <= m.latency_p99_ms
+
+
+def test_percentiles_in_the_inf_bucket_are_flagged_as_lower_bounds():
+    buckets = [{"metric": {"pod": POD, "le": le}, "value": [0, str(c)]}
+               for le, c in (("0.1", 50), ("10", 80), ("+Inf", 100))]
+    m = collect(FakeProm(answers(**{"http_request_duration_seconds_bucket": buckets})))
+    assert m.latency_p99_ms == pytest.approx(10000.0) and m.latency_p90_ms == pytest.approx(10000.0)
+    assert m.latency_capped == ["latency_p90_ms", "latency_p95_ms", "latency_p99_ms"]
+    assert "latency_p50_ms" not in m.latency_capped

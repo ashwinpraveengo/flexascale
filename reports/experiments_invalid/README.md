@@ -111,3 +111,10 @@ Host-affected (docs/POLICY_V9.md §4): 3.62 cores outside the Kubernetes contain
 ## 20261030-014144-shopping-auto-flash_sale (the one rerun of v9 evaluation block 10, Auto, flash_sale)
 
 Host-affected (docs/POLICY_V9.md §4): 3.61 cores outside the Kubernetes containers during its load window (01:48:02–01:53:38) against 3.58. Memory was under pressure (290 MB available at 01:30). Reruns are never rerun: block 10 has no valid run of this arm.
+
+## 20261031-004416-shopping-auto-flash_sale (controller-mode verification, scenario `auto_sla`)
+
+A verification run (`scripts/verify_controller_modes.py`, `results/verification/`), not a benchmark run. The host
+suspended (systemd-logind idle suspend, `journalctl`: "The system will suspend now!" at 00:51:10) during its load window
+and resumed at 03:04:41, so load, metrics and controller were frozen for 2 h 13 min. Moved here before the scenario was
+run again (all later verification runs held a `systemd-inhibit` sleep lock).

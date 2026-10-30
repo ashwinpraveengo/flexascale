@@ -1,5 +1,13 @@
 # FlexaScale — E-Commerce Microservices & Intelligent Auto-Scaling Framework
 
+> **Final deliverables (2026-10-31).** Start: `./fsctl start` → http://127.0.0.1:8090/ · stop: `./fsctl stop`.
+> * `results/RESULTS.md` — the strongest genuine results with charts, screenshots and their limitations.
+> * `results/verification/` — live end-to-end verification of the three controller modes (HPA, FlexaScale, Auto),
+>   including Auto giving services to FlexaScale and to HPA at the same time, a Prometheus outage and an operator crash.
+> * `docs/learning/FLEXASCALE_COMPLETE_EXPLANATION.md` — the whole project in simple English (for study and the viva).
+> * `docs/learning/FLEXASCALE_DASHBOARD_COMPLETE_GUIDE.md` — how to operate every page and control of the dashboard.
+> * `reports/final_readiness_report.md` §00 — the final verification status of every component.
+
 > **Final release (2026-10-26).** Review/presentation quick start: `./scripts/start_review.sh --demo`, then open
 > http://127.0.0.1:8090/ (FlexaScale control center; see the top of [RUNNING.md](RUNNING.md)). Project summary, demo runbook and
 > viva notes are in `docs/`. Verified status of every component: `reports/final_readiness_report.md`.
