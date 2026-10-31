@@ -480,8 +480,9 @@ that it helps on this shop.
 instances, request rate and response time.
 
 **How FlexaScale used it.** The raw files (7.4 GB, not in Git: `data/raw/alibaba/v2021/`) were turned into
-`data/processed/alibaba_service_state.csv` (36,355 rows) with train/validation/test splits *by service* (so the test
-services were never seen in training). It drove the simulators of the **v1–v6** policies.
+`data/processed/alibaba_service_state.csv` (36,355 rows). The CSV files are split *by time* (train = first 21 timestamps,
+validation = next 4, test = last 5); the v4–v6 training environments additionally split *by service*, so their test
+services were never seen in training. It drove the simulators of the **v1–v6** policies.
 
 **Why later versions moved away from it.** A policy trained on Alibaba's services had never seen *our* shop, and the
 earlier simulators made HPA's rule optimal by construction. v7 and v9 therefore train on the **twin**, a simulator
@@ -754,7 +755,7 @@ Time from a decision to the effect: `decision → desired changes` (seconds, Kub
 
 ### F.12 Oscillation
 
-A reversal: up then down (or down then up) within a short time. Counted per service from the desired-replica series
+A reversal: up then down (or down then up), however far apart in time. Counted per service from the desired-replica series
 (`evaluation/cost.py`, `scaling_stability`). Fewer is better.
 
 ### F.13 Recovery time
