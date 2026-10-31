@@ -53,7 +53,7 @@ GPU on this laptop. Branch `flexascale-v7`, starting from `main` at `fd8e100` (t
 | Images | Built locally (not in a registry): `build_shop_images.sh` and the operator Dockerfile; documented in RUNNING.md | VERIFIED (documented; a fresh cluster still needs the build) |
 | Training (Part 8) | No new training: this laptop has no NVIDIA GPU; v9 (GPU-trained on the second laptop) is not measurably better than v7 on held-out twin tests and is on par live; more training is not justified by any evidence. v7 and v9 stay as they are; nothing was overwritten | NOT RUN (decision documented) |
 | Results folder | `results/RESULTS.md`, data, charts, screenshots, verification | VERIFIED |
-| Learning docs | `docs/learning/FLEXASCALE_COMPLETE_GUIDE.md` (explanation, viva guide and dashboard guide in one file) | VERIFIED |
+| Learning docs | `docs/learning/FLEXASCALE_COMPLETE_GUIDE.md` (explanation and viva guide), `docs/learning/FLEXASCALE_DASHBOARD_COMPLETE_GUIDE.md` | VERIFIED |
 
 ### 00.3 Live verification of the controller modes
 

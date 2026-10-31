@@ -4,8 +4,9 @@
 > * `results/RESULTS.md` — the strongest genuine results with charts, screenshots and their limitations.
 > * `results/verification/` — live end-to-end verification of the three controller modes (HPA, FlexaScale, Auto),
 >   including Auto giving services to FlexaScale and to HPA at the same time, a Prometheus outage and an operator crash.
-> * `docs/learning/FLEXASCALE_COMPLETE_GUIDE.md` — one document: the whole project in simple English, the viva guide
->   (every metric and result explained) and how to operate every page and control of the dashboard.
+> * `docs/learning/FLEXASCALE_COMPLETE_GUIDE.md` — the whole project in simple English and the viva guide (every metric
+>   and result explained).
+> * `docs/learning/FLEXASCALE_DASHBOARD_COMPLETE_GUIDE.md` — how to operate every page and control of the dashboard.
 > * `reports/final_readiness_report.md` §00 — the final verification status of every component.
 
 > **Final release (2026-10-26).** Review/presentation quick start: `./scripts/start_review.sh --demo`, then open
